@@ -6,6 +6,9 @@ services:
     restart: no
     tty: true
     stdin_open: true
+    user: conflict-playground
     volumes:
-      - "./caches:/home/conflict-playground/caches"
+      - "caches:/home/conflict-playground/caches"
       - "./playgrounds:/home/conflict-playground/playgrounds"
+volumes:
+  caches:

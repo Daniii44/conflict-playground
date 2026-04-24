@@ -11,6 +11,12 @@ RUN useradd -ms /bin/bash conflict-playground
 USER conflict-playground
 WORKDIR /home/conflict-playground
 
+# Setup caches volume
 ADD src src
+USER root
+RUN mkdir -p /home/conflict-playground/caches
+RUN chown -R conflict-playground:conflict-playground /home/conflict-playground/caches
+USER conflict-playground
+
 
 ENTRYPOINT ["tail", "-f", "/dev/null"]
