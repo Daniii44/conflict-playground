@@ -15,9 +15,13 @@ echo
 echo "Use "help" for a list of commands"
 echo
 
+HISTFILE=~/caches/.cli_history
+history -r "$HISTFILE"
+
 while true; do
     echo
     read -e -p "conflict-playground > " user_input
+
 
     if [[ -z "$user_input" ]]; then
         : # Ignore empty input
@@ -41,4 +45,7 @@ EOF
     else
         echo "Unknown command"
     fi
+
+    history -s "$user_input"
+    history -w "$HISTFILE"
 done
