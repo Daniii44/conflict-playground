@@ -1,0 +1,11 @@
+services:
+  conflict-playground:
+    build: .
+    image: conflict-playground
+    container_name: conflict-playground
+    restart: no
+    tty: true
+    stdin_open: true
+    volumes:
+      - "./caches:/home/conflict-playground/caches"
+      - "./playgrounds:/home/conflict-playground/playgrounds"
