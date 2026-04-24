@@ -1,7 +1,7 @@
 #!/bin/bash
 
-CONFIG_FILE="${HOME}/playgrounds/default.yaml"
-CACHE_DIR="${HOME}/caches/repos"
+CONFIG_FILE="${PLAYGROUNDS}/default.yaml"
+CACHE_DIR="${CACHES}/repos"
 
 mkdir -p "$CACHE_DIR"
 

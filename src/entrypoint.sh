@@ -15,7 +15,11 @@ echo
 echo "Use "help" for a list of commands"
 echo
 
-HISTFILE=~/caches/.cli_history
+export CACHES="${HOME}/caches"
+export PLAYGROUNDS="${HOME}/playgrounds"
+export SOURCES="${HOME}/src"
+
+HISTFILE=${CACHES}/.cli_history
 history -r "$HISTFILE"
 
 while true; do
@@ -41,7 +45,7 @@ Benchmark Commands
     TBD
 EOF
     elif [[ "$user_input" == "playground sync" ]]; then
-        ./src/repo_sync/repo_sync.sh
+        ${SOURCES}/repo_sync/repo_sync.sh
     else
         echo "Unknown command"
     fi
