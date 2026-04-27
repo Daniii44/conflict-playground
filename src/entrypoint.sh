@@ -17,6 +17,11 @@ echo
 echo "Use \"help\" for a list of commands"
 echo
 
+export GIT_AUTHOR_NAME="conflict-playground"
+export GIT_AUTHOR_EMAIL="conflict-playground@example.com"
+export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
+export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+git config --global init.defaultBranch main
 
 # Rebuild Symbolic Links
 export VOLUME_TYPE="${VOLUME_TYPE:-named-volume}"
