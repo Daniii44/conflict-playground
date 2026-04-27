@@ -61,7 +61,7 @@ General Commands
 Available Tools:
     conflict-*          Scripts from src/conflict
     benchmark-*         Scripts from src/benchmark
-    repo_sync-*         Scripts from src/repo_sync
+    repo-*              Scripts from src/repo
     workdir-*           Scripts from src/workdir
 EOF
 }
