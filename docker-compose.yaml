@@ -8,7 +8,11 @@ services:
     stdin_open: true
     user: conflict-playground
     volumes:
-      - "caches:/home/conflict-playground/caches"
-      - "./playgrounds:/home/conflict-playground/playgrounds"
+      - "caches:/home/conflict-playground/caches-named-volume"
+      - "./data/caches:/home/conflict-playground/caches-bind-mount"
+      - "./data/playgrounds:/home/conflict-playground/playgrounds"
+      - "workdir:/home/conflict-playground/workdir-named-volume"
+      - "./data/workdir:/home/conflict-playground/workdir-bind-mount"
 volumes:
   caches:
+  workdir:

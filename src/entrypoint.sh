@@ -17,7 +17,22 @@ echo
 echo "Use \"help\" for a list of commands"
 echo
 
+
+# Rebuild Symbolic Links
+export VOLUME_TYPE="${VOLUME_TYPE:-named-volume}"
+rm -rf caches # FIXME
+rm -f workdir
+if [ "$VOLUME_TYPE" = "bind-mount" ]; then
+    ln -s caches-bind-mount caches
+    ln -s workdir-bind-mount workdir
+else
+    ln -s caches-named-volume caches
+    ln -s workdir-named-volume workdir
+fi
+
+# Export Directory Structure
 export CACHES="${HOME}/caches"
+export WORKDIR="${HOME}/workdir"
 export PLAYGROUNDS="${HOME}/playgrounds"
 export SOURCES="${HOME}/src"
 
