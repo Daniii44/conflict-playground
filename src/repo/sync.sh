@@ -1,11 +1,11 @@
 #!/bin/bash
 
-CONFIG_FILE="${PLAYGROUNDS}/default.yaml"
+CONFIG_FILE="${PLAYBOOKS}/default.yaml"
 CACHE_DIR="${CACHES}/repos"
 
 mkdir -p "$CACHE_DIR"
 
-yq -r '.playground.sources[].repo_url' "$CONFIG_FILE" | while IFS= read -r url; do
+yq -r '.playbook.sources[].repo_url' "$CONFIG_FILE" | while IFS= read -r url; do
     repo_name=$(basename "$url")
     target_path="$CACHE_DIR/$repo_name"
 

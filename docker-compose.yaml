@@ -10,9 +10,9 @@ services:
     volumes:
       - "caches:/home/conflict-playground/caches-named-volume"
       - "./data/caches:/home/conflict-playground/caches-bind-mount"
-      - "./data/playgrounds:/home/conflict-playground/playgrounds"
-      - "workdir:/home/conflict-playground/workdir-named-volume"
-      - "./data/workdir:/home/conflict-playground/workdir-bind-mount"
+      - "./data/playbooks:/home/conflict-playground/playbooks"
+      - "playgrounds:/home/conflict-playground/playgrounds-named-volume"
+      - "./data/playgrounds:/home/conflict-playground/playgrounds-bind-mount"
 volumes:
   caches:
-  workdir:
+  playgrounds:

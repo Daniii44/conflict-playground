@@ -26,19 +26,19 @@ git config --global init.defaultBranch main
 # Rebuild Symbolic Links
 export VOLUME_TYPE="${VOLUME_TYPE:-named-volume}"
 rm -rf caches # FIXME
-rm -f workdir
+rm -f playgrounds
 if [ "$VOLUME_TYPE" = "bind-mount" ]; then
     ln -s caches-bind-mount caches
-    ln -s workdir-bind-mount workdir
+    ln -s playgrounds-bind-mount playgrounds
 else
     ln -s caches-named-volume caches
-    ln -s workdir-named-volume workdir
+    ln -s playgrounds-named-volume playgrounds
 fi
 
 # Export Directory Structure
 export CACHES="${HOME}/caches"
-export WORKDIR="${HOME}/workdir"
 export PLAYGROUNDS="${HOME}/playgrounds"
+export PLAYBOOKS="${HOME}/playbooks"
 export SOURCES="${HOME}/src"
 
 # Initialization: walk src, copy all executable files to bin with flat names
@@ -67,7 +67,8 @@ Available Tools:
     conflict-*          Scripts from src/conflict
     benchmark-*         Scripts from src/benchmark
     repo-*              Scripts from src/repo
-    workdir-*           Scripts from src/workdir
+    playgrounds-*         Scripts from src/playgrounds
+    playbooks-*         Scripts from src/playbooks
 EOF
 }
 HELP_EOF

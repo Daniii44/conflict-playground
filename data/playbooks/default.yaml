@@ -1,4 +1,4 @@
-playground:
+playbook:
   sources:
     - repo_url: https://github.com/git/git.git
       limit: 10

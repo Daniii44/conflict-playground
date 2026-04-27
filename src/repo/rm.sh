@@ -25,5 +25,5 @@ fi
 echo "Removing repository at $REPO_PATH..."
 rm -rf "$REPO_PATH"
 
-echo "Removing all shallow clones in $WORKDIR..."
-rm -rf "$WORKDIR"/${REPO_NAME}-*
+echo "Removing all playground shared clones in $PLAYGROUNDS..."
+rm -rf "$PLAYGROUNDS"/${REPO_NAME}-*
