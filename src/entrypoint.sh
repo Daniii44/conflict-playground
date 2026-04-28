@@ -58,7 +58,7 @@ export PATH="$BIN_DIR:$PATH"
 
 # Write help function to zshrc
 cat >> ~/.zshrc <<'HELP_EOF'
-PROMPT='%F{yellow}%n ->%f '
+PROMPT='%F{yellow}playground ->%f '
 
 help() {
     cat <<'EOF'

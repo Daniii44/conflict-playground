@@ -1,18 +1,17 @@
+x-templates:
+  volumes: &volumes
+    volumes:
+      - "caches:/root/caches-named-volume"
+      - "./data/caches:/root/caches-bind-mount"
+      - "playgrounds:/root/playgrounds-named-volume"
+      - "./data/playgrounds:/root/playgrounds-bind-mount"
+      - "./data/playbooks:/root/playbooks"
 services:
   conflict-playground:
     build: .
-    image: conflict-playground
+    image: conflict-playground:playground
     container_name: conflict-playground
-    restart: no
-    tty: true
-    stdin_open: true
-    user: conflict-playground
-    volumes:
-      - "caches:/home/conflict-playground/caches-named-volume"
-      - "./data/caches:/home/conflict-playground/caches-bind-mount"
-      - "./data/playbooks:/home/conflict-playground/playbooks"
-      - "playgrounds:/home/conflict-playground/playgrounds-named-volume"
-      - "./data/playgrounds:/home/conflict-playground/playgrounds-bind-mount"
+    <<: *volumes
 volumes:
   caches:
   playgrounds:
