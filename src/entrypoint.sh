@@ -56,25 +56,10 @@ find "$SOURCES" -type f -perm -u=x | while read f; do
 done
 export PATH="$BIN_DIR:$PATH"
 
-# Write help function to zshrc
-cat >> ~/.zshrc <<'HELP_EOF'
+cat >> ~/.zshrc <<'EOF'
 PROMPT='%F{yellow}playground ->%f '
-
-help() {
-    cat <<'EOF'
-General Commands
-    help                Show this page
-    exit or CTRL+D      Quit the CLI (the container will continue)
-
-Available Tools:
-    conflict-*          Scripts from src/conflict
-    benchmark-*         Scripts from src/benchmark
-    repo-*              Scripts from src/repo
-    playgrounds-*         Scripts from src/playgrounds
-    playbooks-*         Scripts from src/playbooks
-EOF
 }
-HELP_EOF
+EOF
 
 # Start a zsh shell for user interaction
 exec zsh
