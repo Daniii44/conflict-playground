@@ -4,5 +4,5 @@ echo "Syncing Repositories"
 repo-sync
 
 echo
-echo "Syncing Conflicts"
-conflict-sync
+echo "Syncing Info"
+info-sync

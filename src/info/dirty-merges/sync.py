@@ -12,6 +12,14 @@ import time
 # Script to collect all dirty merge commits in a bare git repository
 # Usage: python collect-dirty-merges.py <git-repo-name> [-f]
 
+# FIXME
+# fatal: unable to read tree (322895d3a525e8e6afc5b8ae049a73c41628b280)
+# fatal: unable to read tree (26cfa9e41bbc6701fe9a751b7f91ffa48930c6d1
+# fatal: unable to read tree (280ea2683eb11d4ecd722b12634b60d5bcd9a188)
+
+# FIXME
+# Stalls at 20892/20893 for git - maybe related with "unable to read tree"
+
 def main():
     parser = argparse.ArgumentParser(description="Collect dirty merge commits from a bare git repository")
     parser.add_argument("git_repo_name", help="Name of the bare git repository")
@@ -22,7 +30,7 @@ def main():
     force = args.force
     caches = os.environ.get("CACHES", "../../caches")
     git_dir = f"{caches}/repos/{git_repo_name}.git"
-    merge_commit_dir = os.path.join(caches, "merges/dirty")
+    merge_commit_dir = os.path.join(caches, "info/dirty-merges")
     merge_commit_list = os.path.join(merge_commit_dir, f"{git_repo_name}.txt")
 
     if not os.path.isdir(git_dir):
