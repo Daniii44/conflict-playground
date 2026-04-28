@@ -56,10 +56,5 @@ find "$SOURCES" -type f -perm -u=x | while read f; do
 done
 export PATH="$BIN_DIR:$PATH"
 
-cat >> ~/.zshrc <<'EOF'
-PROMPT='%F{yellow}playground ->%f '
-}
-EOF
-
 # Start a zsh shell for user interaction
 exec zsh

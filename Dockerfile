@@ -9,3 +9,4 @@ RUN apt-get -y install zsh
 RUN apt-get -y install python3
 
 ADD src src
+ADD assets/playground/* .

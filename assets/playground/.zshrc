@@ -1,0 +1,1 @@
+PROMPT='%F{yellow}playground ->%f '
