@@ -6,11 +6,24 @@ x-templates:
       - "playgrounds:/root/playgrounds-named-volume"
       - "./data/playgrounds:/root/playgrounds-bind-mount"
       - "./data/playbooks:/root/playbooks"
+  hook-base:
+    <<: *volumes
+    user: hook
+
 services:
   conflict-playground:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
     image: conflict-playground:playground
     container_name: conflict-playground
+    <<: *volumes
+  hook-manual-cli:
+    build: 
+      context: .
+      dockerfile: hooks/manual-cli/Dockerfile
+    image: conflict-playground-hook:manual-cli
+    container_name: conflict-playground-hook-manual-cli
     <<: *volumes
 volumes:
   caches:
