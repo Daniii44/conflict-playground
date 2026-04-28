@@ -3,20 +3,23 @@
 import os
 import sys
 import subprocess
+import argparse
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
 import time
 
 # Script to collect all dirty merge commits in a bare git repository
-# Usage: python collect_dirty_merges.py <git-repo-name>
+# Usage: python collect-dirty-merges.py <git-repo-name> [-f]
 
 def main():
-    if len(sys.argv) != 2:
-        print(f"Usage: {sys.argv[0]} <bare-git-repo>")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description="Collect dirty merge commits from a bare git repository")
+    parser.add_argument("git_repo_name", help="Name of the bare git repository")
+    parser.add_argument("-f", "--force", action="store_true", help="Force rebuild even if merge commit list exists")
+    args = parser.parse_args()
 
-    git_repo_name = sys.argv[1]
+    git_repo_name = args.git_repo_name
+    force = args.force
     caches = os.environ.get("CACHES", "../../caches")
     git_dir = f"{caches}/repos/{git_repo_name}.git"
     merge_commit_dir = os.path.join(caches, "merges/dirty")
@@ -25,6 +28,11 @@ def main():
     if not os.path.isdir(git_dir):
         print(f"Error: {git_dir} does not exist")
         sys.exit(1)
+
+    # Check if merge commit list already exists (skip unless -f is passed)
+    if os.path.exists(merge_commit_list) and not force:
+        print(f"Merge commit list already exists at {merge_commit_list}")
+        sys.exit(0)
 
     # Setup files
     os.makedirs(merge_commit_dir, exist_ok=True)
