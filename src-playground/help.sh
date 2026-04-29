@@ -9,6 +9,6 @@ Available Tools:
     conflict-*          Scripts from src/conflict
     benchmark-*         Scripts from src/benchmark
     repo-*              Scripts from src/repo
-    playgrounds-*         Scripts from src/playgrounds
+    playground-*         Scripts from src/playgrounds
     playbooks-*         Scripts from src/playbooks
 EOF

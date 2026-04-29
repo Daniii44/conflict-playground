@@ -98,7 +98,7 @@ def process_playground(pg: Playground, index: int, total: int) -> bool:
                 
             print(f"[{index}/{total}] Setting up playground for {pg.repo_name} ({pg.merge_sha})")
             result = subprocess.run(
-                ["playgrounds-setup", pg.repo_name, pg.merge_sha], 
+                ["playground-setup", pg.repo_name, pg.merge_sha], 
                 check=True, 
                 capture_output=True, 
                 text=True
@@ -120,7 +120,7 @@ def process_playground(pg: Playground, index: int, total: int) -> bool:
             subprocess.run(["evaluation-assess", playground_name], check=True)
             
             print(f"[{index}/{total}] Cleaning up playground for {pg.repo_name}...")
-            subprocess.run(["playgrounds-rm", pg.repo_name], check=True)
+            subprocess.run(["playground-rm", pg.repo_name], check=True)
             
         return True
     except subprocess.CalledProcessError as e:

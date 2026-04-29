@@ -9,7 +9,7 @@ fi
 
 PLAYGROUND_NAME=$1
 PLAYGROUND_PATH="$PLAYGROUNDS/$PLAYGROUND_NAME"
-MERGE_SHA=$(playgrounds-name-extract-merge-sha "$PLAYGROUND_NAME")
+MERGE_SHA=$(playground-name-extract-merge-sha "$PLAYGROUND_NAME")
 
 if [ ! -d "$PLAYGROUND_PATH/.git" ]; then
     echo "Error: $PLAYGROUND_PATH is not a git repository."
