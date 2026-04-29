@@ -24,8 +24,6 @@ class MyHookWorker(HookWorker):
             pass
             # return f"Error: Playground directory '{playground_path}' does not exist"
         
-        print(f"Spawning interactive zsh session in: {playground_path}")
-        
         # Spawn an interactive zsh shell in the playground directory
         # Use os.setsid to create a new session with its own process group
         # This allows proper signal handling and TTY control

@@ -58,12 +58,11 @@ class HookWorker:
                     If not provided, subclasses should override handle_task().
         """
         self.pubsub.subscribe(channel)
-        print(f"Hook Worker: Ready and listening for tasks on '{channel}'...")
 
         for message in self.pubsub.listen():
             if message['type'] == 'message':
+                print(f"Hook Base: Conflict Resolution Playground Set Up")
                 task = HookTask.model_validate_json(message['data'])
-                print(f"Hook Worker: Got task: {task}")
 
                 # Get result from handler or subclass method
                 if handler:
@@ -73,7 +72,8 @@ class HookWorker:
 
                 result = HookResult(id=task.id, result=result_msg)
                 self.redis.publish('to_playground', result.model_dump_json())
-                print(f"Hook Worker: Result sent back: {result}")
+                print(f"Hook Base: Conflict Resolution Playground Completed")
+                print()
 
     def handle_task(self, task: HookTask) -> str:
         """
