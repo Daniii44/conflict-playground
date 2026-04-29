@@ -72,9 +72,17 @@ def main():
     print("\nStarting playbook execution...")
     for i, pg in enumerate(playgrounds, 1):
         print(f"\n[{i}/{len(playgrounds)}] Setting up playground for {pg.repo_name} ({pg.merge_sha})")
-        subprocess.run(["playgrounds-setup", pg.repo_name, pg.merge_sha], check=True)
+        result = subprocess.run(
+            ["playgrounds-setup", pg.repo_name, pg.merge_sha], 
+            check=True, 
+            capture_output=True, 
+            text=True
+        )
+        playground_name = result.stdout.strip()
+        print(f"Created Playground: {playground_name}")
 
-        input("Press Enter to continue to next playground...")
+        print("Dispatching task to hook")
+        subprocess.run(["hook-dispatch-task", playground_name], check=True)
         
         print(f"Cleaning up playground for {pg.repo_name}...")
         subprocess.run(["playgrounds-clean", pg.repo_name], check=True)

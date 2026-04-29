@@ -16,7 +16,8 @@ MERGE_SHA="$2"
 
 CACHES="${CACHES:-${HOME}/caches}"
 BARE_REPO="${CACHES}/repos/${REPO_NAME}.git"
-CLONE_PATH="${PLAYGROUNDS}/${REPO_NAME}-${MERGE_SHA:0:7}"
+PLAYGROUND_NAME="${REPO_NAME}-${MERGE_SHA:0:7}"
+CLONE_PATH="${PLAYGROUNDS}/${PLAYGROUND_NAME}"
 
 # Check if bare repo exists
 if [[ ! -d "$BARE_REPO" ]]; then
@@ -48,15 +49,13 @@ mkdir -p "$PLAYGROUNDS"
 
 # Remove existing clone if it exists
 if [[ -d "$CLONE_PATH" ]]; then
-    echo "Removing existing clone at $CLONE_PATH"
     rm -rf "$CLONE_PATH"
 fi
 
 # Create a shared clone at the specified commit
-echo "Creating shared clone at $CLONE_PATH for $BARE_REPO"
 mkdir -p $CLONE_PATH
 cd $CLONE_PATH
-git init
+git init &> /dev/null
 #git clone --no-checkout --shared "$BARE_REPO" "$CLONE_PATH"
 
 # Adjust .git/objects/info/alternates
@@ -69,10 +68,8 @@ echo $SYMLINK_PATH > $CLONE_PATH/.git/objects/info/alternates
 # Create local branches for main and feature
 cd "$CLONE_PATH"
 
-git checkout -b feature "$FEATURE_PARENT"
-git checkout -b main "$MAIN_PARENT"
-git merge feature
+git checkout -b feature "$FEATURE_PARENT" &> /dev/null
+git checkout -b main "$MAIN_PARENT" &> /dev/null
+git merge feature &> /dev/null
 
-echo "Shared clone created at $CLONE_PATH"
-echo "Branches: main (merged into), feature (merged)"
-
+echo $PLAYGROUND_NAME
