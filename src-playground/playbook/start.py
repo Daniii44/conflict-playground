@@ -58,7 +58,7 @@ def load_playbook(playbook_path: str) -> list[Playground]:
 
 def main():
     parser = argparse.ArgumentParser(description="Start a playbook")
-    parser.add_argument("playbook", help="Name of the playbook")
+    parser.add_argument("playbook", help="Name of the playbook", nargs='?', default="default")
     args = parser.parse_args()
 
     playbooks = os.environ.get("PLAYBOOKS")
