@@ -2,3 +2,7 @@ playbook:
   sources:
     - repo_url: https://github.com/git/git.git
       limit: 10
+    - repo_url: https://github.com/simonmichael/hledger.git
+      limit: 10
+    - repo_url: https://github.com/spring-projects/spring-boot.git
+      limit: 10

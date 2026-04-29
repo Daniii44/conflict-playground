@@ -1,0 +1,17 @@
+playbook:
+  sources:
+    - repo_url: https://github.com/simonmichael/hledger.git
+      override_merge_shas:
+        - 88887e54584489fd08218dcfa8a7628ea0916d7c
+        - 0346b4cdd9d5fc9ab68753946c717b83089cb73d
+        - 4013a81af8dd2804c73ecac18fb3e7e4745a4275
+    - repo_url: https://github.com/spring-projects/spring-boot.git
+      override_merge_shas:
+        - 9c6d5d3ecfb847b312ec81e6d1722972d7673283
+        - 4c7cedb738849f7dc04b290aae595240b38dc8f1
+        - f71464b3c6b5d7fc885e5b3f240f109d4b373a62
+    - repo_url: https://github.com/git/git.git
+      override_merge_shas:
+        - fe4ab2e698d544a082862a14120efc6b49047382
+        - eef5231ebd6c3b53bfce851c463c30309c50a2dc
+        - fb5516997ef3f882d8e53ce70ba6077533683621
