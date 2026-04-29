@@ -2,13 +2,31 @@
 
 import argparse
 import os
+import signal
 import subprocess
+import sys
 import yaml
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlparse
 
 # playbook-start <playbook>
+
+# Lock to ensure hook dispatch is synchronous (only one at a time)
+hook_lock = threading.Lock()
+setup_lock = threading.Lock()
+
+# Flag to signal shutdown
+shutdown_requested = threading.Event()
+
+
+def signal_handler(signum, frame):
+    """Handle Ctrl+C to gracefully shutdown"""
+    print("\nInterrupt received, shutting down...")
+    shutdown_requested.set()
+
 
 @dataclass
 class Playground:
@@ -56,45 +74,110 @@ def load_playbook(playbook_path: str) -> list[Playground]:
     return playgrounds
 
 
+def process_playground(pg: Playground, index: int, total: int) -> bool:
+    """Process a single playground: setup, dispatch, assess, clean"""
+    # Check if shutdown was requested before starting
+    if shutdown_requested.is_set():
+        print(f"[{index}/{total}] Skipping {pg.repo_name} - shutdown requested")
+        return False
+    
+    try:
+        with setup_lock:
+            # Check again after acquiring lock
+            if shutdown_requested.is_set():
+                print(f"[{index}/{total}] Skipping {pg.repo_name} - shutdown requested")
+                return False
+                
+            print(f"[{index}/{total}] Setting up playground for {pg.repo_name} ({pg.merge_sha})")
+            result = subprocess.run(
+                ["playgrounds-setup", pg.repo_name, pg.merge_sha], 
+                check=True, 
+                capture_output=True, 
+                text=True
+            )
+            playground_name = result.stdout.strip()
+            print(f"[{index}/{total}] Created Playground: {playground_name}")
+
+        # Hook dispatch must be synchronous (only one at a time)
+        with hook_lock:
+            # Check shutdown before hook dispatch
+            if shutdown_requested.is_set():
+                print(f"[{index}/{total}] Stopping {pg.repo_name} - shutdown requested")
+                return False
+                
+            print(f"[{index}/{total}] Dispatching task to hook")
+            subprocess.run(["hook-dispatch-task", playground_name], check=True)
+
+            print(f"[{index}/{total}] Evaluating Result")
+            subprocess.run(["evaluation-assess", playground_name], check=True)
+            
+            print(f"[{index}/{total}] Cleaning up playground for {pg.repo_name}...")
+            subprocess.run(["playgrounds-rm", pg.repo_name], check=True)
+            
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"[{index}/{total}] Error processing {pg.repo_name}: {e}")
+        return False
+
+
 def main():
     parser = argparse.ArgumentParser(description="Start a playbook")
     parser.add_argument("playbook", help="Name of the playbook", nargs='?', default="default")
     parser.add_argument("--skip", type=int, default=0, help="Skip the first N playgrounds")
+    parser.add_argument("--pool", type=int, default=3, help="Number of parallel playgrounds")
     args = parser.parse_args()
+
+    # Register signal handler for graceful shutdown
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
 
     playbooks = os.environ.get("PLAYBOOKS")
     playbook_path = f"{playbooks}/{args.playbook}.yaml"
     playgrounds = load_playbook(playbook_path)
 
+    # Apply skip
+    if args.skip > 0:
+        playgrounds = playgrounds[args.skip:]
+
     print(f"Loaded {len(playgrounds)} playgrounds:")
     for pg in playgrounds:
         print(f"  - {pg.repo_name}: {pg.merge_sha}")
 
-    print("\nStarting playbook execution...")
-    for i, pg in enumerate(playgrounds, 1):
-        if args.skip > 0 and i <= args.skip:
-            print(f"[{i}/{len(playgrounds)}] Skipping {pg.repo_name} ({pg.merge_sha})")
-            continue
-        print(f"\n[{i}/{len(playgrounds)}] Setting up playground for {pg.repo_name} ({pg.merge_sha})")
-        result = subprocess.run(
-            ["playgrounds-setup", pg.repo_name, pg.merge_sha], 
-            check=True, 
-            capture_output=True, 
-            text=True
-        )
-        playground_name = result.stdout.strip()
-        print(f"Created Playground: {playground_name}")
+    print(f"\nStarting playbook execution with pool size {args.pool}...")
+    
+    total = len(playgrounds)
+    completed = 0
+    failed = 0
 
-        print("Dispatching task to hook")
-        subprocess.run(["hook-dispatch-task", playground_name], check=True)
-
-        print("Evaluating Result")
-        subprocess.run(["evaluation-assess", playground_name], check=True)
+    with ThreadPoolExecutor(max_workers=args.pool) as executor:
+        # Submit all tasks
+        future_to_pg = {
+            executor.submit(process_playground, pg, i + args.skip + 1, total): pg 
+            for i, pg in enumerate(playgrounds)
+        }
         
-        print(f"Cleaning up playground for {pg.repo_name}...")
-        subprocess.run(["playgrounds-rm", pg.repo_name], check=True)
+        # Process results as they complete
+        for future in as_completed(future_to_pg):
+            # Check if shutdown was requested
+            if shutdown_requested.is_set():
+                print("\nShutdown requested, cancelling remaining tasks...")
+                # Cancel pending futures
+                for f in future_to_pg:
+                    f.cancel()
+                break
+                
+            pg = future_to_pg[future]
+            try:
+                success = future.result()
+                if success:
+                    completed += 1
+                else:
+                    failed += 1
+            except Exception as e:
+                print(f"Exception processing {pg.repo_name}: {e}")
+                failed += 1
 
-    print("\nPlaybook execution complete!")
+    print(f"\nPlaybook execution complete! ({completed} succeeded, {failed} failed)")
 
 
 if __name__ == "__main__":
