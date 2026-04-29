@@ -29,7 +29,7 @@ if [ "$HOOK_TYPE" != "manual-cli" ] && [ "$HOOK_TYPE" != "manual-smartgit" ]; th
 fi
 
 echo "[INFO] Building and starting Docker container..."
-docker compose up --build -d conflict-playground hook-$HOOK_TYPE
+docker compose up --build -d redis conflict-playground hook-$HOOK_TYPE
 
 echo "[INFO] Starting tmux session..."
 tmux new-session -d -s conflict-playground "docker exec -it -e VOLUME_TYPE=$VOLUME_TYPE -e HOOK_TYPE=$HOOK_TYPE conflict-playground bash src/entrypoint.sh; tmux kill-session"
