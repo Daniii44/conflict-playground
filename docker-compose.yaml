@@ -25,7 +25,7 @@ services:
   hook-manual-cli:
     build: 
       context: .
-      dockerfile: hooks/manual-cli/Dockerfile
+      dockerfile: src-hooks/manual-cli/Dockerfile
     image: conflict-playground-hook:manual-cli
     container_name: conflict-playground-hook-manual-cli
     <<: *volumes

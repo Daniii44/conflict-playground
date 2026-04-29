@@ -25,4 +25,4 @@ fi
 export VOLUME_TYPE=$1
 export HOOK_TYPE=$2
 
-exec hooks/$HOOK_TYPE/attach.sh
+exec src-hooks/$HOOK_TYPE/attach.sh

@@ -33,7 +33,7 @@ docker compose up --build -d redis conflict-playground hook-$HOOK_TYPE
 
 echo "[INFO] Starting tmux session..."
 tmux new-session -d -s conflict-playground "docker exec -it -e VOLUME_TYPE=$VOLUME_TYPE -e HOOK_TYPE=$HOOK_TYPE conflict-playground bash src/entrypoint.sh; tmux kill-session"
-tmux split-window -h -t conflict-playground "./hooks/attach.sh $VOLUME_TYPE $HOOK_TYPE; tmux kill-session"
+tmux split-window -h -t conflict-playground "./src-hooks/attach.sh $VOLUME_TYPE $HOOK_TYPE; tmux kill-session"
 
 echo "[INFO] Attaching to tmux session..."
 tmux attach-session -t conflict-playground

@@ -10,5 +10,5 @@ RUN apt-get -y install python3
 RUN apt-get -y install python3-redis
 RUN apt-get -y install python3-pydantic
 
-ADD src src
+ADD src-playground src
 ADD assets/playground/* .

@@ -10,6 +10,6 @@ RUN apt-get -y install python3
 RUN apt-get -y install python3-redis
 RUN apt-get -y install python3-pydantic
 
-ADD hooks/manual-cli/entrypoint.py entrypoint.py
-ADD hooks/hooks_common.py hooks_common.py
+ADD src-hooks/manual-cli/entrypoint.py entrypoint.py
+ADD src-hooks/hooks_common.py hooks_common.py
 ADD assets/hooks/* .
