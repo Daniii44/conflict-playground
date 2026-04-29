@@ -31,6 +31,10 @@ fi
 echo "[INFO] Building and starting Docker container..."
 docker compose up --build -d redis conflict-playground hook-$HOOK_TYPE
 
+echo "[INFO] Cleaning up old sessions..."
+# Redirect error to /dev/null so it stays quiet if no session exists
+tmux kill-session -t conflict-playground 2>/dev/null
+
 echo "[INFO] Starting tmux session..."
 tmux new-session -d -s conflict-playground "docker exec -it -e VOLUME_TYPE=$VOLUME_TYPE -e HOOK_TYPE=$HOOK_TYPE conflict-playground bash src/entrypoint.sh; tmux kill-session"
 tmux split-window -h -t conflict-playground "./src-hooks/attach.sh $VOLUME_TYPE $HOOK_TYPE; tmux kill-session"
