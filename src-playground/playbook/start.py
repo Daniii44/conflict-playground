@@ -83,6 +83,9 @@ def main():
 
         print("Dispatching task to hook")
         subprocess.run(["hook-dispatch-task", playground_name], check=True)
+
+        print("Evaluating Result")
+        subprocess.run(["evaluation-assess", playground_name], check=True)
         
         print(f"Cleaning up playground for {pg.repo_name}...")
         subprocess.run(["playgrounds-clean", pg.repo_name], check=True)
