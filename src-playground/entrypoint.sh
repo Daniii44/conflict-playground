@@ -12,9 +12,10 @@ cat <<'EOF'
 |  __/| | (_| | |_| | (_| | | | (_) | |_| | | | | (_| |
 |_|   |_|\__,_|\__, |\__, |_|  \___/ \__,_|_| |_|\__,_|
                |___/ |___/                             
-EOF
-echo
 
+EOF
+
+echo "This is the Control Center to create and manage Playgrounds.";
 echo "Use \"help\" for a list of commands"
 echo
 
