@@ -59,6 +59,7 @@ def load_playbook(playbook_path: str) -> list[Playground]:
 def main():
     parser = argparse.ArgumentParser(description="Start a playbook")
     parser.add_argument("playbook", help="Name of the playbook", nargs='?', default="default")
+    parser.add_argument("--skip", type=int, default=0, help="Skip the first N playgrounds")
     args = parser.parse_args()
 
     playbooks = os.environ.get("PLAYBOOKS")
@@ -71,6 +72,9 @@ def main():
 
     print("\nStarting playbook execution...")
     for i, pg in enumerate(playgrounds, 1):
+        if args.skip > 0 and i <= args.skip:
+            print(f"[{i}/{len(playgrounds)}] Skipping {pg.repo_name} ({pg.merge_sha})")
+            continue
         print(f"\n[{i}/{len(playgrounds)}] Setting up playground for {pg.repo_name} ({pg.merge_sha})")
         result = subprocess.run(
             ["playgrounds-setup", pg.repo_name, pg.merge_sha], 
