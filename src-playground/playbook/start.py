@@ -64,12 +64,20 @@ def load_playbook(playbook_path: str) -> list[Playground]:
     playgrounds = []
     for source in data['playbook']['sources']:
         repo_url = source['repo_url']
-        limit = source.get('limit', 1)
         repo_name = get_repo_name_from_url(repo_url)
 
-        for i in range(limit):
-            merge_sha = get_dirty_merge_sha(repo_name, i)
-            playgrounds.append(Playground(repo_name=repo_name, merge_sha=merge_sha))
+        # Support override_merge_shas (explicit list) or limit (number of SHAs from dirty-merges)
+        override_shas = source.get('override_merge_shas', [])
+        if override_shas:
+            # Use explicitly provided merge SHAs
+            for merge_sha in override_shas:
+                playgrounds.append(Playground(repo_name=repo_name, merge_sha=merge_sha))
+        else:
+            # Use limit to get SHAs from dirty-merges
+            limit = source.get('limit', 1)
+            for i in range(limit):
+                merge_sha = get_dirty_merge_sha(repo_name, i)
+                playgrounds.append(Playground(repo_name=repo_name, merge_sha=merge_sha))
 
     return playgrounds
 
