@@ -1,3 +1,3 @@
 #!/bin/bash
 
-rm -rf $PLAYGROUNDS/*
+rm -rf $PLAYGROUNDS/* || exit 0

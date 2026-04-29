@@ -92,7 +92,7 @@ def main():
         subprocess.run(["evaluation-assess", playground_name], check=True)
         
         print(f"Cleaning up playground for {pg.repo_name}...")
-        subprocess.run(["playgrounds-clean", pg.repo_name], check=True)
+        subprocess.run(["playgrounds-rm", pg.repo_name], check=True)
 
     print("\nPlaybook execution complete!")
 
