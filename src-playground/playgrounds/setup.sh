@@ -16,7 +16,7 @@ MERGE_SHA="$2"
 
 CACHES="${CACHES:-${HOME}/caches}"
 BARE_REPO="${CACHES}/repos/${REPO_NAME}.git"
-PLAYGROUND_NAME="${REPO_NAME}-${MERGE_SHA:0:7}"
+PLAYGROUND_NAME=$(playgrounds-name-create $REPO_NAME $MERGE_SHA)
 CLONE_PATH="${PLAYGROUNDS}/${PLAYGROUND_NAME}"
 
 # Check if bare repo exists
