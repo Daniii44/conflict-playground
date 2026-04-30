@@ -43,6 +43,10 @@ export PLAYGROUNDS="${HOME}/playgrounds"
 export PLAYBOOKS="${HOME}/playbooks"
 export SOURCES="${HOME}/src"
 
+# Ensure subdirectories exist
+mkdir -p "${CACHES}/info/dirty-merges"
+mkdir -p "${CACHES}/repos"
+
 # Initialization: walk src, copy all executable files to bin with flat names
 BIN_DIR="${HOME}/bin"
 mkdir -p "$BIN_DIR"
