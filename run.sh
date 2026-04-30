@@ -1,22 +1,21 @@
 #!/bin/bash
 
-if [ $# -lt 2 ]; then
-    echo "Usage: $0 <volume-type> <hook-type>"
-    echo ""
-    echo "volume-type: The type of volume mount to use:"
-    echo "  named-volume  Use Docker named volume (better performance)"
-    echo "  bind-mount    Use host bind mount (better compatibility)"
-    echo ""
-    echo "hook-type: The type of merge conflict resolution hook to use:"
-    echo "  manual-cli      Manual resolution using CLI tools"
-    echo "  manual-smartgit Manual resolution using SmartGit"
-    echo ""
-    echo "Example: $0 named-volume manual-cli"
+# Read configuration from config.yaml
+CONFIG_FILE="$(dirname "$0")/config.yaml"
+
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "Error: Configuration file not found at $CONFIG_FILE"
     exit 1
 fi
 
-VOLUME_TYPE="$1"
-HOOK_TYPE="$2"
+# Parse YAML configuration
+VOLUME_TYPE=$(grep '^volume_type:' "$CONFIG_FILE" | sed 's/volume_type:[[:space:]]*//;s/#.*//' | tr -d ' ')
+HOOK_TYPE=$(grep '^hook_type:' "$CONFIG_FILE" | sed 's/hook_type:[[:space:]]*//;s/#.*//' | tr -d ' ')
+if [ -z "$VOLUME_TYPE" ] || [ -z "$HOOK_TYPE" ]; then
+    echo "Error: Failed to parse configuration from $CONFIG_FILE"
+    echo "Ensure volume_type and hook_type are properly set."
+    exit 1
+fi
 
 if [ "$VOLUME_TYPE" != "named-volume" ] && [ "$VOLUME_TYPE" != "bind-mount" ]; then
     echo "Error: Invalid volume type '$VOLUME_TYPE'"

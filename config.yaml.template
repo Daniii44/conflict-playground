@@ -1,0 +1,15 @@
+# Conflict Playground Configuration
+
+# Volume mount type:
+#   - bind-mount: Use host bind mount (better compatibility)
+#   - named-volume: Use Docker named volume (better performance)
+volume_type: bind-mount
+#volume_type: named-volume
+
+# Hook type for merge conflict resolution:
+#   - manual-cli: Manual resolution using CLI tools
+hook_type: manual-cli
+
+# Path to SmartGit binary
+#smartgit_binary: "/Applications/SmartGit.app/Contents/MacOS/smartgit"
+#smartgit_binary: /mnt/c/Program Files/SmartGit/bin/smartgit.exe
