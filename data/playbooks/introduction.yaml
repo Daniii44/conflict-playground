@@ -13,5 +13,5 @@ playbook:
     - repo_url: https://github.com/git/git.git
       override_merge_shas:
         - fe4ab2e698d544a082862a14120efc6b49047382
-        - eef5231ebd6c3b53bfce851c463c30309c50a2dc
+        - da54784d1cc3f4fdd90622fb9e3ae34a9e771702
         - fb5516997ef3f882d8e53ce70ba6077533683621
