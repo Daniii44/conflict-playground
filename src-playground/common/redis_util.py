@@ -20,7 +20,7 @@ def _ensure_exists_all_idx(redis: Redis) -> None:
 def _ensure_exists_conflicts_info_idx(redis: Redis) -> None:
     schema = [
         TagField("repo"),
-        TextField("sha"),
+        TagField("sha"),
         NumericField("parent_count"),
         NumericField("conflict_count"),
         TextField("conflict_difficulty")

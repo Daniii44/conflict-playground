@@ -80,7 +80,7 @@ def main():
                 "conflict_count": diff.count("<<<<<<<"),
                 "conflict_difficulty": "unknown", # conflict_difficulty: pattern, interleaved, new-tokens, uncaught-conflict
             }
-            redis.hset("info:conflict" + sha, mapping=conflict_info)
+            redis.hset("info:conflict:" + sha, mapping=conflict_info)
 
             with dirty_merges_count_lock:
                 nonlocal dirty_merges_count
