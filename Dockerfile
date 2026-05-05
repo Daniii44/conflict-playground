@@ -10,6 +10,7 @@ RUN apt-get -y install python3
 RUN apt-get -y install python3-redis
 RUN apt-get -y install python3-pydantic
 RUN apt-get -y install python3-rich
+RUN apt-get -y install redis-tools
 
 ADD src-playground src
 ADD assets/playground/* .
