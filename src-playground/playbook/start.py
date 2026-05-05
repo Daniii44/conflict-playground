@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
 
 import argparse
+from datetime import datetime
+import json
 import os
 import signal
 import subprocess
 import sys
+from redis import Redis
 import yaml
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlparse
+from common.active_playground_models import Configuration, ActivePlayground
+from common.redis_util import RUNTIME_ACTIVE_PLAYGROUND_PREFIX, setup_redis_connection
 
 # playbook-start <playbook>
 
@@ -82,7 +87,7 @@ def load_playbook(playbook_path: str) -> list[Playground]:
     return playgrounds
 
 
-def process_playground(pg: Playground, index: int, total: int) -> bool:
+def process_playground(pg: Playground, redis: Redis, index: int, total: int) -> bool:
     """Process a single playground: setup, dispatch, assess, clean"""
     # Check if shutdown was requested before starting
     if shutdown_requested.is_set():
@@ -113,6 +118,19 @@ def process_playground(pg: Playground, index: int, total: int) -> bool:
                 print(f"[{index}/{total}] Stopping {pg.repo_name} - shutdown requested")
                 return False
                 
+            activePlayground = ActivePlayground(
+                playground_name=playground_name,
+                configuration=Configuration(
+                    hook_type=os.environ.get("HOOK_TYPE", "unknown"),  # Placeholder, can be extended to read from playbook
+                    playground_version=os.environ.get("PLAYGROUND_VERSION", "unknown"),
+                    volume_type=os.environ.get("VOLUME_TYPE", "unknown"),
+                    resolution_start=datetime.now()
+                )
+            )
+
+            redis_active_playground_key = f"{RUNTIME_ACTIVE_PLAYGROUND_PREFIX}{playground_name}"
+            redis.json().set(redis_active_playground_key, "$", json.loads(activePlayground.model_dump_json()))
+
             print(f"[{index}/{total}] Dispatching task to hook")
             subprocess.run(["hook-dispatch-task", playground_name], check=True)
 
@@ -121,6 +139,7 @@ def process_playground(pg: Playground, index: int, total: int) -> bool:
             
             print(f"[{index}/{total}] Cleaning up playground for {pg.repo_name}...")
             subprocess.run(["playground-rm", pg.repo_name], check=True)
+            redis.delete(redis_active_playground_key)
             
         return True
     except subprocess.CalledProcessError as e:
@@ -134,6 +153,8 @@ def main():
     parser.add_argument("--skip", type=int, default=0, help="Skip the first N playgrounds")
     parser.add_argument("--pool", type=int, default=3, help="Number of parallel playgrounds")
     args = parser.parse_args()
+
+    redis = setup_redis_connection()
 
     # Register signal handler for graceful shutdown
     signal.signal(signal.SIGINT, signal_handler)
@@ -160,7 +181,7 @@ def main():
     with ThreadPoolExecutor(max_workers=args.pool) as executor:
         # Submit all tasks
         future_to_pg = {
-            executor.submit(process_playground, pg, i + args.skip + 1, total): pg 
+            executor.submit(process_playground, pg, redis, i + args.skip + 1, total): pg 
             for i, pg in enumerate(playgrounds)
         }
         

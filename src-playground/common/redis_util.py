@@ -3,6 +3,7 @@ from redis.commands.search.field import TagField, TextField, NumericField
 from redis.commands.search.index_definition import IndexDefinition, IndexType
 
 IDX_INFO_CONFLICT = "idx:info:conflict"
+RUNTIME_ACTIVE_PLAYGROUND_PREFIX = "runtime:active_playground:"
 
 def setup_redis_connection() -> Redis:
     redis = Redis(
