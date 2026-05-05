@@ -2,6 +2,8 @@ from redis import Redis, ResponseError
 from redis.commands.search.field import TagField, TextField, NumericField
 from redis.commands.search.index_definition import IndexDefinition, IndexType
 
+IDX_INFO_CONFLICT = "idx:info:conflict"
+
 def setup_redis_connection() -> Redis:
     redis = Redis(
         host="redis",
@@ -23,10 +25,10 @@ def _ensure_exists_conflicts_info_idx(redis: Redis) -> None:
         NumericField("conflict_count"),
         TextField("conflict_difficulty")
     ]
-    definition = IndexDefinition(prefix=["conflict:info:"], index_type=IndexType.HASH)
+    definition = IndexDefinition(prefix=["info:conflict"], index_type=IndexType.HASH)
 
-    _ensure_exists_idx(redis, "idx:conflicts:info", definition, schema)
-    
+    _ensure_exists_idx(redis, IDX_INFO_CONFLICT, definition, schema)
+
 def _ensure_exists_idx(redis: Redis, idx_name: str, definition: IndexDefinition, schema: list) -> None:
     index = redis.ft(idx_name)
     try:

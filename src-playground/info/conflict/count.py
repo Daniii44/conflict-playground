@@ -4,11 +4,12 @@ import argparse
 from typing import cast
 from redis.commands.search.query import Query
 from redis.commands.search.result import Result
-from common.redis_util import setup_redis_connection
+from common.redis_util import setup_redis_connection, IDX_INFO_CONFLICT
+
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Collect dirty merge commits from a bare git repository")
+    parser = argparse.ArgumentParser(description="Count conflict merge commits from a bare git repository")
     parser.add_argument("git_repo_name", help="Name of the bare git repository")
     args = parser.parse_args()
     
@@ -16,7 +17,7 @@ def main():
     query = Query(f"@repo:{{{args.git_repo_name.replace('-', '\\-')}}}").return_fields()
     result:Result = cast(
         Result,
-        redis.ft("idx:conflicts:info").search(query)
+        redis.ft(IDX_INFO_CONFLICT).search(query)
     )
     
     print(f"{result.total}")

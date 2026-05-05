@@ -11,7 +11,7 @@ import time
 from common.redis_util import setup_redis_connection
 
 # Script to collect all dirty merge commits in a bare git repository
-# Usage: python collect-dirty-merges.py <git-repo-name> [-f]
+# Usage: python collect-conflict.py <git-repo-name> [-f]
 
 # FIXME
 # fatal: unable to read tree (322895d3a525e8e6afc5b8ae049a73c41628b280)
@@ -22,7 +22,7 @@ from common.redis_util import setup_redis_connection
 # Stalls at 20892/20893 for git - maybe related with "unable to read tree"
 
 def main():
-    parser = argparse.ArgumentParser(description="Collect dirty merge commits from a bare git repository")
+    parser = argparse.ArgumentParser(description="Collect conflict merge commits from a bare git repository")
     parser.add_argument("git_repo_name", help="Name of the bare git repository")
     parser.add_argument("-f", "--force", action="store_true", help="Force rebuild even if merge commit list exists")
     args = parser.parse_args()
@@ -39,7 +39,7 @@ def main():
         sys.exit(1)
 
     result = subprocess.run(
-        ["info-dirty-merges-count", git_repo_name],
+        ["info-conflict-count", git_repo_name],
         capture_output=True,
         text=True,
         check=True
@@ -80,7 +80,7 @@ def main():
                 "conflict_count": diff.count("<<<<<<<"),
                 "conflict_difficulty": "unknown", # conflict_difficulty: pattern, interleaved, new-tokens, uncaught-conflict
             }
-            redis.hset("conflict:info:" + sha, mapping=conflict_info)
+            redis.hset("info:conflict" + sha, mapping=conflict_info)
 
             with dirty_merges_count_lock:
                 nonlocal dirty_merges_count

@@ -5,11 +5,11 @@ import sys
 from typing import cast
 from redis.commands.search.query import Query
 from redis.commands.search.result import Result
-from common.redis_util import setup_redis_connection
+from common.redis_util import setup_redis_connection, IDX_INFO_CONFLICT
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Collect dirty merge commits from a bare git repository")
+    parser = argparse.ArgumentParser(description="Print the SHA of the N-th conflict merge commit from a bare git repository")
     parser.add_argument("git_repo_name", help="Name of the bare git repository")
     parser.add_argument("index", help="Index of the SHA to print", type=int)
     args = parser.parse_args()
@@ -22,7 +22,7 @@ def main():
 
     result:Result = cast(
         Result,
-        redis.ft("idx:conflicts:info").search(query)
+        redis.ft(IDX_INFO_CONFLICT).search(query)
     )
 
     if result.total == 0:

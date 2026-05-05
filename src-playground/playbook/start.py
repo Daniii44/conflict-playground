@@ -45,10 +45,10 @@ def get_repo_name_from_url(url: str) -> str:
     return repo_name
 
 
-def get_dirty_merge_sha(repo_name: str, index: int) -> str:
-    """Get merge SHA at given index using info-dirty-merges-sha command"""
+def get_conflict_sha(repo_name: str, index: int) -> str:
+    """Get merge SHA at given index using info-conflict-sha command"""
     result = subprocess.run(
-        ["info-dirty-merges-sha", repo_name, str(index)],
+        ["info-conflict-sha", repo_name, str(index)],
         capture_output=True,
         text=True,
         check=True
@@ -66,17 +66,17 @@ def load_playbook(playbook_path: str) -> list[Playground]:
         repo_url = source['repo_url']
         repo_name = get_repo_name_from_url(repo_url)
 
-        # Support override_merge_shas (explicit list) or limit (number of SHAs from dirty-merges)
+        # Support override_merge_shas (explicit list) or limit (number of SHAs from conflicts)
         override_shas = source.get('override_merge_shas', [])
         if override_shas:
             # Use explicitly provided merge SHAs
             for merge_sha in override_shas:
                 playgrounds.append(Playground(repo_name=repo_name, merge_sha=merge_sha))
         else:
-            # Use limit to get SHAs from dirty-merges
+            # Use limit to get SHAs from conflict
             limit = source.get('limit', 1)
             for i in range(limit):
-                merge_sha = get_dirty_merge_sha(repo_name, i)
+                merge_sha = get_conflict_sha(repo_name, i)
                 playgrounds.append(Playground(repo_name=repo_name, merge_sha=merge_sha))
 
     return playgrounds
