@@ -44,7 +44,7 @@ def main():
         text=True,
         check=True
     )
-    if result.stdout.strip() != "0":
+    if result.stdout.strip() != "0" and not force:
         print(f"Merge commit list for repo {git_repo_name} already exists with {result.stdout.strip()} entries, skipping collection (use -f to force rebuild)")
         sys.exit(0)
     
