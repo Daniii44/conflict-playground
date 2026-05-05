@@ -8,6 +8,7 @@ from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
 import time
+from common.redis_util import setup_redis_connection
 
 # Script to collect all dirty merge commits in a bare git repository
 # Usage: python collect-dirty-merges.py <git-repo-name> [-f]
@@ -26,29 +27,27 @@ def main():
     parser.add_argument("-f", "--force", action="store_true", help="Force rebuild even if merge commit list exists")
     args = parser.parse_args()
 
+    redis = setup_redis_connection()
+
     git_repo_name = args.git_repo_name
     force = args.force
     caches = os.environ.get("CACHES", "../../caches")
     git_dir = f"{caches}/repos/{git_repo_name}.git"
-    merge_commit_dir = os.path.join(caches, "info/dirty-merges")
-    merge_commit_list = os.path.join(merge_commit_dir, f"{git_repo_name}.txt")
-
+    
     if not os.path.isdir(git_dir):
         print(f"Error: {git_dir} does not exist")
         sys.exit(1)
 
-    # Check if merge commit list already exists (skip unless -f is passed)
-    if os.path.exists(merge_commit_list) and not force:
-        print(f"Merge commit list already exists at {merge_commit_list}")
+    result = subprocess.run(
+        ["info-dirty-merges-count", git_repo_name],
+        capture_output=True,
+        text=True,
+        check=True
+    )
+    if result.stdout.strip() != "0":
+        print(f"Merge commit list for repo {git_repo_name} already exists with {result.stdout.strip()} entries, skipping collection (use -f to force rebuild)")
         sys.exit(0)
-
-    # Setup files
-    os.makedirs(merge_commit_dir, exist_ok=True)
-    if os.path.exists(merge_commit_list):
-        backup_path = merge_commit_list + ".backup"
-        os.rename(merge_commit_list, backup_path)
-    Path(merge_commit_list).touch()
-
+    
     # Get all merge commit SHAs
     rev_list_cmd = ["git", f"--git-dir={git_dir}", "rev-list", "--merges", "HEAD"]
     try:
@@ -60,7 +59,6 @@ def main():
     total_merges_count = len(rev_list)
     processed_merges_count = 0
     processed_merges_count_lock = threading.Lock()
-    file_lock = threading.Lock()
     start_time = time.time()
     last_status_len = 0
     dirty_merges_count = 0
@@ -75,9 +73,15 @@ def main():
         dirty = False
         if diff.strip():
             dirty = True
-            with file_lock:
-                with open(merge_commit_list, "a") as f:
-                    f.write(sha + "\n")
+            conflict_info = {
+                "repo": git_repo_name,
+                "sha": sha,
+                "parent_clount": 2,
+                "conflict_count": diff.count("<<<<<<<"),
+                "conflict_difficulty": "unknown", # conflict_difficulty: pattern, interleaved, new-tokens, uncaught-conflict
+            }
+            redis.hset("conflict:info:" + sha, mapping=conflict_info)
+
             with dirty_merges_count_lock:
                 nonlocal dirty_merges_count
                 dirty_merges_count += 1
