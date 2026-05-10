@@ -1,3 +1,4 @@
 /data/caches
 /data/playgrounds
 config.yaml
+__pycache__
