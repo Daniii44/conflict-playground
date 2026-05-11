@@ -1,0 +1,2 @@
+[merge]
+    conflictStyle = diff3
