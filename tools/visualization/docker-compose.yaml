@@ -1,0 +1,33 @@
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse
+    ports:
+      - "8123:8123"   # HTTP interface
+      - "9000:9000"   # native TCP interface
+    environment:
+      CLICKHOUSE_DB: default
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: dev-dynha9-fenvYc-daqmeh
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    networks:
+      - conflict-playground-bridge
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - conflict-playground-bridge
+
+volumes:
+  clickhouse_data:
+  grafana_data:
+
+networks:
+  conflict-playground-bridge:
+    external: true
