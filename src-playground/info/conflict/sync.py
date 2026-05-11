@@ -69,13 +69,15 @@ def process_merge_tree_output(git_dir: str, main_oid: str, feature_oid: str) -> 
     merge_tree_cmd = ["git", f"--git-dir={git_dir}", "merge-tree", "-z", main_oid, feature_oid]
     
     try:
-        subprocess.check_output(merge_tree_cmd, text=True)
+        subprocess.check_output(merge_tree_cmd, text=True, stderr=subprocess.STDOUT)
         logger.debug(f"No conflict for merge {main_oid} and {feature_oid}")
     except subprocess.CalledProcessError as e:
         if e.returncode == -signal.SIGINT:
             global exiting
             exiting = True
             sys.exit(0)
+        if b'fatal: refusing to merge unrelated histories' in e.output.encode():
+            return None
 
         return prune_auto_merged(parse_merge_result(e.output.encode()))
 
