@@ -6,3 +6,13 @@ playbook:
       limit: 10
     - repo_url: https://github.com/spring-projects/spring-boot.git
       limit: 10
+    - repo_url: https://github.com/nodejs/node.git
+      limit: 10
+    - repo_url: https://github.com/facebook/react.git
+      limit: 10
+    - repo_url: https://github.com/swiftlang/swift.git
+      limit: 10
+    - repo_url: https://github.com/junit-team/junit-framework.git
+      limit: 10
+    - repo_url: https://github.com/Akaflieg-Freiburg/enroute.git
+      limit: 10
