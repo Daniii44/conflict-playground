@@ -25,6 +25,8 @@ services:
       dockerfile: Dockerfile
     image: conflict-playground:playground
     container_name: conflict-playground
+    environment:
+      LOGURU_LEVEL: INFO
     <<: *volumes
   hook-manual-cli:
     build: 
