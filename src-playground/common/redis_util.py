@@ -20,13 +20,11 @@ def _ensure_exists_all_idx(redis: Redis) -> None:
 
 def _ensure_exists_conflicts_info_idx(redis: Redis) -> None:
     schema = [
-        TagField("repo"),
-        TagField("sha"),
-        NumericField("parent_count"),
-        NumericField("conflict_count"),
-        TextField("conflict_difficulty")
+        TagField("$.repo", as_name="repo"),
+        TagField("$.merge_commit_oid", as_name="merge_commit_oid"),
+        NumericField("$.parent_count", as_name="parent_count"),
     ]
-    definition = IndexDefinition(prefix=["info:conflict"], index_type=IndexType.HASH)
+    definition = IndexDefinition(prefix=["info:conflict"], index_type=IndexType.JSON)
 
     _ensure_exists_idx(redis, IDX_INFO_CONFLICT, definition, schema)
 

@@ -8,8 +8,9 @@ import os
 import sys
 import subprocess
 import argparse
-from pathlib import Path
+from redis.commands.json.path import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from pydantic import BaseModel
 from tqdm import tqdm
 import threading
 import time
@@ -26,6 +27,13 @@ from common.merge_tree import MergeResult, parse_merge_result, prune_auto_merged
 
 # FIXME
 # Stalls at 20892/20893 for git - maybe related with "unable to read tree"
+
+class InfoConflict(BaseModel):
+    repo: str
+    merge_commit_oid: str
+    parent_count: int
+
+    merge_result: MergeResult
 
 exiting = False
 def signal_handler(sig, frame):
@@ -71,23 +79,31 @@ def process_merge_tree_output(git_dir: str, main_oid: str, feature_oid: str) -> 
 
         return prune_auto_merged(parse_merge_result(e.output.encode()))
 
-def process_sha(git_dir: str, sha: str) -> MergeResult | None:
+def process_sha(git_dir: str, git_repo_name: str, merge_commit_oid: str) -> InfoConflict | None:
     global exiting
     if exiting:
         sys.exit(0)
 
-    parents = collect_parents(git_dir, sha)
+    parents = collect_parents(git_dir, merge_commit_oid)
     if len(parents) < 2:
-        logger.error(f"Merge commit {sha} has less than 2 parents, skipping")
+        logger.error(f"Merge commit {merge_commit_oid} has less than 2 parents, skipping")
         return None
     elif len(parents) > 2:
         # Not supporting octopus merges for now, since git doesn't even allow to perform non trivial octopus merges directly.
         # TODO: Take a look whether there are complex octoopus merges nonetheless
-        logger.info(f"Merge commit {sha} has more than 2 parents, skipping")
+        logger.info(f"Merge commit {merge_commit_oid} has more than 2 parents, skipping")
         return None
     
     mergeResult = process_merge_tree_output(git_dir, parents[0], parents[1])
-    return mergeResult
+    if mergeResult is None:
+        return None
+    
+    return InfoConflict(
+        repo=git_repo_name,
+        merge_commit_oid=merge_commit_oid,
+        parent_count=len(parents),
+        merge_result=mergeResult,
+    )
 
 def main():
     parser = argparse.ArgumentParser(description="Collect conflict merge commits from a bare git repository")
@@ -126,14 +142,17 @@ def main():
         logger.disable("__main__");
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(process_sha, git_dir, sha) for sha in conflict_candidates]
+        futures = [executor.submit(process_sha, git_dir, git_repo_name, sha) for sha in conflict_candidates]
 
         # Wrap as_completed in tqdm to get a live progress bar
         if not args.verbose:
             with tqdm(total=len(futures), desc="Processing SHAs") as pbar:
                 for future in as_completed(futures):
-                    result = future.result() # Get the result of the job
-                    pbar.update(1)           # Increment the progress bar
+                    result = future.result()
+                    if result is not None:
+                        redis.json().set(f"info:conflict:{result.merge_commit_oid}", Path.root_path(), result.model_dump())
+
+                    pbar.update(1)
 
 if __name__ == "__main__":
     main()
