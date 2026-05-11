@@ -1,4 +1,4 @@
-from common.merge_tree import parse_merge_result
+from common.merge_tree import parse_merge_result, prune_auto_merged
 
 def test_parse_merge_result():
     input = bytes.fromhex("""636130616162326338313036643133323266623165343230666533346463
@@ -313,3 +313,426 @@ def test_parse_merge_result_long():
 
     actual_output = parse_merge_result(input).model_dump_json(indent=2)
     assert actual_output == expected_output
+
+def test_parse_merge_result_prune_auto_merged_files():
+    input = bytes.fromhex("""303131323230343331663839633930386331336565326663353437383336
+333734613165313733370031303036343420353133306234663031383935
+313834363263376333383765623937666132363937656133303862362031
+092e67697469676e6f726500313030363434203234363335636632643666
+346133373834336561373039316461303763306431303164636163356220
+32092e67697469676e6f7265003130303634342033386134316562633538
+323337663532383139366635346138653666333563383032623835333861
+2033092e67697469676e6f72650031303037353520633237363762343133
+366362626638356661326337306135353830333064376664343763313736
+612031094749542d56455253494f4e2d47454e0031303037353520343432
+343065303762383831663032376236346265343566616664346437623162
+303635326638632032094749542d56455253494f4e2d47454e0031303037
+353520326637323964653462623535383434343035623631396663623832
+316664383934656362333466622033094749542d56455253494f4e2d4745
+4e0031303036343420363962306238343433353262633138353465373461
+383061393331326638653461333331666264362031094d616b6566696c65
+003130303634342063363139623534303562353330303566363439353034
+3635663830613231323638386666303032662032094d616b6566696c6500
+313030363434206361303130363838313062626536626633316262376231
+33353938323331396461326665363361622033094d616b6566696c650031
+303037353520313432643162633364653232396263646234343733636236
+666233626163323063313434356239652031096769742d6775692d2d6173
+6b7965736e6f003130303735352031343264316263336465323239626364
+623434373363623666623362616332306331343435623965203309676974
+2d6775692d2d61736b7965736e6f2e736800313030373535203134326431
+626333646532323962636462343437336362366662336261633230633134
+34356239652032096769742d6775692f6769742d6775692d2d61736b7965
+736e6f003130303634342033323062613039656366656233323138386466
+6263653731386432383863326263613061353031332031096d65736f6e2e
+6275696c6400313030363434203965396261396238326238306561633330
+35663932613962616638343433303339393361666661642032096d65736f
+6e2e6275696c640031303036343420613831313961613239666564393531
+303163663035303434366130363837633261653332343863302033096d65
+736f6e2e6275696c64003130303634342036353963626232313866343665
+303830633164346337363362356132393934343665613932333466203209
+6d65736f6e5f6f7074696f6e732e74787400313030363434203735393161
+333432313865613964386138323635323264623633643030313531353463
+30346233342033096d65736f6e5f6f7074696f6e732e747874000031002e
+67697469676e6f7265004175746f2d6d657267696e67004175746f2d6d65
+7267696e67202e67697469676e6f72650a0031002e67697469676e6f7265
+00434f4e464c4943542028636f6e74656e74732900434f4e464c49435420
+28636f6e74656e74293a204d6572676520636f6e666c69637420696e202e
+67697469676e6f72650a0031004749542d56455253494f4e2d47454e0041
+75746f2d6d657267696e67004175746f2d6d657267696e67204749542d56
+455253494f4e2d47454e0a0031004749542d56455253494f4e2d47454e00
+434f4e464c4943542028636f6e74656e74732900434f4e464c4943542028
+636f6e74656e74293a204d6572676520636f6e666c69637420696e204749
+542d56455253494f4e2d47454e0a0031004d616b6566696c65004175746f
+2d6d657267696e67004175746f2d6d657267696e67204d616b6566696c65
+0a0031004d616b6566696c6500434f4e464c4943542028636f6e74656e74
+732900434f4e464c4943542028636f6e74656e74293a204d657267652063
+6f6e666c69637420696e204d616b6566696c650a0033006769742d677569
+2d2d61736b7965736e6f006769742d6775692f6769742d6775692d2d6173
+6b7965736e6f006769742d6775692d2d61736b7965736e6f2e736800434f
+4e464c494354202872656e616d652f72656e616d652900434f4e464c4943
+54202872656e616d652f72656e616d65293a206769742d6775692d2d6173
+6b7965736e6f2072656e616d656420746f206769742d6775692f6769742d
+6775692d2d61736b7965736e6f20696e2062373061303264636339616464
+38333831373562346334613037313731663861623662396637633020616e
+6420746f206769742d6775692d2d61736b7965736e6f2e736820696e2062
+623532636461633632353463303036653036626630626238323032363864
+6366303234666332322e0a0031006d65736f6e2e6275696c64004175746f
+2d6d657267696e67004175746f2d6d657267696e67206d65736f6e2e6275
+696c640a0031006d65736f6e2e6275696c6400434f4e464c494354202863
+6f6e74656e74732900434f4e464c4943542028636f6e74656e74293a204d
+6572676520636f6e666c69637420696e206d65736f6e2e6275696c640a00
+31006d65736f6e5f6f7074696f6e732e747874004175746f2d6d65726769
+6e67004175746f2d6d657267696e67206d65736f6e5f6f7074696f6e732e
+7478740a0031006d65736f6e5f6f7074696f6e732e74787400434f4e464c
+4943542028636f6e74656e74732900434f4e464c49435420286164642f61
+6464293a204d6572676520636f6e666c69637420696e206d65736f6e5f6f
+7074696f6e732e7478740a00""".replace("\n", ""))
+
+    expected_output = """{
+  "result_tree_oid": "011220431f89c908c13ee2fc547836374a1e1737",
+  "conflicted_files": [
+    {
+      "oid": "100644",
+      "mode": "5130b4f0189518462c7c387eb97fa2697ea308b6",
+      "stage": 1,
+      "path": ".gitignore"
+    },
+    {
+      "oid": "100644",
+      "mode": "24635cf2d6f4a37843ea7091da07c0d101dcac5b",
+      "stage": 2,
+      "path": ".gitignore"
+    },
+    {
+      "oid": "100644",
+      "mode": "38a41ebc58237f528196f54a8e6f35c802b8538a",
+      "stage": 3,
+      "path": ".gitignore"
+    },
+    {
+      "oid": "100755",
+      "mode": "c2767b4136cbbf85fa2c70a558030d7fd47c176a",
+      "stage": 1,
+      "path": "GIT-VERSION-GEN"
+    },
+    {
+      "oid": "100755",
+      "mode": "44240e07b881f027b64be45fafd4d7b1b0652f8c",
+      "stage": 2,
+      "path": "GIT-VERSION-GEN"
+    },
+    {
+      "oid": "100755",
+      "mode": "2f729de4bb55844405b619fcb821fd894ecb34fb",
+      "stage": 3,
+      "path": "GIT-VERSION-GEN"
+    },
+    {
+      "oid": "100644",
+      "mode": "69b0b844352bc1854e74a80a9312f8e4a331fbd6",
+      "stage": 1,
+      "path": "Makefile"
+    },
+    {
+      "oid": "100644",
+      "mode": "c619b5405b53005f64950465f80a212688ff002f",
+      "stage": 2,
+      "path": "Makefile"
+    },
+    {
+      "oid": "100644",
+      "mode": "ca01068810bbe6bf31bb7b135982319da2fe63ab",
+      "stage": 3,
+      "path": "Makefile"
+    },
+    {
+      "oid": "100755",
+      "mode": "142d1bc3de229bcdb4473cb6fb3bac20c1445b9e",
+      "stage": 1,
+      "path": "git-gui--askyesno"
+    },
+    {
+      "oid": "100755",
+      "mode": "142d1bc3de229bcdb4473cb6fb3bac20c1445b9e",
+      "stage": 3,
+      "path": "git-gui--askyesno.sh"
+    },
+    {
+      "oid": "100755",
+      "mode": "142d1bc3de229bcdb4473cb6fb3bac20c1445b9e",
+      "stage": 2,
+      "path": "git-gui/git-gui--askyesno"
+    },
+    {
+      "oid": "100644",
+      "mode": "320ba09ecfeb32188dfbce718d288c2bca0a5013",
+      "stage": 1,
+      "path": "meson.build"
+    },
+    {
+      "oid": "100644",
+      "mode": "9e9ba9b82b80eac305f92a9baf844303993affad",
+      "stage": 2,
+      "path": "meson.build"
+    },
+    {
+      "oid": "100644",
+      "mode": "a8119aa29fed95101cf050446a0687c2ae3248c0",
+      "stage": 3,
+      "path": "meson.build"
+    },
+    {
+      "oid": "100644",
+      "mode": "659cbb218f46e080c1d4c763b5a299446ea9234f",
+      "stage": 2,
+      "path": "meson_options.txt"
+    },
+    {
+      "oid": "100644",
+      "mode": "7591a34218ea9d8a826522db63d0015154c04b34",
+      "stage": 3,
+      "path": "meson_options.txt"
+    }
+  ],
+  "logical_conflicts": [
+    {
+      "type": "Auto-merging",
+      "info": "Auto-merging .gitignore",
+      "paths": [
+        ".gitignore"
+      ]
+    },
+    {
+      "type": "CONFLICT (contents)",
+      "info": "CONFLICT (content): Merge conflict in .gitignore",
+      "paths": [
+        ".gitignore"
+      ]
+    },
+    {
+      "type": "Auto-merging",
+      "info": "Auto-merging GIT-VERSION-GEN",
+      "paths": [
+        "GIT-VERSION-GEN"
+      ]
+    },
+    {
+      "type": "CONFLICT (contents)",
+      "info": "CONFLICT (content): Merge conflict in GIT-VERSION-GEN",
+      "paths": [
+        "GIT-VERSION-GEN"
+      ]
+    },
+    {
+      "type": "Auto-merging",
+      "info": "Auto-merging Makefile",
+      "paths": [
+        "Makefile"
+      ]
+    },
+    {
+      "type": "CONFLICT (contents)",
+      "info": "CONFLICT (content): Merge conflict in Makefile",
+      "paths": [
+        "Makefile"
+      ]
+    },
+    {
+      "type": "CONFLICT (rename/rename)",
+      "info": "CONFLICT (rename/rename): git-gui--askyesno renamed to git-gui/git-gui--askyesno in b70a02dcc9add838175b4c4a07171f8ab6b9f7c0 and to git-gui--askyesno.sh in bb52cdac6254c006e06bf0bb820268dcf024fc22.",
+      "paths": [
+        "git-gui--askyesno",
+        "git-gui/git-gui--askyesno",
+        "git-gui--askyesno.sh"
+      ]
+    },
+    {
+      "type": "Auto-merging",
+      "info": "Auto-merging meson.build",
+      "paths": [
+        "meson.build"
+      ]
+    },
+    {
+      "type": "CONFLICT (contents)",
+      "info": "CONFLICT (content): Merge conflict in meson.build",
+      "paths": [
+        "meson.build"
+      ]
+    },
+    {
+      "type": "Auto-merging",
+      "info": "Auto-merging meson_options.txt",
+      "paths": [
+        "meson_options.txt"
+      ]
+    },
+    {
+      "type": "CONFLICT (contents)",
+      "info": "CONFLICT (add/add): Merge conflict in meson_options.txt",
+      "paths": [
+        "meson_options.txt"
+      ]
+    }
+  ]
+}"""
+    expected_pruned_output = """{
+  "result_tree_oid": "011220431f89c908c13ee2fc547836374a1e1737",
+  "conflicted_files": [
+    {
+      "oid": "100644",
+      "mode": "5130b4f0189518462c7c387eb97fa2697ea308b6",
+      "stage": 1,
+      "path": ".gitignore"
+    },
+    {
+      "oid": "100644",
+      "mode": "24635cf2d6f4a37843ea7091da07c0d101dcac5b",
+      "stage": 2,
+      "path": ".gitignore"
+    },
+    {
+      "oid": "100644",
+      "mode": "38a41ebc58237f528196f54a8e6f35c802b8538a",
+      "stage": 3,
+      "path": ".gitignore"
+    },
+    {
+      "oid": "100755",
+      "mode": "c2767b4136cbbf85fa2c70a558030d7fd47c176a",
+      "stage": 1,
+      "path": "GIT-VERSION-GEN"
+    },
+    {
+      "oid": "100755",
+      "mode": "44240e07b881f027b64be45fafd4d7b1b0652f8c",
+      "stage": 2,
+      "path": "GIT-VERSION-GEN"
+    },
+    {
+      "oid": "100755",
+      "mode": "2f729de4bb55844405b619fcb821fd894ecb34fb",
+      "stage": 3,
+      "path": "GIT-VERSION-GEN"
+    },
+    {
+      "oid": "100644",
+      "mode": "69b0b844352bc1854e74a80a9312f8e4a331fbd6",
+      "stage": 1,
+      "path": "Makefile"
+    },
+    {
+      "oid": "100644",
+      "mode": "c619b5405b53005f64950465f80a212688ff002f",
+      "stage": 2,
+      "path": "Makefile"
+    },
+    {
+      "oid": "100644",
+      "mode": "ca01068810bbe6bf31bb7b135982319da2fe63ab",
+      "stage": 3,
+      "path": "Makefile"
+    },
+    {
+      "oid": "100755",
+      "mode": "142d1bc3de229bcdb4473cb6fb3bac20c1445b9e",
+      "stage": 1,
+      "path": "git-gui--askyesno"
+    },
+    {
+      "oid": "100755",
+      "mode": "142d1bc3de229bcdb4473cb6fb3bac20c1445b9e",
+      "stage": 3,
+      "path": "git-gui--askyesno.sh"
+    },
+    {
+      "oid": "100755",
+      "mode": "142d1bc3de229bcdb4473cb6fb3bac20c1445b9e",
+      "stage": 2,
+      "path": "git-gui/git-gui--askyesno"
+    },
+    {
+      "oid": "100644",
+      "mode": "320ba09ecfeb32188dfbce718d288c2bca0a5013",
+      "stage": 1,
+      "path": "meson.build"
+    },
+    {
+      "oid": "100644",
+      "mode": "9e9ba9b82b80eac305f92a9baf844303993affad",
+      "stage": 2,
+      "path": "meson.build"
+    },
+    {
+      "oid": "100644",
+      "mode": "a8119aa29fed95101cf050446a0687c2ae3248c0",
+      "stage": 3,
+      "path": "meson.build"
+    },
+    {
+      "oid": "100644",
+      "mode": "659cbb218f46e080c1d4c763b5a299446ea9234f",
+      "stage": 2,
+      "path": "meson_options.txt"
+    },
+    {
+      "oid": "100644",
+      "mode": "7591a34218ea9d8a826522db63d0015154c04b34",
+      "stage": 3,
+      "path": "meson_options.txt"
+    }
+  ],
+  "logical_conflicts": [
+    {
+      "type": "CONFLICT (contents)",
+      "info": "CONFLICT (content): Merge conflict in .gitignore",
+      "paths": [
+        ".gitignore"
+      ]
+    },
+    {
+      "type": "CONFLICT (contents)",
+      "info": "CONFLICT (content): Merge conflict in GIT-VERSION-GEN",
+      "paths": [
+        "GIT-VERSION-GEN"
+      ]
+    },
+    {
+      "type": "CONFLICT (contents)",
+      "info": "CONFLICT (content): Merge conflict in Makefile",
+      "paths": [
+        "Makefile"
+      ]
+    },
+    {
+      "type": "CONFLICT (rename/rename)",
+      "info": "CONFLICT (rename/rename): git-gui--askyesno renamed to git-gui/git-gui--askyesno in b70a02dcc9add838175b4c4a07171f8ab6b9f7c0 and to git-gui--askyesno.sh in bb52cdac6254c006e06bf0bb820268dcf024fc22.",
+      "paths": [
+        "git-gui--askyesno",
+        "git-gui/git-gui--askyesno",
+        "git-gui--askyesno.sh"
+      ]
+    },
+    {
+      "type": "CONFLICT (contents)",
+      "info": "CONFLICT (content): Merge conflict in meson.build",
+      "paths": [
+        "meson.build"
+      ]
+    },
+    {
+      "type": "CONFLICT (contents)",
+      "info": "CONFLICT (add/add): Merge conflict in meson_options.txt",
+      "paths": [
+        "meson_options.txt"
+      ]
+    }
+  ]
+}"""
+
+    actual_output = parse_merge_result(input).model_dump_json(indent=2)
+    print(actual_output)
+    assert actual_output == expected_output
+    actual_pruned_output = prune_auto_merged(parse_merge_result(input)).model_dump_json(indent=2)
+    print(actual_pruned_output) 
+    assert actual_pruned_output == expected_pruned_output
