@@ -14,6 +14,7 @@ RUN apt-get -y install python3-construct
 RUN apt-get -y install python3-pytest
 RUN apt-get -y install python3-loguru
 RUN apt-get -y install python3-tqdm
+RUN apt-get -y install python3-requests
 RUN apt-get -y install redis-tools
 
 ADD src-playground src
