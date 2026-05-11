@@ -57,6 +57,20 @@ def collect_parents(git_dir: str, sha: str) -> list[str]:
         return []
     return parents
 
+def process_merge_tree_output(git_dir: str, main_oid: str, feature_oid: str) -> MergeResult | None:
+    merge_tree_cmd = ["git", f"--git-dir={git_dir}", "merge-tree", "-z", main_oid, feature_oid]
+    
+    try:
+        subprocess.check_output(merge_tree_cmd, text=True)
+        logger.debug(f"No conflict for merge {main_oid} and {feature_oid}")
+    except subprocess.CalledProcessError as e:
+        if e.returncode == -signal.SIGINT:
+            global exiting
+            exiting = True
+            sys.exit(0)
+
+        return prune_auto_merged(parse_merge_result(e.output.encode()))
+
 def process_sha(git_dir: str, sha: str) -> MergeResult | None:
     global exiting
     if exiting:
@@ -72,21 +86,8 @@ def process_sha(git_dir: str, sha: str) -> MergeResult | None:
         logger.info(f"Merge commit {sha} has more than 2 parents, skipping")
         return None
     
-    merge_tree_cmd = ["git", f"--git-dir={git_dir}", "merge-tree", "-z", parents[0], parents[1]]
-    
-    try:
-        subprocess.check_output(merge_tree_cmd, text=True)
-        logger.debug(f"No conflict for merge {sha}")
-    except subprocess.CalledProcessError as e:
-        if e.returncode == -signal.SIGINT:
-            exiting = True
-            sys.exit(0)
-
-        mergeResult = prune_auto_merged(parse_merge_result(e.output.encode()))
-
-        for logical_conflict in mergeResult.logical_conflicts:
-            logger.info(f"{logical_conflict.type}")
-        return None
+    mergeResult = process_merge_tree_output(git_dir, parents[0], parents[1])
+    return mergeResult
 
 def main():
     parser = argparse.ArgumentParser(description="Collect conflict merge commits from a bare git repository")
