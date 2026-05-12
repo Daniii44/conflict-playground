@@ -16,6 +16,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 from common.active_playground_models import Configuration, ActivePlayground
 from common.redis_util import RUNTIME_ACTIVE_PLAYGROUND_PREFIX, setup_redis_connection
+from info.conflict.list import list_conflicts
 
 # playbook-start <playbook>
 
@@ -60,29 +61,35 @@ def get_conflict_sha(repo_name: str, index: int) -> str:
     )
     return result.stdout.strip()
 
-
 def load_playbook(playbook_path: str) -> list[Playground]:
     """Load playbook and create Playground objects"""
     with open(playbook_path, 'r') as f:
         data = yaml.safe_load(f)
 
     playgrounds = []
-    for source in data['playbook']['sources']:
-        repo_url = source['repo_url']
-        repo_name = get_repo_name_from_url(repo_url)
+    if not data['playbook']['sources']:
+        conflicts = list_conflicts(conflict_types=data['playbook']["config"]["conflict-types"])
+        print(data['playbook']["config"]["conflict-types"])
+        print(conflicts)
+        for (repo, merge_commit_oid) in conflicts:
+            playgrounds.append(Playground(repo_name=repo, merge_sha=merge_commit_oid))
+    else:
+        for source in data['playbook']['sources']:
+            repo_url = source['repo_url']
+            repo_name = get_repo_name_from_url(repo_url)
 
-        # Support override_merge_shas (explicit list) or limit (number of SHAs from conflicts)
-        override_shas = source.get('override_merge_shas', [])
-        if override_shas:
-            # Use explicitly provided merge SHAs
-            for merge_sha in override_shas:
-                playgrounds.append(Playground(repo_name=repo_name, merge_sha=merge_sha))
-        else:
-            # Use limit to get SHAs from conflict
-            limit = source.get('limit', 1)
-            for i in range(limit):
-                merge_sha = get_conflict_sha(repo_name, i)
-                playgrounds.append(Playground(repo_name=repo_name, merge_sha=merge_sha))
+            # Support override_merge_shas (explicit list) or limit (number of SHAs from conflicts)
+            override_shas = source.get('override_merge_shas', [])
+            if override_shas:
+                # Use explicitly provided merge SHAs
+                for merge_sha in override_shas:
+                    playgrounds.append(Playground(repo_name=repo_name, merge_sha=merge_sha))
+            else:
+                # Use limit to get SHAs from conflict
+                limit = source.get('limit', 1)
+                for i in range(limit):
+                    merge_sha = get_conflict_sha(repo_name, i)
+                    playgrounds.append(Playground(repo_name=repo_name, merge_sha=merge_sha))
 
     return playgrounds
 
