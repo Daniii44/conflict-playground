@@ -1,0 +1,5 @@
+playbook:
+  sources:
+    - repo_url: https://github.com/spring-projects/spring-boot.git
+      override_merge_shas:
+        - 326c1e123c556f6e26966fc73644d155d42751d8
