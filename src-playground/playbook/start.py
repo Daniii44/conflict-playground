@@ -169,6 +169,9 @@ def main():
 
     playbooks = os.environ.get("PLAYBOOKS")
     playbook_path = f"{playbooks}/{args.playbook}.yaml"
+    if not Path(playbook_path).is_file():
+        print(f"No such playbook: {playbook_path}")
+        sys.exit(1)
     playgrounds = load_playbook(playbook_path)
 
     # Apply skip
