@@ -23,6 +23,7 @@ def _ensure_exists_conflicts_info_idx(redis: Redis) -> None:
         TagField("$.repo", as_name="repo"),
         TagField("$.merge_commit_oid", as_name="merge_commit_oid"),
         NumericField("$.parent_count", as_name="parent_count"),
+        TagField("$.merge_result.logical_conflicts[*].type", as_name="type"),
     ]
     definition = IndexDefinition(prefix=["info:conflict"], index_type=IndexType.JSON)
 
