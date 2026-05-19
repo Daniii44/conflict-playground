@@ -4,7 +4,7 @@ import argparse
 from typing import cast
 from redis.commands.search.query import Query
 from redis.commands.search.result import Result
-from common.redis_util import setup_redis_connection, IDX_INFO_CONFLICT
+from common.redis_util import setup_redis_connection, IDX_INFO_CONFLICT_CORE
 
 
 
@@ -17,7 +17,7 @@ def main():
     query = Query(f"@repo:{{{args.git_repo_name.replace('-', '\\-')}}}").return_fields()
     result:Result = cast(
         Result,
-        redis.ft(IDX_INFO_CONFLICT).search(query)
+        redis.ft(IDX_INFO_CONFLICT_CORE).search(query)
     )
     
     print(f"{result.total}")

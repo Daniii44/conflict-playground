@@ -16,6 +16,8 @@ import threading
 import time
 from common.redis_util import setup_redis_connection
 from common.merge_tree import MergeResult, parse_merge_result, prune_auto_merged
+from info.conflict.analysis.common import Analysis, AnalysisInput
+from info.conflict.analysis.core_analysis import CoreAnalysis
 
 # Script to collect all dirty merge commits in a bare git repository
 # Usage: python collect-conflict.py <git-repo-name> [-f]
@@ -28,17 +30,28 @@ from common.merge_tree import MergeResult, parse_merge_result, prune_auto_merged
 # FIXME
 # Stalls at 20892/20893 for git - maybe related with "unable to read tree"
 
-class InfoConflict(BaseModel):
-    repo: str
-    merge_commit_oid: str
-    parent_count: int
-
-    merge_result: MergeResult
-
 exiting = False
 def signal_handler(sig, frame):
     global exiting
     exiting = True
+
+def already_analysed(analysis: Analysis, git_repo_name:str):
+    any_exists = next(redis.scan_iter(match=f"{analysis.get_redis_result_prefix()}:{git_repo_name}*", count=10), False) is not False
+    return any_exists
+
+def collect_analyses(analyses: list[str]) -> list[Analysis]:
+    def create_analysis(analysis: str):
+        match analysis:
+            case 'core': 
+                analysisType = CoreAnalysis
+            case _: 
+                logger.error(f"No such analysis: {analysis}")
+                sys.exit(-1)
+
+        return analysisType(analysis)
+
+    
+    return [create_analysis(analysis) for analysis in analyses]
 
 def collect_conflict_candidate_sha(git_dir: str) -> list[str]:
     rev_list_cmd = ["git", f"--git-dir={git_dir}", "rev-list", "--merges", "HEAD"]
@@ -52,71 +65,78 @@ def collect_conflict_candidate_sha(git_dir: str) -> list[str]:
         sys.exit(1)
     return rev_list
 
-def collect_parents(git_dir: str, sha: str) -> list[str]:
-    show_cmd = ["git", f"--git-dir={git_dir}", "show", "--no-patch", "--format=%P", sha]
+def collect_analysis_candidates(git_dir: str, git_repo_name: str) -> list[AnalysisInput]:
+    rev_list_cmd = ["git", f"--git-dir={git_dir}", "rev-list", "--merges", "HEAD"]
     try:
-        parents = subprocess.check_output(show_cmd, text=True).strip().split()
+        rev_list = subprocess.check_output(rev_list_cmd, text=True).splitlines()
     except subprocess.CalledProcessError as e:
         if e.returncode == -signal.SIGINT:
             global exiting
             exiting = True
-            sys.exit(0)
-        logger.error(f"Error running git show for {sha}: {e}")
-        return []
-    return parents
+        logger.error(f"Error running git rev-list: {e}")
+        sys.exit(1)
 
-def process_merge_tree_output(git_dir: str, main_oid: str, feature_oid: str) -> MergeResult | None:
-    merge_tree_cmd = ["git", f"--git-dir={git_dir}", "merge-tree", "-z", main_oid, feature_oid]
-    
-    try:
-        subprocess.check_output(merge_tree_cmd, text=True, stderr=subprocess.STDOUT)
-        logger.debug(f"No conflict for merge {main_oid} and {feature_oid}")
-    except subprocess.CalledProcessError as e:
-        if e.returncode == -signal.SIGINT:
-            global exiting
-            exiting = True
-            sys.exit(0)
-        if b'fatal: refusing to merge unrelated histories' in e.output.encode():
-            return None
+    return [AnalysisInput(
+            git_dir=git_dir,
+            git_repo_name=git_repo_name,
+            merge_commit_oid=merge_commit_oid
+        ) for merge_commit_oid in rev_list
+    ]
 
-        return prune_auto_merged(parse_merge_result(e.output.encode()))
-
-def process_sha(git_dir: str, git_repo_name: str, merge_commit_oid: str) -> InfoConflict | None:
-    global exiting
+def dispatch_analysis(analysis: Analysis, analysisInput: AnalysisInput):
     if exiting:
-        sys.exit(0)
+        return None
+    return analysis.analyse(analysisInput)
 
-    parents = collect_parents(git_dir, merge_commit_oid)
-    if len(parents) < 2:
-        logger.error(f"Merge commit {merge_commit_oid} has less than 2 parents, skipping")
-        return None
-    elif len(parents) > 2:
-        # Not supporting octopus merges for now, since git doesn't even allow to perform non trivial octopus merges directly.
-        # TODO: Take a look whether there are complex octoopus merges nonetheless
-        logger.info(f"Merge commit {merge_commit_oid} has more than 2 parents, skipping")
-        return None
+def execute_analyses(analysis: Analysis, analysisInputs: list[AnalysisInput], verbose: bool):
+    max_workers = os.cpu_count()
     
-    mergeResult = process_merge_tree_output(git_dir, parents[0], parents[1])
-    if mergeResult is None:
-        return None
-    
-    return InfoConflict(
-        repo=git_repo_name,
-        merge_commit_oid=merge_commit_oid,
-        parent_count=len(parents),
-        merge_result=mergeResult,
-    )
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = [executor.submit(dispatch_analysis, analysis, analysisInput) for analysisInput in analysisInputs]
+
+        with tqdm(total=len(futures), desc="Analysing Data") as pbar:
+            for future in as_completed(futures):
+                if exiting:
+                    sys.exit(0)
+
+                result = future.result()
+                logger.info(result)
+                if result is not None:
+                    analysisInput:AnalysisInput = result[0]
+                    analysisOutput:BaseModel = result[1]
+                    key = f"{analysis.get_redis_result_prefix()}:{analysisInput.git_repo_name}{analysisInput.merge_commit_oid}"
+                    logger.info(key)
+                    redis.json().set(key, Path.root_path(), analysisOutput.model_dump())
+
+                # Wrap as_completed in tqdm to get a live progress bar
+                if not verbose:
+                    pbar.update(1)
 
 def main():
     parser = argparse.ArgumentParser(description="Collect conflict merge commits from a bare git repository")
     parser.add_argument("git_repo_name", help="Name of the bare git repository")
     parser.add_argument("-f", "--force", action="store_true", help="Force rebuild even if merge commit list exists")
     parser.add_argument("-v", "--verbose", action="store_true", help="Display logs instead of progress bar")
+    parser.add_argument(
+        "-a",
+        "--analysis",
+        action="append",
+        help="Name of an analysis to run",
+    )
     args = parser.parse_args()
-
+    global redis
     redis = setup_redis_connection()
 
     signal.signal(signal.SIGINT, signal_handler)
+
+    analyses:list[Analysis]
+    if not args.analysis:
+        analyses = collect_analyses(['core'])
+    else:
+        analyses = collect_analyses(args.analysis)
+
+    if not args.verbose:
+        logger.disable("__main__");
 
     git_repo_name = args.git_repo_name
     force = args.force
@@ -127,34 +147,13 @@ def main():
         print(f"Error: {git_dir} does not exist")
         sys.exit(1)
 
-    result = subprocess.run(
-        ["info-conflict-count", git_repo_name],
-        capture_output=True,
-        text=True,
-        check=True
-    )
-    if result.stdout.strip() != "0" and not force:
-        print(f"Merge commit list for repo {git_repo_name} already exists with {result.stdout.strip()} entries, skipping collection (use -f to force rebuild)")
-        sys.exit(0)
-    
-    conflict_candidates = collect_conflict_candidate_sha(git_dir)
-    max_workers = os.cpu_count()
+    for analysis in analyses:
+        if already_analysed(analysis, git_repo_name) and not force:
+            print(f"Analysis data for repo {git_repo_name} of type {analysis.get_analysis_name()} already exists (use -f to force rebuild)")
+            break
 
-    if not args.verbose:
-        logger.disable("__main__");
-
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(process_sha, git_dir, git_repo_name, sha) for sha in conflict_candidates]
-
-        # Wrap as_completed in tqdm to get a live progress bar
-        if not args.verbose:
-            with tqdm(total=len(futures), desc="Processing SHAs") as pbar:
-                for future in as_completed(futures):
-                    result = future.result()
-                    if result is not None:
-                        redis.json().set(f"info:conflict:{result.merge_commit_oid}", Path.root_path(), result.model_dump())
-
-                    pbar.update(1)
+        conflict_candidates = collect_analysis_candidates(git_dir, git_repo_name)
+        execute_analyses(analysis, conflict_candidates, args.verbose)
 
 if __name__ == "__main__":
     main()
