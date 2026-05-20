@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import json
 import redis
 import requests
@@ -76,12 +77,16 @@ def insert_clickhouse(rows):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--prefix", default=REDIS_PREFIX, help="Redis key prefix to export")
+    args = parser.parse_args()
+
     ensure_table()
 
     batch = []
     BATCH_SIZE = 500
 
-    for key in tqdm(iter_keys(REDIS_PREFIX), desc="Exporting Redis keys", unit="key"):
+    for key in tqdm(iter_keys(args.prefix), desc="Exporting Redis keys", unit="key"):
         json_obj = fetch_json(key)
 
         # RedisJSON returns nested structure like [ {...} ]
