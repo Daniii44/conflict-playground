@@ -19,6 +19,7 @@ from common.merge_tree import MergeResult, parse_merge_result, prune_auto_merged
 from info.conflict.analysis.common import Analysis, AnalysisInput
 from info.conflict.analysis.core_analysis import CoreAnalysis
 from info.conflict.analysis.divergence_analysis import DivergenceAnalysis
+from info.conflict.analysis.tree_diff_analysis import TreeDiffAnalysis
 
 # Script to collect all dirty merge commits in a bare git repository
 # Usage: python collect-conflict.py <git-repo-name> [-f]
@@ -47,6 +48,8 @@ def collect_analyses(analyses: list[str]) -> list[Analysis]:
                 analysisType = CoreAnalysis
             case 'divergence':
                 analysisType = DivergenceAnalysis
+            case 'tree-diff':
+                analysisType = TreeDiffAnalysis
             case _: 
                 logger.error(f"No such analysis: {analysis}")
                 sys.exit(-1)
