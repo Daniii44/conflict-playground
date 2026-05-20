@@ -64,6 +64,8 @@ class InfoConflictTreeDiff(InfoConflict):
     # Directory spread
     dirs_changed_per_parent: list[int]
     dirs_changed_overlap: int | None
+    # File type distribution (None for octopus merges)
+    overlapping_changed_extensions: list[str] | None
 
 
 class TreeDiffAnalysis(Analysis):
@@ -107,6 +109,17 @@ class TreeDiffAnalysis(Analysis):
             rename_edit_conflicts = None
             rename_rename_conflicts = None
 
+        if is_binary:
+            def ext(path: str) -> str:
+                name = path.rsplit('/', 1)[-1]
+                return name.rsplit('.', 1)[-1] if '.' in name else ''
+
+            changed0 = mod0 | add0 | set(ren0.values())
+            changed1 = mod1 | add1 | set(ren1.values())
+            overlapping_changed_extensions = sorted({ext(f) for f in changed0 & changed1 if ext(f)})
+        else:
+            overlapping_changed_extensions = None
+
         def dirs_of(diff):
             mod, add, deleted, renames = diff
             all_files = mod | add | deleted | set(renames.values())
@@ -130,5 +143,6 @@ class TreeDiffAnalysis(Analysis):
                 files_changed_per_parent=[ns[2] for ns in numstats],
                 dirs_changed_per_parent=[len(d) for d in dirs_per_parent],
                 dirs_changed_overlap=dirs_changed_overlap,
+                overlapping_changed_extensions=overlapping_changed_extensions,
             )
         )
