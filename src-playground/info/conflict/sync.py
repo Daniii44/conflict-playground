@@ -106,7 +106,7 @@ def execute_analyses(analysis: Analysis, analysisInputs: list[AnalysisInput], ve
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = [executor.submit(dispatch_analysis, analysis, analysisInput) for analysisInput in analysisInputs]
 
-        with tqdm(total=len(futures), desc="Analysing Data") as pbar:
+        with tqdm(total=len(futures), desc=f"Analysing {analysis.get_analysis_name()}") as pbar:
             for future in as_completed(futures):
                 if exiting:
                     sys.exit(0)
