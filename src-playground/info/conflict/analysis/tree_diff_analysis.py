@@ -61,6 +61,9 @@ class InfoConflictTreeDiff(InfoConflict):
     insertions_per_parent: list[int]
     deletions_per_parent: list[int]
     files_changed_per_parent: list[int]
+    # Directory spread
+    dirs_changed_per_parent: list[int]
+    dirs_changed_overlap: int | None
 
 
 class TreeDiffAnalysis(Analysis):
@@ -104,6 +107,14 @@ class TreeDiffAnalysis(Analysis):
             rename_edit_conflicts = None
             rename_rename_conflicts = None
 
+        def dirs_of(diff):
+            mod, add, deleted, renames = diff
+            all_files = mod | add | deleted | set(renames.values())
+            return {f.rsplit('/', 1)[0] if '/' in f else '.' for f in all_files}
+
+        dirs_per_parent = [dirs_of(d) for d in diffs]
+        dirs_changed_overlap = len(dirs_per_parent[0] & dirs_per_parent[1]) if is_binary else None
+
         return (
             analysisInput,
             InfoConflictTreeDiff(
@@ -117,5 +128,7 @@ class TreeDiffAnalysis(Analysis):
                 insertions_per_parent=[ns[0] for ns in numstats],
                 deletions_per_parent=[ns[1] for ns in numstats],
                 files_changed_per_parent=[ns[2] for ns in numstats],
+                dirs_changed_per_parent=[len(d) for d in dirs_per_parent],
+                dirs_changed_overlap=dirs_changed_overlap,
             )
         )
