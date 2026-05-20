@@ -3,6 +3,7 @@
 import json
 import redis
 import requests
+from tqdm import tqdm
 
 REDIS_PREFIX = "info:conflict:"
 CLICKHOUSE_URL = "http://clickhouse:8123"
@@ -80,13 +81,12 @@ def main():
     batch = []
     BATCH_SIZE = 500
 
-    for key in iter_keys(REDIS_PREFIX):
+    for key in tqdm(iter_keys(REDIS_PREFIX), desc="Exporting Redis keys", unit="key"):
         json_obj = fetch_json(key)
 
         # RedisJSON returns nested structure like [ {...} ]
         if isinstance(json_obj, list) and len(json_obj) == 1:
             json_obj = json_obj[0]
-    
 
         batch.append((key, json.dumps(json_obj)))
 
