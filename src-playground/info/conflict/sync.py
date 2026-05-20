@@ -33,6 +33,12 @@ from info.conflict.analysis.tree_diff_analysis import TreeDiffAnalysis
 # Stalls at 20892/20893 for git - maybe related with "unable to read tree"
 
 exiting = False
+AVAILABLE_ANALYSES: dict[str, type[Analysis]] = {
+    "core": CoreAnalysis,
+    "divergence": DivergenceAnalysis,
+    "tree-diff": TreeDiffAnalysis,
+}
+
 def signal_handler(sig, frame):
     global exiting
     exiting = True
@@ -43,17 +49,11 @@ def already_analysed(analysis: Analysis, git_repo_name:str):
 
 def collect_analyses(analyses: list[str]) -> list[Analysis]:
     def create_analysis(analysis: str):
-        match analysis:
-            case 'core':
-                analysisType = CoreAnalysis
-            case 'divergence':
-                analysisType = DivergenceAnalysis
-            case 'tree-diff':
-                analysisType = TreeDiffAnalysis
-            case _: 
-                logger.error(f"No such analysis: {analysis}")
-                sys.exit(-1)
-
+        analysisType = AVAILABLE_ANALYSES.get(analysis)
+        if analysisType is None:
+            logger.error(f"No such analysis: {analysis}")
+            logger.error(f"Available analyses: {', '.join(AVAILABLE_ANALYSES)}")
+            sys.exit(-1)
         return analysisType(analysis)
 
     
@@ -124,7 +124,7 @@ def execute_analyses(analysis: Analysis, analysisInputs: list[AnalysisInput], ve
 
 def main():
     parser = argparse.ArgumentParser(description="Collect conflict merge commits from a bare git repository")
-    parser.add_argument("git_repo_name", help="Name of the bare git repository")
+    parser.add_argument("git_repo_name", nargs="?", help="Name of the bare git repository")
     parser.add_argument("-f", "--force", action="store_true", help="Force rebuild even if merge commit list exists")
     parser.add_argument("-v", "--verbose", action="store_true", help="Display logs instead of progress bar")
     parser.add_argument(
@@ -133,17 +133,38 @@ def main():
         action="append",
         help="Name of an analysis to run",
     )
+    parser.add_argument(
+        "--all-analysis",
+        action="store_true",
+        help="Run all available analyses",
+    )
+    parser.add_argument(
+        "--list-analyses",
+        action="store_true",
+        help="List all available analyses and exit",
+    )
     args = parser.parse_args()
+
+    if args.list_analyses:
+        for analysis in AVAILABLE_ANALYSES:
+            print(analysis)
+        sys.exit(0)
+
+    if not args.git_repo_name:
+        parser.error("the following arguments are required: git_repo_name")
+
     global redis
     redis = setup_redis_connection()
 
     signal.signal(signal.SIGINT, signal_handler)
 
     analyses:list[Analysis]
-    if not args.analysis:
-        analyses = collect_analyses(['core'])
-    else:
+    if args.all_analysis:
+        analyses = collect_analyses(list(AVAILABLE_ANALYSES))
+    elif args.analysis:
         analyses = collect_analyses(args.analysis)
+    else:
+        analyses = collect_analyses(['core'])
 
     if not args.verbose:
         logger.disable("__main__");
@@ -160,7 +181,7 @@ def main():
     for analysis in analyses:
         if already_analysed(analysis, git_repo_name) and not force:
             print(f"Analysis data for repo {git_repo_name} of type {analysis.get_analysis_name()} already exists (use -f to force rebuild)")
-            break
+            continue
 
         conflict_candidates = collect_analysis_candidates(git_dir, git_repo_name)
         execute_analyses(analysis, conflict_candidates, args.verbose)

@@ -15,5 +15,5 @@ fi
 
 for repo in $repos; do
     echo "Processing: $repo"
-    info-conflict-sync "$repo"
+    info-conflict-sync --all-analysis "$repo"
 done
