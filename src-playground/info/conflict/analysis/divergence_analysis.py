@@ -7,6 +7,7 @@ class InfoConflictDivergence(InfoConflict):
     parent_count: int
     merge_base_count: int
     entangled_commit_count: int
+    entangled_merge_commit_count: int
 
 
 class DivergenceAnalysis(Analysis):
@@ -20,10 +21,11 @@ class DivergenceAnalysis(Analysis):
         merge_base_cmd = ["git", f"--git-dir={analysisInput.git_dir}", "merge-base", "-a"] + parents
         merge_bases = subprocess.check_output(merge_base_cmd, text=True).strip().split()
 
-        rev_list_cmd = ["git", f"--git-dir={analysisInput.git_dir}", "rev-list", "--count"] + parents
-        if merge_bases:
-            rev_list_cmd += ["--not"] + merge_bases
-        entangled_commit_count = int(subprocess.check_output(rev_list_cmd, text=True))
+        rev_list_base = ["git", f"--git-dir={analysisInput.git_dir}", "rev-list", "--count"] + parents
+        not_clause = (["--not"] + merge_bases) if merge_bases else []
+
+        entangled_commit_count = int(subprocess.check_output(rev_list_base + not_clause, text=True))
+        entangled_merge_commit_count = int(subprocess.check_output(rev_list_base + ["--merges"] + not_clause, text=True))
 
         return (
             analysisInput,
@@ -33,5 +35,6 @@ class DivergenceAnalysis(Analysis):
                 parent_count=len(parents),
                 merge_base_count=len(merge_bases),
                 entangled_commit_count=entangled_commit_count,
+                entangled_merge_commit_count=entangled_merge_commit_count,
             )
         )
