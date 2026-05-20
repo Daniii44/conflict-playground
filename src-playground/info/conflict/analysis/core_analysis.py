@@ -5,13 +5,9 @@ from pydantic import BaseModel
 from common.redis_util import setup_redis_connection
 from common.merge_tree import MergeResult, parse_merge_result, prune_auto_merged
 from loguru import logger
-from info.conflict.analysis.common import Analysis, AnalysisInput
+from info.conflict.analysis.common import Analysis, AnalysisInput, InfoConflict
 
-class InfoConflict(BaseModel):
-    repo: str
-    merge_commit_oid: str
-    parent_count: int
-
+class InfoConflictCore(InfoConflict):
     merge_result: MergeResult
 
 class CoreAnalysis(Analysis):
@@ -60,9 +56,8 @@ class CoreAnalysis(Analysis):
         if mergeResult is None:
             return None
         
-        return (analysisInput, InfoConflict(
+        return (analysisInput, InfoConflictCore(
             repo=analysisInput.git_repo_name,
             merge_commit_oid=analysisInput.merge_commit_oid,
-            parent_count=len(parents),
             merge_result=mergeResult,
         ))

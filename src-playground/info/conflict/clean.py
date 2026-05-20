@@ -24,7 +24,6 @@ def main():
     if args.all:
         for key in redis.scan_iter(match="info:conflict:*"):
             redis.delete(key)
-            print(key)
             deleted_count += 1
     else:
         query = Query(f"@repo:{{{args.git_repo_name.replace('-', '\\-')}}}").return_fields().paging(0, 1000000)

@@ -18,6 +18,7 @@ from common.redis_util import setup_redis_connection
 from common.merge_tree import MergeResult, parse_merge_result, prune_auto_merged
 from info.conflict.analysis.common import Analysis, AnalysisInput
 from info.conflict.analysis.core_analysis import CoreAnalysis
+from info.conflict.analysis.divergence_analysis import DivergenceAnalysis
 
 # Script to collect all dirty merge commits in a bare git repository
 # Usage: python collect-conflict.py <git-repo-name> [-f]
@@ -42,8 +43,10 @@ def already_analysed(analysis: Analysis, git_repo_name:str):
 def collect_analyses(analyses: list[str]) -> list[Analysis]:
     def create_analysis(analysis: str):
         match analysis:
-            case 'core': 
+            case 'core':
                 analysisType = CoreAnalysis
+            case 'divergence':
+                analysisType = DivergenceAnalysis
             case _: 
                 logger.error(f"No such analysis: {analysis}")
                 sys.exit(-1)
@@ -86,7 +89,13 @@ def collect_analysis_candidates(git_dir: str, git_repo_name: str) -> list[Analys
 def dispatch_analysis(analysis: Analysis, analysisInput: AnalysisInput):
     if exiting:
         return None
-    return analysis.analyse(analysisInput)
+
+    try:
+        return analysis.analyse(analysisInput)
+    except Exception as e:
+        logger.error("Analysis threw exception:", e)
+    
+    return None
 
 def execute_analyses(analysis: Analysis, analysisInputs: list[AnalysisInput], verbose: bool):
     max_workers = os.cpu_count()
@@ -100,12 +109,10 @@ def execute_analyses(analysis: Analysis, analysisInputs: list[AnalysisInput], ve
                     sys.exit(0)
 
                 result = future.result()
-                logger.info(result)
                 if result is not None:
                     analysisInput:AnalysisInput = result[0]
                     analysisOutput:BaseModel = result[1]
-                    key = f"{analysis.get_redis_result_prefix()}:{analysisInput.git_repo_name}{analysisInput.merge_commit_oid}"
-                    logger.info(key)
+                    key = f"{analysis.get_redis_result_prefix()}:{analysisInput.git_repo_name}:{analysisInput.merge_commit_oid}"
                     redis.json().set(key, Path.root_path(), analysisOutput.model_dump())
 
                 # Wrap as_completed in tqdm to get a live progress bar

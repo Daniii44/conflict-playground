@@ -1,6 +1,10 @@
 from abc import ABC, abstractmethod
 from pydantic import BaseModel
 
+class InfoConflict(BaseModel):
+    repo: str
+    merge_commit_oid: str
+
 class AnalysisInput(BaseModel):
     git_dir: str
     git_repo_name: str
