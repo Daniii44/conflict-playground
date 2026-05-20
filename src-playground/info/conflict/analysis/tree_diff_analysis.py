@@ -33,6 +33,9 @@ class InfoConflictTreeDiff(InfoConflict):
     files_modified_overlap: int | None
     files_added_overlap: int | None
     files_deleted_modified_overlap: int | None
+    # Rename conflicts (None for octopus merges)
+    rename_edit_conflicts: int | None
+    rename_rename_conflicts: int | None
 
 
 class TreeDiffAnalysis(Analysis):
@@ -59,15 +62,21 @@ class TreeDiffAnalysis(Analysis):
         is_binary = len(parents) == 2
 
         if is_binary:
-            mod0, add0, del0, _ = diffs[0]
-            mod1, add1, del1, _ = diffs[1]
+            mod0, add0, del0, ren0 = diffs[0]
+            mod1, add1, del1, ren1 = diffs[1]
             files_modified_overlap = len(mod0 & mod1)
             files_added_overlap = len(add0 & add1)
             files_deleted_modified_overlap = len((del0 & mod1) | (del1 & mod0))
+            # renamed in one parent, modified in the other
+            rename_edit_conflicts = len((set(ren0) & mod1) | (set(ren1) & mod0))
+            # same source renamed in both, or different sources renamed to the same target
+            rename_rename_conflicts = len(set(ren0) & set(ren1)) + len(set(ren0.values()) & set(ren1.values()))
         else:
             files_modified_overlap = None
             files_added_overlap = None
             files_deleted_modified_overlap = None
+            rename_edit_conflicts = None
+            rename_rename_conflicts = None
 
         return (
             analysisInput,
@@ -77,5 +86,7 @@ class TreeDiffAnalysis(Analysis):
                 files_modified_overlap=files_modified_overlap,
                 files_added_overlap=files_added_overlap,
                 files_deleted_modified_overlap=files_deleted_modified_overlap,
+                rename_edit_conflicts=rename_edit_conflicts,
+                rename_rename_conflicts=rename_rename_conflicts,
             )
         )
