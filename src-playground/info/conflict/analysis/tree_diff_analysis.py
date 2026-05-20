@@ -8,6 +8,27 @@ def _diff_name_status(git_dir: str, base: str, ref: str) -> str:
     return subprocess.check_output(cmd, text=True)
 
 
+def _diff_numstat(git_dir: str, base: str, ref: str) -> str:
+    cmd = ["git", f"--git-dir={git_dir}", "diff-tree", "-r", "--numstat", base, ref]
+    return subprocess.check_output(cmd, text=True)
+
+
+def _parse_numstat(output: str) -> tuple[int, int, int]:
+    insertions = deletions = file_count = 0
+    for line in output.strip().splitlines():
+        if not line:
+            continue
+        parts = line.split('\t')
+        if len(parts) < 3:
+            continue
+        if parts[0] != '-':
+            insertions += int(parts[0])
+        if parts[1] != '-':
+            deletions += int(parts[1])
+        file_count += 1
+    return insertions, deletions, file_count
+
+
 def _parse_name_status(output: str) -> tuple[set, set, set, dict]:
     modified, added, deleted, renames = set(), set(), set(), {}
     for line in output.strip().splitlines():
@@ -36,6 +57,10 @@ class InfoConflictTreeDiff(InfoConflict):
     # Rename conflicts (None for octopus merges)
     rename_edit_conflicts: int | None
     rename_rename_conflicts: int | None
+    # Change magnitude per parent
+    insertions_per_parent: list[int]
+    deletions_per_parent: list[int]
+    files_changed_per_parent: list[int]
 
 
 class TreeDiffAnalysis(Analysis):
@@ -59,6 +84,7 @@ class TreeDiffAnalysis(Analysis):
             return None
 
         diffs = [_parse_name_status(_diff_name_status(git_dir, base, p)) for p in parents]
+        numstats = [_parse_numstat(_diff_numstat(git_dir, base, p)) for p in parents]
         is_binary = len(parents) == 2
 
         if is_binary:
@@ -88,5 +114,8 @@ class TreeDiffAnalysis(Analysis):
                 files_deleted_modified_overlap=files_deleted_modified_overlap,
                 rename_edit_conflicts=rename_edit_conflicts,
                 rename_rename_conflicts=rename_rename_conflicts,
+                insertions_per_parent=[ns[0] for ns in numstats],
+                deletions_per_parent=[ns[1] for ns in numstats],
+                files_changed_per_parent=[ns[2] for ns in numstats],
             )
         )
