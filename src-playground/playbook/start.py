@@ -51,16 +51,6 @@ def get_repo_name_from_url(url: str) -> str:
     return repo_name
 
 
-def get_conflict_sha(repo_name: str, index: int) -> str:
-    """Get merge SHA at given index using info-conflict-sha command"""
-    result = subprocess.run(
-        ["info-conflict-sha", repo_name, str(index)],
-        capture_output=True,
-        text=True,
-        check=True
-    )
-    return result.stdout.strip()
-
 def load_playbook(playbook_path: str) -> list[Playground]:
     """Load playbook and create Playground objects"""
     with open(playbook_path, 'r') as f:
@@ -87,9 +77,9 @@ def load_playbook(playbook_path: str) -> list[Playground]:
             else:
                 # Use limit to get SHAs from conflict
                 limit = source.get('limit', 1)
-                for i in range(limit):
-                    merge_sha = get_conflict_sha(repo_name, i)
-                    playgrounds.append(Playground(repo_name=repo_name, merge_sha=merge_sha))
+                
+                for conflict in list_conflicts(repos=[repo_name], limit=limit):
+                    playgrounds.append(Playground(repo_name=repo_name, merge_sha=conflict[1]))
 
     return playgrounds
 
