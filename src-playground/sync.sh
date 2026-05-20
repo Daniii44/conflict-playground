@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Syncing Repositories"
-repo-sync
+repo-sync "$@"
 
 echo
 echo "Syncing Info"
