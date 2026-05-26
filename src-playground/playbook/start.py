@@ -13,8 +13,8 @@ import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
-from urllib.parse import urlsplit
 from common.active_playground_models import Configuration, ActivePlayground
+from common.repo_cache import repo_cache_key
 from common.redis_util import RUNTIME_ACTIVE_PLAYGROUND_PREFIX, setup_redis_connection
 from info.conflict.list import list_conflicts
 
@@ -40,26 +40,6 @@ class Playground:
     merge_sha: str
 
 
-def get_repo_name_from_url(url: str) -> str:
-    """Extract cache key like https://github.com/qt/qt5.git -> qt/qt5.git."""
-    parsed = urlsplit(url)
-    if parsed.scheme or parsed.netloc:
-        path = parsed.path
-    elif ":" in url and "/" not in url.split(":", 1)[0]:
-        path = url.split(":", 1)[1]
-    else:
-        path = url
-
-    parts = [part for part in path.split("/") if part and part not in {".", ".."}]
-    if not parts:
-        repo_name = Path(url.rstrip("/")).name
-        return repo_name if repo_name.endswith(".git") else f"{repo_name}.git"
-
-    if not parts[-1].endswith(".git"):
-        parts[-1] = f"{parts[-1]}.git"
-    return "/".join(parts)
-
-
 def load_playbook(playbook_path: str) -> list[Playground]:
     """Load playbook and create Playground objects"""
     with open(playbook_path, 'r') as f:
@@ -75,7 +55,7 @@ def load_playbook(playbook_path: str) -> list[Playground]:
     else:
         for source in data['playbook']['sources']:
             repo_url = source['repo_url']
-            repo_name = get_repo_name_from_url(repo_url)
+            repo_name = repo_cache_key(repo_url)
 
             # Support override_merge_shas (explicit list) or limit (number of SHAs from conflicts)
             override_shas = source.get('override_merge_shas', [])
