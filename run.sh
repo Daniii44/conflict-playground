@@ -34,6 +34,9 @@ fi
 # Playground Version
 export PLAYGROUND_VERSION=$(git describe --always --dirty)
 
+# Loguru
+export LOGURU_FORMAT="{time:HH:mm:ss.SSS} | <level>{level: <8}</level> | {message}"
+
 echo "[INFO] Building and starting Docker container..."
 docker compose up --build -d redis conflict-playground hook-$HOOK_TYPE
 
@@ -42,7 +45,7 @@ echo "[INFO] Cleaning up old sessions..."
 tmux kill-session -t conflict-playground 2>/dev/null
 
 echo "[INFO] Starting tmux session..."
-tmux new-session -d -s conflict-playground "docker exec -it -e PLAYGROUND_VERSION="$PLAYGROUND_VERSION" -e VOLUME_TYPE=$VOLUME_TYPE -e HOOK_TYPE=$HOOK_TYPE conflict-playground bash src/entrypoint.sh; tmux kill-session"
+tmux new-session -d -s conflict-playground "docker exec -it -e LOGURU_FORMAT='$LOGURU_FORMAT' -e PLAYGROUND_VERSION="$PLAYGROUND_VERSION" -e VOLUME_TYPE=$VOLUME_TYPE -e HOOK_TYPE=$HOOK_TYPE conflict-playground bash src/entrypoint.sh; tmux kill-session"
 tmux split-window -h -t conflict-playground "./src-hooks/attach.sh $VOLUME_TYPE $HOOK_TYPE \"$SMARTGIT_BINARY\"; tmux kill-session"
 tmux select-pane -t 1
 
