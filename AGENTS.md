@@ -27,7 +27,7 @@ The container's `entrypoint.sh` flattens all executables from `src-playground/` 
 
 ```bash
 help                                          # List all commands
-repo-sync <repo_url>                          # Clone/update bare repo to caches
+repo-sync [playbook]                          # Clone/update playbook repos to caches
 info-conflict-sync <repo> [-f] [-a core]      # Analyze repo for conflicting merges
 info-conflict-list [--type <type>]            # Query conflicts from Redis
 info-conflict-count <repo>                    # Count stored conflicts
@@ -46,13 +46,17 @@ pytest tests-playground/foo.py  # Run a single test file
 
 `pyproject.toml` sets `testpaths = ["tests-playground"]` and `pythonpath = ["src-playground"]`.
 
+## Python Logging
+
+Python CLI scripts should use Loguru (`from loguru import logger`) for status, warning, and error output instead of `print`. The container installs `python3-loguru`, and log verbosity is controlled by `LOGURU_LEVEL`.
+
 ## Architecture
 
 ### Data Flow
 
 ```
 GitHub repos
-  → repo-sync → bare repos in /caches/repos/<name>.git
+  → repo-sync → bare repos in /caches/repos/<owner-or-user>/<repo>.git
   → info-conflict-sync → git merge-tree analysis → Redis (info:conflict:core:<repo><sha>)
   → playbook-start → for each conflict:
       playground-setup (working clone with merge in progress)

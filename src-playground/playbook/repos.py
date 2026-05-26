@@ -4,17 +4,28 @@ import argparse
 import os
 import sys
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlsplit
 
 import yaml
 
 
 def get_repo_name_from_url(url: str) -> str:
-    parsed = urlparse(url)
-    repo_name = parsed.path.strip("/").split("/")[-1]
-    if repo_name.endswith(".git"):
-        repo_name = repo_name[:-4]
-    return repo_name
+    parsed = urlsplit(url)
+    if parsed.scheme or parsed.netloc:
+        path = parsed.path
+    elif ":" in url and "/" not in url.split(":", 1)[0]:
+        path = url.split(":", 1)[1]
+    else:
+        path = url
+
+    parts = [part for part in path.split("/") if part and part not in {".", ".."}]
+    if not parts:
+        repo_name = Path(url.rstrip("/")).name
+        return repo_name if repo_name.endswith(".git") else f"{repo_name}.git"
+
+    if not parts[-1].endswith(".git"):
+        parts[-1] = f"{parts[-1]}.git"
+    return "/".join(parts)
 
 
 def load_playbook_repos(playbook_path: Path) -> list[str]:

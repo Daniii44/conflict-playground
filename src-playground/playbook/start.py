@@ -13,7 +13,7 @@ import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlsplit
 from common.active_playground_models import Configuration, ActivePlayground
 from common.redis_util import RUNTIME_ACTIVE_PLAYGROUND_PREFIX, setup_redis_connection
 from info.conflict.list import list_conflicts
@@ -41,14 +41,23 @@ class Playground:
 
 
 def get_repo_name_from_url(url: str) -> str:
-    """Extract repo name from URL like https://github.com/git/git.git -> git"""
-    parsed = urlparse(url)
-    path = parsed.path.strip("/")
-    # Get the last part and remove .git suffix
-    repo_name = path.split("/")[-1]
-    if repo_name.endswith(".git"):
-        repo_name = repo_name[:-4]
-    return repo_name
+    """Extract cache key like https://github.com/qt/qt5.git -> qt/qt5.git."""
+    parsed = urlsplit(url)
+    if parsed.scheme or parsed.netloc:
+        path = parsed.path
+    elif ":" in url and "/" not in url.split(":", 1)[0]:
+        path = url.split(":", 1)[1]
+    else:
+        path = url
+
+    parts = [part for part in path.split("/") if part and part not in {".", ".."}]
+    if not parts:
+        repo_name = Path(url.rstrip("/")).name
+        return repo_name if repo_name.endswith(".git") else f"{repo_name}.git"
+
+    if not parts[-1].endswith(".git"):
+        parts[-1] = f"{parts[-1]}.git"
+    return "/".join(parts)
 
 
 def load_playbook(playbook_path: str) -> list[Playground]:

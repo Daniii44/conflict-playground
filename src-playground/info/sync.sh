@@ -10,7 +10,14 @@ fi
 if [ "$#" -eq 1 ]; then
     repos=$(playbook-repos "$1")
 else
-    repos=$(find "${CACHES}/repos" -mindepth 1 -maxdepth 1 -type d -name "*.git" -exec basename {} .git \;)
+    repos=$(
+        find "${CACHES}/repos" -type f -name HEAD | while IFS= read -r head; do
+            repo_dir=$(dirname "$head")
+            if [ -d "${repo_dir}/objects" ]; then
+                realpath -L --relative-to="${CACHES}/repos" "$repo_dir"
+            fi
+        done
+    )
 fi
 
 for repo in $repos; do

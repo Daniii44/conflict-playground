@@ -172,7 +172,7 @@ def main():
     git_repo_name = args.git_repo_name
     force = args.force
     caches = os.environ.get("CACHES", "../../caches")
-    git_dir = f"{caches}/repos/{git_repo_name}.git"
+    git_dir = f"{caches}/repos/{git_repo_name}"
     
     if not os.path.isdir(git_dir):
         print(f"Error: {git_dir} does not exist")

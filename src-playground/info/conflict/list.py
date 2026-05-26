@@ -10,7 +10,10 @@ from common.redis_util import setup_redis_connection, IDX_INFO_CONFLICT_CORE
 DEFAULT_LIMIT = 1_000_000
 
 def escape_value(value: str):
-    return value.replace("(","\\(").replace(")","\\)").replace('-', '\\-')
+    escaped = value.replace("\\", "\\\\")
+    for char in " ,.<>{}[]\"':;!@#$%^&*()-+=~|/":
+        escaped = escaped.replace(char, f"\\{char}")
+    return escaped
 
 def excape_values(values: list[str]):
     return [escape_value(value) for value in values]

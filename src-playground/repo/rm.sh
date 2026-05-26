@@ -10,7 +10,7 @@ fi
 
 REPO_NAME="$1"
 CACHES="${CACHES:-${HOME}/caches}"
-REPO_PATH="${CACHES}/repos/${REPO_NAME}.git"
+REPO_PATH="${CACHES}/repos/${REPO_NAME}"
 
 if [[ -z "$REPO_NAME" ]]; then
     echo "Error: Repository name must not be empty."

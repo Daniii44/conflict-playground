@@ -49,7 +49,7 @@ def main():
     print_pretty_info(conflict_info)
     print()
 
-    repo_dir = os.environ.get("CACHES", "../../caches") + f"/repos/{conflict_info.repo}.git"
+    repo_dir = os.environ.get("CACHES", "../../caches") + f"/repos/{conflict_info.repo}"
     command = f"git --git-dir={repo_dir} show {args.sha}"
     show_result = subprocess.run(
         command.split(),
