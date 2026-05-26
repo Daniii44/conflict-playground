@@ -76,7 +76,7 @@ GitHub repos
 - Hook communication: `to_hook` / `to_playground` pub/sub channels
 
 **Playground Lifecycle (`src-playground/playground/`)**  
-`setup.sh` creates a git clone using alternates (space-efficient, references the bare repo). It checks out `main` (first parent) and `feature` (second parent) branches and initiates a merge, leaving the repo in a conflicted state for the user.
+`setup.py` creates a git clone using alternates (space-efficient, references the bare repo). It checks out `main` (first parent) and `feature` (second parent) branches and initiates a merge, leaving the repo in a conflicted state for the user.
 
 **Hook Worker Pattern (`src-hooks/`)**  
 Hook workers run in a separate container. `HookWorker` base class in `hooks_common.py` handles Redis pub/sub. Currently only `manual-cli` is implemented: it spawns an interactive zsh session so the user can resolve conflicts manually with standard git tools. A `manual-smartgit` hook also exists (GUI-based).
