@@ -1,0 +1,6 @@
+playbook:
+  sources:
+    - repo_url: https://github.com/freeCodeCamp/freeCodeCamp.git
+      limit: 10
+    - repo_url: https://github.com/qt/qt5
+      limit: 10

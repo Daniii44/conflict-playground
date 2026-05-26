@@ -1,0 +1,5 @@
+playbook:
+  sources:
+    - repo_url: https://github.com/git/git.git
+      override_merge_shas:
+        - 143f58ef7535f8f8a80d810768a18bdf3807de26

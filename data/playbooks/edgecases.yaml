@@ -1,0 +1,9 @@
+playbook:
+  config:
+    conflict-types:
+      # - CONFLICT (file in way of directory rename)
+      # - CONFLICT (file/directory)
+      # - CONFLICT (binary)
+      - CONFLICT(directory rename unclear split) # The missing space between "CONFLICT" and "(" is intentional (see git source code)
+      # - CONFLICT (distinct modes)
+  sources:
