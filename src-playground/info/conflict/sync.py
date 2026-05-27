@@ -1,21 +1,19 @@
 #!/usr/bin/env python3
 
-from asyncio import futures
+import os
+import argparse
 import signal
+import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
 
 from loguru import logger
-import os
-import sys
-import subprocess
-import argparse
-from redis.commands.json.path import Path
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from pydantic import BaseModel
+from redis.commands.json.path import Path as RedisPath
 from tqdm import tqdm
-import threading
-import time
+
+from common.git_util import capture_git
 from common.redis_util import setup_redis_connection
-from common.merge_tree import MergeResult, parse_merge_result, prune_auto_merged
 from info.conflict.analysis.common import Analysis, AnalysisInput
 from info.conflict.analysis.core_analysis import CoreAnalysis
 from info.conflict.analysis.divergence_analysis import DivergenceAnalysis
@@ -59,29 +57,19 @@ def collect_analyses(analyses: list[str]) -> list[Analysis]:
     
     return [create_analysis(analysis) for analysis in analyses]
 
-def collect_conflict_candidate_sha(git_dir: str) -> list[str]:
-    rev_list_cmd = ["git", f"--git-dir={git_dir}", "rev-list", "--merges", "HEAD"]
-    try:
-        rev_list = subprocess.check_output(rev_list_cmd, text=True).splitlines()
-    except subprocess.CalledProcessError as e:
-        if e.returncode == -signal.SIGINT:
-            global exiting
-            exiting = True
-        logger.error(f"Error running git rev-list: {e}")
-        sys.exit(1)
-    return rev_list
-
 def collect_analysis_candidates(git_dir: str, git_repo_name: str) -> list[AnalysisInput]:
-    rev_list_cmd = ["git", f"--git-dir={git_dir}", "rev-list", "--merges", "HEAD"]
-    try:
-        rev_list = subprocess.check_output(rev_list_cmd, text=True).splitlines()
-    except subprocess.CalledProcessError as e:
-        if e.returncode == -signal.SIGINT:
-            global exiting
-            exiting = True
-        logger.error(f"Error running git rev-list: {e}")
+    result = capture_git(
+        f"--git-dir={git_dir}",
+        "rev-list",
+        "--merges",
+        "HEAD",
+        check=False,
+    )
+    if result.returncode != 0:
+        logger.error("Error running git rev-list for {}: {}", git_repo_name, result.stderr.strip())
         sys.exit(1)
 
+    rev_list = result.stdout.splitlines()
     return [AnalysisInput(
             git_dir=git_dir,
             git_repo_name=git_repo_name,
@@ -116,7 +104,7 @@ def execute_analyses(analysis: Analysis, analysisInputs: list[AnalysisInput], ve
                     analysisInput:AnalysisInput = result[0]
                     analysisOutput:BaseModel = result[1]
                     key = f"{analysis.get_redis_result_prefix()}:{analysisInput.git_repo_name}:{analysisInput.merge_commit_oid}"
-                    redis.json().set(key, Path.root_path(), analysisOutput.model_dump())
+                    redis.json().set(key, RedisPath.root_path(), analysisOutput.model_dump())
 
                 # Wrap as_completed in tqdm to get a live progress bar
                 if not verbose:
@@ -171,11 +159,11 @@ def main():
 
     git_repo_name = args.git_repo_name
     force = args.force
-    caches = os.environ.get("CACHES", "../../caches")
-    git_dir = f"{caches}/repos/{git_repo_name}"
+    caches = Path(os.environ.get("CACHES", "../../caches"))
+    git_dir = caches / "repos" / git_repo_name
     
-    if not os.path.isdir(git_dir):
-        print(f"Error: {git_dir} does not exist")
+    if not git_dir.is_dir():
+        logger.error("Bare repository does not exist: {}", git_dir)
         sys.exit(1)
 
     for analysis in analyses:
@@ -183,7 +171,7 @@ def main():
             print(f"Analysis data for repo {git_repo_name} of type {analysis.get_analysis_name()} already exists (use -f to force rebuild)")
             continue
 
-        conflict_candidates = collect_analysis_candidates(git_dir, git_repo_name)
+        conflict_candidates = collect_analysis_candidates(str(git_dir), git_repo_name)
         execute_analyses(analysis, conflict_candidates, args.verbose)
 
 if __name__ == "__main__":
