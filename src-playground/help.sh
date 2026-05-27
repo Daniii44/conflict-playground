@@ -8,6 +8,7 @@ General Commands
 Available Tools:
     conflict-*          Scripts from src/conflict
     benchmark-*         Scripts from src/benchmark
+    info-redis-*        Save, import, and prune Redis data keys
     repo-*              Scripts from src/repo
     playground-*         Scripts from src/playgrounds
     playbooks-*         Scripts from src/playbooks
