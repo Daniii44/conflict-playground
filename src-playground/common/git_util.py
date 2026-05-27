@@ -1,6 +1,8 @@
 import os
 import subprocess
 
+from loguru import logger
+
 
 def git_env() -> dict[str, str]:
     env = os.environ.copy()
@@ -16,6 +18,7 @@ def capture_git(
     check: bool = True,
     cwd: str | os.PathLike[str] | None = None,
 ) -> subprocess.CompletedProcess[str]:
+    logger.debug("Running git command: git {}", " ".join(args))
     return subprocess.run(
         ["git", *args],
         check=check,
@@ -31,6 +34,7 @@ def stream_git(
     check: bool = False,
     cwd: str | os.PathLike[str] | None = None,
 ) -> subprocess.CompletedProcess[bytes]:
+    logger.debug("Running git command: git {}", " ".join(args))
     return subprocess.run(
         ["git", *args],
         check=check,
