@@ -3,6 +3,11 @@ from datetime import datetime
 from typing import Any
 from common.active_playground_models import Configuration
 
+class ProposedResolution(BaseModel):
+    commit_sha: str | None = None
+    show_cc: str | None = None
+    error: str | None = None
+
 class Evaluation(BaseModel):
     duration_seconds: float
     incomplete_merge: bool
@@ -19,3 +24,4 @@ class ConflictEvaluation(BaseModel):
     configuration: Configuration
     result: Evaluation
     hook_result: dict[str, Any] | None = None
+    proposed_resolution: ProposedResolution | None = None

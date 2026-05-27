@@ -3,11 +3,13 @@
 import argparse
 from datetime import datetime
 import json
+import os
 import subprocess
 
 import rich
 from common.active_playground_models import Configuration, ActivePlayground
-from common.evaluation_models import Evaluation, ConflictEvaluation
+from common.evaluation_models import Evaluation, ConflictEvaluation, ProposedResolution
+from common.git_util import capture_git
 from common.redis_util import (
     EVALUATION_CONFLICT_PREFIX,
     RUNTIME_ACTIVE_PLAYGROUND_PREFIX,
@@ -30,6 +32,28 @@ def evaluation_diff(playground_name: str) -> bool:
         return True
     except subprocess.CalledProcessError:
         return False
+
+def collect_proposed_resolution(playground_name: str) -> ProposedResolution:
+    playgrounds = os.environ.get("PLAYGROUNDS")
+    if playgrounds is None:
+        return ProposedResolution(error="PLAYGROUNDS environment variable is not set")
+
+    playground_path = f"{playgrounds}/{playground_name}"
+    head_result = capture_git("-C", playground_path, "rev-parse", "HEAD", check=False)
+    if head_result.returncode != 0:
+        error = head_result.stderr.strip() or head_result.stdout.strip()
+        return ProposedResolution(error=f"Could not read resolved HEAD: {error}")
+
+    commit_sha = head_result.stdout.strip()
+    show_result = capture_git("-C", playground_path, "show", "--cc", commit_sha, check=False)
+    if show_result.returncode != 0:
+        error = show_result.stderr.strip() or show_result.stdout.strip()
+        return ProposedResolution(
+            commit_sha=commit_sha,
+            error=f"Could not export proposed resolution with git show --cc: {error}",
+        )
+
+    return ProposedResolution(commit_sha=commit_sha, show_cc=show_result.stdout)
 
 def evaluate(configuration: Configuration, playground_name: str) -> Evaluation:
     print(configuration.resolution_start)
@@ -70,10 +94,12 @@ def main():
     print(f"Assessing playground {args.playground_name} with config: {active_playground}")
 
     evaluation = evaluate(active_playground.configuration, args.playground_name)
+    proposed_resolution = collect_proposed_resolution(args.playground_name)
     conflict_evaluation = ConflictEvaluation(
         configuration=active_playground.configuration,
         result=evaluation,
         hook_result=active_playground.hook_result,
+        proposed_resolution=proposed_resolution,
     )
     redis.json().set(
         f"{EVALUATION_CONFLICT_PREFIX}{args.playground_name}",
