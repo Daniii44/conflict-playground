@@ -13,3 +13,7 @@ for repo in $repos; do
     echo "Processing: $repo"
     info-conflict-sync --all-analysis "$repo"
 done
+
+echo
+echo "Syncing with Clickhouse"
+info-clickhouse-sync
