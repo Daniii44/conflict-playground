@@ -26,7 +26,7 @@ if [ "$VOLUME_TYPE" != "named-volume" ] && [ "$VOLUME_TYPE" != "bind-mount" ]; t
     exit 1
 fi
 
-if [ "$HOOK_TYPE" != "manual-cli" ] && [ "$HOOK_TYPE" != "manual-smartgit" ]; then
+if [ "$HOOK_TYPE" != "manual-cli" ] && [ "$HOOK_TYPE" != "opencode" ]; then
     echo "Error: Invalid hook type '$HOOK_TYPE'"
     exit 1
 fi

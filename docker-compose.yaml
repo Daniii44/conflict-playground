@@ -41,6 +41,15 @@ services:
     networks:
       - bridge
     <<: *volumes
+  hook-opencode:
+    build: 
+      context: .
+      dockerfile: src-hooks/opencode/Dockerfile
+    image: conflict-playground-hook:opencode
+    container_name: conflict-playground-hook-opencode
+    networks:
+      - bridge
+    <<: *volumes
 volumes:
   caches:
   playgrounds:

@@ -1,0 +1,4 @@
+playbook:
+  sources:
+    - repo_url: https://github.com/simonmichael/hledger.git
+      limit: 10
