@@ -14,5 +14,12 @@
         }
       }
     }
+  },
+  "permission": {
+    "external_directory": {
+      "/root/playgrounds-bind-mount//**": "allow",
+      "/root/playgrounds/**": "allow",
+      "/root/playgrounds-named-volume//**": "allow"
+    }
   }
 }
