@@ -1,10 +1,10 @@
 # AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for coding agents working in this repository.
 
 ## What This Project Is
 
-A research tool for studying Git merge conflicts at scale. It clones open-source repositories, detects conflicting merge commits using `git merge-tree`, and creates isolated "playground" environments where users can manually resolve conflicts. Results are stored in Redis for analysis.
+A research tool for studying Git merge conflicts at scale. It clones open-source repositories, detects conflicting merge commits using `git merge-tree`, creates isolated "playground" worktrees for manual resolution, and stores results in Redis.
 
 ## Running
 
@@ -19,19 +19,19 @@ cp config.yaml.template config.yaml
 ./run.sh
 ```
 
-`run.sh` builds the Docker images, starts Redis + the playground container + hook container, and attaches a tmux session with two panes: left is the main CLI shell, right is the hook worker.
+`run.sh` builds images, starts Redis plus playground/hook containers, and attaches tmux with the main CLI on the left and hook worker on the right.
 
 ## Commands Inside the Container
 
-The container's `entrypoint.sh` flattens all executables from `src-playground/` into a single `/bin` directory, replacing `/` with `-` in names. So `info/conflict/sync.py` becomes `info-conflict-sync`.
+`entrypoint.sh` flattens executable files from `src-playground/` into `/bin`, replacing `/` with `-` and dropping extensions. Example: `info/conflict/sync.py` becomes `info-conflict-sync`. Avoid two executable files with the same flattened name.
 
 ```bash
 help                                          # List all commands
 repo-sync [playbook]                          # Clone/update playbook repos to caches
-info-conflict-sync <repo> [-f] [-a core]      # Analyze repo for conflicting merges
+info-conflict-sync <owner/repo.git> [-f]      # Analyze repo for conflicting merges
 info-conflict-list [--type <type>]            # Query conflicts from Redis
 info-conflict-count <repo>                    # Count stored conflicts
-playground-setup <repo> <merge_sha>           # Create isolated playground
+playground-setup <owner/repo.git> <merge_sha> # Create isolated playground
 playground-ls                                 # List active playgrounds
 playbook-start <name> [--skip N] [--pool N]   # Run a playbook
 evaluation-assess <playground_name>           # Evaluate a resolved conflict
@@ -46,9 +46,9 @@ pytest tests-playground/foo.py  # Run a single test file
 
 `pyproject.toml` sets `testpaths = ["tests-playground"]` and `pythonpath = ["src-playground"]`.
 
-## Python Logging
+## Python Conventions
 
-Python CLI scripts should use Loguru (`from loguru import logger`) for status, warning, and error output instead of `print`. The container installs `python3-loguru`, and log verbosity is controlled by `LOGURU_LEVEL`.
+Python CLI scripts should use Loguru (`from loguru import logger`) for status/warning/error output instead of `print`; reserve stdout for command output consumed by other commands. Shared Git and repo-cache behavior belongs in `src-playground/common/`: use `common.git_util` for Git subprocesses and `common.repo_cache` for URL-to-cache-key and submodule URL resolution.
 
 ## Architecture
 
@@ -57,7 +57,7 @@ Python CLI scripts should use Loguru (`from loguru import logger`) for status, w
 ```
 GitHub repos
   → repo-sync → bare repos in /caches/repos/<owner-or-user>/<repo>.git
-  → info-conflict-sync → git merge-tree analysis → Redis (info:conflict:core:<repo><sha>)
+  → info-conflict-sync → git merge-tree analysis → Redis (info:conflict:<analysis>:<repo>:<sha>)
   → playbook-start → for each conflict:
       playground-setup (working clone with merge in progress)
       hook-dispatch-task → Redis pub/sub → hook container (user resolves)
@@ -67,26 +67,29 @@ GitHub repos
 
 ### Key Components
 
-**Conflict Analysis (`src-playground/info/conflict/`)**  
-`sync.py` iterates all merge commits in a bare repo via `git rev-list --merges HEAD`, runs `git merge-tree -z` on each pair of parents, and stores conflicts in Redis. Analysis is pluggable: `CoreAnalysis` detects structural conflicts; `MergeBaseAnalysis` is an additional plugin. The binary `merge-tree` output is parsed by `common/merge_tree.py` using the `construct` library.
+**Conflict Analysis (`src-playground/info/conflict/`)**
+`sync.py` takes repo IDs like `qt/qt5.git`, resolves them under `$CACHES/repos`, iterates merge commits via `git rev-list --merges HEAD`, and runs pluggable analyses (`core`, `divergence`, `tree-diff`). Git subprocesses should go through `common.git_util.capture_git`/`stream_git` so prompts cannot stall execution.
 
-**Redis Schema**  
-- Conflict data: JSON at key `info:conflict:core:<repo><sha>`, indexed by `idx:info:conflict:core`
+**Repo Cache (`src-playground/repo/sync.py`, `common/repo_cache.py`)**
+`repo-sync [playbook]` reads explicit `repo_url` entries, clones bare repositories into `$CACHES/repos/<owner>/<repo>.git`, scans historical `.gitmodules` blobs, and recursively caches submodules. Do not support the old flat cache naming scheme. Preserve the `.git` suffix in repo IDs stored in Redis and passed between commands.
+
+**Redis Schema**
+- Conflict data: JSON at key `info:conflict:<analysis>:<repo>:<sha>`, indexed by the corresponding RediSearch index
 - Active playground state: `runtime:active_playground:<playground_name>` (JSON with `ActivePlayground` model)
 - Hook communication: `to_hook` / `to_playground` pub/sub channels
 
-**Playground Lifecycle (`src-playground/playground/`)**  
-`setup.py` creates a git clone using alternates (space-efficient, references the bare repo). It checks out `main` (first parent) and `feature` (second parent) branches and initiates a merge, leaving the repo in a conflicted state for the user.
+**Playground Lifecycle (`src-playground/playground/`)**
+`setup.py` creates a working repo using `.git/objects/info/alternates` pointing at the cached bare repo. It checks out `feature` (first parent), then `main` (second parent), merges `feature`, and leaves conflicts in place. It also initializes clean submodule gitlinks from cached bare repos using `git submodule update --init --reference`; unresolved submodule conflicts are left for the user.
 
-**Hook Worker Pattern (`src-hooks/`)**  
-Hook workers run in a separate container. `HookWorker` base class in `hooks_common.py` handles Redis pub/sub. Currently only `manual-cli` is implemented: it spawns an interactive zsh session so the user can resolve conflicts manually with standard git tools. A `manual-smartgit` hook also exists (GUI-based).
+**Hook Worker Pattern (`src-hooks/`)**
+Hook workers run separately and communicate over Redis pub/sub. `manual-cli` opens an interactive shell; `manual-smartgit` is GUI-based.
 
-**Playbook Execution (`src-playground/playbook/start.py`)**  
+**Playbook Execution (`src-playground/playbook/start.py`)**
 Playbooks are YAML files in `/data/playbooks/`. Two modes:
 - **Explicit**: `override_merge_shas` lists specific commits per source repo
 - **Dynamic**: `sources: null` + `config.conflict-types` queries Redis for matching conflicts
 
-Setup runs with a `ThreadPoolExecutor` (default pool=3), but hook dispatch is serialized via `hook_lock` to ensure one user interaction at a time.
+Setup runs with a `ThreadPoolExecutor` (default pool=3), but hook dispatch is serialized via `hook_lock` so only one manual interaction runs at a time.
 
 ### Important Env Variables (set inside container)
 
@@ -98,6 +101,12 @@ Setup runs with a `ThreadPoolExecutor` (default pool=3), but hook dispatch is se
 | `VOLUME_TYPE` | `bind-mount` or `named-volume` |
 | `HOOK_TYPE` | `manual-cli` or `manual-smartgit` |
 | `LOGURU_LEVEL` | Log level (default `INFO`) |
+
+### Git/Submodule Rules
+
+- Use `common.git_util` for Git calls; it sets `GIT_ASKPASS=false`, `GIT_TERMINAL_PROMPT=0`, `SSH_ASKPASS=false`, and `GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -o BatchMode=yes"`.
+- Use `common.repo_cache.repo_cache_key()` everywhere a repo URL becomes a cache key. Example: both `https://github.com/qt/qt5.git` and `git@github.com:qt/qt5.git` map to `qt/qt5.git`.
+- RediSearch tag queries for repo names must escape `/`, `.`, `-`, and other punctuation.
 
 ### Adding a New Analysis Type
 
