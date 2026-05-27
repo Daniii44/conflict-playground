@@ -5,4 +5,4 @@ repo-sync "$@"
 
 echo
 echo "Syncing Info"
-info-sync
+info-sync "$@"
