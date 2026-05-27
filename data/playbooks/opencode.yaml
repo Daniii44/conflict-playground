@@ -1,4 +1,5 @@
 playbook:
   sources:
     - repo_url: https://github.com/simonmichael/hledger.git
-      limit: 10
+      override_merge_shas:
+        - 0346b4cdd9d5fc9ab68753946c717b83089cb73d
