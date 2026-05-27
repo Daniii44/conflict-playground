@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 
+import json
 import os
 import subprocess
 from pathlib import Path
+from typing import Any
 
 from hooks_common import HookWorker, HookTask
 
 
 class OpenCodeWorker(HookWorker):
     """Hook worker that lets opencode resolve a prepared merge conflict."""
+
+    opencode_executable = "/root/.opencode/bin/opencode"
 
     def git_env(self) -> dict[str, str]:
         env = os.environ.copy()
@@ -42,11 +46,90 @@ class OpenCodeWorker(HookWorker):
     def finish_merge(self, playground_path: Path) -> subprocess.CompletedProcess[str]:
         return self.run_git(
             playground_path,
+            "-c",
+            "user.name=Conflict Playground",
+            "-c",
+            "user.email=conflict-playground@example.invalid",
             "commit",
             "--no-edit",
         )
 
-    def handle_task(self, task: HookTask) -> str:
+    def run_opencode_json(self, playground_path: Path, *args: str) -> tuple[Any | None, str | None]:
+        result = subprocess.run(
+            [self.opencode_executable, *args],
+            cwd=playground_path,
+            text=True,
+            capture_output=True,
+        )
+        if result.returncode != 0:
+            error = result.stderr.strip() or result.stdout.strip()
+            return None, error or f"opencode {' '.join(args)} exited with code {result.returncode}"
+
+        try:
+            return json.loads(result.stdout), None
+        except json.JSONDecodeError as e:
+            return None, f"opencode {' '.join(args)} returned invalid JSON: {e}"
+
+    def latest_session_id(self, session_list: Any) -> str | None:
+        if isinstance(session_list, list) and session_list:
+            session = session_list[0]
+        elif isinstance(session_list, dict):
+            sessions = session_list.get("sessions")
+            if isinstance(sessions, list) and sessions:
+                session = sessions[0]
+            else:
+                session = session_list
+        else:
+            return None
+
+        if not isinstance(session, dict):
+            return None
+
+        for key in ("id", "sessionID", "sessionId", "session_id"):
+            value = session.get(key)
+            if isinstance(value, str) and value:
+                return value
+
+        return None
+
+    def export_latest_session(self, playground_path: Path) -> dict[str, Any]:
+        session_list, list_error = self.run_opencode_json(
+            playground_path,
+            "session",
+            "list",
+            "--max-count",
+            "1",
+            "--format",
+            "json",
+        )
+        if list_error is not None:
+            return {"error": list_error}
+
+        session_id = self.latest_session_id(session_list)
+        if session_id is None:
+            return {"error": "No latest opencode session ID found", "session_list": session_list}
+
+        session_export, export_error = self.run_opencode_json(playground_path, "export", session_id)
+        if export_error is not None:
+            return {"id": session_id, "error": export_error}
+
+        return {"id": session_id, "data": session_export}
+
+    def result(
+        self,
+        message: str,
+        *,
+        opencode_exit_code: int | None = None,
+        session_export: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        payload: dict[str, Any] = {"message": message}
+        if opencode_exit_code is not None:
+            payload["opencode_exit_code"] = opencode_exit_code
+        if session_export is not None:
+            payload["opencode_session_export"] = session_export
+        return payload
+
+    def handle_task(self, task: HookTask) -> dict[str, Any]:
         """Run opencode in the playground directory and report the result."""
         playground_base_path = os.environ.get("PLAYGROUNDS")
         if playground_base_path is None:
@@ -54,47 +137,69 @@ class OpenCodeWorker(HookWorker):
         playground_path = Path(playground_base_path) / task.playground
 
         if not playground_path.is_dir():
-            return f"Error: Playground directory '{playground_path}' does not exist"
+            return self.result(f"Error: Playground directory '{playground_path}' does not exist")
 
         if not self.is_merging(playground_path):
-            return f"Error: Playground '{task.playground}' is not in a git merge state"
-
+            return self.result(f"Error: Playground '{task.playground}' is not in a git merge state")
 
         try:
             opencode_result = subprocess.run(
-                ["/root/.opencode/bin/opencode", "run", "--command", "resolve-conflicts", "--dir", str(playground_path)],
+                [
+                    self.opencode_executable,
+                    "run",
+                    "--command",
+                    "resolve-conflicts",
+                    "--dir",
+                    str(playground_path),
+                ],
                 cwd=playground_path,
             )
         except FileNotFoundError:
-            return "Error: opencode executable not found"
+            return self.result("Error: opencode executable not found")
         except Exception as e:
-            return f"Error running opencode: {e}"
+            return self.result(f"Error running opencode: {e}")
+
+        session_export = self.export_latest_session(playground_path)
 
         if self.is_merging(playground_path):
             if self.has_unmerged_changes(playground_path):
-                return (
+                return self.result(
                     f"Error: opencode exited with code {opencode_result.returncode}, "
-                    "but the repository is still merging and has unmerged changes"
+                    "but the repository is still merging and has unmerged changes",
+                    opencode_exit_code=opencode_result.returncode,
+                    session_export=session_export,
                 )
 
             commit_result = self.finish_merge(playground_path)
             if commit_result.returncode != 0:
                 error = commit_result.stderr.strip() or commit_result.stdout.strip()
-                return (
+                return self.result(
                     "Error: opencode left the repository in a merge state without unmerged "
-                    f"changes, and automatic git commit --no-edit failed: {error}"
+                    f"changes, and automatic git commit --no-edit failed: {error}",
+                    opencode_exit_code=opencode_result.returncode,
+                    session_export=session_export,
                 )
 
-            return (
+            return self.result(
                 "Error hint: opencode resolved all unmerged changes but did not commit the "
                 f"merge. The hook committed it with git commit --no-edit. "
-                f"opencode exit code: {opencode_result.returncode}"
+                f"opencode exit code: {opencode_result.returncode}",
+                opencode_exit_code=opencode_result.returncode,
+                session_export=session_export,
             )
 
         if opencode_result.returncode != 0:
-            return f"Error: opencode exited with code {opencode_result.returncode}"
+            return self.result(
+                f"Error: opencode exited with code {opencode_result.returncode}",
+                opencode_exit_code=opencode_result.returncode,
+                session_export=session_export,
+            )
 
-        return "opencode completed conflict resolution"
+        return self.result(
+            "opencode completed conflict resolution",
+            opencode_exit_code=opencode_result.returncode,
+            session_export=session_export,
+        )
 
 
 if __name__ == '__main__':

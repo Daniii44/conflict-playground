@@ -6,7 +6,7 @@ from redis.client import PubSub
 from redis import Redis
 from uuid import UUID
 from pydantic import BaseModel
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 
 
 class HookTask(BaseModel):
@@ -18,7 +18,7 @@ class HookTask(BaseModel):
 class HookResult(BaseModel):
     """Result message sent back to the playground."""
     id: UUID
-    result: str
+    result: dict[str, Any]
 
 
 class HookWorker:
@@ -48,13 +48,13 @@ class HookWorker:
             self._pubsub = self.redis.pubsub()
         return self._pubsub
 
-    def listen(self, channel: str = 'to_hook', handler: Optional[Callable[[HookTask], str]] = None):
+    def listen(self, channel: str = 'to_hook', handler: Optional[Callable[[HookTask], str | dict[str, Any]]] = None):
         """
         Start listening for tasks on the specified channel.
         
         Args:
             channel: Redis channel to subscribe to
-            handler: Optional callback function that takes a HookTask and returns a result string.
+            handler: Optional callback function that takes a HookTask and returns a result payload.
                     If not provided, subclasses should override handle_task().
         """
         self.pubsub.subscribe(channel)
@@ -70,12 +70,15 @@ class HookWorker:
                 else:
                     result_msg = self.handle_task(task)
 
+                if isinstance(result_msg, str):
+                    result_msg = {"message": result_msg}
+
                 result = HookResult(id=task.id, result=result_msg)
                 self.redis.publish('to_playground', result.model_dump_json())
                 print(f"Hook Base: Conflict Resolution Playground Completed")
                 print()
 
-    def handle_task(self, task: HookTask) -> str:
+    def handle_task(self, task: HookTask) -> str | dict[str, Any]:
         """
         Override this method to implement custom task handling.
         
@@ -83,6 +86,6 @@ class HookWorker:
             task: The task to process
             
         Returns:
-            Result message string
+            Result payload. Plain strings are wrapped as {"message": value}.
         """
         raise NotImplementedError("Subclasses must implement handle_task()")

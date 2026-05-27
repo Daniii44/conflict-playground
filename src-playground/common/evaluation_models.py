@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Any
 from common.active_playground_models import Configuration
 
 class Evaluation(BaseModel):
@@ -17,3 +18,4 @@ class ConflictEvaluation(BaseModel):
     """The top-level object to be stored in Redis."""
     configuration: Configuration
     result: Evaluation
+    hook_result: dict[str, Any] | None = None

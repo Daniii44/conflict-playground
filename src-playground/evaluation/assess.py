@@ -2,12 +2,17 @@
 
 import argparse
 from datetime import datetime
+import json
 import subprocess
 
 import rich
 from common.active_playground_models import Configuration, ActivePlayground
 from common.evaluation_models import Evaluation, ConflictEvaluation
-from common.redis_util import RUNTIME_ACTIVE_PLAYGROUND_PREFIX, setup_redis_connection
+from common.redis_util import (
+    EVALUATION_CONFLICT_PREFIX,
+    RUNTIME_ACTIVE_PLAYGROUND_PREFIX,
+    setup_redis_connection,
+)
 
 
 def evaluation_check_for_merge(playground_name: str) -> bool:
@@ -56,16 +61,27 @@ def main():
 
     redis = setup_redis_connection()
 
-    active_playground = ActivePlayground.model_validate(redis.json().get(f"{RUNTIME_ACTIVE_PLAYGROUND_PREFIX}{args.playground_name}"))
-    if not active_playground:
+    active_playground_data = redis.json().get(f"{RUNTIME_ACTIVE_PLAYGROUND_PREFIX}{args.playground_name}")
+    if not active_playground_data:
         print(f"No active playground found with name {args.playground_name}")
         return
+    active_playground = ActivePlayground.model_validate(active_playground_data)
 
     print(f"Assessing playground {args.playground_name} with config: {active_playground}")
 
     evaluation = evaluate(active_playground.configuration, args.playground_name)
+    conflict_evaluation = ConflictEvaluation(
+        configuration=active_playground.configuration,
+        result=evaluation,
+        hook_result=active_playground.hook_result,
+    )
+    redis.json().set(
+        f"{EVALUATION_CONFLICT_PREFIX}{args.playground_name}",
+        "$",
+        json.loads(conflict_evaluation.model_dump_json()),
+    )
     print(f"Evaluation result for {args.playground_name}:")
-    print(rich.print_json(evaluation.model_dump_json()))
+    rich.print_json(conflict_evaluation.model_dump_json())
 
 
 if __name__ == "__main__":

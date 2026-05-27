@@ -4,6 +4,7 @@ from redis.commands.search.index_definition import IndexDefinition, IndexType
 
 IDX_INFO_CONFLICT_CORE = "idx:info:conflict:core"
 RUNTIME_ACTIVE_PLAYGROUND_PREFIX = "runtime:active_playground:"
+EVALUATION_CONFLICT_PREFIX = "evaluation:conflict:"
 
 def setup_redis_connection() -> Redis:
     redis = Redis(

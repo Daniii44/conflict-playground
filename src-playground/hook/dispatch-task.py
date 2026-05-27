@@ -4,6 +4,9 @@ import argparse
 import redis
 from uuid import UUID, uuid4
 from pydantic import BaseModel
+from typing import Any
+
+from common.redis_util import RUNTIME_ACTIVE_PLAYGROUND_PREFIX
 
 class HookTask(BaseModel):
     id: UUID
@@ -11,7 +14,7 @@ class HookTask(BaseModel):
 
 class HookResult(BaseModel):
     id: UUID
-    result: str
+    result: dict[str, Any]
 
 def main():
     parser = argparse.ArgumentParser(description="Dispatch a hook task to the hook worker and wait for the result")
@@ -29,6 +32,11 @@ def main():
     for message in pubsub.listen():
         if message['type'] == 'message':
             result = HookResult.model_validate_json(message['data'])
+            if result.id != hookTask.id:
+                continue
+            active_playground_key = f"{RUNTIME_ACTIVE_PLAYGROUND_PREFIX}{args.playground_path}"
+            if r.exists(active_playground_key):
+                r.json().set(active_playground_key, "$.hook_result", result.result)
             print(f"Playground: Got result: {result}")
             break
 

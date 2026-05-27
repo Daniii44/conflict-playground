@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Any
 
 class Configuration(BaseModel):
     hook_type: str
@@ -11,3 +12,4 @@ class ActivePlayground(BaseModel):
     """The top-level object to be stored in Redis."""
     playground_name: str
     configuration: Configuration
+    hook_result: dict[str, Any] | None = None
