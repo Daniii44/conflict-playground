@@ -43,7 +43,7 @@
                     "hidden": false,
                     "query": {
                       "datasource": {
-                        "name": "aflr7xd6wu5moe"
+                        "name": "afnd4mb94p5hcb"
                       },
                       "group": "grafana-clickhouse-datasource",
                       "kind": "DataQuery",
@@ -129,7 +129,7 @@
                 "showHeader": true
               }
             },
-            "version": "13.0.1"
+            "version": "13.0.1+security-01"
           }
         }
       }
@@ -153,7 +153,20 @@
         "rowHeightMode": "tall"
       }
     },
-    "links": [],
+    "links": [
+      {
+        "asDropdown": false,
+        "icon": "external link",
+        "includeVars": false,
+        "keepTime": false,
+        "tags": [],
+        "targetBlank": true,
+        "title": "Source (GitHub)",
+        "tooltip": "View source file in repository",
+        "type": "link",
+        "url": "https://github.com/Daniii44/conflict-playground/blob/grafana/new-dashboard-2026-05-27-sj553.json"
+      }
+    ],
     "liveNow": false,
     "preferences": {
       "layout": {
