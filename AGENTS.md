@@ -52,6 +52,10 @@ Python CLI scripts should use Loguru (`from loguru import logger`) for status/wa
 
 ## Architecture
 
+### Script Collection (Shell vs Python)
+
+This repository is simply a collection of scripts offered to the user via a cli. Simple scripts are best implemented as simple shell scripts while more complicated ones should be Python to ensure readability. Automatically migrate from shell to python as appropriate.
+
 ### Data Flow
 
 ```
