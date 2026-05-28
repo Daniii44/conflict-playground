@@ -43,7 +43,7 @@
                     "hidden": false,
                     "query": {
                       "datasource": {
-                        "name": "afnd4mb94p5hcb"
+                        "name": "aflr7xd6wu5moe"
                       },
                       "group": "grafana-clickhouse-datasource",
                       "kind": "DataQuery",
@@ -129,7 +129,7 @@
                 "showHeader": true
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.1"
           }
         }
       }
