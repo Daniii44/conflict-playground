@@ -2,44 +2,34 @@
   "apiVersion": "dashboard.grafana.app/v2",
   "kind": "Dashboard",
   "metadata": {
-    "name": "adgwq7k",
-    "generation": 11,
-    "creationTimestamp": "2026-05-11T16:51:16Z",
-    "labels": {},
-    "annotations": {}
+    "name": "adgwq7k"
   },
   "spec": {
     "annotations": [
       {
         "kind": "AnnotationQuery",
         "spec": {
-          "query": {
-            "kind": "DataQuery",
-            "group": "grafana",
-            "version": "v0",
-            "spec": {},
-            "labels": {
-              "grafana.app/export-label": "grafana-1"
-            }
-          },
+          "builtIn": true,
           "enable": true,
           "hide": true,
           "iconColor": "rgba(0, 211, 255, 1)",
-          "name": "Annotations & Alerts",
-          "builtIn": true
+          "name": "Annotations \u0026 Alerts",
+          "query": {
+            "group": "grafana",
+            "kind": "DataQuery",
+            "spec": {},
+            "version": "v0"
+          }
         }
       }
     ],
     "cursorSync": "Off",
+    "description": "",
     "editable": true,
     "elements": {
       "panel-1": {
         "kind": "Panel",
         "spec": {
-          "id": 1,
-          "title": "Merges by Repo",
-          "description": "",
-          "links": [],
           "data": {
             "kind": "QueryGroup",
             "spec": {
@@ -47,10 +37,10 @@
                 {
                   "kind": "PanelQuery",
                   "spec": {
+                    "hidden": false,
                     "query": {
-                      "kind": "DataQuery",
                       "group": "grafana-clickhouse-datasource",
-                      "version": "v0",
+                      "kind": "DataQuery",
                       "spec": {
                         "editorType": "sql",
                         "format": 1,
@@ -68,61 +58,26 @@
                         "queryType": "table",
                         "rawSql": "SELECT content.repo::String, count(*) from redis_json\ngroup by content.repo::String\norder by count(*) desc"
                       },
-                      "labels": {
-                        "grafana.app/export-label": "grafana-clickhouse-datasource-1"
-                      }
+                      "version": "v0"
                     },
-                    "refId": "A",
-                    "hidden": false
+                    "refId": "A"
                   }
                 }
               ],
-              "transformations": [],
-              "queryOptions": {}
+              "queryOptions": {},
+              "transformations": []
             }
           },
+          "description": "",
+          "id": 1,
+          "links": [],
+          "title": "Merges by Repo",
           "vizConfig": {
-            "kind": "VizConfig",
             "group": "barchart",
-            "version": "13.0.1",
+            "kind": "VizConfig",
             "spec": {
-              "options": {
-                "barRadius": 0,
-                "barWidth": 0.97,
-                "fullHighlight": false,
-                "groupWidth": 0.7,
-                "legend": {
-                  "calcs": [],
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": true
-                },
-                "orientation": "auto",
-                "showValue": "auto",
-                "stacking": "none",
-                "tooltip": {
-                  "hideZeros": false,
-                  "mode": "single",
-                  "sort": "none"
-                },
-                "xTickLabelRotation": 0,
-                "xTickLabelSpacing": 0
-              },
               "fieldConfig": {
                 "defaults": {
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "green"
-                      },
-                      {
-                        "value": 80,
-                        "color": "red"
-                      }
-                    ]
-                  },
                   "color": {
                     "mode": "palette-classic"
                   },
@@ -146,21 +101,53 @@
                     "thresholdsStyle": {
                       "mode": "off"
                     }
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
                   }
                 },
                 "overrides": []
+              },
+              "options": {
+                "barRadius": 0,
+                "barWidth": 0.97,
+                "fullHighlight": false,
+                "groupWidth": 0.7,
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "orientation": "auto",
+                "showValue": "auto",
+                "stacking": "none",
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                },
+                "xTickLabelRotation": 45,
+                "xTickLabelSpacing": 0
               }
-            }
+            },
+            "version": "13.0.1+security-01"
           }
         }
       },
       "panel-2": {
         "kind": "Panel",
         "spec": {
-          "id": 2,
-          "title": "Merges by Conflicted Files Count",
-          "description": "",
-          "links": [],
           "data": {
             "kind": "QueryGroup",
             "spec": {
@@ -168,10 +155,10 @@
                 {
                   "kind": "PanelQuery",
                   "spec": {
+                    "hidden": false,
                     "query": {
-                      "kind": "DataQuery",
                       "group": "grafana-clickhouse-datasource",
-                      "version": "v0",
+                      "kind": "DataQuery",
                       "spec": {
                         "editorType": "sql",
                         "format": 1,
@@ -189,56 +176,26 @@
                         "queryType": "table",
                         "rawSql": "with conflicted_files_per_merge as (\nSELECT content.merge_commit_oid::String, length(array_agg(distinct file.path)) as conflicted_files_count FROM \"default\".\"redis_json\"\narray join content.merge_result.conflicted_files::Array(JSON) as file\ngroup by content.merge_commit_oid::String\n)\nselect conflicted_files_count, count(*) from conflicted_files_per_merge\ngroup by conflicted_files_count\norder by conflicted_files_count asc\n"
                       },
-                      "labels": {
-                        "grafana.app/export-label": "grafana-clickhouse-datasource-1"
-                      }
+                      "version": "v0"
                     },
-                    "refId": "A",
-                    "hidden": false
+                    "refId": "A"
                   }
                 }
               ],
-              "transformations": [],
-              "queryOptions": {}
+              "queryOptions": {},
+              "transformations": []
             }
           },
+          "description": "",
+          "id": 2,
+          "links": [],
+          "title": "Merges by Conflicted Files Count",
           "vizConfig": {
-            "kind": "VizConfig",
             "group": "xychart",
-            "version": "13.0.1",
+            "kind": "VizConfig",
             "spec": {
-              "options": {
-                "legend": {
-                  "calcs": [],
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": true
-                },
-                "mapping": "auto",
-                "series": [
-                  {}
-                ],
-                "tooltip": {
-                  "hideZeros": false,
-                  "mode": "single",
-                  "sort": "none"
-                }
-              },
               "fieldConfig": {
                 "defaults": {
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "green"
-                      },
-                      {
-                        "value": 80,
-                        "color": "red"
-                      }
-                    ]
-                  },
                   "color": {
                     "mode": "palette-classic"
                   },
@@ -267,21 +224,48 @@
                       "type": "log"
                     },
                     "show": "points+lines"
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
                   }
                 },
                 "overrides": []
+              },
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "mapping": "auto",
+                "series": [
+                  {}
+                ],
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                }
               }
-            }
+            },
+            "version": "13.0.1+security-01"
           }
         }
       },
       "panel-3": {
         "kind": "Panel",
         "spec": {
-          "id": 3,
-          "title": "Merges by Conflict Type",
-          "description": "",
-          "links": [],
           "data": {
             "kind": "QueryGroup",
             "spec": {
@@ -289,10 +273,10 @@
                 {
                   "kind": "PanelQuery",
                   "spec": {
+                    "hidden": false,
                     "query": {
-                      "kind": "DataQuery",
                       "group": "grafana-clickhouse-datasource",
-                      "version": "v0",
+                      "kind": "DataQuery",
                       "spec": {
                         "editorType": "sql",
                         "format": 1,
@@ -310,61 +294,26 @@
                         "queryType": "table",
                         "rawSql": "SELECT logical_conflict.type::String, count(*) FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\ngroup by logical_conflict.type::String\norder by count(*) desc"
                       },
-                      "labels": {
-                        "grafana.app/export-label": "grafana-clickhouse-datasource-1"
-                      }
+                      "version": "v0"
                     },
-                    "refId": "A",
-                    "hidden": false
+                    "refId": "A"
                   }
                 }
               ],
-              "transformations": [],
-              "queryOptions": {}
+              "queryOptions": {},
+              "transformations": []
             }
           },
+          "description": "",
+          "id": 3,
+          "links": [],
+          "title": "Merges by Conflict Type",
           "vizConfig": {
-            "kind": "VizConfig",
             "group": "barchart",
-            "version": "13.0.1",
+            "kind": "VizConfig",
             "spec": {
-              "options": {
-                "barRadius": 0,
-                "barWidth": 0.97,
-                "fullHighlight": false,
-                "groupWidth": 0.7,
-                "legend": {
-                  "calcs": [],
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": true
-                },
-                "orientation": "auto",
-                "showValue": "auto",
-                "stacking": "none",
-                "tooltip": {
-                  "hideZeros": false,
-                  "mode": "single",
-                  "sort": "none"
-                },
-                "xTickLabelRotation": 45,
-                "xTickLabelSpacing": 0
-              },
               "fieldConfig": {
                 "defaults": {
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "green"
-                      },
-                      {
-                        "value": 80,
-                        "color": "red"
-                      }
-                    ]
-                  },
                   "color": {
                     "mode": "palette-classic"
                   },
@@ -388,21 +337,53 @@
                     "thresholdsStyle": {
                       "mode": "off"
                     }
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
                   }
                 },
                 "overrides": []
+              },
+              "options": {
+                "barRadius": 0,
+                "barWidth": 0.97,
+                "fullHighlight": false,
+                "groupWidth": 0.7,
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "orientation": "auto",
+                "showValue": "auto",
+                "stacking": "none",
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                },
+                "xTickLabelRotation": 45,
+                "xTickLabelSpacing": 0
               }
-            }
+            },
+            "version": "13.0.1+security-01"
           }
         }
       },
       "panel-4": {
         "kind": "Panel",
         "spec": {
-          "id": 4,
-          "title": "New panel",
-          "description": "",
-          "links": [],
           "data": {
             "kind": "QueryGroup",
             "spec": {
@@ -410,10 +391,10 @@
                 {
                   "kind": "PanelQuery",
                   "spec": {
+                    "hidden": false,
                     "query": {
-                      "kind": "DataQuery",
                       "group": "grafana-clickhouse-datasource",
-                      "version": "v0",
+                      "kind": "DataQuery",
                       "spec": {
                         "editorType": "sql",
                         "format": 1,
@@ -431,44 +412,26 @@
                         "queryType": "table",
                         "rawSql": "SELECT logical_conflict.type::String as type, arrayElement(splitByChar(':', logical_conflict.info::String), 1) as subtype, count(*) as count FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\ngroup by type, subtype\norder by type, count desc"
                       },
-                      "labels": {
-                        "grafana.app/export-label": "grafana-clickhouse-datasource-1"
-                      }
+                      "version": "v0"
                     },
-                    "refId": "A",
-                    "hidden": false
+                    "refId": "A"
                   }
                 }
               ],
-              "transformations": [],
-              "queryOptions": {}
+              "queryOptions": {},
+              "transformations": []
             }
           },
+          "description": "",
+          "id": 4,
+          "links": [],
+          "title": "New panel",
           "vizConfig": {
-            "kind": "VizConfig",
             "group": "table",
-            "version": "13.0.1",
+            "kind": "VizConfig",
             "spec": {
-              "options": {
-                "cellHeight": "sm",
-                "showHeader": true,
-                "sortBy": []
-              },
               "fieldConfig": {
                 "defaults": {
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "value": 0,
-                        "color": "green"
-                      },
-                      {
-                        "value": 80,
-                        "color": "red"
-                      }
-                    ]
-                  },
                   "custom": {
                     "align": "auto",
                     "cellOptions": {
@@ -478,6 +441,19 @@
                       "reducers": []
                     },
                     "inspect": false
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
                   }
                 },
                 "overrides": [
@@ -506,8 +482,14 @@
                     ]
                   }
                 ]
+              },
+              "options": {
+                "cellHeight": "sm",
+                "showHeader": true,
+                "sortBy": []
               }
-            }
+            },
+            "version": "13.0.1+security-01"
           }
         }
       }
@@ -519,66 +501,87 @@
           {
             "kind": "GridLayoutItem",
             "spec": {
-              "x": 0,
-              "y": 0,
-              "width": 12,
-              "height": 11,
               "element": {
                 "kind": "ElementReference",
                 "name": "panel-1"
-              }
+              },
+              "height": 11,
+              "width": 12,
+              "x": 0,
+              "y": 0
             }
           },
           {
             "kind": "GridLayoutItem",
             "spec": {
-              "x": 12,
-              "y": 0,
-              "width": 12,
-              "height": 11,
               "element": {
                 "kind": "ElementReference",
                 "name": "panel-2"
-              }
+              },
+              "height": 11,
+              "width": 12,
+              "x": 12,
+              "y": 0
             }
           },
           {
             "kind": "GridLayoutItem",
             "spec": {
-              "x": 0,
-              "y": 11,
-              "width": 16,
-              "height": 16,
               "element": {
                 "kind": "ElementReference",
                 "name": "panel-3"
-              }
+              },
+              "height": 16,
+              "width": 16,
+              "x": 0,
+              "y": 11
             }
           },
           {
             "kind": "GridLayoutItem",
             "spec": {
-              "x": 16,
-              "y": 11,
-              "width": 8,
-              "height": 16,
               "element": {
                 "kind": "ElementReference",
                 "name": "panel-4"
-              }
+              },
+              "height": 16,
+              "width": 8,
+              "x": 16,
+              "y": 11
             }
           }
         ]
       }
     },
-    "links": [],
+    "links": [
+      {
+        "asDropdown": false,
+        "icon": "external link",
+        "includeVars": false,
+        "keepTime": false,
+        "tags": [],
+        "targetBlank": true,
+        "title": "Source (GitHub)",
+        "tooltip": "View source file in repository",
+        "type": "link",
+        "url": "https://github.com/Daniii44/conflict-playground/blob/grafana/dashboard-1779958025842.json"
+      }
+    ],
     "liveNow": false,
+    "preferences": {
+      "layout": {
+        "kind": "AutoGridLayout",
+        "spec": {
+          "columnWidthMode": "standard",
+          "items": [],
+          "maxColumnCount": 3,
+          "rowHeightMode": "standard"
+        }
+      }
+    },
     "preload": false,
     "tags": [],
     "timeSettings": {
-      "timezone": "browser",
-      "from": "now-6h",
-      "to": "now",
       "autoRefresh": "",
       "autoRefreshIntervals": [
         "5s",
@@ -592,21 +595,13 @@
         "2h",
         "1d"
       ],
+      "fiscalYearStartMonth": 0,
+      "from": "now-6h",
       "hideTimepicker": false,
-      "fiscalYearStartMonth": 0
+      "timezone": "browser",
+      "to": "now"
     },
     "title": "Overview",
-    "variables": [],
-    "preferences": {
-      "layout": {
-        "kind": "AutoGridLayout",
-        "spec": {
-          "maxColumnCount": 3,
-          "columnWidthMode": "standard",
-          "rowHeightMode": "standard",
-          "items": []
-        }
-      }
-    }
+    "variables": []
   }
 }
