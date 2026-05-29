@@ -17,6 +17,7 @@ RUN apt-get -y install python3-tqdm
 RUN apt-get -y install python3-requests
 RUN apt-get -y install python3-yaml
 RUN apt-get -y install redis-tools
+RUN apt-get -y install tree
 
 ADD src-playground src
 ADD assets/playground/* .

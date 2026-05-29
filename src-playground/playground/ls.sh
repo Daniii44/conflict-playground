@@ -1,3 +1,3 @@
 #!/bin/bash
 
-ls $PLAYGROUNDS
+tree -L2 $PLAYGROUNDS
