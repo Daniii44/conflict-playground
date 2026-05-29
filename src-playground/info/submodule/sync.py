@@ -18,9 +18,10 @@ from info.conflict.list import list_conflicts
 
 
 class SubmoduleSync:
-    def __init__(self, cache_dir: Path, redis: Redis):
+    def __init__(self, cache_dir: Path, redis: Redis, *, head_only: bool = False):
         self.cache_dir = cache_dir
         self.redis = redis
+        self.head_only = head_only
         self.synced_repos: set[str] = set()
 
     def sync_repo(self, url: str, breadcrumbs: tuple[str, ...] = ()) -> None:
@@ -42,6 +43,7 @@ class SubmoduleSync:
                     "repo": repo_key,
                     "url": url,
                     "unavailable": True,
+                    "head_only": self.head_only,
                     "submodules": [],
                 },
             )
@@ -49,6 +51,9 @@ class SubmoduleSync:
 
         submodules = []
         for reference in all_submodule_references(repo_path, current_breadcrumbs):
+            if self.head_only and not reference.present_in_head:
+                continue
+
             resolved_url = resolve_submodule_url(url, reference.url)
             child_key = repo_cache_key(resolved_url)
             child_path = self.cache_dir / child_key
@@ -69,6 +74,7 @@ class SubmoduleSync:
                     "repo": child_key,
                     "unavailable": child_unavailable,
                     "gitmodules_blob": reference.blob,
+                    "present_in_head": reference.present_in_head,
                 }
             )
 
@@ -78,6 +84,7 @@ class SubmoduleSync:
                 "repo": repo_key,
                 "url": url,
                 "unavailable": False,
+                "head_only": self.head_only,
                 "submodules": submodules,
             },
         )
@@ -146,6 +153,11 @@ def parse_args() -> argparse.Namespace:
         default="default",
         help="Playbook name or path, defaults to default",
     )
+    parser.add_argument(
+        "--head",
+        action="store_true",
+        help="Only record submodule dependencies present in the latest commit",
+    )
     return parser.parse_args()
 
 
@@ -167,7 +179,7 @@ def main() -> int:
         logger.error("Explicit playbooks need repo_url sources; dynamic playbooks need matching conflicts in Redis.")
         return 1
 
-    sync = SubmoduleSync(cache_dir, setup_redis_connection())
+    sync = SubmoduleSync(cache_dir, setup_redis_connection(), head_only=args.head)
     for url in repo_urls:
         sync.sync_repo(url)
 

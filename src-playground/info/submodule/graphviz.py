@@ -16,7 +16,7 @@ from info.submodule.sync import load_root_repo_urls
 
 
 def dot_quote(value: str) -> str:
-    escaped = value.replace("\\", "\\\\").replace('"', '\\"')
+    escaped = value.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
     return f'"{escaped}"'
 
 
@@ -33,8 +33,9 @@ def dot_attrs(attrs: dict[str, str | None]) -> str:
 
 
 class SubmoduleGraph:
-    def __init__(self, redis: Redis):
+    def __init__(self, redis: Redis, *, head_only: bool = False):
         self.redis = redis
+        self.head_only = head_only
         self.nodes: dict[str, dict[str, Any]] = {}
         self.edges: set[tuple[str, str, str, str | None]] = set()
         self.visited: set[str] = set()
@@ -51,6 +52,9 @@ class SubmoduleGraph:
         self.nodes[repo] = node
 
         for submodule in node.get("submodules", []):
+            if self.head_only and not submodule.get("present_in_head", False):
+                continue
+
             child_repo = submodule.get("repo")
             if not child_repo:
                 continue
@@ -124,6 +128,11 @@ def parse_args() -> argparse.Namespace:
         "--output",
         help="Write DOT output to this file instead of stdout",
     )
+    parser.add_argument(
+        "--head",
+        action="store_true",
+        help="Only show submodule dependencies present in the latest commit",
+    )
     return parser.parse_args()
 
 
@@ -144,7 +153,7 @@ def main() -> int:
         logger.error("No repositories found for playbook: {}", playbook_path)
         return 1
 
-    graph = SubmoduleGraph(setup_redis_connection())
+    graph = SubmoduleGraph(setup_redis_connection(), head_only=args.head)
     for url in root_urls:
         graph.collect(repo_cache_key(url))
 

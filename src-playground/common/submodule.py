@@ -13,6 +13,11 @@ class SubmoduleReference:
     path: str | None
     url: str
     blob: str
+    present_in_head: bool = False
+
+    @property
+    def key(self) -> tuple[str, str | None, str]:
+        return (self.name, self.path, self.url)
 
 
 def format_breadcrumbs(breadcrumbs: tuple[str, ...]) -> str:
@@ -101,13 +106,55 @@ def all_submodule_references(
     repo_path: Path,
     breadcrumbs: tuple[str, ...],
 ) -> list[SubmoduleReference]:
+    head_references = head_submodule_references(repo_path, breadcrumbs)
+    head_keys = {reference.key for reference in head_references}
     references_by_key: dict[tuple[str, str | None, str], SubmoduleReference] = {}
+    for reference in head_references:
+        references_by_key[reference.key] = reference
+
     for blob in gitmodules_blobs(repo_path, breadcrumbs):
         for reference in submodule_references(repo_path, blob, breadcrumbs):
-            key = (reference.name, reference.path, reference.url)
-            references_by_key.setdefault(key, reference)
+            references_by_key.setdefault(
+                reference.key,
+                SubmoduleReference(
+                    name=reference.name,
+                    path=reference.path,
+                    url=reference.url,
+                    blob=reference.blob,
+                    present_in_head=reference.key in head_keys,
+                ),
+            )
 
     return list(references_by_key.values())
+
+
+def head_submodule_references(
+    repo_path: Path,
+    breadcrumbs: tuple[str, ...],
+) -> list[SubmoduleReference]:
+    result = capture_git(
+        f"--git-dir={repo_path}",
+        "rev-parse",
+        "HEAD:.gitmodules",
+        check=False,
+    )
+    if result.returncode != 0:
+        return []
+
+    blob = result.stdout.strip()
+    if not blob:
+        return []
+
+    return [
+        SubmoduleReference(
+            name=reference.name,
+            path=reference.path,
+            url=reference.url,
+            blob=reference.blob,
+            present_in_head=True,
+        )
+        for reference in submodule_references(repo_path, blob, breadcrumbs)
+    ]
 
 
 def submodule_urls(repo_path: Path, blob: str, breadcrumbs: tuple[str, ...]) -> list[str]:
