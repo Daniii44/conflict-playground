@@ -4,6 +4,7 @@ import json
 import os
 import subprocess
 from pathlib import Path
+import tempfile
 from typing import Any
 
 from hooks_common import HookWorker, HookTask
@@ -55,18 +56,21 @@ class OpenCodeWorker(HookWorker):
         )
 
     def run_opencode_json(self, playground_path: Path, *args: str) -> tuple[Any | None, str | None]:
-        result = subprocess.run(
-            [self.opencode_executable, *args],
-            cwd=playground_path,
-            text=True,
-            capture_output=True,
-        )
+        with tempfile.NamedTemporaryFile(mode='w+') as tf:
+            result = subprocess.run(
+                [self.opencode_executable, *args],
+                cwd=playground_path,
+                text=True,
+                stdout=tf,
+            )
+            tf.seek(0)
+            session_data = tf.read()
         if result.returncode != 0:
             error = result.stderr.strip() or result.stdout.strip()
             return None, error or f"opencode {' '.join(args)} exited with code {result.returncode}"
 
         try:
-            return json.loads(result.stdout), None
+            return json.loads(session_data), None
         except json.JSONDecodeError as e:
             return None, f"opencode {' '.join(args)} returned invalid JSON: {e}"
 
