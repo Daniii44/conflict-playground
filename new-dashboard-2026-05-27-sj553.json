@@ -43,7 +43,7 @@
                     "hidden": false,
                     "query": {
                       "datasource": {
-                        "name": "aflr7xd6wu5moe"
+                        "name": "clickhouse"
                       },
                       "group": "grafana-clickhouse-datasource",
                       "kind": "DataQuery",
