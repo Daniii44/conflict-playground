@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 
 import argparse
-import configparser
 import os
 import subprocess
 import sys
-import yaml
 from pathlib import Path
 
 from loguru import logger
 from common.git_util import capture_git, stream_git
+from common.playbook import load_playbook_repo_urls, resolve_playbook_path
 from common.repo_cache import repo_cache_key, resolve_submodule_url
+from common.submodule import format_breadcrumbs, gitmodules_blobs, submodule_urls
 
 
 class RepoSync:
@@ -82,88 +82,6 @@ class RepoSync:
                 self.sync_repo(resolved_url, required=False, breadcrumbs=breadcrumbs)
 
 
-def resolve_playbook_path(playbook: str, playbooks_dir: Path) -> Path:
-    playbook_path = Path(playbook)
-    if playbook_path.is_file():
-        return playbook_path
-
-    if playbook_path.suffix in {".yaml", ".yml"}:
-        return playbooks_dir / playbook_path
-
-    return playbooks_dir / f"{playbook}.yaml"
-
-
-def load_repo_urls(playbook_path: Path) -> list[str]:
-    with playbook_path.open("r") as f:
-        data = yaml.safe_load(f) or {}
-
-    sources = data.get("playbook", {}).get("sources") or []
-    return [
-        source["repo_url"]
-        for source in sources
-        if isinstance(source, dict) and source.get("repo_url")
-    ]
-
-
-def format_breadcrumbs(breadcrumbs: tuple[str, ...]) -> str:
-    return " > ".join(breadcrumbs)
-
-
-def gitmodules_blobs(repo_path: Path, breadcrumbs: tuple[str, ...]) -> list[str]:
-    result = capture_git(
-        f"--git-dir={repo_path}",
-        "rev-list",
-        "--objects",
-        "--all",
-        "--",
-        ".gitmodules",
-        check=False,
-    )
-
-    if result.returncode != 0:
-        logger.warning(
-            "[{}] Failed to inspect .gitmodules history for {}",
-            format_breadcrumbs(breadcrumbs),
-            repo_path,
-        )
-        return []
-
-    blobs = {
-        line.split(" ", 1)[0]
-        for line in result.stdout.splitlines()
-        if line.endswith(" .gitmodules")
-    }
-    return sorted(blobs)
-
-
-def submodule_urls(repo_path: Path, blob: str, breadcrumbs: tuple[str, ...]) -> list[str]:
-    result = capture_git(
-        f"--git-dir={repo_path}",
-        "cat-file",
-        "-p",
-        blob,
-        check=False,
-    )
-
-    if result.returncode != 0:
-        logger.warning(
-            "[{}] Failed to read .gitmodules blob {}",
-            format_breadcrumbs(breadcrumbs),
-            blob,
-        )
-        return []
-
-    parser = configparser.ConfigParser(interpolation=None)
-    parser.read_string(result.stdout)
-
-    urls = []
-    for section in parser.sections():
-        if section.startswith("submodule ") and parser.has_option(section, "url"):
-            urls.append(parser.get(section, "url"))
-
-    return urls
-
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Sync repositories referenced by a playbook")
     parser.add_argument(
@@ -187,7 +105,7 @@ def main() -> int:
         logger.error("No such playbook: {}", playbook_path)
         return 1
 
-    repo_urls = load_repo_urls(playbook_path)
+    repo_urls = load_playbook_repo_urls(playbook_path)
     if not repo_urls:
         logger.error("No explicit repositories found in playbook: {}", playbook_path)
         logger.error(

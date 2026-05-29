@@ -5,30 +5,7 @@ import os
 import sys
 from pathlib import Path
 
-import yaml
-from common.repo_cache import repo_cache_key
-
-
-def load_playbook_repos(playbook_path: Path) -> list[str]:
-    with playbook_path.open("r", encoding="utf-8") as f:
-        data = yaml.safe_load(f)
-
-    sources = data.get("playbook", {}).get("sources") or []
-    repos = []
-    seen = set()
-    for source in sources:
-        repo_url = source.get("repo_url")
-        if not repo_url:
-            continue
-
-        repo_name = repo_cache_key(repo_url)
-        if repo_name in seen:
-            continue
-
-        repos.append(repo_name)
-        seen.add(repo_name)
-
-    return repos
+from common.playbook import load_playbook_repos
 
 
 def main() -> None:
