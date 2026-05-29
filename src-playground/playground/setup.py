@@ -97,6 +97,18 @@ def cached_repo_for_url(repo_cache_dir: Path, url: str) -> Path | None:
     return None
 
 
+def is_initialized_submodule(repo_path: Path, submodule_name: str) -> bool:
+    result = capture_git(
+        "-C",
+        str(repo_path),
+        "config",
+        "--get",
+        f"submodule.{submodule_name}.url",
+        check=False,
+    )
+    return result.returncode == 0
+
+
 def init_submodules_with_alternates(
     repo_path: Path,
     parent_url: str,
@@ -121,35 +133,52 @@ def init_submodules_with_alternates(
             continue
 
         if clean_gitlink_sha(repo_path, submodule_path) is None:
-            logger.warning("Leaving unresolved submodule conflict untouched: {}", submodule_path)
+            logger.error(
+                "Unmerged submodule found: '{}'. init should be called before the merge",
+                submodule_path,
+            )
             continue
 
-        logger.info("Initializing submodule from cache: {}", submodule_path)
-        capture_git(
-            "-C",
-            str(repo_path),
-            "config",
-            f"submodule.{submodule_name}.url",
-            str(cache_repo),
-        )
+        submodule_is_initialized = is_initialized_submodule(repo_path, submodule_name)
+        if submodule_is_initialized:
+            logger.debug("Updating already initialized submodule: {}", submodule_path)
+            update_args = [
+                "-C",
+                str(repo_path),
+                "-c",
+                "protocol.file.allow=always",
+                "submodule",
+                "update",
+                "--",
+                submodule_path,
+            ]
+        else:
+            logger.info("Initializing submodule from cache: {}", submodule_path)
+            capture_git(
+                "-C",
+                str(repo_path),
+                "config",
+                f"submodule.{submodule_name}.url",
+                str(cache_repo),
+            )
+            update_args = [
+                "-C",
+                str(repo_path),
+                "-c",
+                "protocol.file.allow=always",
+                "submodule",
+                "update",
+                "--init",
+                "--reference",
+                str(cache_repo),
+                "--",
+                submodule_path,
+            ]
 
-        result = capture_git(
-            "-C",
-            str(repo_path),
-            "-c",
-            "protocol.file.allow=always",
-            "submodule",
-            "update",
-            "--init",
-            "--reference",
-            str(cache_repo),
-            "--",
-            submodule_path,
-            check=False,
-        )
+        result = capture_git(*update_args, check=False)
 
         if result.returncode != 0:
-            logger.warning("Failed to initialize submodule from cache: {}", submodule_path)
+            logger.warning("Failed to update submodule from cache: {}", submodule_path)
             if result.stderr:
                 logger.debug(result.stderr.rstrip())
             continue
@@ -165,15 +194,16 @@ def init_submodules_with_alternates(
         if is_worktree.returncode != 0:
             continue
 
-        capture_git(
-            "-C",
-            str(submodule_repo_path),
-            "remote",
-            "set-url",
-            "origin",
-            resolved_url,
-            check=False,
-        )
+        if not submodule_is_initialized:
+            capture_git(
+                "-C",
+                str(submodule_repo_path),
+                "remote",
+                "set-url",
+                "origin",
+                resolved_url,
+                check=False,
+            )
         init_submodules_with_alternates(
             submodule_repo_path,
             resolved_url,
@@ -229,10 +259,6 @@ def setup_playground(repo_name: str, merge_sha: str) -> str:
     alternates = clone_path / ".git" / "objects" / "info" / "alternates"
     alternates.write_text(f"{alternate_path(bare_repo, clone_path)}\n")
 
-    capture_git("checkout", "-b", "feature", feature_parent, cwd=clone_path)
-    capture_git("checkout", "-b", "main", main_parent, cwd=clone_path)
-    capture_git("merge", "feature", cwd=clone_path, check=False)
-
     superproject_url = capture_git(
         "-C",
         str(bare_repo),
@@ -241,10 +267,19 @@ def setup_playground(repo_name: str, merge_sha: str) -> str:
         "remote.origin.url",
         check=False,
     ).stdout.strip()
+
     if superproject_url:
+        capture_git("checkout", "-b", "feature", feature_parent, cwd=clone_path)
+        init_submodules_with_alternates(clone_path, superproject_url, repo_cache_dir)
+
+        capture_git("checkout", "-b", "main", main_parent, cwd=clone_path)
         init_submodules_with_alternates(clone_path, superproject_url, repo_cache_dir)
     else:
         logger.warning("Skipping submodule setup because cached repo has no origin URL: {}", bare_repo)
+        capture_git("checkout", "-b", "feature", feature_parent, cwd=clone_path)
+        capture_git("checkout", "-b", "main", main_parent, cwd=clone_path)
+
+    capture_git("merge", "feature", cwd=clone_path, check=False)
 
     return name
 
