@@ -10,7 +10,7 @@ playbook:
       limit: 10
     - repo_url: https://github.com/Akaflieg-Freiburg/enroute
       limit: 10
-    - repo_url: https://github.com/denoland/denoland
+    - repo_url: https://github.com/denoland/deno
       limit: 10
     - repo_url: https://github.com/Significant-Gravitas/AutoGPT.git
       limit: 10
