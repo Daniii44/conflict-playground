@@ -4,3 +4,14 @@ playbook:
       limit: 10
     - repo_url: https://github.com/qt/qt5
       limit: 10
+    - repo_url: https://github.com/rust-lang/rust
+      limit: 10
+    - repo_url: https://github.com/openssl/openssl
+      limit: 10
+    - repo_url: https://github.com/Akaflieg-Freiburg/enroute
+      limit: 10
+    - repo_url: https://github.com/denoland/denoland
+      limit: 10
+    - repo_url: https://github.com/Significant-Gravitas/AutoGPT.git
+      limit: 10
+      
