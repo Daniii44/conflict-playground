@@ -1,0 +1,22 @@
+apiVersion: 1
+
+datasources:
+  - name: Clickhouse
+    type: grafana-clickhouse-datasource
+    uid: clickhouse
+    access: proxy
+    jsonData:
+      host: clickhouse # (required) server address.
+      port: 9000      # (required) server port. For native, defaults to 9440 secure and 9000 insecure. For HTTP, defaults to 8443 secure and 8123 insecure.
+
+      protocol: native # (required) the protocol used for the connection. Can be set to "native" or "http".
+      secure: false    # set to true if the connection is secure.
+
+      username: default # the username used for authentication.
+
+      tlsSkipVerify:     false # skips TLS verification when set to true.
+      tlsAuth:           false # set to true to enable TLS client authentication.
+      tlsAuthWithCACert: false # set to true if CA certificate is provided. Required for verifying self-signed TLS certificates.
+
+    secureJsonData:
+      password: dev-dynha9-fenvYc-daqmeh # the password used for authentication.
