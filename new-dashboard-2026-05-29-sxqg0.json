@@ -115,7 +115,7 @@
                 "sort": "desc",
                 "tooltip": {
                   "hideZeros": false,
-                  "mode": "single",
+                  "mode": "multi",
                   "sort": "none"
                 }
               }
@@ -141,7 +141,7 @@
           }
         ],
         "maxColumnCount": 3,
-        "rowHeightMode": "standard"
+        "rowHeightMode": "tall"
       }
     },
     "links": [
