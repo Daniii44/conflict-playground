@@ -215,34 +215,181 @@
             "version": "13.0.1+security-01"
           }
         }
+      },
+      "panel-3": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "afnd4mb94p5hcb"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT logical_conflict.type::String as type, logical_conflict.info::String as info FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:submodule') and type = '$submodule_conflict_type'"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 3,
+          "links": [],
+          "title": "New panel",
+          "vizConfig": {
+            "group": "table",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "custom": {
+                    "align": "auto",
+                    "cellOptions": {
+                      "type": "auto"
+                    },
+                    "footer": {
+                      "reducers": []
+                    },
+                    "inspect": false
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              },
+              "options": {
+                "cellHeight": "sm",
+                "showHeader": true
+              }
+            },
+            "version": "13.0.1+security-01"
+          }
+        }
       }
     },
     "layout": {
-      "kind": "AutoGridLayout",
+      "kind": "RowsLayout",
       "spec": {
-        "columnWidthMode": "standard",
-        "items": [
+        "rows": [
           {
-            "kind": "AutoGridLayoutItem",
+            "kind": "RowsLayoutRow",
             "spec": {
-              "element": {
-                "kind": "ElementReference",
-                "name": "panel-1"
-              }
+              "collapse": false,
+              "layout": {
+                "kind": "AutoGridLayout",
+                "spec": {
+                  "columnWidthMode": "narrow",
+                  "items": [
+                    {
+                      "kind": "AutoGridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-1"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "AutoGridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-2"
+                        }
+                      }
+                    }
+                  ],
+                  "maxColumnCount": 3,
+                  "rowHeightMode": "tall"
+                }
+              },
+              "title": "Overview"
             }
           },
           {
-            "kind": "AutoGridLayoutItem",
+            "kind": "RowsLayoutRow",
             "spec": {
-              "element": {
-                "kind": "ElementReference",
-                "name": "panel-2"
-              }
+              "collapse": false,
+              "layout": {
+                "kind": "TabsLayout",
+                "spec": {
+                  "tabs": [
+                    {
+                      "kind": "TabsLayoutTab",
+                      "spec": {
+                        "layout": {
+                          "kind": "GridLayout",
+                          "spec": {
+                            "items": [
+                              {
+                                "kind": "GridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-3"
+                                  },
+                                  "height": 8,
+                                  "width": 12,
+                                  "x": 0,
+                                  "y": 0
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "repeat": {
+                          "mode": "variable",
+                          "value": "submodule_conflict_type"
+                        },
+                        "title": "$submodule_conflict_type"
+                      }
+                    }
+                  ]
+                }
+              },
+              "title": "Conflict Analysis"
             }
           }
-        ],
-        "maxColumnCount": 3,
-        "rowHeightMode": "tall"
+        ]
       }
     },
     "links": [
@@ -291,6 +438,41 @@
       "to": "now"
     },
     "title": "Submodule",
-    "variables": []
+    "variables": [
+      {
+        "kind": "QueryVariable",
+        "spec": {
+          "allValue": "all",
+          "allowCustomValue": true,
+          "current": {
+            "text": "All",
+            "value": "$__all"
+          },
+          "definition": "SELECT distinct logical_conflict.type::String as type FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:submodule') and type like '%submodule%'",
+          "hide": "dontHide",
+          "includeAll": true,
+          "label": "Submodule Conflict Type",
+          "multi": false,
+          "name": "submodule_conflict_type",
+          "options": [],
+          "query": {
+            "datasource": {
+              "name": "afnd4mb94p5hcb"
+            },
+            "group": "grafana-clickhouse-datasource",
+            "kind": "DataQuery",
+            "spec": {
+              "__legacyStringValue": "SELECT distinct logical_conflict.type::String as type FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:submodule') and type like '%submodule%'"
+            },
+            "version": "v0"
+          },
+          "refresh": "onDashboardLoad",
+          "regex": "",
+          "regexApplyTo": "value",
+          "skipUrlSync": false,
+          "sort": "disabled"
+        }
+      }
+    ]
   }
 }
