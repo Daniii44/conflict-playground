@@ -62,7 +62,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT logical_conflict.type::String, * FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere logical_conflict.type::String like '%submodule%'"
+                        "rawSql": "SELECT logical_conflict.type::String, count(*) FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:submodule') and logical_conflict.type::String like '%submodul%'\ngroup by logical_conflict.type::String\norder by count(*) desc"
                       },
                       "version": "v0"
                     },
@@ -77,7 +77,7 @@
           "description": "",
           "id": 1,
           "links": [],
-          "title": "New panel",
+          "title": "Conflict Types",
           "vizConfig": {
             "group": "table",
             "kind": "VizConfig",
@@ -139,7 +139,20 @@
         "rowHeightMode": "standard"
       }
     },
-    "links": [],
+    "links": [
+      {
+        "asDropdown": false,
+        "icon": "external link",
+        "includeVars": false,
+        "keepTime": false,
+        "tags": [],
+        "targetBlank": true,
+        "title": "Source (GitHub)",
+        "tooltip": "View source file in repository",
+        "type": "link",
+        "url": "https://github.com/Daniii44/conflict-playground/blob/grafana/new-dashboard-2026-05-29-sxqg0.json"
+      }
+    ],
     "liveNow": false,
     "preferences": {
       "layout": {
