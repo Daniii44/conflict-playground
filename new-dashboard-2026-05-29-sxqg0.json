@@ -448,7 +448,7 @@
             "value": "$__all"
           },
           "definition": "SELECT distinct logical_conflict.type::String as type FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:submodule') and type like '%submodule%'",
-          "hide": "dontHide",
+          "hide": "hideVariable",
           "includeAll": true,
           "label": "Submodule Conflict Type",
           "multi": false,
