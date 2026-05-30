@@ -248,7 +248,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT logical_conflict.type::String as type, logical_conflict.info::String as info, logical_conflict.paths::String as paths FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:submodule') and type = '$submodule_conflict_type'"
+                        "rawSql": "SELECT key, logical_conflict.type::String as type, logical_conflict.info::String as info, logical_conflict.paths::String as paths FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:submodule') and type = '$submodule_conflict_type'"
                       },
                       "version": "v0"
                     },
