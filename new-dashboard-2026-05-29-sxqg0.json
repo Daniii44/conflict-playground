@@ -423,7 +423,7 @@
               "layout": {
                 "kind": "AutoGridLayout",
                 "spec": {
-                  "columnWidthMode": "narrow",
+                  "columnWidthMode": "standard",
                   "items": [
                     {
                       "kind": "AutoGridLayoutItem",
