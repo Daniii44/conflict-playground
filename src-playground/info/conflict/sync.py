@@ -90,9 +90,9 @@ def dispatch_analysis(analysis: Analysis, analysisInput: AnalysisInput):
     
     return None
 
-def execute_analyses(analysis: Analysis, analysisInputs: list[AnalysisInput], verbose: bool):
-    max_workers = os.cpu_count()
-    
+def execute_analyses(analysis: Analysis, analysisInputs: list[AnalysisInput], verbose: bool, max_workers: int | None):
+    max_workers = max_workers or os.cpu_count()
+
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = [executor.submit(dispatch_analysis, analysis, analysisInput) for analysisInput in analysisInputs]
 
@@ -133,6 +133,12 @@ def main():
         action="store_true",
         help="List all available analyses and exit",
     )
+    parser.add_argument(
+        "--max-workers",
+        type=int,
+        default=None,
+        help="Maximum number of worker threads to use for analysis (defaults to CPU count)",
+    )
     args = parser.parse_args()
 
     if args.list_analyses:
@@ -142,6 +148,9 @@ def main():
 
     if not args.git_repo_name:
         parser.error("the following arguments are required: git_repo_name")
+
+    if args.max_workers is not None and args.max_workers < 1:
+        parser.error("--max-workers must be at least 1")
 
     global redis
     redis = setup_redis_connection()
@@ -174,7 +183,7 @@ def main():
             continue
 
         conflict_candidates = collect_analysis_candidates(str(git_dir), git_repo_name)
-        execute_analyses(analysis, conflict_candidates, args.verbose)
+        execute_analyses(analysis, conflict_candidates, args.verbose, args.max_workers)
 
 if __name__ == "__main__":
     main()

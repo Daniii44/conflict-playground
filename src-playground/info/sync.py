@@ -58,6 +58,12 @@ def parse_args(available_analyses: list[str]) -> argparse.Namespace:
         action="store_true",
         help="List all available analyses and exit",
     )
+    parser.add_argument(
+        "--max-workers",
+        type=int,
+        default=None,
+        help="Maximum number of worker threads to use per conflict analysis repo",
+    )
     return parser.parse_args()
 
 
@@ -79,6 +85,10 @@ def main() -> int:
         logger.error("Use either --all-analysis or --analysis, not both")
         return 1
 
+    if args.max_workers is not None and args.max_workers < 1:
+        logger.error("--max-workers must be at least 1")
+        return 1
+
     try:
         repos = collect_repos(args.playbook)
     except subprocess.CalledProcessError as error:
@@ -92,6 +102,8 @@ def main() -> int:
             for analysis in args.analysis
             for value in ("--analysis", analysis)
         ]
+    if args.max_workers is not None:
+        analysis_args.extend(["--max-workers", str(args.max_workers)])
 
     for repo in repos:
         logger.info("Processing: {}", repo)
