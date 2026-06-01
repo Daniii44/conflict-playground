@@ -49,6 +49,10 @@ evaluation-assess <playground_name>           # Evaluate a resolved conflict
 
 Python CLI scripts should use Loguru (`from loguru import logger`) for status/warning/error output instead of `print`; reserve stdout for command output consumed by other commands. Shared Git and repo-cache behavior belongs in `src-playground/common/`: use `common.git_util` for Git subprocesses and `common.repo_cache` for URL-to-cache-key and submodule URL resolution.
 
+## Commit Messages
+
+Use Conventional Commits with an explicit scope, matching the existing history style, for example `feat(stores): add shared data stores directory`.
+
 ## Architecture
 
 ### Script Collection (Shell vs Python)
@@ -80,6 +84,9 @@ GitHub repos
 - Conflict data: JSON at key `info:conflict:<analysis>:<repo>:<sha>`, indexed by the corresponding RediSearch index
 - Active playground state: `runtime:active_playground:<playground_name>` (JSON with `ActivePlayground` model)
 - Hook communication: `to_hook` / `to_playground` pub/sub channels
+
+**Stores Directory (`/data/stores`)**
+Generated, user-inspectable output that should persist outside the container belongs under `$STORES` (`/root/stores` in the container, bind-mounted from `./data/stores`). Redis export/import saves live in `$STORES/redis-saves`; Graphviz DOT output uses `$STORES/graphviz` when commands resolve a bare output name. Do not migrate or depend on older cache-based save paths.
 
 **Playground Lifecycle (`src-playground/playground/`)**
 `setup.py` creates a working repo using `.git/objects/info/alternates` pointing at the cached bare repo. It checks out `feature` (first parent), then `main` (second parent), merges `feature`, and leaves conflicts in place. It also initializes clean submodule gitlinks from cached bare repos using `git submodule update --init --reference`; unresolved submodule conflicts are left for the user.
