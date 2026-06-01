@@ -5,7 +5,8 @@ from common.active_playground_models import Configuration
 
 class ProposedResolution(BaseModel):
     commit_sha: str | None = None
-    show_cc: str | None = None
+    actual_resolution_sha: str | None = None
+    diff_to_actual_resolution: str | None = None
     error: str | None = None
 
 class Evaluation(BaseModel):

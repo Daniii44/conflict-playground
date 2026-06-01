@@ -39,21 +39,39 @@ def collect_proposed_resolution(playground_name: str) -> ProposedResolution:
         return ProposedResolution(error="PLAYGROUNDS environment variable is not set")
 
     playground_path = f"{playgrounds}/{playground_name}"
+    try:
+        actual_resolution_sha = playground_name.rsplit("-", 1)[1]
+    except IndexError:
+        return ProposedResolution(error=f"Could not extract merge SHA from playground name: {playground_name}")
+
     head_result = capture_git("-C", playground_path, "rev-parse", "HEAD", check=False)
     if head_result.returncode != 0:
         error = head_result.stderr.strip() or head_result.stdout.strip()
         return ProposedResolution(error=f"Could not read resolved HEAD: {error}")
 
     commit_sha = head_result.stdout.strip()
-    show_result = capture_git("-C", playground_path, "show", "--cc", commit_sha, check=False)
-    if show_result.returncode != 0:
-        error = show_result.stderr.strip() or show_result.stdout.strip()
+    diff_result = capture_git(
+        "-C",
+        playground_path,
+        "diff",
+        "--color=always",
+        "HEAD",
+        actual_resolution_sha,
+        check=False,
+    )
+    if diff_result.returncode != 0:
+        error = diff_result.stderr.strip() or diff_result.stdout.strip()
         return ProposedResolution(
             commit_sha=commit_sha,
-            error=f"Could not export proposed resolution with git show --cc: {error}",
+            actual_resolution_sha=actual_resolution_sha,
+            error=f"Could not diff proposed resolution against actual resolution: {error}",
         )
 
-    return ProposedResolution(commit_sha=commit_sha, show_cc=show_result.stdout)
+    return ProposedResolution(
+        commit_sha=commit_sha,
+        actual_resolution_sha=actual_resolution_sha,
+        diff_to_actual_resolution=diff_result.stdout,
+    )
 
 def evaluate(configuration: Configuration, playground_name: str) -> Evaluation:
     print(configuration.resolution_start)
