@@ -62,7 +62,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT content.configuration.hook_type, content.result.duration_seconds, content.result.perfect_match,content.result.incomplete_merge,  content.hook_result.message,content FROM \"default\".\"redis_json\" where startsWith(key, 'evaluation')"
+                        "rawSql": "SELECT content.configuration.hook_type, content.result.duration_seconds, content.result.perfect_match,content.result.incomplete_merge,  content.hook_result.message FROM \"default\".\"redis_json\" where startsWith(key, 'evaluation')"
                       },
                       "version": "v0"
                     },
