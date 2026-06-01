@@ -45,15 +45,15 @@ def load_playbook(playbook_path: str) -> list[Playground]:
     with open(playbook_path, 'r') as f:
         data = yaml.safe_load(f)
 
+    playbook = data['playbook']
+    conflict_types = playbook.get("config", {}).get("conflict-types") or []
     playgrounds = []
-    if not data['playbook']['sources']:
-        conflicts = list_conflicts(conflict_types=data['playbook']["config"]["conflict-types"])
-        print(data['playbook']["config"]["conflict-types"])
-        print(conflicts)
+    if not playbook['sources']:
+        conflicts = list_conflicts(conflict_types=conflict_types)
         for (repo, merge_commit_oid) in conflicts:
             playgrounds.append(Playground(repo_name=repo, merge_sha=merge_commit_oid))
     else:
-        for source in data['playbook']['sources']:
+        for source in playbook['sources']:
             repo_url = source['repo_url']
             repo_name = repo_cache_key(repo_url)
 
@@ -67,7 +67,7 @@ def load_playbook(playbook_path: str) -> list[Playground]:
                 # Use limit to get SHAs from conflict
                 limit = source.get('limit', 1)
                 
-                for conflict in list_conflicts(repos=[repo_name], limit=limit):
+                for conflict in list_conflicts(repos=[repo_name], conflict_types=conflict_types, limit=limit):
                     playgrounds.append(Playground(repo_name=repo_name, merge_sha=conflict[1]))
 
     return playgrounds
