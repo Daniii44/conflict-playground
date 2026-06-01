@@ -6,6 +6,7 @@ x-templates:
       - "playgrounds:/root/playgrounds-named-volume"
       - "./data/playgrounds:/root/playgrounds-bind-mount"
       - "./data/playbooks:/root/playbooks"
+      - "./data/stores:/root/stores"
   hook-base:
     <<: *volumes
     user: hook

@@ -10,8 +10,8 @@ from info.redis._data import resolve_save_path
 
 def main():
     parser = argparse.ArgumentParser(description="Rename a Redis save file")
-    parser.add_argument("old_name", help="Current save name under $CACHES/redis-saves")
-    parser.add_argument("new_name", help="New save name under $CACHES/redis-saves")
+    parser.add_argument("old_name", help="Current save name under $STORES/redis-saves")
+    parser.add_argument("new_name", help="New save name under $STORES/redis-saves")
     parser.add_argument(
         "-f",
         "--force",

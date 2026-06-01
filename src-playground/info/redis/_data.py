@@ -17,8 +17,8 @@ def setup_data_redis_connection() -> Redis:
 
 
 def resolve_save_dir() -> Path:
-    caches_dir = Path(os.environ.get("CACHES", "../../caches"))
-    return caches_dir / REDIS_SAVE_DIR_NAME
+    stores_dir = Path(os.environ.get("STORES", "../../data/stores"))
+    return stores_dir / REDIS_SAVE_DIR_NAME
 
 
 def resolve_save_path(save_name: str) -> Path:

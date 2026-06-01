@@ -22,7 +22,7 @@ def main():
   info-redis-save conflicts 'info:conflict:*'
 """,
     )
-    parser.add_argument("save_name", help="Name for the save file under $CACHES/redis-saves")
+    parser.add_argument("save_name", help="Name for the save file under $STORES/redis-saves")
     parser.add_argument(
         "patterns",
         nargs="*",

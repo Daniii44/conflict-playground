@@ -41,6 +41,7 @@ fi
 export CACHES="${HOME}/caches"
 export PLAYGROUNDS="${HOME}/playgrounds"
 export PLAYBOOKS="${HOME}/playbooks"
+export STORES="${HOME}/stores"
 export SOURCES="${HOME}/src"
 
 # Python
@@ -48,6 +49,7 @@ export PYTHONPATH="$HOME/src"
 
 # Ensure subdirectories exist
 mkdir -p "${CACHES}/repos"
+mkdir -p "${STORES}/graphviz" "${STORES}/redis-saves"
 
 # Initialization: walk src, copy all executable files to bin with flat names
 BIN_DIR="${HOME}/bin"

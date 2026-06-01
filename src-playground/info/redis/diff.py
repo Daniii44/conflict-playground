@@ -133,7 +133,7 @@ def main():
   info-redis-diff all --include-ttl
 """,
     )
-    parser.add_argument("save_name", help="Name of the save file under $CACHES/redis-saves")
+    parser.add_argument("save_name", help="Name of the save file under $STORES/redis-saves")
     parser.add_argument(
         "--include-ttl",
         action="store_true",

@@ -4,6 +4,7 @@ import json
 import pytest
 
 from info.redis import diff as redis_diff
+from info.redis._data import resolve_save_path
 
 
 def make_record(key: bytes, *, key_type: str = "string", dump: str = "payload", ttl_ms=None):
@@ -70,3 +71,10 @@ def test_load_save_records_rejects_duplicate_keys(tmp_path):
 
     with pytest.raises(ValueError, match="Duplicate Redis key"):
         redis_diff.load_save_records(save_path)
+
+
+def test_resolve_save_path_uses_stores_directory(monkeypatch, tmp_path):
+    stores_dir = tmp_path / "stores"
+    monkeypatch.setenv("STORES", str(stores_dir))
+
+    assert resolve_save_path("snapshot") == stores_dir / "redis-saves" / "snapshot.ndjson"

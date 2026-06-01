@@ -10,7 +10,7 @@ from info.redis._data import resolve_save_path
 
 def main():
     parser = argparse.ArgumentParser(description="Delete a Redis save file")
-    parser.add_argument("save_name", help="Name of the save file under $CACHES/redis-saves")
+    parser.add_argument("save_name", help="Name of the save file under $STORES/redis-saves")
     args = parser.parse_args()
 
     save_path = resolve_save_path(args.save_name)

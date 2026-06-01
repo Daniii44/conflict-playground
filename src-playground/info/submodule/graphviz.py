@@ -14,6 +14,8 @@ from common.redis_util import INFO_SUBMODULE_PREFIX, setup_redis_connection
 from common.repo_cache import repo_cache_key
 from info.submodule.sync import load_root_repo_urls
 
+GRAPHVIZ_STORE_DIR_NAME = "graphviz"
+
 
 def dot_quote(value: str) -> str:
     escaped = value.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
@@ -126,7 +128,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "-o",
         "--output",
-        help="Write DOT output to this file instead of stdout",
+        help="Write DOT output to this file instead of stdout. Bare file names are saved under $STORES/graphviz",
     )
     parser.add_argument(
         "--head",
@@ -134,6 +136,15 @@ def parse_args() -> argparse.Namespace:
         help="Only show submodule dependencies present in the latest commit",
     )
     return parser.parse_args()
+
+
+def resolve_output_path(output: str) -> Path:
+    output_path = Path(output)
+    if output_path.parent != Path("."):
+        return output_path
+
+    stores_dir = Path(os.environ.get("STORES", "../../data/stores"))
+    return stores_dir / GRAPHVIZ_STORE_DIR_NAME / output_path
 
 
 def main() -> int:
@@ -159,7 +170,9 @@ def main() -> int:
 
     dot = graph.to_dot(playbook_path.stem)
     if args.output:
-        Path(args.output).write_text(f"{dot}\n", encoding="utf-8")
+        output_path = resolve_output_path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(f"{dot}\n", encoding="utf-8")
     else:
         print(dot)
 

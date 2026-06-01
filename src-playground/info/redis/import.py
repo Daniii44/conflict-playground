@@ -16,7 +16,7 @@ def main():
   info-redis-import all
 """,
     )
-    parser.add_argument("save_name", help="Name of the save file under $CACHES/redis-saves")
+    parser.add_argument("save_name", help="Name of the save file under $STORES/redis-saves")
     args = parser.parse_args()
 
     redis = setup_data_redis_connection()
