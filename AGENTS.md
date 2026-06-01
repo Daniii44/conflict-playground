@@ -49,8 +49,9 @@ evaluation-assess <playground_name>           # Evaluate a resolved conflict
 
 Python CLI scripts should use Loguru (`from loguru import logger`) for status/warning/error output instead of `print`; reserve stdout for command output consumed by other commands. Shared Git and repo-cache behavior belongs in `src-playground/common/`: use `common.git_util` for Git subprocesses and `common.repo_cache` for URL-to-cache-key and submodule URL resolution.
 
-## Commit Messages
+## Git Conventions
 
+Always commit your changes after you have completed your task.
 Use Conventional Commits with an explicit scope, matching the existing history style, for example `feat(stores): add shared data stores directory`.
 
 ## Architecture
