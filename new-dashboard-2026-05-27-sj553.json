@@ -335,31 +335,60 @@
             "spec": {
               "collapse": false,
               "layout": {
-                "kind": "AutoGridLayout",
+                "kind": "TabsLayout",
                 "spec": {
-                  "columnWidthMode": "standard",
-                  "items": [
+                  "tabs": [
                     {
-                      "kind": "AutoGridLayoutItem",
+                      "kind": "TabsLayoutTab",
                       "spec": {
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "panel-2"
-                        }
+                        "layout": {
+                          "kind": "AutoGridLayout",
+                          "spec": {
+                            "columnWidthMode": "standard",
+                            "items": [
+                              {
+                                "kind": "AutoGridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-2"
+                                  }
+                                }
+                              }
+                            ],
+                            "maxColumnCount": 1,
+                            "rowHeightMode": "tall"
+                          }
+                        },
+                        "title": "Full Logs"
                       }
                     },
                     {
-                      "kind": "AutoGridLayoutItem",
+                      "kind": "TabsLayoutTab",
                       "spec": {
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "panel-3"
-                        }
+                        "layout": {
+                          "kind": "AutoGridLayout",
+                          "spec": {
+                            "columnWidthMode": "standard",
+                            "items": [
+                              {
+                                "kind": "AutoGridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-3"
+                                  }
+                                }
+                              }
+                            ],
+                            "maxColumnCount": 3,
+                            "rowHeightMode": "tall"
+                          }
+                        },
+                        "title": "Tools"
                       }
                     }
-                  ],
-                  "maxColumnCount": 1,
-                  "rowHeightMode": "tall"
+                  ]
                 }
               },
               "title": "Insights"
