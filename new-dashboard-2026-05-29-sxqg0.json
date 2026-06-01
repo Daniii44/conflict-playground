@@ -43,7 +43,7 @@
                     "hidden": false,
                     "query": {
                       "datasource": {
-                        "name": "afnd4mb94p5hcb"
+                        "name": "clickhouse"
                       },
                       "group": "grafana-clickhouse-datasource",
                       "kind": "DataQuery",
@@ -137,7 +137,7 @@
                     "hidden": false,
                     "query": {
                       "datasource": {
-                        "name": "afnd4mb94p5hcb"
+                        "name": "clickhouse"
                       },
                       "group": "grafana-clickhouse-datasource",
                       "kind": "DataQuery",
@@ -229,7 +229,7 @@
                     "hidden": false,
                     "query": {
                       "datasource": {
-                        "name": "afnd4mb94p5hcb"
+                        "name": "clickhouse"
                       },
                       "group": "grafana-clickhouse-datasource",
                       "kind": "DataQuery",
@@ -318,7 +318,7 @@
                     "hidden": false,
                     "query": {
                       "datasource": {
-                        "name": "afnd4mb94p5hcb"
+                        "name": "clickhouse"
                       },
                       "group": "grafana-clickhouse-datasource",
                       "kind": "DataQuery",
@@ -424,7 +424,7 @@
                     "hidden": false,
                     "query": {
                       "datasource": {
-                        "name": "afnd4mb94p5hcb"
+                        "name": "clickhouse"
                       },
                       "group": "grafana-clickhouse-datasource",
                       "kind": "DataQuery",
@@ -686,7 +686,7 @@
           "options": [],
           "query": {
             "datasource": {
-              "name": "afnd4mb94p5hcb"
+              "name": "clickhouse"
             },
             "group": "grafana-clickhouse-datasource",
             "kind": "DataQuery",
