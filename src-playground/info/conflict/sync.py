@@ -17,6 +17,7 @@ from common.redis_util import setup_redis_connection
 from info.conflict.analysis.common import Analysis, AnalysisInput
 from info.conflict.analysis.core_analysis import CoreAnalysis
 from info.conflict.analysis.divergence_analysis import DivergenceAnalysis
+from info.conflict.analysis.octopus_analysis import OctopusAnalysis
 from info.conflict.analysis.tree_diff_analysis import TreeDiffAnalysis
 
 # Script to collect all dirty merge commits in a bare git repository
@@ -34,6 +35,7 @@ exiting = False
 AVAILABLE_ANALYSES: dict[str, type[Analysis]] = {
     "core": CoreAnalysis,
     "divergence": DivergenceAnalysis,
+    "octopus": OctopusAnalysis,
     "tree-diff": TreeDiffAnalysis,
 }
 
