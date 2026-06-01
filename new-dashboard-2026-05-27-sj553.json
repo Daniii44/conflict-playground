@@ -199,7 +199,7 @@
                 "enableInfiniteScrolling": false,
                 "enableLogDetails": true,
                 "prettifyLogMessage": true,
-                "showControls": false,
+                "showControls": true,
                 "showFieldSelector": false,
                 "showLabels": false,
                 "showLevel": false,
