@@ -22,11 +22,18 @@ class FakeRedisJson:
 
 
 class FakeRedis:
-    def __init__(self, payload):
+    def __init__(self, payload, keys=None):
         self.payload = payload
+        self.keys = keys or []
 
     def json(self):
         return FakeRedisJson(self.payload)
+
+    def exists(self, key):
+        return key in self.keys
+
+    def scan_iter(self, match):
+        return (key for key in self.keys if key.startswith(match.removesuffix("*")))
 
 
 def test_replay_diff_writes_recorded_diff(monkeypatch, capsys):
@@ -40,9 +47,13 @@ def test_replay_diff_writes_recorded_diff(monkeypatch, capsys):
         result=Evaluation(duration_seconds=1.0, incomplete_merge=False, perfect_match=False),
         proposed_resolution=ProposedResolution(diff_to_actual_resolution="\x1b[31m-diff\x1b[m\n"),
     ).model_dump(mode="json")
-    monkeypatch.setattr(replay_diff_module, "setup_redis_connection", lambda: FakeRedis(payload))
+    keys = [
+        "evaluation:conflict:owner/repo.git-actualsha:20260602T120000.000000Z",
+        "evaluation:conflict:owner/repo.git-actualsha:20260602T130000.000000Z",
+    ]
+    monkeypatch.setattr(replay_diff_module, "setup_redis_connection", lambda: FakeRedis(payload, keys=keys))
 
-    exit_code = replay_diff_module.replay_diff("owner/repo.git-actual-sha")
+    exit_code = replay_diff_module.replay_diff("owner/repo.git-actualsha")
 
     assert exit_code == 0
     assert capsys.readouterr().out == "\x1b[31m-diff\x1b[m\n"

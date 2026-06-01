@@ -1,7 +1,17 @@
 from subprocess import CompletedProcess
 from unittest.mock import patch
+from datetime import datetime, timezone
 
-from evaluation.assess import collect_proposed_resolution
+from evaluation.assess import collect_proposed_resolution, evaluation_record_key
+
+
+def test_evaluation_record_key_includes_sortable_utc_timestamp():
+    key = evaluation_record_key(
+        "owner/repo.git-actualsha",
+        datetime(2026, 6, 2, 12, 34, 56, 789, tzinfo=timezone.utc),
+    )
+
+    assert key == "evaluation:conflict:owner/repo.git-actualsha:20260602T123456.000789Z"
 
 
 def test_collect_proposed_resolution_records_colored_diff(monkeypatch):

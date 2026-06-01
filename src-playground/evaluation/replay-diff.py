@@ -9,9 +9,24 @@ from common.evaluation_models import ConflictEvaluation
 from common.redis_util import EVALUATION_CONFLICT_PREFIX, setup_redis_connection
 
 
+def latest_evaluation_key(redis, playground_name: str) -> str | None:
+    legacy_key = f"{EVALUATION_CONFLICT_PREFIX}{playground_name}"
+    if redis.exists(legacy_key):
+        return legacy_key
+
+    keys = list(redis.scan_iter(match=f"{legacy_key}:*"))
+    if not keys:
+        return None
+    return max(key.decode() if isinstance(key, bytes) else key for key in keys)
+
+
 def replay_diff(playground_name: str) -> int:
     redis = setup_redis_connection()
-    key = f"{EVALUATION_CONFLICT_PREFIX}{playground_name}"
+    key = latest_evaluation_key(redis, playground_name)
+    if key is None:
+        logger.error("No evaluation found for playground {}", playground_name)
+        return 1
+
     evaluation_data = redis.json().get(key)
     if not evaluation_data:
         logger.error("No evaluation found for playground {}", playground_name)

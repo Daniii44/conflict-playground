@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 import os
 import subprocess
@@ -15,6 +15,13 @@ from common.redis_util import (
     RUNTIME_ACTIVE_PLAYGROUND_PREFIX,
     setup_redis_connection,
 )
+
+
+def evaluation_record_key(playground_name: str, evaluated_at: datetime | None = None) -> str:
+    if evaluated_at is None:
+        evaluated_at = datetime.now(timezone.utc)
+    timestamp = evaluated_at.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ")
+    return f"{EVALUATION_CONFLICT_PREFIX}{playground_name}:{timestamp}"
 
 
 def evaluation_check_for_merge(playground_name: str) -> bool:
@@ -119,12 +126,10 @@ def main():
         hook_result=active_playground.hook_result,
         proposed_resolution=proposed_resolution,
     )
-    redis.json().set(
-        f"{EVALUATION_CONFLICT_PREFIX}{args.playground_name}",
-        "$",
-        json.loads(conflict_evaluation.model_dump_json()),
-    )
+    evaluation_key = evaluation_record_key(args.playground_name)
+    redis.json().set(evaluation_key, "$", json.loads(conflict_evaluation.model_dump_json()))
     print(f"Evaluation result for {args.playground_name}:")
+    print(f"Stored evaluation at {evaluation_key}")
     rich.print_json(conflict_evaluation.model_dump_json())
 
 
