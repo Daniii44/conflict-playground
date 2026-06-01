@@ -566,8 +566,8 @@
         "spec": {
           "allowCustomValue": false,
           "current": {
-            "text": "evaluation:conflict:simonmichael/hledger.git-2cbc41e088fe210ed73122676f8de45a6b43da81",
-            "value": "evaluation:conflict:simonmichael/hledger.git-2cbc41e088fe210ed73122676f8de45a6b43da81"
+            "text": "evaluation:conflict:simonmichael/hledger.git-0346b4cdd9d5fc9ab68753946c717b83089cb73d",
+            "value": "evaluation:conflict:simonmichael/hledger.git-0346b4cdd9d5fc9ab68753946c717b83089cb73d"
           },
           "definition": "SELECT key FROM \"default\".\"redis_json\" where startsWith(key, 'evaluation')",
           "hide": "dontHide",
