@@ -20,4 +20,6 @@ RUN apt-get -y install redis-tools
 RUN apt-get -y install tree
 
 ADD src-playground src
+ADD tests-playground tests-playground
+ADD pyproject.toml .
 ADD assets/playground/* .

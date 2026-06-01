@@ -40,11 +40,10 @@ evaluation-assess <playground_name>           # Evaluate a resolved conflict
 ## Testing
 
 ```bash
-pytest                        # Run all tests (tests-playground/ directory)
-pytest tests-playground/foo.py  # Run a single test file
+./test.sh  # Build the playground image and run all tests in Docker
 ```
 
-`pyproject.toml` sets `testpaths = ["tests-playground"]` and `pythonpath = ["src-playground"]`.
+`test.sh` runs `pytest` inside the `conflict-playground:playground` Docker image with `PYTHONPATH=/root/src`. `pyproject.toml` sets `testpaths = ["tests-playground"]` and `pythonpath = ["src-playground"]`.
 
 ## Python Conventions
 
