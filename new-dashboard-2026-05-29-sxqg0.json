@@ -62,7 +62,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT logical_conflict.type::String, count(*) FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:submodule') and logical_conflict.type::String like '%submodul%'\ngroup by logical_conflict.type::String\norder by count(*) desc"
+                        "rawSql": "SELECT logical_conflict.type::String, count(*) FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:core') and logical_conflict.type::String like '%submodul%'\ngroup by logical_conflict.type::String\norder by count(*) desc"
                       },
                       "version": "v0"
                     },
@@ -120,7 +120,7 @@
                 }
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.1"
           }
         }
       },
@@ -156,7 +156,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT logical_conflict.type::String, count(*) FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:submodule') and logical_conflict.type::String like '%submodul%'\ngroup by logical_conflict.type::String\norder by count(*) desc"
+                        "rawSql": "SELECT logical_conflict.type::String, count(*) FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:core') and logical_conflict.type::String like '%submodul%'\ngroup by logical_conflict.type::String\norder by count(*) desc"
                       },
                       "version": "v0"
                     },
@@ -212,7 +212,7 @@
                 "showHeader": true
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.1"
           }
         }
       },
@@ -248,7 +248,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT key, logical_conflict.type::String as type, logical_conflict.info::String as info, logical_conflict.paths::String as paths FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:submodule') and type = '$submodule_conflict_type'"
+                        "rawSql": "SELECT key, logical_conflict.type::String as type, logical_conflict.info::String as info, logical_conflict.paths::String as paths FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:core') and type = '$submodule_conflict_type'"
                       },
                       "version": "v0"
                     },
@@ -301,7 +301,7 @@
                 "showHeader": true
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.1"
           }
         }
       },
@@ -337,7 +337,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT \n        key,\n        count() AS submodule_conflict_count\n    FROM \"default\".\"redis_json\"\n    -- Explicitly cast the Dynamic column to an Array of JSON objects\n    ARRAY JOIN CAST(content.merge_result.logical_conflicts, 'Array(JSON)') AS logical_conflict\n    WHERE startsWith(key, 'info:conflict:submodule') \n      AND logical_conflict.type::String LIKE '%submodule%'\n    GROUP BY key, logical_conflict.type::String"
+                        "rawSql": "SELECT \n        key,\n        count() AS submodule_conflict_count\n    FROM \"default\".\"redis_json\"\n    -- Explicitly cast the Dynamic column to an Array of JSON objects\n    ARRAY JOIN CAST(content.merge_result.logical_conflicts, 'Array(JSON)') AS logical_conflict\n    WHERE startsWith(key, 'info:conflict:core') \n      AND logical_conflict.type::String LIKE '%submodule%'\n    GROUP BY key, logical_conflict.type::String"
                       },
                       "version": "v0"
                     },
@@ -407,7 +407,7 @@
                 }
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.1"
           }
         }
       },
@@ -443,7 +443,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT \n        key,\n        count() AS submodule_conflict_count\n    FROM \"default\".\"redis_json\"\n    -- Explicitly cast the Dynamic column to an Array of JSON objects\n    ARRAY JOIN CAST(content.merge_result.logical_conflicts, 'Array(JSON)') AS logical_conflict\n    WHERE startsWith(key, 'info:conflict:submodule') \n      AND logical_conflict.type::String = '${submodule_conflict_type}'\n    GROUP BY key, logical_conflict.type::String"
+                        "rawSql": "SELECT \n        key,\n        count() AS submodule_conflict_count\n    FROM \"default\".\"redis_json\"\n    -- Explicitly cast the Dynamic column to an Array of JSON objects\n    ARRAY JOIN CAST(content.merge_result.logical_conflicts, 'Array(JSON)') AS logical_conflict\n    WHERE startsWith(key, 'info:conflict:core') \n      AND logical_conflict.type::String = '${submodule_conflict_type}'\n    GROUP BY key, logical_conflict.type::String"
                       },
                       "version": "v0"
                     },
@@ -513,7 +513,7 @@
                 }
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.1"
           }
         }
       }
