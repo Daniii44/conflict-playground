@@ -132,25 +132,148 @@
             "version": "13.0.1"
           }
         }
+      },
+      "panel-2": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT\n    fromUnixTimestamp(message.info.time.created::integer),\n    CASE \n        WHEN part.type = 'text' THEN \n            part.text\n        WHEN part.type = 'tool' THEN \n            concat(coalesce(part.state.title, ''), ' | Command: ', coalesce(part.state.input.command, ''))\n        ELSE concat('[UNUSUAL TYPE: ', part.type, ']')\n    END AS log_line,\n    upper(part.type) as part_type\nFROM \"default\".\"redis_json\"\narray join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\narray join message.parts::Array(JSON) as part\nwhere key = 'evaluation:conflict:simonmichael/hledger.git-fc7acea3819e79188a71acc33f94e82360196b65'\nand message.info.role = 'assistant' \nand part.type not like 'step-%'"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 2,
+          "links": [],
+          "title": "Resolution Logs",
+          "vizConfig": {
+            "group": "logs",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {
+                "dedupStrategy": "none",
+                "detailsMode": "sidebar",
+                "displayedFields": [
+                  "part_type",
+                  "___LOG_LINE_BODY___"
+                ],
+                "enableInfiniteScrolling": false,
+                "enableLogDetails": true,
+                "prettifyLogMessage": true,
+                "showControls": false,
+                "showFieldSelector": false,
+                "showLabels": false,
+                "showLevel": false,
+                "showTime": true,
+                "sortOrder": "Ascending",
+                "syntaxHighlighting": false,
+                "timestampResolution": "ms",
+                "unwrappedColumns": true,
+                "wrapLogMessage": true
+              }
+            },
+            "version": "13.0.1"
+          }
+        }
       }
     },
     "layout": {
-      "kind": "AutoGridLayout",
+      "kind": "RowsLayout",
       "spec": {
-        "columnWidthMode": "wide",
-        "items": [
+        "rows": [
           {
-            "kind": "AutoGridLayoutItem",
+            "kind": "RowsLayoutRow",
             "spec": {
-              "element": {
-                "kind": "ElementReference",
-                "name": "panel-1"
-              }
+              "collapse": false,
+              "layout": {
+                "kind": "AutoGridLayout",
+                "spec": {
+                  "columnWidthMode": "wide",
+                  "items": [
+                    {
+                      "kind": "AutoGridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-1"
+                        }
+                      }
+                    }
+                  ],
+                  "maxColumnCount": 3,
+                  "rowHeightMode": "tall"
+                }
+              },
+              "title": "Overview"
+            }
+          },
+          {
+            "kind": "RowsLayoutRow",
+            "spec": {
+              "collapse": false,
+              "layout": {
+                "kind": "GridLayout",
+                "spec": {
+                  "items": [
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-2"
+                        },
+                        "height": 8,
+                        "width": 12,
+                        "x": 0,
+                        "y": 0
+                      }
+                    }
+                  ]
+                }
+              },
+              "title": "Insights"
             }
           }
-        ],
-        "maxColumnCount": 3,
-        "rowHeightMode": "tall"
+        ]
       }
     },
     "links": [
@@ -199,6 +322,39 @@
       "to": "now"
     },
     "title": "Evaluation",
-    "variables": []
+    "variables": [
+      {
+        "kind": "QueryVariable",
+        "spec": {
+          "allowCustomValue": false,
+          "current": {
+            "text": "evaluation:conflict:codecrafters-io/build-your-own-x.git-5ce0e5911be15a6b696d50515864adca9d93f969",
+            "value": "evaluation:conflict:codecrafters-io/build-your-own-x.git-5ce0e5911be15a6b696d50515864adca9d93f969"
+          },
+          "definition": "SELECT key FROM \"default\".\"redis_json\" where startsWith(key, 'evaluation')",
+          "hide": "dontHide",
+          "includeAll": false,
+          "multi": false,
+          "name": "session",
+          "options": [],
+          "query": {
+            "datasource": {
+              "name": "clickhouse"
+            },
+            "group": "grafana-clickhouse-datasource",
+            "kind": "DataQuery",
+            "spec": {
+              "__legacyStringValue": "SELECT key FROM \"default\".\"redis_json\" where startsWith(key, 'evaluation')"
+            },
+            "version": "v0"
+          },
+          "refresh": "onDashboardLoad",
+          "regex": "",
+          "regexApplyTo": "value",
+          "skipUrlSync": false,
+          "sort": "disabled"
+        }
+      }
+    ]
   }
 }
