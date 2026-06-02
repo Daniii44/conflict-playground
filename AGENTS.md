@@ -6,6 +6,10 @@ Guidance for coding agents working in this repository.
 
 A research tool for studying Git merge conflicts at scale. It clones open-source repositories, detects conflicting merge commits using `git merge-tree`, creates isolated "playground" worktrees for manual resolution, and stores results in Redis.
 
+## Imported Datasets
+
+Imported paper datasets live under `data/datasets/`. Their structure is documented in `docs/DATASET.md`. These directories can contain extremely many files, so inspect them only with bounded commands such as `find ... -maxdepth N ... | head -n M`, targeted `jq` queries, or small `sed -n` ranges. Avoid unbounded recursive listings, greps, or counts over the full dataset trees.
+
 ## Running
 
 Requires Docker and tmux (WSL on Windows).
