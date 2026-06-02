@@ -1,8 +1,11 @@
 from dataset.schesch.prune import (
     ConflictKey,
+    group_merge_pairs_by_repo,
     parse_conflict_key,
     prune_conflict_keys,
+    repo_cache_path,
 )
+from dataset.schesch.count import ScheschMergePair
 
 
 class FakeRedis:
@@ -30,6 +33,26 @@ def test_parse_conflict_key_extracts_repo_and_merge_sha():
 def test_parse_conflict_key_rejects_other_keys():
     assert parse_conflict_key("runtime:active_playground:x") is None
     assert parse_conflict_key("info:conflict:core") is None
+
+
+def test_group_merge_pairs_by_repo_normalizes_dataset_repo_to_cache_key():
+    grouped = group_merge_pairs_by_repo(
+        [
+            ScheschMergePair(
+                repo="owner/repo",
+                left_parent="left",
+                right_parent="right",
+            )
+        ]
+    )
+
+    assert grouped == {"owner/repo.git": {("left", "right")}}
+
+
+def test_repo_cache_path_normalizes_dataset_repo_to_bare_repo(monkeypatch, tmp_path):
+    monkeypatch.setenv("CACHES", str(tmp_path / "caches"))
+
+    assert repo_cache_path("owner/repo") == tmp_path / "caches" / "repos" / "owner" / "repo.git"
 
 
 def test_prune_conflict_keys_deletes_only_dataset_repo_keys_not_in_allowed_set():

@@ -10,6 +10,7 @@ from pathlib import Path
 from loguru import logger
 
 from common.git_util import capture_git
+from common.repo_cache import repo_cache_key
 from common.redis_util import setup_redis_connection
 from dataset.schesch.count import (
     ScheschMergePair,
@@ -48,7 +49,7 @@ def parse_conflict_key(key: str) -> ConflictKey | None:
 
 def repo_cache_path(repo: str) -> Path:
     caches = Path(os.environ.get("CACHES", str(Path.home() / "caches")))
-    return caches / "repos" / repo
+    return caches / "repos" / repo_cache_key(repo)
 
 
 def merge_parent_index(repo: str) -> dict[frozenset[str], list[str]]:
@@ -79,7 +80,7 @@ def merge_parent_index(repo: str) -> dict[frozenset[str], list[str]]:
 def group_merge_pairs_by_repo(merge_pairs: list[ScheschMergePair]) -> dict[str, set[tuple[str, str]]]:
     grouped: dict[str, set[tuple[str, str]]] = defaultdict(set)
     for merge_pair in merge_pairs:
-        grouped[merge_pair.repo].add((merge_pair.left_parent, merge_pair.right_parent))
+        grouped[repo_cache_key(merge_pair.repo)].add((merge_pair.left_parent, merge_pair.right_parent))
     return grouped
 
 
