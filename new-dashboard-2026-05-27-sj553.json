@@ -401,6 +401,81 @@
             "version": "13.0.1"
           }
         }
+      },
+      "panel-5": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT\n  now(), content.proposed_resolution.diff_to_actual_resolution\nFROM \"default\".\"redis_json\"\nwhere key = '${session}'"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 5,
+          "links": [],
+          "title": "Diff",
+          "vizConfig": {
+            "group": "logs",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {
+                "dedupStrategy": "none",
+                "enableInfiniteScrolling": false,
+                "enableLogDetails": true,
+                "prettifyLogMessage": true,
+                "showControls": false,
+                "showFieldSelector": false,
+                "showLevel": true,
+                "showTime": false,
+                "sortOrder": "Descending",
+                "timestampResolution": "ms",
+                "unwrappedColumns": false,
+                "wrapLogMessage": true
+              }
+            },
+            "version": "13.0.1"
+          }
+        }
       }
     },
     "layout": {
@@ -504,6 +579,31 @@
                         },
                         "title": "Tools"
                       }
+                    },
+                    {
+                      "kind": "TabsLayoutTab",
+                      "spec": {
+                        "layout": {
+                          "kind": "AutoGridLayout",
+                          "spec": {
+                            "columnWidthMode": "wide",
+                            "items": [
+                              {
+                                "kind": "AutoGridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-5"
+                                  }
+                                }
+                              }
+                            ],
+                            "maxColumnCount": 3,
+                            "rowHeightMode": "tall"
+                          }
+                        },
+                        "title": "Diff"
+                      }
                     }
                   ]
                 }
@@ -566,8 +666,8 @@
         "spec": {
           "allowCustomValue": false,
           "current": {
-            "text": "evaluation:conflict:simonmichael/hledger.git-0346b4cdd9d5fc9ab68753946c717b83089cb73d",
-            "value": "evaluation:conflict:simonmichael/hledger.git-0346b4cdd9d5fc9ab68753946c717b83089cb73d"
+            "text": "evaluation:conflict:rust-lang/rust.git-1d55118849e0e7453aa6d4a8d904792ccf633805:20260602T094224.645995Z",
+            "value": "evaluation:conflict:rust-lang/rust.git-1d55118849e0e7453aa6d4a8d904792ccf633805:20260602T094224.645995Z"
           },
           "definition": "SELECT key FROM \"default\".\"redis_json\" where startsWith(key, 'evaluation')",
           "hide": "dontHide",
