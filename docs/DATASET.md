@@ -66,6 +66,11 @@ Top-level result directories:
 - `merge_analysis/`: static merge-pair metadata such as changed files, diff sizes,
   Java involvement, import involvement, and paths to diff-analysis logs.
 
+The result directories are nested by coverage: `merge_timing_results` is a subset
+of `merge_analysis`, and `merge_analysis` is a subset of `test_cache`. In other
+words, not every repository or merge in `test_cache` has static merge analysis,
+and not every analyzed merge has merge-tool timing results.
+
 ### `test_cache`
 
 Each file is a JSON object. Observed keys are fingerprint-like IDs. Values contain:
@@ -111,6 +116,12 @@ Each file is a JSON object keyed by:
 ```
 
 Values contain `run_time`, a list of measured runtimes in seconds for the tool run.
+Because this directory compares multiple merge tools, the same merge pair can
+appear multiple times with different `<tool>` suffixes. Count distinct merges by
+repository plus `<left-sha>-<right-sha>`, not by complete timing-result key.
+
+The playground CLI includes `dataset-schesch-count`, which reports the number of
+repositories and distinct merge pairs present in `merge_timing_results`.
 
 ### `merge_analysis`
 

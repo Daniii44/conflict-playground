@@ -8,6 +8,7 @@ General Commands
 Available Tools:
     conflict-*          Scripts from src/conflict
     benchmark-*         Scripts from src/benchmark
+    dataset-*           Inspect imported paper datasets
     evaluation-*        Assess and replay conflict resolution evaluation output
     info-redis-*        Save, import, diff, and prune Redis data keys
     repo-*              Scripts from src/repo

@@ -54,6 +54,7 @@ ensure_symlink "$PLAYGROUNDS_TARGET" playgrounds
 export CACHES="${HOME}/caches"
 export PLAYGROUNDS="${HOME}/playgrounds"
 export PLAYBOOKS="${HOME}/playbooks"
+export DATASETS="${HOME}/datasets"
 export STORES="${HOME}/stores"
 export SOURCES="${HOME}/src"
 

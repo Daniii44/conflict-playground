@@ -113,6 +113,7 @@ Setup runs with a `ThreadPoolExecutor` (default pool=3), but hook dispatch is se
 | `CACHES` | Path to bare repo cache directory |
 | `PLAYGROUNDS` | Path to working playground clones |
 | `PLAYBOOKS` | Path to YAML playbook definitions |
+| `DATASETS` | Path to imported paper datasets |
 | `STORES` | Path to saved command output, such as Graphviz DOT files and Redis data exports |
 | `VOLUME_TYPE` | `bind-mount` or `named-volume` |
 | `HOOK_TYPE` | `manual-cli` or `manual-smartgit` |
