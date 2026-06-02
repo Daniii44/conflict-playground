@@ -666,8 +666,8 @@
         "spec": {
           "allowCustomValue": false,
           "current": {
-            "text": "evaluation:conflict:rust-lang/rust.git-1d55118849e0e7453aa6d4a8d904792ccf633805:20260602T094224.645995Z",
-            "value": "evaluation:conflict:rust-lang/rust.git-1d55118849e0e7453aa6d4a8d904792ccf633805:20260602T094224.645995Z"
+            "text": "evaluation:conflict:rust-lang/rust.git-5c896555de2787eb58c882cf18877aa2cc2123c8:20260602T090649.085450Z",
+            "value": "evaluation:conflict:rust-lang/rust.git-5c896555de2787eb58c882cf18877aa2cc2123c8:20260602T090649.085450Z"
           },
           "definition": "SELECT key FROM \"default\".\"redis_json\" where startsWith(key, 'evaluation')",
           "hide": "dontHide",
