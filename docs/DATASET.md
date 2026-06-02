@@ -121,7 +121,8 @@ appear multiple times with different `<tool>` suffixes. Count distinct merges by
 repository plus `<left-sha>-<right-sha>`, not by complete timing-result key.
 
 The playground CLI includes `dataset-schesch-count`, which reports the number of
-repositories and distinct merge pairs present in `merge_timing_results`.
+repositories and distinct merge pairs that pass the paper's final merge filter in
+`merge_analysis`.
 
 ### `merge_analysis`
 
@@ -135,17 +136,30 @@ Values summarize the merge pair and its diffs. Observed fields include:
 
 - `diff contains java file`
 - `imports_involved`
+- `left parent test result`
 - `non_java_involved`
 - `num_diff_files`
 - `num_diff_hunks`
 - `num_diff_lines`
 - `num_intersecting_files`
+- `parents pass`
+- `right parent test result`
 - `test merge`
 - `union_diff_files`
 - `diff_logs`: original log paths for `base_left`, `base_right`, and `left_right`
 
 Some numeric-looking fields may contain sentinel strings such as `"Error"`, so
 consumers should validate types instead of assuming every metric is numeric.
+
+The paper's final merge subset can be counted from this directory by retaining
+entries where `diff contains java file` is `true`, `parents pass` is `true`, and
+both `left parent test result` and `right parent test result` are `Tests_passed`.
+The `test merge` flag must also be `true`; entries without that flag were analyzed
+but not retained in the final parent-tested merge subset. In this import, matching
+the paper's 6,045 retained merges also requires completed diff metrics
+(`num_diff_hunks` must be numeric) and excludes large diff-analysis records where
+`num_diff_files >= 1000`. `dataset-schesch-count` applies that filter and counts
+repositories with at least one retained merge.
 
 ## Practical Inspection Patterns
 
