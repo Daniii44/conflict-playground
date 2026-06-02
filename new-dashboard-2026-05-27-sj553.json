@@ -460,12 +460,14 @@
               },
               "options": {
                 "dedupStrategy": "none",
-                "enableInfiniteScrolling": false,
-                "enableLogDetails": true,
-                "prettifyLogMessage": true,
+                "detailsMode": "inline",
+                "enableInfiniteScrolling": true,
+                "enableLogDetails": false,
+                "fontSize": "small",
+                "prettifyLogMessage": false,
                 "showControls": false,
                 "showFieldSelector": false,
-                "showLevel": true,
+                "showLevel": false,
                 "showTime": false,
                 "sortOrder": "Descending",
                 "timestampResolution": "ms",
@@ -654,7 +656,7 @@
         "1d"
       ],
       "fiscalYearStartMonth": 0,
-      "from": "now-6h",
+      "from": "now-1h",
       "hideTimepicker": false,
       "timezone": "browser",
       "to": "now"
@@ -666,8 +668,8 @@
         "spec": {
           "allowCustomValue": false,
           "current": {
-            "text": "evaluation:conflict:rust-lang/rust.git-5c896555de2787eb58c882cf18877aa2cc2123c8:20260602T090649.085450Z",
-            "value": "evaluation:conflict:rust-lang/rust.git-5c896555de2787eb58c882cf18877aa2cc2123c8:20260602T090649.085450Z"
+            "text": "evaluation:conflict:rust-lang/rust.git-9fce61b21b4fe7b8c0b1d7246da5a9cb2295a06b:20260602T092516.413805Z",
+            "value": "evaluation:conflict:rust-lang/rust.git-9fce61b21b4fe7b8c0b1d7246da5a9cb2295a06b:20260602T092516.413805Z"
           },
           "definition": "SELECT key FROM \"default\".\"redis_json\" where startsWith(key, 'evaluation')",
           "hide": "dontHide",
