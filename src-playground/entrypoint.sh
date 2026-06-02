@@ -27,15 +27,28 @@ git config --global init.defaultBranch main
 
 # Rebuild Symbolic Links
 export VOLUME_TYPE="${VOLUME_TYPE:-named-volume}"
-rm -rf caches # FIXME
-rm -f playgrounds
 if [ "$VOLUME_TYPE" = "bind-mount" ]; then
-    ln -s caches-bind-mount caches
-    ln -s playgrounds-bind-mount playgrounds
+    CACHES_TARGET="caches-bind-mount"
+    PLAYGROUNDS_TARGET="playgrounds-bind-mount"
 else
-    ln -s caches-named-volume caches
-    ln -s playgrounds-named-volume playgrounds
+    CACHES_TARGET="caches-named-volume"
+    PLAYGROUNDS_TARGET="playgrounds-named-volume"
 fi
+
+ensure_symlink() {
+    local target="$1"
+    local link="$2"
+
+    if [ -L "$link" ] && [ "$(readlink "$link")" = "$target" ]; then
+        return
+    fi
+
+    rm -rf "$link"
+    ln -s "$target" "$link"
+}
+
+ensure_symlink "$CACHES_TARGET" caches
+ensure_symlink "$PLAYGROUNDS_TARGET" playgrounds
 
 # Export Directory Structure
 export CACHES="${HOME}/caches"
