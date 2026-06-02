@@ -105,12 +105,32 @@ def main() -> int:
     if args.max_workers is not None:
         analysis_args.extend(["--max-workers", str(args.max_workers)])
 
+    failed_repos = []
     for repo in repos:
         logger.info("Processing: {}", repo)
-        run(["info-conflict-sync", *analysis_args, repo])
+        try:
+            run(["info-conflict-sync", *analysis_args, repo])
+        except subprocess.CalledProcessError as error:
+            failed_repos.append(repo)
+            logger.error(
+                "Failed to sync conflict info for {} with command: {}",
+                repo,
+                " ".join(error.cmd),
+            )
 
     logger.info("Syncing with Clickhouse")
-    run(["info-clickhouse-sync"])
+    try:
+        run(["info-clickhouse-sync"])
+    except subprocess.CalledProcessError as error:
+        logger.error("Failed to sync ClickHouse with command: {}", " ".join(error.cmd))
+        return error.returncode
+
+    if failed_repos:
+        logger.error("Done syncing info with {} failed repos", len(failed_repos))
+        for repo in failed_repos:
+            logger.error("Failed info repo: {}", repo)
+        return 1
+
     return 0
 
 
