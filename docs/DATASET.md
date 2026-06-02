@@ -175,6 +175,14 @@ override_merge_shas:
 `playbook-start` resolves these parent-pair overrides to a real merge commit in
 the cached bare repository before calling `playground-setup`.
 
+After running `info-sync` on the generated Schesch playbook, Redis may contain
+`info:conflict:*` entries for merge commits from the same repositories that are
+not part of the retained dataset subset. Use `dataset-schesch-prune --dry-run`
+to preview cleanup, then `dataset-schesch-prune` to delete those extra
+`info:conflict:*` keys. The command resolves retained parent pairs to merge
+commit SHAs using the cached bare repositories and only prunes repositories whose
+allowed merge set was resolved completely.
+
 ## Practical Inspection Patterns
 
 Prefer commands like these when exploring the datasets:
