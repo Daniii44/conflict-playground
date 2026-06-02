@@ -1,7 +1,13 @@
 from unittest.mock import patch
 
 from info.conflict.list import ConflictRecord
-from playbook.start import Playground, load_playbook, merge_parent_index, resolve_merge_sha_from_parents
+from playbook.start import (
+    Playground,
+    format_playground_summary_line,
+    load_playbook,
+    merge_parent_index,
+    resolve_merge_sha_from_parents,
+)
 
 
 def test_load_playbook_applies_config_conflict_types_to_sources(tmp_path):
@@ -19,15 +25,26 @@ playbook:
         encoding="utf-8",
     )
 
-    with patch("playbook.start.list_conflicts", return_value=[("example/project.git", "abc123")]) as list_conflicts:
+    with patch(
+        "playbook.start.list_conflict_records",
+        return_value=[
+            ConflictRecord("example/project.git", "abc123", ("CONFLICT (contents)",)),
+        ],
+    ) as list_conflict_records:
         playgrounds = load_playbook(str(playbook_path))
 
-    list_conflicts.assert_called_once_with(
+    list_conflict_records.assert_called_once_with(
         repos=["example/project.git"],
         conflict_types=["CONFLICT (contents)"],
         limit=2,
     )
-    assert playgrounds == [Playground(repo_name="example/project.git", merge_sha="abc123")]
+    assert playgrounds == [
+        Playground(
+            repo_name="example/project.git",
+            merge_sha="abc123",
+            conflict_types=("CONFLICT (contents)",),
+        )
+    ]
 
 
 def test_load_playbook_uses_empty_conflict_types_when_source_config_missing(tmp_path):
@@ -41,15 +58,26 @@ playbook:
         encoding="utf-8",
     )
 
-    with patch("playbook.start.list_conflicts", return_value=[("example/project.git", "abc123")]) as list_conflicts:
+    with patch(
+        "playbook.start.list_conflict_records",
+        return_value=[
+            ConflictRecord("example/project.git", "abc123", ("CONFLICT (contents)",)),
+        ],
+    ) as list_conflict_records:
         playgrounds = load_playbook(str(playbook_path))
 
-    list_conflicts.assert_called_once_with(
+    list_conflict_records.assert_called_once_with(
         repos=["example/project.git"],
         conflict_types=[],
         limit=1,
     )
-    assert playgrounds == [Playground(repo_name="example/project.git", merge_sha="abc123")]
+    assert playgrounds == [
+        Playground(
+            repo_name="example/project.git",
+            merge_sha="abc123",
+            conflict_types=("CONFLICT (contents)",),
+        )
+    ]
 
 
 def test_load_playbook_applies_config_conflict_types_without_sources(tmp_path):
@@ -65,11 +93,22 @@ playbook:
         encoding="utf-8",
     )
 
-    with patch("playbook.start.list_conflicts", return_value=[("example/project.git", "def456")]) as list_conflicts:
+    with patch(
+        "playbook.start.list_conflict_records",
+        return_value=[
+            ConflictRecord("example/project.git", "def456", ("CONFLICT (rename/delete)",)),
+        ],
+    ) as list_conflict_records:
         playgrounds = load_playbook(str(playbook_path))
 
-    list_conflicts.assert_called_once_with(conflict_types=["CONFLICT (rename/delete)"])
-    assert playgrounds == [Playground(repo_name="example/project.git", merge_sha="def456")]
+    list_conflict_records.assert_called_once_with(conflict_types=["CONFLICT (rename/delete)"])
+    assert playgrounds == [
+        Playground(
+            repo_name="example/project.git",
+            merge_sha="def456",
+            conflict_types=("CONFLICT (rename/delete)",),
+        )
+    ]
 
 
 def test_load_playbook_uses_target_percentages_across_sources(tmp_path):
@@ -113,21 +152,25 @@ playbook:
             repo_name="example/content-only.git",
             merge_sha="content1",
             conflict_type="CONFLICT (contents)",
+            conflict_types=("CONFLICT (contents)",),
         ),
         Playground(
             repo_name="example/content-only.git",
             merge_sha="content2",
             conflict_type="CONFLICT (contents)",
+            conflict_types=("CONFLICT (contents)",),
         ),
         Playground(
             repo_name="example/mixed.git",
             merge_sha="rename1",
             conflict_type="CONFLICT (rename/rename)",
+            conflict_types=("CONFLICT (rename/rename)",),
         ),
         Playground(
             repo_name="example/mixed.git",
             merge_sha="rename2",
             conflict_type="CONFLICT (rename/rename)",
+            conflict_types=("CONFLICT (rename/rename)",),
         ),
     ]
 
@@ -168,6 +211,7 @@ playbook:
             repo_name="example/project.git",
             merge_sha="abc123",
             conflict_type="CONFLICT (contents)",
+            conflict_types=("CONFLICT (contents)",),
         )
     ]
 
@@ -189,10 +233,10 @@ playbook:
         encoding="utf-8",
     )
 
-    with patch("playbook.start.list_conflicts") as list_conflicts:
+    with patch("playbook.start.list_conflict_records") as list_conflict_records:
         playgrounds = load_playbook(str(playbook_path))
 
-    list_conflicts.assert_not_called()
+    list_conflict_records.assert_not_called()
     assert playgrounds == [
         Playground(repo_name="example/project.git", merge_sha="abc123"),
         Playground(repo_name="example/project.git", merge_sha="def456"),
@@ -215,14 +259,33 @@ playbook:
         encoding="utf-8",
     )
 
-    with patch("playbook.start.list_conflicts") as list_conflicts:
+    with patch("playbook.start.list_conflict_records") as list_conflict_records:
         playgrounds = load_playbook(str(playbook_path))
 
-    list_conflicts.assert_not_called()
+    list_conflict_records.assert_not_called()
     assert playgrounds == [
         Playground(repo_name="example/project.git", parent_shas=("left123", "right456")),
         Playground(repo_name="example/project.git", merge_sha="abc123"),
     ]
+
+
+def test_format_playground_summary_line_includes_conflict_types():
+    playground = Playground(
+        repo_name="example/project.git",
+        merge_sha="abc123",
+        conflict_types=("CONFLICT (contents)", "CONFLICT (rename/rename)"),
+    )
+
+    assert (
+        format_playground_summary_line(playground)
+        == "  - example/project.git: abc123 [CONFLICT (contents), CONFLICT (rename/rename)]"
+    )
+
+
+def test_format_playground_summary_line_marks_unknown_conflict_type():
+    playground = Playground(repo_name="example/project.git", merge_sha="abc123")
+
+    assert format_playground_summary_line(playground) == "  - example/project.git: abc123 [unknown]"
 
 
 def test_resolve_merge_sha_from_parents_matches_parent_pair(monkeypatch, tmp_path):

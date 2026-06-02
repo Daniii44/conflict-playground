@@ -18,7 +18,7 @@ from common.active_playground_models import Configuration, ActivePlayground
 from common.git_util import capture_git
 from common.repo_cache import repo_cache_key
 from common.redis_util import RUNTIME_ACTIVE_PLAYGROUND_PREFIX, setup_redis_connection
-from info.conflict.list import ConflictRecord, list_conflict_records, list_conflicts
+from info.conflict.list import ConflictRecord, list_conflict_records
 
 # playbook-start <playbook>
 
@@ -42,6 +42,7 @@ class Playground:
     merge_sha: str | None = None
     parent_shas: tuple[str, str] | None = None
     conflict_type: str | None = None
+    conflict_types: tuple[str, ...] = tuple()
 
     def target_label(self) -> str:
         if self.merge_sha:
@@ -51,6 +52,29 @@ class Playground:
             return f"{self.parent_shas[0]}_{self.parent_shas[1]}"
 
         return "<missing merge target>"
+
+    def conflict_type_label(self) -> str:
+        if self.conflict_types:
+            return ", ".join(self.conflict_types)
+
+        return self.conflict_type or "unknown"
+
+
+def playground_from_conflict_record(
+    record: ConflictRecord,
+    repo_name: str | None = None,
+    conflict_type: str | None = None,
+) -> Playground:
+    return Playground(
+        repo_name=repo_name or record.repo,
+        merge_sha=record.merge_commit_oid,
+        conflict_type=conflict_type,
+        conflict_types=record.conflict_types,
+    )
+
+
+def format_playground_summary_line(pg: Playground) -> str:
+    return f"  - {pg.repo_name}: {pg.target_label()} [{pg.conflict_type_label()}]"
 
 
 @dataclass
@@ -238,24 +262,17 @@ def load_playbook(playbook_path: str) -> list[Playground]:
 
     playgrounds = []
     if not playbook['sources']:
+        conflicts = list_conflict_records(conflict_types=conflict_query_types)
         if conflict_type_targets is None:
-            conflicts = list_conflicts(conflict_types=conflict_types)
-            for (repo, merge_commit_oid) in conflicts:
-                playgrounds.append(Playground(repo_name=repo, merge_sha=merge_commit_oid))
+            for conflict in conflicts:
+                playgrounds.append(playground_from_conflict_record(conflict))
         else:
-            conflicts = list_conflict_records(conflict_types=conflict_query_types)
             for conflict, selected_type in select_conflict_records(
                 conflicts,
                 len(conflicts),
                 conflict_type_targets,
             ):
-                playgrounds.append(
-                    Playground(
-                        repo_name=conflict.repo,
-                        merge_sha=conflict.merge_commit_oid,
-                        conflict_type=selected_type,
-                    )
-                )
+                playgrounds.append(playground_from_conflict_record(conflict, conflict_type=selected_type))
     else:
         for source in playbook['sources']:
             repo_url = source['repo_url']
@@ -271,8 +288,12 @@ def load_playbook(playbook_path: str) -> list[Playground]:
                 # Use limit to get SHAs from conflict
                 limit = source.get('limit', 1)
                 if conflict_type_targets is None:
-                    for conflict in list_conflicts(repos=[repo_name], conflict_types=conflict_types, limit=limit):
-                        playgrounds.append(Playground(repo_name=repo_name, merge_sha=conflict[1]))
+                    for conflict in list_conflict_records(
+                        repos=[repo_name],
+                        conflict_types=conflict_types,
+                        limit=limit,
+                    ):
+                        playgrounds.append(playground_from_conflict_record(conflict, repo_name=repo_name))
                 else:
                     conflicts = list_conflict_records(
                         repos=[repo_name],
@@ -284,9 +305,9 @@ def load_playbook(playbook_path: str) -> list[Playground]:
                         conflict_type_targets,
                     ):
                         playgrounds.append(
-                            Playground(
+                            playground_from_conflict_record(
+                                conflict,
                                 repo_name=repo_name,
-                                merge_sha=conflict.merge_commit_oid,
                                 conflict_type=selected_type,
                             )
                         )
@@ -381,7 +402,7 @@ def main():
 
     print(f"Loaded {len(playgrounds)} playgrounds:")
     for pg in playgrounds:
-        print(f"  - {pg.repo_name}: {pg.target_label()}")
+        print(format_playground_summary_line(pg))
 
     print(f"\nStarting playbook execution with pool size {args.pool}...")
     
