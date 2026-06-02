@@ -32,6 +32,7 @@ cp config.yaml.template config.yaml
 ```bash
 help                                          # List all commands
 repo-sync [playbook]                          # Clone/update playbook repos to caches
+repo-size [playbook]                          # Estimate GitHub disk usage for playbook repos (requires GITHUB_TOKEN or GH_TOKEN)
 info-conflict-sync <owner/repo.git> [-f]      # Analyze repo for conflicting merges
 info-conflict-list [--type <type>]            # Query conflicts from Redis
 info-conflict-count <repo>                    # Count stored conflicts
