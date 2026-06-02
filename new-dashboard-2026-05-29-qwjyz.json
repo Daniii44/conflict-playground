@@ -62,7 +62,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT content.repo::String, count(*) from redis_json\ngroup by content.repo::String\norder by count(*) desc"
+                        "rawSql": "SELECT content.repo::String, count(*) from redis_json\nwhere startsWith(key, 'info:conflict:core')\ngroup by content.repo::String\norder by count(*) desc"
                       },
                       "version": "v0"
                     },
@@ -115,6 +115,7 @@
                 "reduceOptions": {
                   "calcs": [],
                   "fields": "",
+                  "limit": 50,
                   "values": true
                 },
                 "sort": "desc",
