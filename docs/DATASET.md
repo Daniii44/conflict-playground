@@ -180,8 +180,10 @@ After running `info-sync` on the generated Schesch playbook, Redis may contain
 not part of the retained dataset subset. Use `dataset-schesch-prune --dry-run`
 to preview cleanup, then `dataset-schesch-prune` to delete those extra
 `info:conflict:*` keys. The command resolves retained parent pairs to merge
-commit SHAs using the cached bare repositories and only prunes repositories whose
-allowed merge set was resolved completely.
+commit SHAs using the cached bare repositories. Retained parent pairs whose merge
+commit no longer exists are reported as warning statistics, but the repository is
+still pruned against the retained pairs that could be resolved. Repositories with
+missing bare caches are skipped entirely.
 
 ## Practical Inspection Patterns
 

@@ -35,6 +35,14 @@ class PruneResult:
     skipped: int
 
 
+@dataclass(frozen=True)
+class ResolveResult:
+    allowed_by_repo: dict[str, set[str]]
+    skipped_repos: set[str]
+    unresolved_parent_pairs: int
+    repos_with_unresolved_parent_pairs: int
+
+
 def parse_conflict_key(key: str) -> ConflictKey | None:
     parts = key.split(":", 4)
     if len(parts) != 5 or parts[0] != "info" or parts[1] != "conflict":
@@ -86,9 +94,11 @@ def group_merge_pairs_by_repo(merge_pairs: list[ScheschMergePair]) -> dict[str, 
 
 def resolve_allowed_merge_shas(
     merge_pairs: list[ScheschMergePair],
-) -> tuple[dict[str, set[str]], set[str]]:
+) -> ResolveResult:
     allowed_by_repo: dict[str, set[str]] = {}
     skipped_repos: set[str] = set()
+    unresolved_parent_pairs = 0
+    repos_with_unresolved_parent_pairs: set[str] = set()
 
     for repo, parent_pairs in group_merge_pairs_by_repo(merge_pairs).items():
         try:
@@ -99,17 +109,17 @@ def resolve_allowed_merge_shas(
             continue
 
         allowed_shas: set[str] = set()
-        repo_failed = False
         for left_parent, right_parent in parent_pairs:
             matches = index.get(frozenset((left_parent, right_parent)), [])
             if not matches:
-                logger.error(
-                    "Skipping {}: no merge commit found for parents {} and {}",
+                logger.warning(
+                    "{}: no merge commit found for parents {} and {}",
                     repo,
                     left_parent,
                     right_parent,
                 )
-                repo_failed = True
+                unresolved_parent_pairs += 1
+                repos_with_unresolved_parent_pairs.add(repo)
                 continue
 
             if len(matches) > 1:
@@ -123,13 +133,14 @@ def resolve_allowed_merge_shas(
 
             allowed_shas.update(matches)
 
-        if repo_failed:
-            skipped_repos.add(repo)
-            continue
-
         allowed_by_repo[repo] = allowed_shas
 
-    return allowed_by_repo, skipped_repos
+    return ResolveResult(
+        allowed_by_repo=allowed_by_repo,
+        skipped_repos=skipped_repos,
+        unresolved_parent_pairs=unresolved_parent_pairs,
+        repos_with_unresolved_parent_pairs=len(repos_with_unresolved_parent_pairs),
+    )
 
 
 def prune_conflict_keys(redis, allowed_by_repo: dict[str, set[str]], *, dry_run: bool) -> PruneResult:
@@ -187,25 +198,31 @@ def main() -> int:
     merge_pairs = list(iter_qualifying_merge_pairs(args.merge_analysis))
     logger.info("Loaded {} retained Schesch parent pairs", len(merge_pairs))
 
-    allowed_by_repo, skipped_repos = resolve_allowed_merge_shas(merge_pairs)
+    resolve_result = resolve_allowed_merge_shas(merge_pairs)
     logger.info(
         "Resolved {} allowed merge commits across {} repositories",
-        sum(len(shas) for shas in allowed_by_repo.values()),
-        len(allowed_by_repo),
+        sum(len(shas) for shas in resolve_result.allowed_by_repo.values()),
+        len(resolve_result.allowed_by_repo),
     )
+    if resolve_result.unresolved_parent_pairs:
+        logger.warning(
+            "{} retained parent pairs across {} repositories could not be resolved to merge commits",
+            resolve_result.unresolved_parent_pairs,
+            resolve_result.repos_with_unresolved_parent_pairs,
+        )
 
     redis = setup_redis_connection()
-    result = prune_conflict_keys(redis, allowed_by_repo, dry_run=args.dry_run)
+    result = prune_conflict_keys(redis, resolve_result.allowed_by_repo, dry_run=args.dry_run)
     action = "Would delete" if args.dry_run else "Deleted"
     print(
         f"{action} {result.deleted} info:conflict entries "
         f"({result.kept} kept, {result.scanned} scanned, {result.skipped} skipped)"
     )
 
-    if skipped_repos:
+    if resolve_result.skipped_repos:
         logger.error(
-            "Skipped pruning {} repositories because their allowed merge set was incomplete",
-            len(skipped_repos),
+            "Skipped pruning {} repositories because their cached bare repository was missing or inaccessible",
+            len(resolve_result.skipped_repos),
         )
         return 1
 

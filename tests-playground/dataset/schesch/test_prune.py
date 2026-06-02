@@ -4,6 +4,7 @@ from dataset.schesch.prune import (
     parse_conflict_key,
     prune_conflict_keys,
     repo_cache_path,
+    resolve_allowed_merge_shas,
 )
 from dataset.schesch.count import ScheschMergePair
 
@@ -53,6 +54,26 @@ def test_repo_cache_path_normalizes_dataset_repo_to_bare_repo(monkeypatch, tmp_p
     monkeypatch.setenv("CACHES", str(tmp_path / "caches"))
 
     assert repo_cache_path("owner/repo") == tmp_path / "caches" / "repos" / "owner" / "repo.git"
+
+
+def test_resolve_allowed_merge_shas_keeps_repo_with_unresolved_parent_pairs(monkeypatch):
+    def fake_merge_parent_index(repo):
+        assert repo == "owner/repo.git"
+        return {frozenset(("left1", "right1")): ["merge1"]}
+
+    monkeypatch.setattr("dataset.schesch.prune.merge_parent_index", fake_merge_parent_index)
+
+    result = resolve_allowed_merge_shas(
+        [
+            ScheschMergePair(repo="owner/repo", left_parent="left1", right_parent="right1"),
+            ScheschMergePair(repo="owner/repo", left_parent="left2", right_parent="right2"),
+        ]
+    )
+
+    assert result.allowed_by_repo == {"owner/repo.git": {"merge1"}}
+    assert result.skipped_repos == set()
+    assert result.unresolved_parent_pairs == 1
+    assert result.repos_with_unresolved_parent_pairs == 1
 
 
 def test_prune_conflict_keys_deletes_only_dataset_repo_keys_not_in_allowed_set():
