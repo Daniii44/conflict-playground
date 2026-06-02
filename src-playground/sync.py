@@ -36,6 +36,11 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Maximum number of worker threads to use per conflict analysis repo.",
     )
+    parser.add_argument(
+        "--no-submodules",
+        action="store_true",
+        help="Pass --no-submodules to repo-sync.",
+    )
     return parser.parse_args()
 
 
@@ -44,9 +49,12 @@ def run(command: list[str]) -> None:
 
 
 def build_repo_args(args: argparse.Namespace) -> list[str]:
-    if args.playbook is None:
-        return []
-    return [args.playbook]
+    repo_args: list[str] = []
+    if args.no_submodules:
+        repo_args.append("--no-submodules")
+    if args.playbook is not None:
+        repo_args.append(args.playbook)
+    return repo_args
 
 
 def build_info_args(args: argparse.Namespace) -> list[str]:

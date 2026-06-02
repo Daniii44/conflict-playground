@@ -14,8 +14,9 @@ from common.submodule import format_breadcrumbs, gitmodules_blobs, submodule_url
 
 
 class RepoSync:
-    def __init__(self, cache_dir: Path):
+    def __init__(self, cache_dir: Path, *, sync_submodules: bool = True):
         self.cache_dir = cache_dir
+        self.sync_submodules_enabled = sync_submodules
         self.synced_repos: set[Path] = set()
 
     def sync_repo(self, url: str, *, required: bool, breadcrumbs: tuple[str, ...]) -> None:
@@ -61,7 +62,10 @@ class RepoSync:
             logger.warning("[{}] Failed to sync submodule repo: {}", breadcrumb_label, url)
             return
 
-        self.sync_submodules(target_path, url, current_breadcrumbs)
+        if self.sync_submodules_enabled:
+            self.sync_submodules(target_path, url, current_breadcrumbs)
+        else:
+            logger.info("[{}] Skipping submodule sync", breadcrumb_label)
 
     def sync_submodules(
         self,
@@ -90,6 +94,11 @@ def parse_args() -> argparse.Namespace:
         default="default",
         help="Playbook name or path, defaults to default",
     )
+    parser.add_argument(
+        "--no-submodules",
+        action="store_true",
+        help="Do not recursively cache submodule repositories.",
+    )
     return parser.parse_args()
 
 
@@ -115,7 +124,7 @@ def main() -> int:
 
     cache_dir.mkdir(parents=True, exist_ok=True)
 
-    sync = RepoSync(cache_dir)
+    sync = RepoSync(cache_dir, sync_submodules=not args.no_submodules)
     try:
         for url in repo_urls:
             sync.sync_repo(url, required=True, breadcrumbs=())

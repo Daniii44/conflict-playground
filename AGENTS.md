@@ -31,7 +31,7 @@ cp config.yaml.template config.yaml
 
 ```bash
 help                                          # List all commands
-repo-sync [playbook]                          # Clone/update playbook repos to caches
+repo-sync [playbook] [--no-submodules]        # Clone/update playbook repos to caches
 repo-size [playbook]                          # Estimate GitHub disk usage for playbook repos (requires gh_graphql_token or GH_GRAPHQL_TOKEN)
 info-conflict-sync <owner/repo.git> [-f]      # Analyze repo for conflicting merges
 info-conflict-list [--type <type>]            # Query conflicts from Redis
@@ -84,7 +84,7 @@ GitHub repos
 `sync.py` takes repo IDs like `qt/qt5.git`, resolves them under `$CACHES/repos`, iterates merge commits via `git rev-list --merges HEAD`, and runs pluggable analyses (`core`, `divergence`, `tree-diff`). Git subprocesses should go through `common.git_util.capture_git`/`stream_git` so prompts cannot stall execution.
 
 **Repo Cache (`src-playground/repo/sync.py`, `common/repo_cache.py`)**
-`repo-sync [playbook]` reads explicit `repo_url` entries, clones bare repositories into `$CACHES/repos/<owner>/<repo>.git`, scans historical `.gitmodules` blobs, and recursively caches submodules. Do not support the old flat cache naming scheme. Preserve the `.git` suffix in repo IDs stored in Redis and passed between commands.
+`repo-sync [playbook]` reads explicit `repo_url` entries, clones bare repositories into `$CACHES/repos/<owner>/<repo>.git`, scans historical `.gitmodules` blobs, and recursively caches submodules unless `--no-submodules` is passed. Do not support the old flat cache naming scheme. Preserve the `.git` suffix in repo IDs stored in Redis and passed between commands.
 
 **Redis Schema**
 - Conflict data: JSON at key `info:conflict:<analysis>:<repo>:<sha>`, indexed by the corresponding RediSearch index
