@@ -125,12 +125,22 @@ def main() -> int:
     cache_dir.mkdir(parents=True, exist_ok=True)
 
     sync = RepoSync(cache_dir, sync_submodules=not args.no_submodules)
-    try:
-        for url in repo_urls:
+    failed_repo_urls = []
+    for url in repo_urls:
+        try:
             sync.sync_repo(url, required=True, breadcrumbs=())
-    except subprocess.CalledProcessError as e:
-        logger.error("Failed to sync required repo with command: {}", " ".join(e.cmd))
-        return e.returncode
+        except subprocess.CalledProcessError as error:
+            failed_repo_urls.append(url)
+            logger.error("Failed to sync required repo {} with command: {}", url, " ".join(error.cmd))
+
+    if failed_repo_urls:
+        logger.error(
+            "Done syncing repository cache with {} failed required repos",
+            len(failed_repo_urls),
+        )
+        for url in failed_repo_urls:
+            logger.error("Failed required repo: {}", url)
+        return 1
 
     logger.info("Done syncing repository cache")
     return 0

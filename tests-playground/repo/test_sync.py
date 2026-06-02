@@ -1,4 +1,5 @@
 import argparse
+import subprocess
 
 import sync as root_sync
 from repo import sync as repo_sync
@@ -62,3 +63,36 @@ def test_root_sync_passes_no_submodules_to_repo_sync():
     args = argparse.Namespace(playbook="schesch", no_submodules=True)
 
     assert root_sync.build_repo_args(args) == ["--no-submodules", "schesch"]
+
+
+def test_repo_sync_main_continues_after_failed_required_repo(monkeypatch, tmp_path):
+    playbook_path = tmp_path / "playbook.yaml"
+    playbook_path.write_text("playbook: {}\n", encoding="utf-8")
+    synced_urls = []
+
+    monkeypatch.setenv("CACHES", str(tmp_path / "caches"))
+    monkeypatch.setenv("PLAYBOOKS", str(tmp_path))
+    monkeypatch.setattr(repo_sync, "parse_args", lambda: argparse.Namespace(playbook=str(playbook_path), no_submodules=True))
+    monkeypatch.setattr(
+        repo_sync,
+        "load_playbook_repo_urls",
+        lambda path: [
+            "https://github.com/example/inaccessible.git",
+            "https://github.com/example/accessible.git",
+        ],
+    )
+
+    def fake_sync_repo(self, url, *, required, breadcrumbs):
+        synced_urls.append(url)
+        if "inaccessible" in url:
+            raise subprocess.CalledProcessError(128, ["git", "clone", "--bare", url])
+
+    monkeypatch.setattr(repo_sync.RepoSync, "sync_repo", fake_sync_repo)
+
+    exit_code = repo_sync.main()
+
+    assert exit_code == 1
+    assert synced_urls == [
+        "https://github.com/example/inaccessible.git",
+        "https://github.com/example/accessible.git",
+    ]
