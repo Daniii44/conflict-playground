@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from info.conflict.list import ConflictRecord
 from playbook.start import Playground, load_playbook, merge_parent_index, resolve_merge_sha_from_parents
 
 
@@ -69,6 +70,106 @@ playbook:
 
     list_conflicts.assert_called_once_with(conflict_types=["CONFLICT (rename/delete)"])
     assert playgrounds == [Playground(repo_name="example/project.git", merge_sha="def456")]
+
+
+def test_load_playbook_uses_target_percentages_across_sources(tmp_path):
+    playbook_path = tmp_path / "source-targets.yaml"
+    playbook_path.write_text(
+        """
+playbook:
+  config:
+    conflict-type-percentages:
+      CONFLICT (contents): 50
+      CONFLICT (rename/rename): 50
+  sources:
+    - repo_url: https://github.com/example/content-only.git
+      limit: 2
+    - repo_url: https://github.com/example/mixed.git
+      limit: 2
+""",
+        encoding="utf-8",
+    )
+
+    def fake_list_conflict_records(repos, conflict_types):
+        assert conflict_types == ["CONFLICT (contents)", "CONFLICT (rename/rename)"]
+        if repos == ["example/content-only.git"]:
+            return [
+                ConflictRecord("example/content-only.git", "content1", ("CONFLICT (contents)",)),
+                ConflictRecord("example/content-only.git", "content2", ("CONFLICT (contents)",)),
+            ]
+        if repos == ["example/mixed.git"]:
+            return [
+                ConflictRecord("example/mixed.git", "content3", ("CONFLICT (contents)",)),
+                ConflictRecord("example/mixed.git", "rename1", ("CONFLICT (rename/rename)",)),
+                ConflictRecord("example/mixed.git", "rename2", ("CONFLICT (rename/rename)",)),
+            ]
+        raise AssertionError(f"Unexpected repos: {repos}")
+
+    with patch("playbook.start.list_conflict_records", side_effect=fake_list_conflict_records):
+        playgrounds = load_playbook(str(playbook_path))
+
+    assert playgrounds == [
+        Playground(
+            repo_name="example/content-only.git",
+            merge_sha="content1",
+            conflict_type="CONFLICT (contents)",
+        ),
+        Playground(
+            repo_name="example/content-only.git",
+            merge_sha="content2",
+            conflict_type="CONFLICT (contents)",
+        ),
+        Playground(
+            repo_name="example/mixed.git",
+            merge_sha="rename1",
+            conflict_type="CONFLICT (rename/rename)",
+        ),
+        Playground(
+            repo_name="example/mixed.git",
+            merge_sha="rename2",
+            conflict_type="CONFLICT (rename/rename)",
+        ),
+    ]
+
+
+def test_load_playbook_keeps_conflict_type_filter_when_target_percentages_are_set(tmp_path):
+    playbook_path = tmp_path / "source-targets-with-filter.yaml"
+    playbook_path.write_text(
+        """
+playbook:
+  config:
+    conflict-types:
+      - CONFLICT (contents)
+      - CONFLICT (rename/rename)
+    conflict-type-percentages:
+      CONFLICT (contents): 80
+      CONFLICT (rename/rename): 20
+  sources:
+    - repo_url: https://github.com/example/project.git
+      limit: 1
+""",
+        encoding="utf-8",
+    )
+
+    with patch(
+        "playbook.start.list_conflict_records",
+        return_value=[
+            ConflictRecord("example/project.git", "abc123", ("CONFLICT (contents)",)),
+        ],
+    ) as list_conflict_records:
+        playgrounds = load_playbook(str(playbook_path))
+
+    list_conflict_records.assert_called_once_with(
+        repos=["example/project.git"],
+        conflict_types=["CONFLICT (contents)", "CONFLICT (rename/rename)"],
+    )
+    assert playgrounds == [
+        Playground(
+            repo_name="example/project.git",
+            merge_sha="abc123",
+            conflict_type="CONFLICT (contents)",
+        )
+    ]
 
 
 def test_load_playbook_does_not_query_conflicts_for_override_shas(tmp_path):

@@ -18,7 +18,7 @@ from common.active_playground_models import Configuration, ActivePlayground
 from common.git_util import capture_git
 from common.repo_cache import repo_cache_key
 from common.redis_util import RUNTIME_ACTIVE_PLAYGROUND_PREFIX, setup_redis_connection
-from info.conflict.list import list_conflicts
+from info.conflict.list import ConflictRecord, list_conflict_records, list_conflicts
 
 # playbook-start <playbook>
 
@@ -41,6 +41,7 @@ class Playground:
     repo_name: str
     merge_sha: str | None = None
     parent_shas: tuple[str, str] | None = None
+    conflict_type: str | None = None
 
     def target_label(self) -> str:
         if self.merge_sha:
@@ -50,6 +51,99 @@ class Playground:
             return f"{self.parent_shas[0]}_{self.parent_shas[1]}"
 
         return "<missing merge target>"
+
+
+@dataclass
+class ConflictTypeTargets:
+    target_ratios: dict[str, float]
+    selected_counts: dict[str, int]
+    selected_total: int = 0
+
+    def target_types(self) -> list[str]:
+        return list(self.target_ratios)
+
+    def choose_type(self, record: ConflictRecord) -> str | None:
+        matching_types = [
+            conflict_type
+            for conflict_type in record.conflict_types
+            if conflict_type in self.target_ratios
+        ]
+        if not matching_types:
+            return record.conflict_types[0] if record.conflict_types else None
+
+        next_total = self.selected_total + 1
+        return max(
+            matching_types,
+            key=lambda conflict_type: (
+                self.target_ratios[conflict_type] * next_total
+                - self.selected_counts.get(conflict_type, 0),
+                -self.target_types().index(conflict_type),
+            ),
+        )
+
+    def score(self, record: ConflictRecord) -> float:
+        selected_type = self.choose_type(record)
+        if selected_type is None or selected_type not in self.target_ratios:
+            return float("-inf")
+
+        next_total = self.selected_total + 1
+        return self.target_ratios[selected_type] * next_total - self.selected_counts.get(selected_type, 0)
+
+    def mark_selected(self, conflict_type: str | None) -> None:
+        self.selected_total += 1
+        if conflict_type in self.target_ratios:
+            self.selected_counts[conflict_type] = self.selected_counts.get(conflict_type, 0) + 1
+
+
+def parse_conflict_type_targets(config: dict) -> ConflictTypeTargets | None:
+    raw_targets = (
+        config.get("conflict-type-percentages")
+        or config.get("conflict-type-targets")
+        or {}
+    )
+    if not raw_targets:
+        return None
+
+    if not isinstance(raw_targets, dict):
+        raise ValueError("playbook.config.conflict-type-percentages must be a mapping")
+
+    target_values = {}
+    for conflict_type, percentage in raw_targets.items():
+        if not isinstance(conflict_type, str) or not conflict_type:
+            raise ValueError("conflict type target keys must be non-empty strings")
+        if not isinstance(percentage, (int, float)) or percentage <= 0:
+            raise ValueError(f"Target percentage for {conflict_type} must be a positive number")
+        target_values[conflict_type] = float(percentage)
+
+    total = sum(target_values.values())
+    return ConflictTypeTargets(
+        target_ratios={
+            conflict_type: percentage / total
+            for conflict_type, percentage in target_values.items()
+        },
+        selected_counts={conflict_type: 0 for conflict_type in target_values},
+    )
+
+
+def select_conflict_records(
+    candidates: list[ConflictRecord],
+    limit: int,
+    targets: ConflictTypeTargets,
+) -> list[tuple[ConflictRecord, str | None]]:
+    remaining = list(candidates)
+    selected = []
+
+    while remaining and len(selected) < limit:
+        best_index = max(
+            range(len(remaining)),
+            key=lambda index: (targets.score(remaining[index]), -index),
+        )
+        record = remaining.pop(best_index)
+        selected_type = targets.choose_type(record)
+        targets.mark_selected(selected_type)
+        selected.append((record, selected_type))
+
+    return selected
 
 
 def playground_from_override(repo_name: str, override) -> Playground:
@@ -135,12 +229,33 @@ def load_playbook(playbook_path: str) -> list[Playground]:
         data = yaml.safe_load(f)
 
     playbook = data['playbook']
-    conflict_types = playbook.get("config", {}).get("conflict-types") or []
+    config = playbook.get("config", {})
+    conflict_types = config.get("conflict-types") or []
+    conflict_type_targets = parse_conflict_type_targets(config)
+    conflict_query_types = conflict_types
+    if conflict_type_targets is not None and not conflict_query_types:
+        conflict_query_types = conflict_type_targets.target_types()
+
     playgrounds = []
     if not playbook['sources']:
-        conflicts = list_conflicts(conflict_types=conflict_types)
-        for (repo, merge_commit_oid) in conflicts:
-            playgrounds.append(Playground(repo_name=repo, merge_sha=merge_commit_oid))
+        if conflict_type_targets is None:
+            conflicts = list_conflicts(conflict_types=conflict_types)
+            for (repo, merge_commit_oid) in conflicts:
+                playgrounds.append(Playground(repo_name=repo, merge_sha=merge_commit_oid))
+        else:
+            conflicts = list_conflict_records(conflict_types=conflict_query_types)
+            for conflict, selected_type in select_conflict_records(
+                conflicts,
+                len(conflicts),
+                conflict_type_targets,
+            ):
+                playgrounds.append(
+                    Playground(
+                        repo_name=conflict.repo,
+                        merge_sha=conflict.merge_commit_oid,
+                        conflict_type=selected_type,
+                    )
+                )
     else:
         for source in playbook['sources']:
             repo_url = source['repo_url']
@@ -155,9 +270,26 @@ def load_playbook(playbook_path: str) -> list[Playground]:
             else:
                 # Use limit to get SHAs from conflict
                 limit = source.get('limit', 1)
-                
-                for conflict in list_conflicts(repos=[repo_name], conflict_types=conflict_types, limit=limit):
-                    playgrounds.append(Playground(repo_name=repo_name, merge_sha=conflict[1]))
+                if conflict_type_targets is None:
+                    for conflict in list_conflicts(repos=[repo_name], conflict_types=conflict_types, limit=limit):
+                        playgrounds.append(Playground(repo_name=repo_name, merge_sha=conflict[1]))
+                else:
+                    conflicts = list_conflict_records(
+                        repos=[repo_name],
+                        conflict_types=conflict_query_types,
+                    )
+                    for conflict, selected_type in select_conflict_records(
+                        conflicts,
+                        limit,
+                        conflict_type_targets,
+                    ):
+                        playgrounds.append(
+                            Playground(
+                                repo_name=repo_name,
+                                merge_sha=conflict.merge_commit_oid,
+                                conflict_type=selected_type,
+                            )
+                        )
 
     return playgrounds
 
