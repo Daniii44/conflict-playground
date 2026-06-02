@@ -1,0 +1,4 @@
+playbook:
+  sources:
+    - repo_url: https://github.com/rust-lang/rust.git
+      limit: 100
