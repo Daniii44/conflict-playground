@@ -120,7 +120,7 @@
                 }
               }
             },
-            "version": "13.0.1"
+            "version": "13.0.1+security-01"
           }
         }
       },
@@ -212,7 +212,7 @@
                 "showHeader": true
               }
             },
-            "version": "13.0.1"
+            "version": "13.0.1+security-01"
           }
         }
       },
@@ -301,7 +301,7 @@
                 "showHeader": true
               }
             },
-            "version": "13.0.1"
+            "version": "13.0.1+security-01"
           }
         }
       },
@@ -407,7 +407,7 @@
                 }
               }
             },
-            "version": "13.0.1"
+            "version": "13.0.1+security-01"
           }
         }
       },
@@ -513,7 +513,7 @@
                 }
               }
             },
-            "version": "13.0.1"
+            "version": "13.0.1+security-01"
           }
         }
       }
@@ -677,7 +677,7 @@
             "text": "All",
             "value": "$__all"
           },
-          "definition": "SELECT distinct logical_conflict.type::String as type FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:submodule') and type like '%submodule%'",
+          "definition": "SELECT distinct logical_conflict.type::String as type FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:core') and type like '%submodule%'",
           "hide": "hideVariable",
           "includeAll": true,
           "label": "Submodule Conflict Type",
@@ -691,7 +691,7 @@
             "group": "grafana-clickhouse-datasource",
             "kind": "DataQuery",
             "spec": {
-              "__legacyStringValue": "SELECT distinct logical_conflict.type::String as type FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:submodule') and type like '%submodule%'"
+              "__legacyStringValue": "SELECT distinct logical_conflict.type::String as type FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:core') and type like '%submodule%'"
             },
             "version": "v0"
           },
