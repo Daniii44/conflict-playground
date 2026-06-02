@@ -32,6 +32,12 @@ def test_github_repo_from_url_rejects_non_github_hosts():
     assert size.github_repo_from_url("git@gitlab.com:octocat/hello-world.git") is None
 
 
+def test_github_token_reads_dedicated_graphql_token(monkeypatch):
+    monkeypatch.setenv("GH_GRAPHQL_TOKEN", "token")
+
+    assert size.github_token() == "token"
+
+
 def test_build_disk_usage_query_uses_graphql_aliases():
     query = size.build_disk_usage_query(
         [

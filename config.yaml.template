@@ -13,3 +13,7 @@ hook_type: manual-cli
 # Path to SmartGit binary
 #smartgit_binary: "/Applications/SmartGit.app/Contents/MacOS/smartgit"
 #smartgit_binary: /mnt/c/Program Files/SmartGit/bin/smartgit.exe
+
+# GitHub personal access token for GraphQL API calls used by repo-size.
+# Leave empty unless you need commands that query GitHub GraphQL.
+gh_graphql_token:

@@ -36,9 +36,9 @@ class RepoDiskUsage:
 
 
 def github_token() -> str:
-    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    token = os.environ.get("GH_GRAPHQL_TOKEN")
     if not token:
-        raise RuntimeError("Set GITHUB_TOKEN or GH_TOKEN to a GitHub personal access token")
+        raise RuntimeError("Set gh_graphql_token in config.yaml or export GH_GRAPHQL_TOKEN")
     return token
 
 

@@ -9,11 +9,22 @@ load_runtime_config() {
         exit 1
     fi
 
-    VOLUME_TYPE=$(grep '^volume_type:' "$CONFIG_FILE" | sed 's/volume_type:[[:space:]]*//;s/#.*//' | tr -d ' ')
-    HOOK_TYPE=$(grep '^hook_type:' "$CONFIG_FILE" | sed 's/hook_type:[[:space:]]*//;s/#.*//' | tr -d ' ')
-    SMARTGIT_BINARY=$(grep '^smartgit_binary:' "$CONFIG_FILE" | sed 's/smartgit_binary:[[:space:]]*//;s/#.*//;s/^[[:space:]]*//;s/[[:space:]]*$//')
-    SMARTGIT_BINARY="${SMARTGIT_BINARY#[\"\']}"
-    SMARTGIT_BINARY="${SMARTGIT_BINARY%[\"\']}"
+    config_value() {
+        local key="$1"
+        grep "^${key}:" "$CONFIG_FILE" | sed "s/${key}:[[:space:]]*//;s/#.*//;s/^[[:space:]]*//;s/[[:space:]]*$//"
+    }
+
+    strip_quotes() {
+        local value="$1"
+        value="${value#[\"\']}"
+        value="${value%[\"\']}"
+        printf "%s" "$value"
+    }
+
+    VOLUME_TYPE=$(config_value "volume_type" | tr -d ' ')
+    HOOK_TYPE=$(config_value "hook_type" | tr -d ' ')
+    SMARTGIT_BINARY=$(strip_quotes "$(config_value "smartgit_binary")")
+    GH_GRAPHQL_TOKEN=$(strip_quotes "$(config_value "gh_graphql_token")")
 
     if [ -z "$VOLUME_TYPE" ] || [ -z "$HOOK_TYPE" ]; then
         echo "Error: Failed to parse configuration from $CONFIG_FILE"
@@ -34,6 +45,7 @@ load_runtime_config() {
     export VOLUME_TYPE
     export HOOK_TYPE
     export SMARTGIT_BINARY
+    export GH_GRAPHQL_TOKEN
 }
 
 load_playground_env() {
@@ -52,5 +64,8 @@ playground_exec_command() {
     printf " -e %q" "PLAYGROUND_VERSION=$PLAYGROUND_VERSION"
     printf " -e %q" "VOLUME_TYPE=$VOLUME_TYPE"
     printf " -e %q" "HOOK_TYPE=$HOOK_TYPE"
+    if [ -n "${GH_GRAPHQL_TOKEN:-}" ]; then
+        printf " -e %q" "GH_GRAPHQL_TOKEN=$GH_GRAPHQL_TOKEN"
+    fi
     printf " %q" "conflict-playground" "bash" "src/entrypoint.sh"
 }

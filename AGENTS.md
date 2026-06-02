@@ -32,7 +32,7 @@ cp config.yaml.template config.yaml
 ```bash
 help                                          # List all commands
 repo-sync [playbook]                          # Clone/update playbook repos to caches
-repo-size [playbook]                          # Estimate GitHub disk usage for playbook repos (requires GITHUB_TOKEN or GH_TOKEN)
+repo-size [playbook]                          # Estimate GitHub disk usage for playbook repos (requires gh_graphql_token or GH_GRAPHQL_TOKEN)
 info-conflict-sync <owner/repo.git> [-f]      # Analyze repo for conflicting merges
 info-conflict-list [--type <type>]            # Query conflicts from Redis
 info-conflict-count <repo>                    # Count stored conflicts
@@ -117,6 +117,7 @@ Setup runs with a `ThreadPoolExecutor` (default pool=3), but hook dispatch is se
 | `PLAYBOOKS` | Path to YAML playbook definitions |
 | `DATASETS` | Path to imported paper datasets |
 | `STORES` | Path to saved command output, such as Graphviz DOT files and Redis data exports |
+| `GH_GRAPHQL_TOKEN` | GitHub personal access token for GraphQL API calls such as `repo-size` |
 | `VOLUME_TYPE` | `bind-mount` or `named-volume` |
 | `HOOK_TYPE` | `manual-cli` or `manual-smartgit` |
 | `LOGURU_LEVEL` | Log level (default `INFO`) |
