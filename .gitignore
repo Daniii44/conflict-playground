@@ -1,6 +1,7 @@
 /data/caches
 /data/playgrounds
 /data/stores/*
+/data/datasets
 config.yaml
 __pycache__
 .air
