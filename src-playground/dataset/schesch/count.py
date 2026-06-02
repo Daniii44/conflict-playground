@@ -15,6 +15,13 @@ class ScheschMergeAnalysisCounts:
     distinct_merges: int
 
 
+@dataclass(frozen=True, order=True)
+class ScheschMergePair:
+    repo: str
+    left_parent: str
+    right_parent: str
+
+
 def default_merge_analysis_path() -> Path:
     datasets_env = os.environ.get("DATASETS")
     if datasets_env:
@@ -70,6 +77,17 @@ def count_merge_analysis(root: Path) -> ScheschMergeAnalysisCounts:
     repos_with_qualifying_merges: set[str] = set()
     distinct_merges: set[tuple[str, str, str]] = set()
 
+    for merge_pair in iter_qualifying_merge_pairs(root):
+        repos_with_qualifying_merges.add(merge_pair.repo)
+        distinct_merges.add((merge_pair.repo, merge_pair.left_parent, merge_pair.right_parent))
+
+    return ScheschMergeAnalysisCounts(
+        distinct_repos=len(repos_with_qualifying_merges),
+        distinct_merges=len(distinct_merges),
+    )
+
+
+def iter_qualifying_merge_pairs(root: Path):
     for json_file in iter_json_files(root):
         repo = repo_name_for_file(root, json_file)
 
@@ -84,7 +102,6 @@ def count_merge_analysis(root: Path) -> ScheschMergeAnalysisCounts:
             logger.warning("Skipping non-object JSON file {}", json_file)
             continue
 
-        repo_had_qualifying_merge = False
         for key, value in payload.items():
             merge_pair = parse_merge_analysis_key(key)
             if merge_pair is None:
@@ -95,16 +112,7 @@ def count_merge_analysis(root: Path) -> ScheschMergeAnalysisCounts:
                 continue
 
             left_sha, right_sha = merge_pair
-            distinct_merges.add((repo, left_sha, right_sha))
-            repo_had_qualifying_merge = True
-
-        if repo_had_qualifying_merge:
-            repos_with_qualifying_merges.add(repo)
-
-    return ScheschMergeAnalysisCounts(
-        distinct_repos=len(repos_with_qualifying_merges),
-        distinct_merges=len(distinct_merges),
-    )
+            yield ScheschMergePair(repo=repo, left_parent=left_sha, right_parent=right_sha)
 
 
 def main():

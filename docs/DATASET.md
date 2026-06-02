@@ -159,7 +159,21 @@ but not retained in the final parent-tested merge subset. In this import, matchi
 the paper's 6,045 retained merges also requires completed diff metrics
 (`num_diff_hunks` must be numeric) and excludes large diff-analysis records where
 `num_diff_files >= 1000`. `dataset-schesch-count` applies that filter and counts
-repositories with at least one retained merge.
+repositories with at least one retained merge. `dataset-schesch-playbook` applies
+the same filter and writes a playbook with one source per retained repository.
+
+`merge_analysis` does not store the merge commit SHA directly. The generated
+playbook therefore uses `override_merge_shas` entries in this form:
+
+```yaml
+override_merge_shas:
+  - parents:
+      - <left-parent-sha>
+      - <right-parent-sha>
+```
+
+`playbook-start` resolves these parent-pair overrides to a real merge commit in
+the cached bare repository before calling `playground-setup`.
 
 ## Practical Inspection Patterns
 

@@ -102,6 +102,7 @@ Hook workers run separately and communicate over Redis pub/sub. `manual-cli` ope
 **Playbook Execution (`src-playground/playbook/start.py`)**
 Playbooks are YAML files in `/data/playbooks/`. Two modes:
 - **Explicit**: `override_merge_shas` lists specific commits per source repo
+- **Explicit parent pairs**: `override_merge_shas` entries may also be objects with `parents: [left_sha, right_sha]`; `playbook-start` resolves them to a merge commit in the cached bare repo
 - **Dynamic**: `sources: null` + `config.conflict-types` queries Redis for matching conflicts
 
 Setup runs with a `ThreadPoolExecutor` (default pool=3), but hook dispatch is serialized via `hook_lock` so only one manual interaction runs at a time.
