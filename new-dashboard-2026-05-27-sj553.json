@@ -461,7 +461,7 @@
               "options": {
                 "dedupStrategy": "none",
                 "detailsMode": "inline",
-                "enableInfiniteScrolling": true,
+                "enableInfiniteScrolling": false,
                 "enableLogDetails": false,
                 "fontSize": "small",
                 "prettifyLogMessage": false,
@@ -668,8 +668,8 @@
         "spec": {
           "allowCustomValue": false,
           "current": {
-            "text": "evaluation:conflict:rust-lang/rust.git-9fce61b21b4fe7b8c0b1d7246da5a9cb2295a06b:20260602T092516.413805Z",
-            "value": "evaluation:conflict:rust-lang/rust.git-9fce61b21b4fe7b8c0b1d7246da5a9cb2295a06b:20260602T092516.413805Z"
+            "text": "evaluation:conflict:rust-lang/rust.git-9a0f4dfa0ad40f5acceb645e126d7bcc2dce092c:20260602T093155.815418Z",
+            "value": "evaluation:conflict:rust-lang/rust.git-9a0f4dfa0ad40f5acceb645e126d7bcc2dce092c:20260602T093155.815418Z"
           },
           "definition": "SELECT key FROM \"default\".\"redis_json\" where startsWith(key, 'evaluation')",
           "hide": "dontHide",
