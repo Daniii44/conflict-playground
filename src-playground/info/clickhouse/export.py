@@ -6,7 +6,7 @@ import redis
 import requests
 from tqdm import tqdm
 
-REDIS_PREFIX = "info:conflict:"
+REDIS_PREFIX = ""
 CLICKHOUSE_URL = "http://clickhouse:8123"
 CLICKHOUSE_DB = "default"
 CLICKHOUSE_USER = "default"
