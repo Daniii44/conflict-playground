@@ -346,6 +346,46 @@ playbook:
     assert capsys.readouterr().out == "Loaded 1 playgrounds:\n  - example/project.git: def456 [unknown]\n"
 
 
+def test_playgrounds_cli_prints_achieved_conflict_type_targets(monkeypatch, tmp_path, capsys):
+    playbook_path = tmp_path / "default.yaml"
+    playbook_path.write_text(
+        """
+playbook:
+  config:
+    conflict-type-percentages:
+      CONFLICT (contents): 75
+      CONFLICT (rename/rename): 25
+  sources:
+""",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("PLAYBOOKS", str(tmp_path))
+    monkeypatch.setattr(
+        playgrounds_module.sys,
+        "argv",
+        ["playbook-playgrounds", "default", "--skip", "1"],
+    )
+
+    with patch(
+        "playbook.playgrounds.list_conflict_records",
+        return_value=[
+            ConflictRecord("example/project.git", "content1", ("CONFLICT (contents)",)),
+            ConflictRecord("example/project.git", "rename1", ("CONFLICT (rename/rename)",)),
+            ConflictRecord("example/project.git", "content2", ("CONFLICT (contents)",)),
+        ],
+    ):
+        playgrounds_module.main()
+
+    assert capsys.readouterr().out == (
+        "Loaded 2 playgrounds:\n"
+        "  - example/project.git: rename1 [CONFLICT (rename/rename)]\n"
+        "  - example/project.git: content2 [CONFLICT (contents)]\n"
+        "ConflictTypeTargets achieved:\n"
+        "  - CONFLICT (contents): 1/2 (50.0%; target 75.0%)\n"
+        "  - CONFLICT (rename/rename): 1/2 (50.0%; target 25.0%)\n"
+    )
+
+
 def test_resolve_merge_sha_from_parents_matches_parent_pair(monkeypatch, tmp_path):
     merge_parent_index.cache_clear()
     caches = tmp_path / "caches"

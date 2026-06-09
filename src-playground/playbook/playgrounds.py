@@ -55,10 +55,53 @@ def format_playground_summary_line(pg: Playground) -> str:
     return f"  - {pg.repo_name}: {pg.target_label()} [{pg.conflict_type_label()}]"
 
 
-def print_playground_summary(playgrounds: list[Playground]) -> None:
+def format_conflict_type_target_summary_lines(
+    playgrounds: list[Playground],
+    target_ratios: dict[str, float] | None,
+) -> list[str]:
+    if not target_ratios:
+        return []
+
+    total = len(playgrounds)
+    selected_counts = {conflict_type: 0 for conflict_type in target_ratios}
+    other_count = 0
+    for pg in playgrounds:
+        if pg.conflict_type in selected_counts:
+            selected_counts[pg.conflict_type] += 1
+        else:
+            other_count += 1
+
+    lines = ["ConflictTypeTargets achieved:"]
+    for conflict_type, target_ratio in target_ratios.items():
+        count = selected_counts[conflict_type]
+        actual_ratio = count / total if total else 0
+        lines.append(
+            f"  - {conflict_type}: {count}/{total} "
+            f"({actual_ratio:.1%}; target {target_ratio:.1%})"
+        )
+
+    if other_count:
+        actual_ratio = other_count / total if total else 0
+        lines.append(f"  - other: {other_count}/{total} ({actual_ratio:.1%}; no target)")
+
+    return lines
+
+
+def print_playground_summary(
+    playgrounds: list[Playground],
+    target_ratios: dict[str, float] | None = None,
+) -> None:
     print(f"Loaded {len(playgrounds)} playgrounds:")
     for pg in playgrounds:
         print(format_playground_summary_line(pg))
+    for line in format_conflict_type_target_summary_lines(playgrounds, target_ratios):
+        print(line)
+
+
+@dataclass
+class PlaybookLoadResult:
+    playgrounds: list[Playground]
+    conflict_type_target_ratios: dict[str, float] | None = None
 
 
 @dataclass
@@ -231,8 +274,8 @@ def resolve_playground_merge_sha(pg: Playground) -> str:
     raise RuntimeError(f"Playground for {pg.repo_name} has neither merge_sha nor parent_shas")
 
 
-def load_playbook(playbook_path: str | Path) -> list[Playground]:
-    """Load playbook and create Playground objects."""
+def load_playbook_result(playbook_path: str | Path) -> PlaybookLoadResult:
+    """Load playbook and create Playground objects with report metadata."""
     with open(playbook_path, "r") as f:
         data = yaml.safe_load(f)
 
@@ -293,7 +336,19 @@ def load_playbook(playbook_path: str | Path) -> list[Playground]:
                             )
                         )
 
-    return playgrounds
+    target_ratios = None
+    if conflict_type_targets is not None:
+        target_ratios = dict(conflict_type_targets.target_ratios)
+
+    return PlaybookLoadResult(
+        playgrounds=playgrounds,
+        conflict_type_target_ratios=target_ratios,
+    )
+
+
+def load_playbook(playbook_path: str | Path) -> list[Playground]:
+    """Load playbook and create Playground objects."""
+    return load_playbook_result(playbook_path).playgrounds
 
 
 def resolve_playbook_path(playbook: str) -> Path:
@@ -316,11 +371,12 @@ def main() -> None:
     parser.add_argument("--skip", type=int, default=0, help="Skip the first N playgrounds")
     args = parser.parse_args()
 
-    playgrounds = load_playbook(resolve_playbook_path(args.playbook))
+    result = load_playbook_result(resolve_playbook_path(args.playbook))
+    playgrounds = result.playgrounds
     if args.skip > 0:
         playgrounds = playgrounds[args.skip:]
 
-    print_playground_summary(playgrounds)
+    print_playground_summary(playgrounds, result.conflict_type_target_ratios)
 
 
 if __name__ == "__main__":

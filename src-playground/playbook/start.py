@@ -19,6 +19,7 @@ from playbook.playgrounds import (
     Playground,
     format_playground_summary_line,
     load_playbook,
+    load_playbook_result,
     merge_parent_index,
     print_playground_summary,
     resolve_merge_sha_from_parents,
@@ -231,13 +232,14 @@ def main():
     if not Path(playbook_path).is_file():
         print(f"No such playbook: {playbook_path}")
         sys.exit(1)
-    playgrounds = load_playbook(playbook_path)
+    load_result = load_playbook_result(playbook_path)
+    playgrounds = load_result.playgrounds
 
     # Apply skip
     if args.skip > 0:
         playgrounds = playgrounds[args.skip:]
 
-    print_playground_summary(playgrounds)
+    print_playground_summary(playgrounds, load_result.conflict_type_target_ratios)
 
     print(f"\nStarting playbook execution with pool size {args.pool}...")
     
