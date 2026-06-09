@@ -313,8 +313,8 @@ def setup_playground(repo_name: str, merge_sha: str) -> str:
     ).stdout.split()
     _, first_parent, second_parent = rev_list
 
-    main_parent = second_parent
-    feature_parent = first_parent
+    main_parent = first_parent
+    feature_parent = second_parent
 
     playgrounds.mkdir(parents=True, exist_ok=True)
     if clone_path.is_dir():
