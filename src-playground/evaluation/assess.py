@@ -80,11 +80,26 @@ def collect_proposed_resolution(playground_name: str) -> ProposedResolution:
         diff_to_actual_resolution=diff_result.stdout,
     )
 
-def evaluate(configuration: Configuration, playground_name: str) -> Evaluation:
-    print(configuration.resolution_start)
-    print(datetime.now())
+def duration_seconds(configuration: Configuration, resolution_end: datetime) -> float:
+    resolution_start = configuration.resolution_start
+    if resolution_start.tzinfo is not None and resolution_end.tzinfo is None:
+        resolution_end = resolution_end.replace(tzinfo=resolution_start.tzinfo)
+    if resolution_start.tzinfo is None and resolution_end.tzinfo is not None:
+        resolution_start = resolution_start.replace(tzinfo=resolution_end.tzinfo)
+
+    return (resolution_end - resolution_start).total_seconds()
+
+
+def evaluate(
+    configuration: Configuration,
+    playground_name: str,
+    resolution_end: datetime | None = None,
+) -> Evaluation:
+    if resolution_end is None:
+        resolution_end = datetime.now()
+
     evaluation = Evaluation(
-        duration_seconds=(datetime.now() - configuration.resolution_start).total_seconds(),
+        duration_seconds=duration_seconds(configuration, resolution_end),
         incomplete_merge=False,
         perfect_match=False
     )

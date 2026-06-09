@@ -22,6 +22,7 @@ class Evaluation(BaseModel):
 
 class ConflictEvaluation(BaseModel):
     """The top-level object to be stored in Redis."""
+    resolution_key: str | None = None
     configuration: Configuration
     result: Evaluation
     hook_result: dict[str, Any] | None = None
