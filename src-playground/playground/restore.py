@@ -12,16 +12,16 @@ from pathlib import Path
 from common.git_util import capture_git
 
 
-def resolve_playground_path(playground: str) -> Path:
-    path = Path(playground)
-    if path.is_absolute() or path.parent != Path("."):
-        return path
-
+def resolve_playground_path(playground_name: str) -> Path:
     playgrounds = os.environ.get("PLAYGROUNDS")
-    if playgrounds:
-        return Path(playgrounds) / playground
+    if not playgrounds:
+        raise RuntimeError("PLAYGROUNDS environment variable is not set")
 
-    return path
+    playground_path = Path(playground_name)
+    if playground_path.is_absolute() or ".." in playground_path.parts:
+        raise RuntimeError("Expected a playground name, not a filesystem path")
+
+    return Path(playgrounds) / playground_name
 
 
 def safe_members(tar: tarfile.TarFile) -> list[tarfile.TarInfo]:
@@ -72,7 +72,7 @@ def restore_archive(playground_path: Path, encoded_archive: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Restore a playground .git directory from a base64 tar.gz archive on stdin")
-    parser.add_argument("playground", help="Playground name or path")
+    parser.add_argument("playground", help="Playground name")
     args = parser.parse_args()
 
     try:
