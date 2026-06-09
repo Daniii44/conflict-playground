@@ -6,6 +6,7 @@ import pytest
 from info.conflict.list import ConflictRecord
 from playbook.start import (
     Playground,
+    collect_proposed_resolution,
     format_playground_summary_line,
     load_playbook,
     merge_parent_index,
@@ -357,6 +358,72 @@ def test_validate_playground_setup_rejects_uninitialized_submodules(monkeypatch,
     with patch("playbook.start.capture_git", side_effect=fake_capture_git):
         with pytest.raises(RuntimeError, match="uninitialized submodules"):
             validate_playground_setup("example-project-abc123")
+
+
+def test_collect_proposed_resolution_records_error_when_branches_not_merged(monkeypatch, tmp_path):
+    playgrounds = tmp_path / "playgrounds"
+    playgrounds.mkdir()
+    monkeypatch.setenv("PLAYGROUNDS", str(playgrounds))
+
+    def fake_capture_git(*args, **kwargs):
+        if args[2:] == ("rev-parse", "HEAD"):
+            return subprocess.CompletedProcess(args, 0, stdout="resolved123\n", stderr="")
+        if args[2:] == ("show", "-s", "--format=%P", "actual456"):
+            return subprocess.CompletedProcess(args, 0, stdout="left123 right456\n", stderr="")
+        if args[2:] == ("show", "-s", "--format=%P", "resolved123"):
+            return subprocess.CompletedProcess(args, 0, stdout="right456\n", stderr="")
+        raise AssertionError(f"Unexpected git command: {args}")
+
+    with patch("playbook.start.capture_git", side_effect=fake_capture_git):
+        with patch("playbook.start.subprocess.run") as run:
+            proposed_resolution = collect_proposed_resolution("example-project-actual456")
+
+    run.assert_not_called()
+    assert proposed_resolution.commit_sha == "resolved123"
+    assert proposed_resolution.actual_resolution_sha == "actual456"
+    assert proposed_resolution.git_archive is None
+    assert proposed_resolution.error == (
+        "Resolved HEAD did not merge the expected branches: "
+        "expected parents left123 and right456; got right456"
+    )
+
+
+def test_collect_proposed_resolution_archives_when_expected_branches_are_merged(monkeypatch, tmp_path):
+    playgrounds = tmp_path / "playgrounds"
+    playgrounds.mkdir()
+    monkeypatch.setenv("PLAYGROUNDS", str(playgrounds))
+
+    def fake_capture_git(*args, **kwargs):
+        if args[2:] == ("rev-parse", "HEAD"):
+            return subprocess.CompletedProcess(args, 0, stdout="resolved123\n", stderr="")
+        if args[2:] == ("show", "-s", "--format=%P", "actual456"):
+            return subprocess.CompletedProcess(args, 0, stdout="left123 right456\n", stderr="")
+        if args[2:] == ("show", "-s", "--format=%P", "resolved123"):
+            return subprocess.CompletedProcess(args, 0, stdout="right456 left123\n", stderr="")
+        raise AssertionError(f"Unexpected git command: {args}")
+
+    with patch("playbook.start.capture_git", side_effect=fake_capture_git):
+        with patch(
+            "playbook.start.subprocess.run",
+            return_value=subprocess.CompletedProcess(
+                ["playground-save", "example-project-actual456"],
+                0,
+                stdout="archive\n",
+                stderr="",
+            ),
+        ) as run:
+            proposed_resolution = collect_proposed_resolution("example-project-actual456")
+
+    run.assert_called_once_with(
+        ["playground-save", "example-project-actual456"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert proposed_resolution.commit_sha == "resolved123"
+    assert proposed_resolution.actual_resolution_sha == "actual456"
+    assert proposed_resolution.git_archive == "archive"
+    assert proposed_resolution.error is None
 
 
 def test_process_playground_does_not_dispatch_hook_when_setup_validation_fails():

@@ -248,6 +248,11 @@ def resolve_playground_merge_sha(pg: Playground) -> str:
     raise RuntimeError(f"Playground for {pg.repo_name} has neither merge_sha nor parent_shas")
 
 
+def merge_parent_shas(playground_path: str, ref: str) -> list[str]:
+    result = capture_git("-C", playground_path, "show", "-s", "--format=%P", ref)
+    return result.stdout.split()
+
+
 def collect_proposed_resolution(playground_name: str) -> ProposedResolution:
     playgrounds = os.environ.get("PLAYGROUNDS")
     if playgrounds is None:
@@ -267,6 +272,27 @@ def collect_proposed_resolution(playground_name: str) -> ProposedResolution:
             error=f"Could not read resolved HEAD: {error}",
         )
 
+    commit_sha = head_result.stdout.strip()
+    try:
+        expected_parents = merge_parent_shas(playground_path, actual_resolution_sha)
+        resolved_parents = merge_parent_shas(playground_path, commit_sha)
+    except subprocess.CalledProcessError as error:
+        message = error.stderr.strip() or error.stdout.strip()
+        return ProposedResolution(
+            commit_sha=commit_sha,
+            actual_resolution_sha=actual_resolution_sha,
+            error=f"Could not verify resolved merge parents: {message}",
+        )
+
+    if set(resolved_parents) != set(expected_parents):
+        expected = " and ".join(expected_parents) if expected_parents else "<none>"
+        resolved = " and ".join(resolved_parents) if resolved_parents else "<none>"
+        return ProposedResolution(
+            commit_sha=commit_sha,
+            actual_resolution_sha=actual_resolution_sha,
+            error=f"Resolved HEAD did not merge the expected branches: expected parents {expected}; got {resolved}",
+        )
+
     archive_result = subprocess.run(
         ["playground-save", playground_name],
         check=False,
@@ -276,13 +302,13 @@ def collect_proposed_resolution(playground_name: str) -> ProposedResolution:
     if archive_result.returncode != 0:
         error = archive_result.stderr.strip() or archive_result.stdout.strip()
         return ProposedResolution(
-            commit_sha=head_result.stdout.strip(),
+            commit_sha=commit_sha,
             actual_resolution_sha=actual_resolution_sha,
             error=f"Could not archive proposed resolution: {error}",
         )
 
     return ProposedResolution(
-        commit_sha=head_result.stdout.strip(),
+        commit_sha=commit_sha,
         actual_resolution_sha=actual_resolution_sha,
         git_archive=archive_result.stdout.strip(),
     )
