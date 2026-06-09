@@ -1,10 +1,11 @@
 playbook:
-  conflict-type-percentages:
-    CONFLICT (contents): 50
-    CONFLICT (directory rename suggested): 20
-    CONFLICT (modify/delete): 10
-    CONFLICT (rename/delete): 10
-    CONFLICT (rename/rename): 10
+  config:
+    conflict-type-percentages:
+      CONFLICT (contents): 50
+      CONFLICT (directory rename suggested): 20
+      CONFLICT (modify/delete): 10
+      CONFLICT (rename/delete): 10
+      CONFLICT (rename/rename): 10
   sources:
     - repo_url: https://github.com/codecrafters-io/build-your-own-x.git
       limit: 2
