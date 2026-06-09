@@ -17,6 +17,7 @@ from pathlib import Path
 from common.active_playground_models import Configuration, ActivePlayground
 from common.git_util import capture_git
 from common.repo_cache import repo_cache_key
+from common.resolution_models import ConflictResolution, ProposedResolution, resolution_record_key
 from common.redis_util import RUNTIME_ACTIVE_PLAYGROUND_PREFIX, setup_redis_connection
 from info.conflict.list import ConflictRecord, list_conflict_records
 
@@ -247,6 +248,64 @@ def resolve_playground_merge_sha(pg: Playground) -> str:
     raise RuntimeError(f"Playground for {pg.repo_name} has neither merge_sha nor parent_shas")
 
 
+def collect_proposed_resolution(playground_name: str) -> ProposedResolution:
+    playgrounds = os.environ.get("PLAYGROUNDS")
+    if playgrounds is None:
+        return ProposedResolution(error="PLAYGROUNDS environment variable is not set")
+
+    playground_path = f"{playgrounds}/{playground_name}"
+    try:
+        actual_resolution_sha = playground_name.rsplit("-", 1)[1]
+    except IndexError:
+        return ProposedResolution(error=f"Could not extract merge SHA from playground name: {playground_name}")
+
+    head_result = capture_git("-C", playground_path, "rev-parse", "HEAD", check=False)
+    if head_result.returncode != 0:
+        error = head_result.stderr.strip() or head_result.stdout.strip()
+        return ProposedResolution(
+            actual_resolution_sha=actual_resolution_sha,
+            error=f"Could not read resolved HEAD: {error}",
+        )
+
+    archive_result = subprocess.run(
+        ["playbook-save", playground_name],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if archive_result.returncode != 0:
+        error = archive_result.stderr.strip() or archive_result.stdout.strip()
+        return ProposedResolution(
+            commit_sha=head_result.stdout.strip(),
+            actual_resolution_sha=actual_resolution_sha,
+            error=f"Could not archive proposed resolution: {error}",
+        )
+
+    return ProposedResolution(
+        commit_sha=head_result.stdout.strip(),
+        actual_resolution_sha=actual_resolution_sha,
+        git_archive=archive_result.stdout.strip(),
+    )
+
+
+def save_resolution(redis: Redis, playground_name: str, active_playground_key: str) -> str:
+    active_playground_data = redis.json().get(active_playground_key)
+    if not active_playground_data:
+        raise RuntimeError(f"No active playground found with name {playground_name}")
+
+    active_playground = ActivePlayground.model_validate(active_playground_data)
+    resolved_at = datetime.now()
+    resolution = ConflictResolution(
+        configuration=active_playground.configuration,
+        resolution_end=resolved_at,
+        hook_result=active_playground.hook_result,
+        proposed_resolution=collect_proposed_resolution(playground_name),
+    )
+    resolution_key = resolution_record_key(playground_name, resolved_at)
+    redis.json().set(resolution_key, "$", json.loads(resolution.model_dump_json()))
+    return resolution_key
+
+
 def playground_path(playground_name: str) -> Path:
     playgrounds = Path(os.environ.get("PLAYGROUNDS", str(Path.home() / "playgrounds")))
     return playgrounds / playground_name
@@ -389,8 +448,9 @@ def process_playground(pg: Playground, redis: Redis, index: int, total: int) -> 
             print(f"[{index}/{total}] Dispatching task to hook")
             subprocess.run(["hook-dispatch-task", playground_name], check=True)
 
-            print(f"[{index}/{total}] Evaluating Result")
-            subprocess.run(["evaluation-assess", playground_name], check=True)
+            print(f"[{index}/{total}] Saving resolution")
+            resolution_key = save_resolution(redis, playground_name, redis_active_playground_key)
+            print(f"[{index}/{total}] Stored resolution at {resolution_key}")
             
             print(f"[{index}/{total}] Cleaning up playground for {pg.repo_name}...")
             subprocess.run(["playground-rm", playground_name], check=True)
