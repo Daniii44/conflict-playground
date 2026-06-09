@@ -32,8 +32,19 @@ def normalize_key(key) -> str:
 
 
 def playground_name_from_resolution_key(resolution_key: str) -> str:
+    return resolution_key_parts(resolution_key)[0]
+
+
+def resolution_key_parts(resolution_key: str) -> tuple[str, str]:
     suffix = resolution_key.removeprefix(RESOLUTION_CONFLICT_PREFIX)
-    return suffix.rsplit(":", 1)[0]
+    playground_name, resolution_timestamp = suffix.rsplit(":", 1)
+    return playground_name, resolution_timestamp
+
+
+def restored_playground_name_from_resolution_key(resolution_key: str) -> str:
+    playground_name, resolution_timestamp = resolution_key_parts(resolution_key)
+    repo_name, merge_sha = playground_name.rsplit("-", 1)
+    return f"{repo_name}-{resolution_timestamp}-{merge_sha}"
 
 
 def iter_resolution_keys(redis, playground_name: str | None = None) -> list[str]:
@@ -110,7 +121,7 @@ def failed_evaluation(
 
 
 def evaluate_resolution(resolution_key: str, resolution: ConflictResolution) -> ConflictEvaluation:
-    playground_name = playground_name_from_resolution_key(resolution_key)
+    playground_name = restored_playground_name_from_resolution_key(resolution_key)
     proposed_resolution = resolution.proposed_resolution
     if proposed_resolution is None:
         return failed_evaluation(resolution, "Resolution has no proposed_resolution", resolution_key)
@@ -150,6 +161,17 @@ def store_evaluation(redis, playground_name: str, evaluation: ConflictEvaluation
     return evaluation_key
 
 
+def evaluate_resolution_key(redis, resolution_key: str) -> str:
+    resolution_data = redis.json().get(resolution_key)
+    if not resolution_data:
+        raise RuntimeError(f"No resolution found at {resolution_key}")
+
+    resolution = ConflictResolution.model_validate(resolution_data)
+    playground = playground_name_from_resolution_key(resolution_key)
+    evaluation = evaluate_resolution(resolution_key, resolution)
+    return store_evaluation(redis, playground, evaluation)
+
+
 def sync_evaluations(playground_name: str | None = None, force: bool = False) -> int:
     redis = setup_redis_connection()
     resolution_keys = iter_resolution_keys(redis, playground_name)
@@ -161,15 +183,7 @@ def sync_evaluations(playground_name: str | None = None, force: bool = False) ->
             logger.info("Skipping already evaluated resolution {}", resolution_key)
             continue
 
-        resolution_data = redis.json().get(resolution_key)
-        if not resolution_data:
-            logger.warning("Skipping missing resolution {}", resolution_key)
-            continue
-
-        resolution = ConflictResolution.model_validate(resolution_data)
-        playground = playground_name_from_resolution_key(resolution_key)
-        evaluation = evaluate_resolution(resolution_key, resolution)
-        evaluation_key = store_evaluation(redis, playground, evaluation)
+        evaluation_key = evaluate_resolution_key(redis, resolution_key)
         logger.info("Stored evaluation at {}", evaluation_key)
         synced += 1
 

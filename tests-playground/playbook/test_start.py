@@ -18,9 +18,15 @@ from playbook.start import (
 class FakeRedisJson:
     def __init__(self):
         self.set_calls = []
+        self.values = {}
 
     def set(self, *args):
         self.set_calls.append(args)
+        key, _, value = args
+        self.values[key] = value
+
+    def get(self, key):
+        return self.values.get(key)
 
 
 class FakeRedis:
