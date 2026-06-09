@@ -247,6 +247,29 @@ def resolve_playground_merge_sha(pg: Playground) -> str:
     raise RuntimeError(f"Playground for {pg.repo_name} has neither merge_sha nor parent_shas")
 
 
+def playground_path(playground_name: str) -> Path:
+    playgrounds = Path(os.environ.get("PLAYGROUNDS", str(Path.home() / "playgrounds")))
+    return playgrounds / playground_name
+
+
+def validate_playground_setup(playground_name: str) -> None:
+    path = playground_path(playground_name)
+    if not path.is_dir():
+        raise RuntimeError(f"playground path does not exist: {path}")
+
+    capture_git("-C", str(path), "rev-parse", "--is-inside-work-tree")
+
+    result = capture_git("-C", str(path), "submodule", "status", "--recursive")
+    uninitialized_submodules = [
+        line for line in result.stdout.splitlines()
+        if line.startswith("-")
+    ]
+    if uninitialized_submodules:
+        sample = "; ".join(uninitialized_submodules[:3])
+        extra = "" if len(uninitialized_submodules) <= 3 else f"; +{len(uninitialized_submodules) - 3} more"
+        raise RuntimeError(f"playground has uninitialized submodules: {sample}{extra}")
+
+
 def load_playbook(playbook_path: str) -> list[Playground]:
     """Load playbook and create Playground objects"""
     with open(playbook_path, 'r') as f:
@@ -338,6 +361,9 @@ def process_playground(pg: Playground, redis: Redis, index: int, total: int) -> 
                 text=True
             )
             playground_name = result.stdout.strip()
+            if not playground_name:
+                raise RuntimeError("playground-setup did not report a playground name")
+            validate_playground_setup(playground_name)
             print(f"[{index}/{total}] Created Playground: {playground_name}")
 
         # Hook dispatch must be synchronous (only one at a time)
@@ -367,11 +393,11 @@ def process_playground(pg: Playground, redis: Redis, index: int, total: int) -> 
             subprocess.run(["evaluation-assess", playground_name], check=True)
             
             print(f"[{index}/{total}] Cleaning up playground for {pg.repo_name}...")
-            subprocess.run(["playground-rm", pg.repo_name], check=True)
+            subprocess.run(["playground-rm", playground_name], check=True)
             redis.delete(redis_active_playground_key)
             
         return True
-    except subprocess.CalledProcessError as e:
+    except (RuntimeError, subprocess.CalledProcessError) as e:
         print(f"[{index}/{total}] Error processing {pg.repo_name}: {e}")
         return False
 

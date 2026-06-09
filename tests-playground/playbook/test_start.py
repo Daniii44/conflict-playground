@@ -1,4 +1,7 @@
+import subprocess
 from unittest.mock import patch
+
+import pytest
 
 from info.conflict.list import ConflictRecord
 from playbook.start import (
@@ -6,8 +9,30 @@ from playbook.start import (
     format_playground_summary_line,
     load_playbook,
     merge_parent_index,
+    process_playground,
     resolve_merge_sha_from_parents,
+    validate_playground_setup,
 )
+
+
+class FakeRedisJson:
+    def __init__(self):
+        self.set_calls = []
+
+    def set(self, *args):
+        self.set_calls.append(args)
+
+
+class FakeRedis:
+    def __init__(self):
+        self.json_api = FakeRedisJson()
+        self.deleted = []
+
+    def json(self):
+        return self.json_api
+
+    def delete(self, key):
+        self.deleted.append(key)
 
 
 def test_load_playbook_applies_config_conflict_types_to_sources(tmp_path):
@@ -309,3 +334,59 @@ def test_resolve_merge_sha_from_parents_matches_parent_pair(monkeypatch, tmp_pat
         )
 
     assert merge_sha == "merge2"
+
+
+def test_validate_playground_setup_rejects_uninitialized_submodules(monkeypatch, tmp_path):
+    playground = tmp_path / "playgrounds" / "example-project-abc123"
+    playground.mkdir(parents=True)
+    monkeypatch.setenv("PLAYGROUNDS", str(tmp_path / "playgrounds"))
+
+    def fake_capture_git(*args, **kwargs):
+        if args[2] == "rev-parse":
+            return subprocess.CompletedProcess(args, 0, stdout="true\n", stderr="")
+        if args[2:5] == ("submodule", "status", "--recursive"):
+            return subprocess.CompletedProcess(args, 0, stdout="-abc123 deps/sub\n", stderr="")
+        raise AssertionError(f"Unexpected command: {args}")
+
+    with patch("playbook.start.capture_git", side_effect=fake_capture_git):
+        with pytest.raises(RuntimeError, match="uninitialized submodules"):
+            validate_playground_setup("example-project-abc123")
+
+
+def test_process_playground_does_not_dispatch_hook_when_setup_validation_fails():
+    redis = FakeRedis()
+    playground = Playground(repo_name="example/project.git", merge_sha="abc123")
+
+    def fake_run(args, **kwargs):
+        if args[:1] == ["playground-setup"]:
+            return subprocess.CompletedProcess(args, 0, stdout="example-project-abc123\n", stderr="")
+        raise AssertionError(f"Unexpected command after bad setup: {args}")
+
+    with patch("playbook.start.subprocess.run", side_effect=fake_run):
+        with patch("playbook.start.validate_playground_setup", side_effect=RuntimeError("bad playground")):
+            success = process_playground(playground, redis, 1, 1)
+
+    assert success is False
+    assert redis.json_api.set_calls == []
+    assert redis.deleted == []
+
+
+def test_process_playground_removes_created_playground_name():
+    redis = FakeRedis()
+    playground = Playground(repo_name="example/project.git", merge_sha="abc123")
+    commands = []
+
+    def fake_run(args, **kwargs):
+        commands.append(args)
+        if args[:1] == ["playground-setup"]:
+            return subprocess.CompletedProcess(args, 0, stdout="example-project-abc123\n", stderr="")
+        return subprocess.CompletedProcess(args, 0, stdout="", stderr="")
+
+    with patch("playbook.start.subprocess.run", side_effect=fake_run):
+        with patch("playbook.start.validate_playground_setup"):
+            success = process_playground(playground, redis, 1, 1)
+
+    assert success is True
+    assert ["hook-dispatch-task", "example-project-abc123"] in commands
+    assert ["playground-rm", "example-project-abc123"] in commands
+    assert ["playground-rm", "example/project.git"] not in commands
