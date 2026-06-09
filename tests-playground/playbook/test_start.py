@@ -4,6 +4,7 @@ from unittest.mock import patch
 import pytest
 
 from info.conflict.list import ConflictRecord
+from playbook import playgrounds as playgrounds_module
 from playbook.start import (
     Playground,
     collect_proposed_resolution,
@@ -58,7 +59,7 @@ playbook:
     )
 
     with patch(
-        "playbook.start.list_conflict_records",
+        "playbook.playgrounds.list_conflict_records",
         return_value=[
             ConflictRecord("example/project.git", "abc123", ("CONFLICT (contents)",)),
         ],
@@ -91,7 +92,7 @@ playbook:
     )
 
     with patch(
-        "playbook.start.list_conflict_records",
+        "playbook.playgrounds.list_conflict_records",
         return_value=[
             ConflictRecord("example/project.git", "abc123", ("CONFLICT (contents)",)),
         ],
@@ -126,7 +127,7 @@ playbook:
     )
 
     with patch(
-        "playbook.start.list_conflict_records",
+        "playbook.playgrounds.list_conflict_records",
         return_value=[
             ConflictRecord("example/project.git", "def456", ("CONFLICT (rename/delete)",)),
         ],
@@ -176,7 +177,7 @@ playbook:
             ]
         raise AssertionError(f"Unexpected repos: {repos}")
 
-    with patch("playbook.start.list_conflict_records", side_effect=fake_list_conflict_records):
+    with patch("playbook.playgrounds.list_conflict_records", side_effect=fake_list_conflict_records):
         playgrounds = load_playbook(str(playbook_path))
 
     assert playgrounds == [
@@ -227,7 +228,7 @@ playbook:
     )
 
     with patch(
-        "playbook.start.list_conflict_records",
+        "playbook.playgrounds.list_conflict_records",
         return_value=[
             ConflictRecord("example/project.git", "abc123", ("CONFLICT (contents)",)),
         ],
@@ -265,7 +266,7 @@ playbook:
         encoding="utf-8",
     )
 
-    with patch("playbook.start.list_conflict_records") as list_conflict_records:
+    with patch("playbook.playgrounds.list_conflict_records") as list_conflict_records:
         playgrounds = load_playbook(str(playbook_path))
 
     list_conflict_records.assert_not_called()
@@ -291,7 +292,7 @@ playbook:
         encoding="utf-8",
     )
 
-    with patch("playbook.start.list_conflict_records") as list_conflict_records:
+    with patch("playbook.playgrounds.list_conflict_records") as list_conflict_records:
         playgrounds = load_playbook(str(playbook_path))
 
     list_conflict_records.assert_not_called()
@@ -320,6 +321,31 @@ def test_format_playground_summary_line_marks_unknown_conflict_type():
     assert format_playground_summary_line(playground) == "  - example/project.git: abc123 [unknown]"
 
 
+def test_playgrounds_cli_prints_human_readable_summary(monkeypatch, tmp_path, capsys):
+    playbook_path = tmp_path / "default.yaml"
+    playbook_path.write_text(
+        """
+playbook:
+  sources:
+    - repo_url: https://github.com/example/project.git
+      override_merge_shas:
+        - abc123
+        - def456
+""",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("PLAYBOOKS", str(tmp_path))
+    monkeypatch.setattr(
+        playgrounds_module.sys,
+        "argv",
+        ["playbook-playgrounds", "default", "--skip", "1"],
+    )
+
+    playgrounds_module.main()
+
+    assert capsys.readouterr().out == "Loaded 1 playgrounds:\n  - example/project.git: def456 [unknown]\n"
+
+
 def test_resolve_merge_sha_from_parents_matches_parent_pair(monkeypatch, tmp_path):
     merge_parent_index.cache_clear()
     caches = tmp_path / "caches"
@@ -334,7 +360,7 @@ def test_resolve_merge_sha_from_parents_matches_parent_pair(monkeypatch, tmp_pat
             "merge3 right456 left123\n"
         )
 
-    with patch("playbook.start.capture_git", return_value=Result()):
+    with patch("playbook.playgrounds.capture_git", return_value=Result()):
         merge_sha = resolve_merge_sha_from_parents(
             "example/project.git",
             ("left123", "right456"),
