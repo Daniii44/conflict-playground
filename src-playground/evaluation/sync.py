@@ -14,7 +14,7 @@ from common.redis_util import (
     RESOLUTION_CONFLICT_PREFIX,
     setup_redis_connection,
 )
-from common.resolution_models import ConflictResolution
+from common.resolution_models import ConflictResolution, resolution_key_parts
 from evaluation.assess import (
     collect_proposed_resolution,
     duration_seconds,
@@ -29,12 +29,6 @@ def normalize_key(key) -> str:
 
 def playground_name_from_resolution_key(resolution_key: str) -> str:
     return resolution_key_parts(resolution_key)[0]
-
-
-def resolution_key_parts(resolution_key: str) -> tuple[str, str]:
-    suffix = resolution_key.removeprefix(RESOLUTION_CONFLICT_PREFIX)
-    playground_name, resolution_timestamp = suffix.rsplit(":", 1)
-    return playground_name, resolution_timestamp
 
 
 def restored_playground_name_from_resolution_key(resolution_key: str) -> str:

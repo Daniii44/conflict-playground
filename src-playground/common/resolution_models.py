@@ -28,3 +28,9 @@ def resolution_record_key(playground_name: str, resolved_at: datetime | None = N
         resolved_at = datetime.now(timezone.utc)
     timestamp = resolved_at.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ")
     return f"{RESOLUTION_CONFLICT_PREFIX}{playground_name}:{timestamp}"
+
+
+def resolution_key_parts(resolution_key: str) -> tuple[str, str]:
+    suffix = resolution_key.removeprefix(RESOLUTION_CONFLICT_PREFIX)
+    playground_name, resolution_timestamp = suffix.rsplit(":", 1)
+    return playground_name, resolution_timestamp
