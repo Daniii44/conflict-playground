@@ -268,7 +268,7 @@ def collect_proposed_resolution(playground_name: str) -> ProposedResolution:
         )
 
     archive_result = subprocess.run(
-        ["playbook-save", playground_name],
+        ["playground-save", playground_name],
         check=False,
         capture_output=True,
         text=True,

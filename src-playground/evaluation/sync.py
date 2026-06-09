@@ -68,7 +68,7 @@ def evaluated_resolution_keys(redis) -> set[str]:
 
 def restore_resolution(playground_name: str, git_archive: str) -> None:
     result = subprocess.run(
-        ["playbook-restore", playground_name],
+        ["playground-restore", playground_name],
         input=git_archive,
         text=True,
         capture_output=True,

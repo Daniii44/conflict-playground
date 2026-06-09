@@ -43,7 +43,7 @@ def restore_archive(playground_path: Path, encoded_archive: str) -> None:
 
     playground_path.mkdir(parents=True, exist_ok=True)
 
-    with tempfile.TemporaryDirectory(prefix="playbook-restore-") as temp_dir:
+    with tempfile.TemporaryDirectory(prefix="playground-restore-") as temp_dir:
         temp_path = Path(temp_dir)
         archive_path = temp_path / "resolution.tar.gz"
         archive_path.write_bytes(archive)
