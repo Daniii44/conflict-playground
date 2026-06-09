@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
 import subprocess
 import sys
+from pathlib import Path
 
 from loguru import logger
 
@@ -38,8 +40,23 @@ def restore_resolution(redis, resolution_key: str) -> str:
     return playground_name
 
 
+def playground_path(playground_name: str) -> Path:
+    playgrounds = os.environ.get("PLAYGROUNDS")
+    if not playgrounds:
+        raise RuntimeError("PLAYGROUNDS environment variable is not set")
+
+    return Path(playgrounds) / playground_name
+
+
+def exec_shell_in_playground(playground_name: str) -> None:
+    os.chdir(playground_path(playground_name))
+    shell = os.environ.get("SHELL", "zsh")
+    os.execvp(shell, [shell])
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Restore a saved conflict resolution playground by Redis key")
+    parser.add_argument("-c", "--cd", action="store_true", help="Open a shell in the restored playground")
     parser.add_argument("resolution_key", help=f"Redis key, usually starting with {RESOLUTION_CONFLICT_PREFIX}")
     args = parser.parse_args()
 
@@ -51,6 +68,13 @@ def main() -> int:
         return 1
 
     print(playground_name)
+    if args.cd:
+        try:
+            exec_shell_in_playground(playground_name)
+        except RuntimeError as error:
+            logger.error("{}", error)
+            return 1
+
     return 0
 
 

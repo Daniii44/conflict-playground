@@ -28,6 +28,7 @@ class FakeRedis:
     def __init__(self, keys=None, values=None):
         self.keys = keys or []
         self.json_api = FakeRedisJson(values)
+        self.deleted = []
 
     def scan_iter(self, match):
         prefix = match.removesuffix("*")
@@ -35,6 +36,10 @@ class FakeRedis:
 
     def json(self):
         return self.json_api
+
+    def delete(self, *keys):
+        self.deleted.extend(keys)
+        return len(keys)
 
 
 def resolution_payload(git_archive="archive"):
@@ -88,3 +93,49 @@ def test_restore_resolution_restores_archive_to_playground_from_key():
         capture_output=True,
         check=False,
     )
+
+
+def test_exec_shell_in_playground_uses_playgrounds_env(monkeypatch):
+    from resolution.restore import exec_shell_in_playground
+
+    monkeypatch.setenv("PLAYGROUNDS", "/playgrounds")
+    monkeypatch.setenv("SHELL", "/bin/zsh")
+
+    with patch("resolution.restore.os.chdir") as chdir:
+        with patch("resolution.restore.os.execvp") as execvp:
+            exec_shell_in_playground("owner/repo.git-actual")
+
+    chdir.assert_called_once_with(Path("/playgrounds/owner/repo.git-actual"))
+    execvp.assert_called_once_with("/bin/zsh", ["/bin/zsh"])
+
+
+def test_prune_resolution_deletes_one_key():
+    from resolution.prune import prune_resolution
+
+    redis = FakeRedis()
+    key = "resolution:conflict:owner/repo.git-a:20260609T120000.000000Z"
+
+    deleted = prune_resolution(redis, key=key)
+
+    assert deleted == [key]
+    assert redis.deleted == [key]
+
+
+def test_prune_resolution_deletes_all_resolution_keys():
+    from resolution.prune import prune_resolution
+
+    redis = FakeRedis(
+        keys=[
+            "runtime:active_playground:x",
+            "resolution:conflict:owner/repo.git-b:20260609T120000.000000Z",
+            "resolution:conflict:owner/repo.git-a:20260609T120000.000000Z",
+        ]
+    )
+
+    deleted = prune_resolution(redis, prune_all=True)
+
+    assert deleted == [
+        "resolution:conflict:owner/repo.git-a:20260609T120000.000000Z",
+        "resolution:conflict:owner/repo.git-b:20260609T120000.000000Z",
+    ]
+    assert redis.deleted == deleted
