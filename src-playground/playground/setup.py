@@ -21,9 +21,12 @@ def playground_name(repo_name: str, merge_sha: str) -> str:
 
 
 def alternate_path(bare_repo: Path, clone_path: Path) -> str:
+    return alternate_path_from_objects_dir(bare_repo, clone_path / ".git" / "objects")
+
+
+def alternate_path_from_objects_dir(bare_repo: Path, objects_dir: Path) -> str:
     abs_path = (bare_repo / "objects").resolve()
-    clone_objects = (clone_path / ".git" / "objects").resolve()
-    rel_path = os.path.relpath(abs_path, clone_objects)
+    rel_path = os.path.relpath(abs_path, objects_dir.resolve())
     return (
         rel_path
         .replace("caches-bind-mount", "caches")
@@ -109,6 +112,74 @@ def is_initialized_submodule(repo_path: Path, submodule_name: str) -> bool:
     return result.returncode == 0
 
 
+def repo_git_dir(repo_path: Path) -> Path:
+    return Path(
+        capture_git(
+            "-C",
+            str(repo_path),
+            "rev-parse",
+            "--absolute-git-dir",
+        ).stdout.strip()
+    )
+
+
+def ensure_submodule_git_dir(
+    repo_path: Path,
+    submodule_name: str,
+    submodule_path: str,
+    cache_repo: Path,
+    gitlink_sha: str,
+) -> Path:
+    parent_git_dir = repo_git_dir(repo_path)
+    module_git_dir = parent_git_dir / "modules" / submodule_name
+    submodule_repo_path = repo_path / submodule_path
+
+    submodule_repo_path.mkdir(parents=True, exist_ok=True)
+    if not (module_git_dir / "HEAD").is_file():
+        module_git_dir.parent.mkdir(parents=True, exist_ok=True)
+        capture_git(
+            "init",
+            f"--separate-git-dir={module_git_dir}",
+            cwd=submodule_repo_path,
+        )
+
+    gitdir_path = os.path.relpath(module_git_dir.resolve(), submodule_repo_path.resolve())
+    (submodule_repo_path / ".git").write_text(f"gitdir: {gitdir_path}\n")
+
+    worktree_path = os.path.relpath(submodule_repo_path.resolve(), module_git_dir.resolve())
+    capture_git(
+        f"--git-dir={module_git_dir}",
+        "config",
+        "core.worktree",
+        worktree_path,
+    )
+
+    alternates_info = module_git_dir / "objects" / "info"
+    alternates_info.mkdir(parents=True, exist_ok=True)
+    (alternates_info / "alternates").write_text(
+        f"{alternate_path_from_objects_dir(cache_repo, module_git_dir / 'objects')}\n"
+    )
+
+    current_head = capture_git(
+        "-C",
+        str(submodule_repo_path),
+        "rev-parse",
+        "--verify",
+        "HEAD^{commit}",
+        check=False,
+    )
+    if current_head.returncode != 0:
+        capture_git(
+            "-C",
+            str(submodule_repo_path),
+            "update-ref",
+            "HEAD",
+            gitlink_sha,
+        )
+
+    return module_git_dir
+
+
 def init_submodules_with_alternates(
     repo_path: Path,
     parent_url: str,
@@ -132,50 +203,56 @@ def init_submodules_with_alternates(
             logger.warning("Skipping uncached submodule: {} ({})", submodule_path, resolved_url)
             continue
 
-        if clean_gitlink_sha(repo_path, submodule_path) is None:
+        gitlink_sha = clean_gitlink_sha(repo_path, submodule_path)
+        if gitlink_sha is None:
             logger.error(
                 "Unmerged submodule found: '{}'. init should be called before the merge",
                 submodule_path,
             )
             continue
 
-        submodule_is_initialized = is_initialized_submodule(repo_path, submodule_name)
-        if submodule_is_initialized:
+        if is_initialized_submodule(repo_path, submodule_name):
             logger.debug("Updating already initialized submodule: {}", submodule_path)
-            update_args = [
-                "-C",
-                str(repo_path),
-                "-c",
-                "protocol.file.allow=always",
-                "submodule",
-                "update",
-                "--",
-                submodule_path,
-            ]
         else:
             logger.info("Initializing submodule from cache: {}", submodule_path)
-            capture_git(
-                "-C",
-                str(repo_path),
-                "config",
-                f"submodule.{submodule_name}.url",
-                str(cache_repo),
-            )
-            update_args = [
-                "-C",
-                str(repo_path),
-                "-c",
-                "protocol.file.allow=always",
-                "submodule",
-                "update",
-                "--init",
-                "--reference",
-                str(cache_repo),
-                "--",
-                submodule_path,
-            ]
 
-        result = capture_git(*update_args, check=False)
+        capture_git(
+            "-C",
+            str(repo_path),
+            "submodule",
+            "init",
+            "--",
+            submodule_path,
+        )
+        capture_git(
+            "-C",
+            str(repo_path),
+            "config",
+            f"submodule.{submodule_name}.url",
+            str(cache_repo),
+        )
+        ensure_submodule_git_dir(
+            repo_path,
+            submodule_name,
+            submodule_path,
+            cache_repo,
+            gitlink_sha,
+        )
+
+        result = capture_git(
+            "-C",
+            str(repo_path),
+            "-c",
+            "protocol.file.allow=always",
+            "submodule",
+            "update",
+            "--no-fetch",
+            "--force",
+            "--checkout",
+            "--",
+            submodule_path,
+            check=False,
+        )
 
         if result.returncode != 0:
             logger.warning("Failed to update submodule from cache: {}", submodule_path)
@@ -194,16 +271,6 @@ def init_submodules_with_alternates(
         if is_worktree.returncode != 0:
             continue
 
-        if not submodule_is_initialized:
-            capture_git(
-                "-C",
-                str(submodule_repo_path),
-                "remote",
-                "set-url",
-                "origin",
-                resolved_url,
-                check=False,
-            )
         init_submodules_with_alternates(
             submodule_repo_path,
             resolved_url,
