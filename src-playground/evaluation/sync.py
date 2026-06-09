@@ -2,13 +2,9 @@
 
 import argparse
 import json
-import os
 import subprocess
 import sys
-import tempfile
-from contextlib import contextmanager
 from datetime import datetime, timezone
-from pathlib import Path
 
 from loguru import logger
 
@@ -70,28 +66,12 @@ def evaluated_resolution_keys(redis) -> set[str]:
     return resolution_keys
 
 
-@contextmanager
-def temporary_playgrounds(playgrounds: str):
-    previous_playgrounds = os.environ.get("PLAYGROUNDS")
-    os.environ["PLAYGROUNDS"] = playgrounds
-    try:
-        yield
-    finally:
-        if previous_playgrounds is None:
-            os.environ.pop("PLAYGROUNDS", None)
-        else:
-            os.environ["PLAYGROUNDS"] = previous_playgrounds
-
-
-def restore_resolution(playground_name: str, git_archive: str, playgrounds: Path) -> None:
-    env = dict(os.environ)
-    env["PLAYGROUNDS"] = str(playgrounds)
+def restore_resolution(playground_name: str, git_archive: str) -> None:
     result = subprocess.run(
         ["playbook-restore", playground_name],
         input=git_archive,
         text=True,
         capture_output=True,
-        env=env,
         check=False,
     )
     if result.returncode != 0:
@@ -130,21 +110,17 @@ def evaluate_resolution(resolution_key: str, resolution: ConflictResolution) -> 
         error = proposed_resolution.error or "Resolution has no archived .git repository"
         return failed_evaluation(resolution, error, resolution_key)
 
-    with tempfile.TemporaryDirectory(prefix="evaluation-sync-") as temp_dir:
-        playgrounds = Path(temp_dir) / "playgrounds"
-        playgrounds.mkdir()
-        try:
-            restore_resolution(playground_name, proposed_resolution.git_archive, playgrounds)
-        except RuntimeError as error:
-            return failed_evaluation(resolution, str(error), resolution_key)
+    try:
+        restore_resolution(playground_name, proposed_resolution.git_archive)
+    except RuntimeError as error:
+        return failed_evaluation(resolution, str(error), resolution_key)
 
-        with temporary_playgrounds(str(playgrounds)):
-            result = evaluate(
-                resolution.configuration,
-                playground_name,
-                resolution_end=resolution.resolution_end,
-            )
-            analyzed_resolution = collect_proposed_resolution(playground_name)
+    result = evaluate(
+        resolution.configuration,
+        playground_name,
+        resolution_end=resolution.resolution_end,
+    )
+    analyzed_resolution = collect_proposed_resolution(playground_name)
 
     return ConflictEvaluation(
         resolution_key=resolution_key,
