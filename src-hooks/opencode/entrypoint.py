@@ -10,6 +10,20 @@ from typing import Any
 from hooks_common import HookWorker, HookTask
 
 
+OPENCODE_ERROR_EXCERPT_LIMIT = 4000
+
+
+def command_error_excerpt(result: subprocess.CompletedProcess[str]) -> str:
+    output = "\n".join(
+        part.strip()
+        for part in (result.stderr, result.stdout)
+        if part and part.strip()
+    )
+    if len(output) <= OPENCODE_ERROR_EXCERPT_LIMIT:
+        return output
+    return output[:OPENCODE_ERROR_EXCERPT_LIMIT].rstrip() + "\n... truncated"
+
+
 class OpenCodeWorker(HookWorker):
     """Hook worker that lets opencode resolve a prepared merge conflict."""
 
@@ -62,11 +76,12 @@ class OpenCodeWorker(HookWorker):
                 cwd=playground_path,
                 text=True,
                 stdout=tf,
+                stderr=subprocess.PIPE,
             )
             tf.seek(0)
             session_data = tf.read()
         if result.returncode != 0:
-            error = result.stderr.strip() or result.stdout.strip()
+            error = (result.stderr or "").strip() or session_data.strip()
             return None, error or f"opencode {' '.join(args)} exited with code {result.returncode}"
 
         try:
@@ -157,6 +172,8 @@ class OpenCodeWorker(HookWorker):
                     str(playground_path),
                 ],
                 cwd=playground_path,
+                capture_output=True,
+                text=True,
             )
         except FileNotFoundError:
             return self.result("Error: opencode executable not found")
@@ -164,12 +181,15 @@ class OpenCodeWorker(HookWorker):
             return self.result(f"Error running opencode: {e}")
 
         session_export = self.export_latest_session(playground_path)
+        opencode_error = command_error_excerpt(opencode_result)
+        opencode_error_suffix = f": {opencode_error}" if opencode_error else ""
 
         if self.is_merging(playground_path):
             if self.has_unmerged_changes(playground_path):
                 return self.result(
                     f"Error: opencode exited with code {opencode_result.returncode}, "
-                    "but the repository is still merging and has unmerged changes",
+                    "but the repository is still merging and has unmerged changes"
+                    f"{opencode_error_suffix}",
                     opencode_exit_code=opencode_result.returncode,
                     session_export=session_export,
                 )
@@ -177,6 +197,8 @@ class OpenCodeWorker(HookWorker):
             commit_result = self.finish_merge(playground_path)
             if commit_result.returncode != 0:
                 error = commit_result.stderr.strip() or commit_result.stdout.strip()
+                if opencode_error:
+                    error = f"{error}; opencode output: {opencode_error}" if error else opencode_error
                 return self.result(
                     "Error: opencode left the repository in a merge state without unmerged "
                     f"changes, and automatic git commit --no-edit failed: {error}",
@@ -187,14 +209,14 @@ class OpenCodeWorker(HookWorker):
             return self.result(
                 "Error hint: opencode resolved all unmerged changes but did not commit the "
                 f"merge. The hook committed it with git commit --no-edit. "
-                f"opencode exit code: {opencode_result.returncode}",
+                f"opencode exit code: {opencode_result.returncode}{opencode_error_suffix}",
                 opencode_exit_code=opencode_result.returncode,
                 session_export=session_export,
             )
 
         if opencode_result.returncode != 0:
             return self.result(
-                f"Error: opencode exited with code {opencode_result.returncode}",
+                f"Error: opencode exited with code {opencode_result.returncode}{opencode_error_suffix}",
                 opencode_exit_code=opencode_result.returncode,
                 session_export=session_export,
             )

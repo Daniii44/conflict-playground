@@ -108,6 +108,15 @@ def collect_proposed_resolution(playground_name: str) -> ProposedResolution:
     )
 
 
+def hook_error_message(hook_result: dict | None) -> str | None:
+    if hook_result is None:
+        return None
+    message = hook_result.get("message")
+    if isinstance(message, str) and message.startswith("Error"):
+        return message
+    return None
+
+
 def save_resolution(redis: Redis, playground_name: str, active_playground_key: str) -> str:
     active_playground_data = redis.json().get(active_playground_key)
     if not active_playground_data:
@@ -115,11 +124,19 @@ def save_resolution(redis: Redis, playground_name: str, active_playground_key: s
 
     active_playground = ActivePlayground.model_validate(active_playground_data)
     resolved_at = datetime.now()
+    proposed_resolution = collect_proposed_resolution(playground_name)
+    hook_error = hook_error_message(active_playground.hook_result)
+    if proposed_resolution.git_archive is None and hook_error is not None:
+        if proposed_resolution.error:
+            proposed_resolution.error = f"{hook_error}; {proposed_resolution.error}"
+        else:
+            proposed_resolution.error = hook_error
+
     resolution = ConflictResolution(
         configuration=active_playground.configuration,
         resolution_end=resolved_at,
         hook_result=active_playground.hook_result,
-        proposed_resolution=collect_proposed_resolution(playground_name),
+        proposed_resolution=proposed_resolution,
     )
     resolution_key = resolution_record_key(playground_name, resolved_at)
     redis.json().set(resolution_key, "$", json.loads(resolution.model_dump_json()))

@@ -64,11 +64,17 @@ class HookWorker:
                 print(f"Hook Base: Conflict Resolution Playground Set Up")
                 task = HookTask.model_validate_json(message['data'])
 
-                # Get result from handler or subclass method
-                if handler:
-                    result_msg = handler(task)
-                else:
-                    result_msg = self.handle_task(task)
+                try:
+                    # Get result from handler or subclass method
+                    if handler:
+                        result_msg = handler(task)
+                    else:
+                        result_msg = self.handle_task(task)
+                except Exception as error:
+                    result_msg = {
+                        "message": f"Error: hook worker failed: {error}",
+                        "error_type": type(error).__name__,
+                    }
 
                 if isinstance(result_msg, str):
                     result_msg = {"message": result_msg}

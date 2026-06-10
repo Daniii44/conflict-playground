@@ -1,8 +1,12 @@
+import json
 import subprocess
+from datetime import datetime
 from unittest.mock import patch
 
 import pytest
 
+from common.active_playground_models import ActivePlayground, Configuration
+from common.resolution_models import ProposedResolution
 from info.conflict.list import ConflictRecord
 from playbook import playgrounds as playgrounds_module
 from playbook.start import (
@@ -13,6 +17,7 @@ from playbook.start import (
     merge_parent_index,
     process_playground,
     resolve_merge_sha_from_parents,
+    save_resolution,
     validate_playground_setup,
 )
 
@@ -490,6 +495,88 @@ def test_collect_proposed_resolution_archives_when_expected_branches_are_merged(
     assert proposed_resolution.actual_resolution_sha == "actual456"
     assert proposed_resolution.git_archive == "archive"
     assert proposed_resolution.error is None
+
+
+def test_save_resolution_adds_hook_error_to_failed_proposed_resolution():
+    redis = FakeRedis()
+    active_playground_key = "runtime:active_playground:example-project-actual456"
+    redis.json().set(
+        active_playground_key,
+        "$",
+        json.loads(
+            ActivePlayground(
+                playground_name="example-project-actual456",
+                configuration=Configuration(
+                    hook_type="opencode",
+                    playground_version="test",
+                    volume_type="bind-mount",
+                    resolution_start=datetime(2026, 1, 1),
+                ),
+                hook_result={
+                    "message": "Error: Configuration is invalid at .opencode/opencode.json",
+                    "opencode_exit_code": 1,
+                },
+            ).model_dump_json()
+        ),
+    )
+
+    with patch(
+        "playbook.start.collect_proposed_resolution",
+        return_value=ProposedResolution(
+            commit_sha="resolved123",
+            actual_resolution_sha="actual456",
+            error="Resolved HEAD did not merge the expected branches: expected parents left123 and right456; got right456",
+        ),
+    ):
+        resolution_key = save_resolution(redis, "example-project-actual456", active_playground_key)
+
+    saved = redis.json().get(resolution_key)
+    assert saved["hook_result"] == {
+        "message": "Error: Configuration is invalid at .opencode/opencode.json",
+        "opencode_exit_code": 1,
+    }
+    proposed_resolution = saved["proposed_resolution"]
+    assert proposed_resolution["git_archive"] is None
+    assert "Configuration is invalid" in proposed_resolution["error"]
+    assert "Resolved HEAD did not merge the expected branches" in proposed_resolution["error"]
+
+
+def test_save_resolution_does_not_add_hook_error_to_archived_proposed_resolution():
+    redis = FakeRedis()
+    active_playground_key = "runtime:active_playground:example-project-actual456"
+    redis.json().set(
+        active_playground_key,
+        "$",
+        json.loads(
+            ActivePlayground(
+                playground_name="example-project-actual456",
+                configuration=Configuration(
+                    hook_type="opencode",
+                    playground_version="test",
+                    volume_type="bind-mount",
+                    resolution_start=datetime(2026, 1, 1),
+                ),
+                hook_result={
+                    "message": "Error: Configuration is invalid at .opencode/opencode.json",
+                    "opencode_exit_code": 1,
+                },
+            ).model_dump_json()
+        ),
+    )
+
+    with patch(
+        "playbook.start.collect_proposed_resolution",
+        return_value=ProposedResolution(
+            commit_sha="resolved123",
+            actual_resolution_sha="actual456",
+            git_archive="archive.tar",
+        ),
+    ):
+        resolution_key = save_resolution(redis, "example-project-actual456", active_playground_key)
+
+    proposed_resolution = redis.json().get(resolution_key)["proposed_resolution"]
+    assert proposed_resolution["git_archive"] == "archive.tar"
+    assert proposed_resolution["error"] is None
 
 
 def test_process_playground_does_not_dispatch_hook_when_setup_validation_fails():
