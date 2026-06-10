@@ -1,17 +1,21 @@
 playbook:
+  config:
+    conflict-type-percentages:
+      CONFLICT (submodule with possible resolution): 40
+      CONFLICT (submodule may have rewinds): 40
+      CONFLICT (submodule): 20
   sources:
     - repo_url: https://github.com/freeCodeCamp/freeCodeCamp.git
-      limit: 10
+      limit: 100
     - repo_url: https://github.com/qt/qt5
-      limit: 10
+      limit: 100
     - repo_url: https://github.com/rust-lang/rust
-      limit: 10
+      limit: 100
     - repo_url: https://github.com/openssl/openssl
-      limit: 10
+      limit: 100
     - repo_url: https://github.com/Akaflieg-Freiburg/enroute
-      limit: 10
+      limit: 100
     - repo_url: https://github.com/denoland/deno
-      limit: 10
+      limit: 100
     - repo_url: https://github.com/Significant-Gravitas/AutoGPT.git
-      limit: 10
-      
+      limit: 100
