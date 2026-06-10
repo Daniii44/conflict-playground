@@ -71,3 +71,27 @@ def test_handle_task_returns_invalid_config_error(monkeypatch, tmp_path):
     assert result["opencode_exit_code"] == 1
     assert result["message"].startswith("Error: opencode exited with code 1")
     assert "Configuration is invalid" in result["message"]
+
+
+def test_handle_task_returns_timeout_as_normal_error(monkeypatch, tmp_path):
+    module = load_opencode_module()
+    worker = module.OpenCodeWorker()
+    playgrounds = tmp_path / "playgrounds"
+    playground = playgrounds / "example-project-abc123"
+    playground.mkdir(parents=True)
+    monkeypatch.setenv("PLAYGROUNDS", str(playgrounds))
+
+    monkeypatch.setattr(worker, "is_merging", lambda path: True)
+    monkeypatch.setattr(worker, "export_latest_session", lambda path: {"error": "No session"})
+
+    def fake_run(args, **kwargs):
+        assert kwargs["timeout"] == module.OPENCODE_RUN_TIMEOUT_SECONDS
+        raise subprocess.TimeoutExpired(args, kwargs["timeout"], output="still running\n", stderr="")
+
+    monkeypatch.setattr(module.subprocess, "run", fake_run)
+
+    result = worker.handle_task(module.HookTask(id="00000000-0000-0000-0000-000000000001", playground="example-project-abc123"))
+
+    assert result["message"].startswith("Error: opencode timed out after 15 minutes")
+    assert "still running" in result["message"]
+    assert result["opencode_session_export"] == {"error": "No session"}

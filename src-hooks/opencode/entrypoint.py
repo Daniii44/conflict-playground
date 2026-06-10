@@ -11,6 +11,7 @@ from hooks_common import HookWorker, HookTask
 
 
 OPENCODE_ERROR_EXCERPT_LIMIT = 4000
+OPENCODE_RUN_TIMEOUT_SECONDS = 15 * 60
 
 
 def command_error_excerpt(result: subprocess.CompletedProcess[str]) -> str:
@@ -18,6 +19,22 @@ def command_error_excerpt(result: subprocess.CompletedProcess[str]) -> str:
         part.strip()
         for part in (result.stderr, result.stdout)
         if part and part.strip()
+    )
+    if len(output) <= OPENCODE_ERROR_EXCERPT_LIMIT:
+        return output
+    return output[:OPENCODE_ERROR_EXCERPT_LIMIT].rstrip() + "\n... truncated"
+
+
+def timeout_error_excerpt(error: subprocess.TimeoutExpired) -> str:
+    def output_text(part: str | bytes | None) -> str:
+        if isinstance(part, bytes):
+            return part.decode(errors="replace")
+        return part or ""
+
+    output = "\n".join(
+        text.strip()
+        for part in (error.stderr, error.stdout)
+        if (text := output_text(part)).strip()
     )
     if len(output) <= OPENCODE_ERROR_EXCERPT_LIMIT:
         return output
@@ -174,6 +191,15 @@ class OpenCodeWorker(HookWorker):
                 cwd=playground_path,
                 capture_output=True,
                 text=True,
+                timeout=OPENCODE_RUN_TIMEOUT_SECONDS,
+            )
+        except subprocess.TimeoutExpired as e:
+            opencode_error = timeout_error_excerpt(e)
+            opencode_error_suffix = f": {opencode_error}" if opencode_error else ""
+            return self.result(
+                "Error: opencode timed out after "
+                f"{OPENCODE_RUN_TIMEOUT_SECONDS // 60} minutes{opencode_error_suffix}",
+                session_export=self.export_latest_session(playground_path),
             )
         except FileNotFoundError:
             return self.result("Error: opencode executable not found")
