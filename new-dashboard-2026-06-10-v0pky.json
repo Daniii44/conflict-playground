@@ -243,6 +243,206 @@
             "version": "13.0.1+security-01"
           }
         }
+      },
+      "panel-3": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT key, content.proposed_resolution.error FROM \"default\".\"redis_json\" where startsWith(key, 'resolution') and content.proposed_resolution.error is not null\norder by content.proposed_resolution.error::text"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 3,
+          "links": [],
+          "title": "Error Messages",
+          "vizConfig": {
+            "group": "table",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "custom": {
+                    "align": "auto",
+                    "cellOptions": {
+                      "type": "auto"
+                    },
+                    "footer": {
+                      "reducers": []
+                    },
+                    "inspect": false
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "decbytes"
+                },
+                "overrides": []
+              },
+              "options": {
+                "cellHeight": "sm",
+                "showHeader": true
+              }
+            },
+            "version": "13.0.1+security-01"
+          }
+        }
+      },
+      "panel-4": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT sum(case when content.proposed_resolution.error is not null then 1 else 0 end)/count(*) FROM \"default\".\"redis_json\" where startsWith(key, 'resolution')"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 4,
+          "links": [],
+          "title": "Error Rate",
+          "vizConfig": {
+            "group": "gauge",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 0.05
+                      }
+                    ]
+                  },
+                  "unit": "percentunit"
+                },
+                "overrides": []
+              },
+              "options": {
+                "barShape": "flat",
+                "barWidthFactor": 1,
+                "effects": {
+                  "barGlow": false,
+                  "centerGlow": false,
+                  "gradient": false
+                },
+                "endpointMarker": "point",
+                "minVizHeight": 75,
+                "minVizWidth": 75,
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "sum"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "segmentCount": 1,
+                "segmentSpacing": 0.3,
+                "shape": "gauge",
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true,
+                "sizing": "auto",
+                "sparkline": true,
+                "textMode": "auto"
+              }
+            },
+            "version": "13.0.1+security-01"
+          }
+        }
       }
     },
     "layout": {
@@ -274,11 +474,50 @@
               "x": 12,
               "y": 0
             }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-4"
+              },
+              "height": 8,
+              "width": 12,
+              "x": 0,
+              "y": 8
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-3"
+              },
+              "height": 8,
+              "width": 12,
+              "x": 12,
+              "y": 8
+            }
           }
         ]
       }
     },
-    "links": [],
+    "links": [
+      {
+        "asDropdown": false,
+        "icon": "external link",
+        "includeVars": false,
+        "keepTime": false,
+        "tags": [],
+        "targetBlank": true,
+        "title": "Source (GitHub)",
+        "tooltip": "View source file in repository",
+        "type": "link",
+        "url": "https://github.com/Daniii44/conflict-playground/blob/grafana/new-dashboard-2026-06-10-v0pky.json"
+      }
+    ],
     "liveNow": false,
     "preferences": {
       "layout": {
