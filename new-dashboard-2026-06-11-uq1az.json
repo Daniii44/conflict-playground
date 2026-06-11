@@ -1457,7 +1457,8 @@
                               }
                             ],
                             "maxColumnCount": 1,
-                            "rowHeightMode": "tall"
+                            "rowHeight": 1024,
+                            "rowHeightMode": "custom"
                           }
                         },
                         "title": "Full Logs"
@@ -1482,7 +1483,8 @@
                               }
                             ],
                             "maxColumnCount": 3,
-                            "rowHeightMode": "tall"
+                            "rowHeight": 1024,
+                            "rowHeightMode": "custom"
                           }
                         },
                         "title": "Tools"
@@ -1507,7 +1509,8 @@
                               }
                             ],
                             "maxColumnCount": 3,
-                            "rowHeightMode": "tall"
+                            "rowHeight": 1024,
+                            "rowHeightMode": "custom"
                           }
                         },
                         "title": "Errors"
