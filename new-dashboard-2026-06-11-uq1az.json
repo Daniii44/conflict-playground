@@ -413,6 +413,7 @@
                   },
                   "fieldMinMax": false,
                   "max": 1000,
+                  "min": 0,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -448,7 +449,7 @@
                 "orientation": "auto",
                 "reduceOptions": {
                   "calcs": [
-                    "last"
+                    "sum"
                   ],
                   "fields": "",
                   "values": false
@@ -1591,8 +1592,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "734ac2af15feaab4804c285431ca695746a56273",
-            "value": "734ac2af15feaab4804c285431ca695746a56273"
+            "text": "565b30e04272d3c84463a4f424224ce501da090b",
+            "value": "565b30e04272d3c84463a4f424224ce501da090b"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -1610,8 +1611,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "20260611T055234.658880Z",
-            "value": "20260611T055234.658880Z"
+            "text": "20260611T061704.948804Z",
+            "value": "20260611T061704.948804Z"
           },
           "hide": "dontHide",
           "includeAll": false,
