@@ -62,7 +62,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT\n    fromUnixTimestamp(message.info.time.created::integer),\n    CASE \n        WHEN part.type = 'text' THEN \n            part.text\n        WHEN part.type = 'tool' THEN \n            concat(coalesce(part.state.title, ''), ' | Command: ', coalesce(part.state.input.command, ''))\n        ELSE concat('[UNUSUAL TYPE: ', part.type, ']')\n    END AS log_line,\n    upper(part.type) as part_type\nFROM \"default\".\"redis_json\"\narray join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\narray join message.parts::Array(JSON) as part\nwhere key = 'evaluation:conflict:${resolution}'\nand message.info.role = 'assistant' \nand part.type not like 'step-%'"
+                        "rawSql": "SELECT\n    fromUnixTimestamp(message.info.time.created::integer),\n    CASE \n        WHEN part.type = 'text' THEN \n            part.text\n        WHEN part.type = 'tool' THEN \n            concat(coalesce(part.state.title, ''), ' | Command: ', coalesce(part.state.input.command, ''))\n        ELSE concat('[UNUSUAL TYPE: ', part.type, ']')\n    END AS log_line,\n    upper(part.type) as part_type\nFROM \"default\".\"redis_json\"\narray join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\narray join message.parts::Array(JSON) as part\nwhere key = 'resolution:conflict:${resolution}'\nand message.info.role = 'assistant' \nand part.type not like 'step-%'"
                       },
                       "version": "v0"
                     },
@@ -144,7 +144,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT\n    fromUnixTimestamp(message.info.time.created::integer),\n    CASE \n        WHEN part.tool = 'read' or part.tool = 'edit' THEN \n            basename(part.state.input.filePath)\n        WHEN part.tool = 'bash' THEN \n            part.state.input.command\n        ELSE concat('[UNUSUAL Tool: ', part.tool, ']')\n    END AS log_line,\n    part.tool as part_tool\nFROM \"default\".\"redis_json\"\narray join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\narray join message.parts::Array(JSON) as part\nwhere key = 'evaluation:conflict:${resolution}'\nand message.info.role = 'assistant' \nand part.type = 'tool'"
+                        "rawSql": "SELECT\n    fromUnixTimestamp(message.info.time.created::integer),\n    CASE \n        WHEN part.tool = 'read' or part.tool = 'edit' THEN \n            basename(part.state.input.filePath)\n        WHEN part.tool = 'bash' THEN \n            part.state.input.command\n        ELSE concat('[UNUSUAL Tool: ', part.tool, ']')\n    END AS log_line,\n    part.tool as part_tool\nFROM \"default\".\"redis_json\"\narray join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\narray join message.parts::Array(JSON) as part\nwhere key = 'resolution:conflict:${resolution}'\nand message.info.role = 'assistant' \nand part.type = 'tool'"
                       },
                       "version": "v0"
                     },
@@ -228,7 +228,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT\n  now(), content.proposed_resolution.diff_to_actual_resolution\nFROM \"default\".\"redis_json\"\nwhere key = '${session}'"
+                        "rawSql": "SELECT\n  now(), content.proposed_resolution.diff_to_actual_resolution\nFROM \"default\".\"redis_json\"\nwhere key = 'resolution:conflict:${resolution}'"
                       },
                       "version": "v0"
                     },
@@ -305,7 +305,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "select key, logical_conflict.type, logical_conflict.info, logical_conflict.paths  from redis_json\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nWHERE key LIKE (\n    SELECT '%' || \n           REGEXP_REPLACE(\n               '${session}', \n               'evaluation:conflict:([^/]+/[^.]+)\\.git-([a-f0-9]{40}):.*',\n               '\\1.git:\\2'\n           ) || '%'\n);"
+                        "rawSql": "select key, logical_conflict.type, logical_conflict.info, logical_conflict.paths  from redis_json\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nWHERE key LIKE (\n    SELECT '%' || \n           REGEXP_REPLACE(\n               '${resolution}', \n               '([^/]+/[^.]+)\\.git-([a-f0-9]{40}):.*',\n               '\\1.git:\\2'\n           ) || '%'\n);"
                       },
                       "version": "v0"
                     },
@@ -344,7 +344,8 @@
                     "mode": "absolute",
                     "steps": [
                       {
-                        "color": "green"
+                        "color": "green",
+                        "value": 0
                       },
                       {
                         "color": "red",
@@ -396,7 +397,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "select key, conflicted_file.path, conflicted_file.stage from redis_json\narray join content.merge_result.conflicted_files::Array(JSON) as conflicted_file\nWHERE key LIKE (\n    SELECT '%' || \n           REGEXP_REPLACE(\n               '${session}', \n               'evaluation:conflict:([^/]+/[^.]+)\\.git-([a-f0-9]{40}):.*',\n               '\\1.git:\\2'\n           ) || '%'\n);"
+                        "rawSql": "select key, conflicted_file.path, conflicted_file.stage from redis_json\narray join content.merge_result.conflicted_files::Array(JSON) as conflicted_file\nWHERE key LIKE (\n    SELECT '%' || \n           REGEXP_REPLACE(\n               '${resolution}', \n               '([^/]+/[^.]+)\\.git-([a-f0-9]{40}):.*',\n               '\\1.git:\\2'\n           ) || '%'\n);"
                       },
                       "version": "v0"
                     },
@@ -435,7 +436,8 @@
                     "mode": "absolute",
                     "steps": [
                       {
-                        "color": "green"
+                        "color": "green",
+                        "value": 0
                       },
                       {
                         "color": "red",
@@ -639,8 +641,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "Akaflieg-Freiburg/enroute.git-f0052fbee318228d997eb8ed1b4d4c42bdb6a21e:20260611T082003.984626Z",
-            "value": "Akaflieg-Freiburg/enroute.git-f0052fbee318228d997eb8ed1b4d4c42bdb6a21e:20260611T082003.984626Z"
+            "text": "Akaflieg-Freiburg/enroute.git-e5ec5efd330d216ed20c67e4b2274f1cf70a8ace:20260611T062107.376938Z",
+            "value": "Akaflieg-Freiburg/enroute.git-e5ec5efd330d216ed20c67e4b2274f1cf70a8ace:20260611T062107.376938Z"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -651,6 +653,19 @@
           "query": "",
           "skipUrlSync": false,
           "valuesFormat": "csv"
+        }
+      },
+      {
+        "kind": "ConstantVariable",
+        "spec": {
+          "current": {
+            "text": "",
+            "value": ""
+          },
+          "hide": "hideVariable",
+          "name": "constant0",
+          "query": "",
+          "skipUrlSync": true
         }
       }
     ]
