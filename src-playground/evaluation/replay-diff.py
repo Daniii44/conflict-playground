@@ -44,7 +44,9 @@ def replay_diff(resolution_or_playground: str) -> int:
         return 1
 
     evaluation = MergeDiffEvaluation.model_validate(evaluation_data)
-    diff = evaluation.diff_to_actual_resolution
+    diff = evaluation.proposed_to_actual_resolution_patch
+    if diff is None and isinstance(evaluation_data, dict):
+        diff = evaluation_data.get("diff_to_actual_resolution")
     if diff is None:
         if evaluation.error:
             logger.error("Proposed resolution diff was not recorded: {}", evaluation.error)

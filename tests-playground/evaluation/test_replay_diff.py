@@ -38,7 +38,7 @@ def test_replay_diff_writes_recorded_diff_for_resolution_key(monkeypatch, capsys
     evaluation_key = "evaluation:merge:diff:owner/repo.git-actualsha:20260602T120000.000000Z"
     payload = MergeDiffEvaluation(
         resolution_key=resolution_key,
-        diff_to_actual_resolution="\x1b[31m-diff\x1b[m\n",
+        proposed_to_actual_resolution_patch="\x1b[31m-diff\x1b[m\n",
     ).model_dump(mode="json")
     monkeypatch.setattr(
         replay_diff_module,
@@ -57,7 +57,7 @@ def test_replay_diff_resolves_latest_resolution_for_playground(monkeypatch, caps
     evaluation_key = "evaluation:merge:diff:owner/repo.git-actualsha:20260602T130000.000000Z"
     payload = MergeDiffEvaluation(
         resolution_key=latest_resolution,
-        diff_to_actual_resolution="diff\n",
+        proposed_to_actual_resolution_patch="diff\n",
     ).model_dump(mode="json")
     keys = [
         "resolution:conflict:owner/repo.git-actualsha:20260602T120000.000000Z",
@@ -73,3 +73,22 @@ def test_replay_diff_resolves_latest_resolution_for_playground(monkeypatch, caps
 
     assert exit_code == 0
     assert capsys.readouterr().out == "diff\n"
+
+
+def test_replay_diff_falls_back_to_legacy_diff_field(monkeypatch, capsys):
+    resolution_key = "resolution:conflict:owner/repo.git-actualsha:20260602T120000.000000Z"
+    evaluation_key = "evaluation:merge:diff:owner/repo.git-actualsha:20260602T120000.000000Z"
+    payload = {
+        "resolution_key": resolution_key,
+        "diff_to_actual_resolution": "legacy diff\n",
+    }
+    monkeypatch.setattr(
+        replay_diff_module,
+        "setup_redis_connection",
+        lambda: FakeRedis({evaluation_key: payload}),
+    )
+
+    exit_code = replay_diff_module.replay_diff(resolution_key)
+
+    assert exit_code == 0
+    assert capsys.readouterr().out == "legacy diff\n"
