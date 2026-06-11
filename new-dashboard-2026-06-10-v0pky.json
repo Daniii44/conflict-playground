@@ -539,7 +539,7 @@
                           {
                             "targetBlank": true,
                             "title": "Show Resolution",
-                            "url": "http://mac-studio.syntevo:3000/d/dcfostbwyhpxq8e/resolution?folderUid=r98lq8\u0026orgId=1\u0026resolution=${key}"
+                            "url": "http://mac-studio.syntevo:3000/d/dcfostbwyhpxq8e/resolution?folderUid=r98lq8\u0026orgId=1\u0026var-resolution=${__data.fields['key']}"
                           }
                         ]
                       }
