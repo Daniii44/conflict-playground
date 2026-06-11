@@ -607,7 +607,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT\n    fromUnixTimestamp(message.info.time.created::integer),\n    CASE \n        WHEN part.type = 'text' THEN \n            part.text\n        WHEN part.type = 'tool' THEN \n            concat(coalesce(part.state.title, ''), ' | Command: ', coalesce(part.state.input.command, ''))\n        ELSE concat('[UNUSUAL TYPE: ', part.type, ']')\n    END AS log_line,\n    upper(part.type) as part_type\nFROM \"default\".\"redis_json\"\narray join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\narray join message.parts::Array(JSON) as part\nwhere key = 'resolution:conflict:${repo_name}-${merge}:${timestamp}'\nand message.info.role = 'assistant' \nand part.type not like 'step-%'"
+                        "rawSql": "SELECT\n    now(),\n    CASE \n        WHEN part.type = 'text' THEN \n            part.text\n        WHEN part.type = 'tool' THEN \n            concat(coalesce(part.state.title, ''), ' | Command: ', coalesce(part.state.input.command, ''))\n        ELSE concat('[UNUSUAL TYPE: ', part.type, ']')\n    END AS log_line,\n    upper(part.type) as part_type\nFROM \"default\".\"redis_json\"\narray join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\narray join message.parts::Array(JSON) as part\nwhere key = 'resolution:conflict:${repo_name}-${merge}:${timestamp}'\nand message.info.role = 'assistant' \nand part.type not like 'step-%'"
                       },
                       "version": "v0"
                     },
@@ -645,7 +645,7 @@
                 "showFieldSelector": true,
                 "showLabels": false,
                 "showLevel": false,
-                "showTime": true,
+                "showTime": false,
                 "sortOrder": "Ascending",
                 "syntaxHighlighting": false,
                 "timestampResolution": "ms",
@@ -689,7 +689,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT\n    fromUnixTimestamp(message.info.time.created::integer),\n    CASE \n        WHEN part.tool = 'read' or part.tool = 'edit' THEN \n            basename(part.state.input.filePath)\n        WHEN part.tool = 'bash' THEN \n            part.state.input.command\n        ELSE concat('[UNUSUAL Tool: ', part.tool, ']')\n    END AS log_line,\n    part.tool as part_tool\nFROM \"default\".\"redis_json\"\narray join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\narray join message.parts::Array(JSON) as part\nwhere key = 'resolution:conflict:${repo_name}-${merge}:${timestamp}'\nand message.info.role = 'assistant' \nand part.type = 'tool'"
+                        "rawSql": "SELECT\n    --fromUnixTimestamp(message.info.time.created::integer),\n    now(),\n    CASE \n        WHEN part.tool = 'read' or part.tool = 'edit' THEN \n            basename(part.state.input.filePath)\n        WHEN part.tool = 'bash' THEN \n            part.state.input.command\n        ELSE concat('[UNUSUAL Tool: ', part.tool, ']')\n    END AS log_line,\n    part.tool as part_tool\nFROM \"default\".\"redis_json\"\narray join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\narray join message.parts::Array(JSON) as part\nwhere key = 'resolution:conflict:${repo_name}-${merge}:${timestamp}'\nand message.info.role = 'assistant' \nand part.type = 'tool'"
                       },
                       "version": "v0"
                     },
@@ -729,7 +729,7 @@
                 "showFieldSelector": true,
                 "showLabels": false,
                 "showLevel": false,
-                "showTime": true,
+                "showTime": false,
                 "sortOrder": "Ascending",
                 "syntaxHighlighting": false,
                 "timestampResolution": "ms",
