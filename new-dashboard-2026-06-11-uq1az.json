@@ -633,6 +633,26 @@
       "to": "now"
     },
     "title": "Resolution",
-    "variables": []
+    "variables": [
+      {
+        "kind": "CustomVariable",
+        "spec": {
+          "allowCustomValue": true,
+          "current": {
+            "text": "",
+            "value": ""
+          },
+          "hide": "dontHide",
+          "includeAll": false,
+          "label": "Resolution",
+          "multi": false,
+          "name": "resolution",
+          "options": [],
+          "query": "",
+          "skipUrlSync": false,
+          "valuesFormat": "csv"
+        }
+      }
+    ]
   }
 }
