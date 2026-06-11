@@ -27,7 +27,7 @@ def evaluation_input(restored_playground_name="owner/repo.git-20260602T120000.00
     )
 
 
-def test_diff_analysis_records_colored_diff(monkeypatch):
+def test_diff_analysis_records_patch_and_raw_diff_tree_outputs(monkeypatch):
     monkeypatch.setenv("PLAYGROUNDS", "/playgrounds")
 
     with (
@@ -35,31 +35,78 @@ def test_diff_analysis_records_colored_diff(monkeypatch):
         patch("evaluation.analysis.diff_analysis.capture_git") as diff_capture_git,
     ):
         head_capture_git.return_value = CompletedProcess(args=[], returncode=0, stdout="proposed-sha\n", stderr="")
-        diff_capture_git.return_value = CompletedProcess(
-            args=[],
-            returncode=0,
-            stdout="\x1b[31m-diff\x1b[m\n",
-            stderr="",
-        )
+        diff_capture_git.side_effect = [
+            CompletedProcess(args=[], returncode=0, stdout="patch to actual\n", stderr=""),
+            CompletedProcess(args=[], returncode=0, stdout="raw to actual\n", stderr=""),
+            CompletedProcess(args=[], returncode=0, stdout="p1 p2\n", stderr=""),
+            CompletedProcess(args=[], returncode=1, stdout="conflicted-tree\0metadata", stderr=""),
+            CompletedProcess(args=[], returncode=0, stdout="patch from conflicted\n", stderr=""),
+            CompletedProcess(args=[], returncode=0, stdout="raw from conflicted\n", stderr=""),
+        ]
 
         record = DiffEvaluationAnalysis().analyse(evaluation_input())
 
     assert record.proposed_commit_sha == "proposed-sha"
     assert record.actual_resolution_sha == "actualsha"
-    assert record.diff_to_actual_resolution == "\x1b[31m-diff\x1b[m\n"
+    assert record.diff_to_actual_resolution == "patch to actual\n"
+    assert record.diff_to_actual_resolution_patch == "patch to actual\n"
+    assert record.diff_tree_to_actual_resolution == "raw to actual\n"
+    assert record.conflicted_tree_oid == "conflicted-tree"
+    assert record.diff_from_conflicted_tree_to_proposed_resolution_patch == "patch from conflicted\n"
+    assert record.diff_tree_from_conflicted_tree_to_proposed_resolution == "raw from conflicted\n"
     assert record.error is None
     dumped = record.model_dump()
     assert "configuration" not in dumped
     assert "hook_result" not in dumped
     assert "git_archive" not in dumped
-    assert diff_capture_git.call_args.args == (
-        "-C",
-        "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
-        "diff",
-        "--color=always",
-        "HEAD",
-        "actualsha",
-    )
+    assert [call.args for call in diff_capture_git.call_args_list] == [
+        (
+            "-C",
+            "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
+            "diff-tree",
+            "-p",
+            "HEAD",
+            "actualsha",
+        ),
+        (
+            "-C",
+            "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
+            "diff-tree",
+            "HEAD",
+            "actualsha",
+        ),
+        (
+            "-C",
+            "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
+            "show",
+            "--no-patch",
+            "--format=%P",
+            "actualsha",
+        ),
+        (
+            "-C",
+            "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
+            "merge-tree",
+            "-z",
+            "p1",
+            "p2",
+        ),
+        (
+            "-C",
+            "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
+            "diff-tree",
+            "-p",
+            "conflicted-tree",
+            "HEAD",
+        ),
+        (
+            "-C",
+            "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
+            "diff-tree",
+            "conflicted-tree",
+            "HEAD",
+        ),
+    ]
 
 
 def test_diff_analysis_records_diff_command_failure(monkeypatch):
@@ -76,7 +123,34 @@ def test_diff_analysis_records_diff_command_failure(monkeypatch):
 
     assert record.proposed_commit_sha == "proposed-sha"
     assert record.diff_to_actual_resolution is None
+    assert record.diff_to_actual_resolution_patch is None
+    assert record.diff_tree_to_actual_resolution is None
     assert record.error == "Could not diff proposed resolution against actual resolution: bad diff"
+
+
+def test_diff_analysis_records_conflicted_tree_comparison_failure_with_reference_diffs(monkeypatch):
+    monkeypatch.setenv("PLAYGROUNDS", "/playgrounds")
+
+    with (
+        patch("evaluation.analysis.common.capture_git") as head_capture_git,
+        patch("evaluation.analysis.diff_analysis.capture_git") as diff_capture_git,
+    ):
+        head_capture_git.return_value = CompletedProcess(args=[], returncode=0, stdout="proposed-sha\n", stderr="")
+        diff_capture_git.side_effect = [
+            CompletedProcess(args=[], returncode=0, stdout="patch to actual\n", stderr=""),
+            CompletedProcess(args=[], returncode=0, stdout="raw to actual\n", stderr=""),
+            CompletedProcess(args=[], returncode=0, stdout="p1 p2\n", stderr=""),
+            CompletedProcess(args=[], returncode=0, stdout="clean-tree\0", stderr=""),
+        ]
+
+        record = DiffEvaluationAnalysis().analyse(evaluation_input())
+
+    assert record.proposed_commit_sha == "proposed-sha"
+    assert record.diff_to_actual_resolution == "patch to actual\n"
+    assert record.diff_to_actual_resolution_patch == "patch to actual\n"
+    assert record.diff_tree_to_actual_resolution == "raw to actual\n"
+    assert record.conflicted_tree_oid is None
+    assert record.error == "Actual resolution parents merge cleanly"
 
 
 def test_diff_analysis_records_missing_playgrounds(monkeypatch):
@@ -85,6 +159,7 @@ def test_diff_analysis_records_missing_playgrounds(monkeypatch):
     record = DiffEvaluationAnalysis().analyse(evaluation_input())
 
     assert record.diff_to_actual_resolution is None
+    assert record.diff_to_actual_resolution_patch is None
     assert record.error == "PLAYGROUNDS environment variable is not set"
 
 
@@ -98,6 +173,7 @@ def test_diff_analysis_records_unreadable_head(monkeypatch):
 
     assert record.proposed_commit_sha is None
     assert record.diff_to_actual_resolution is None
+    assert record.diff_to_actual_resolution_patch is None
     assert record.error == "Could not read resolved HEAD: bad head"
 
 
@@ -107,4 +183,5 @@ def test_diff_analysis_rejects_playground_name_without_merge_sha(monkeypatch):
     record = DiffEvaluationAnalysis().analyse(evaluation_input("owner/repo.git"))
 
     assert record.diff_to_actual_resolution is None
+    assert record.diff_to_actual_resolution_patch is None
     assert record.error == "Could not extract merge SHA from playground name: owner/repo.git"
