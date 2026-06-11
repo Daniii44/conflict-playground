@@ -30,6 +30,237 @@
     "description": "",
     "editable": true,
     "elements": {
+      "panel-10": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT\n  now(), content.proposed_to_actual_resolution_patch\nFROM \"default\".\"redis_json\"\nwhere key = 'evaluation:merge:diff:${repo_name}-${merge}:${timestamp}'"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 10,
+          "links": [],
+          "title": "Proposed/Actual Raw",
+          "vizConfig": {
+            "group": "logs",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {
+                "dedupStrategy": "none",
+                "detailsMode": "inline",
+                "enableInfiniteScrolling": false,
+                "enableLogDetails": false,
+                "fontSize": "small",
+                "prettifyLogMessage": false,
+                "showControls": false,
+                "showFieldSelector": false,
+                "showLevel": false,
+                "showTime": false,
+                "sortOrder": "Descending",
+                "timestampResolution": "ms",
+                "unwrappedColumns": false,
+                "wrapLogMessage": true
+              }
+            },
+            "version": "13.0.1+security-01"
+          }
+        }
+      },
+      "panel-11": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT\n  now(), content.conflicted_to_actual_resolution_patch\nFROM \"default\".\"redis_json\"\nwhere key = 'evaluation:merge:diff:${repo_name}-${merge}:${timestamp}'"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 11,
+          "links": [],
+          "title": "Conflicted/Actual Raw",
+          "vizConfig": {
+            "group": "logs",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {
+                "dedupStrategy": "none",
+                "detailsMode": "inline",
+                "enableInfiniteScrolling": false,
+                "enableLogDetails": false,
+                "fontSize": "small",
+                "prettifyLogMessage": false,
+                "showControls": false,
+                "showFieldSelector": false,
+                "showLevel": false,
+                "showTime": false,
+                "sortOrder": "Descending",
+                "timestampResolution": "ms",
+                "unwrappedColumns": false,
+                "wrapLogMessage": true
+              }
+            },
+            "version": "13.0.1+security-01"
+          }
+        }
+      },
+      "panel-12": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT\n  now(), content.conflicted_to_proposed_resolution_patch\nFROM \"default\".\"redis_json\"\nwhere key = 'evaluation:merge:diff:${repo_name}-${merge}:${timestamp}'"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 12,
+          "links": [],
+          "title": "Conflicted/Proposed Raw",
+          "vizConfig": {
+            "group": "logs",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {
+                "dedupStrategy": "none",
+                "detailsMode": "inline",
+                "enableInfiniteScrolling": false,
+                "enableLogDetails": false,
+                "fontSize": "small",
+                "prettifyLogMessage": false,
+                "showControls": false,
+                "showFieldSelector": false,
+                "showLevel": false,
+                "showTime": false,
+                "sortOrder": "Descending",
+                "timestampResolution": "ms",
+                "unwrappedColumns": false,
+                "wrapLogMessage": true
+              }
+            },
+            "version": "13.0.1+security-01"
+          }
+        }
+      },
       "panel-2": {
         "kind": "Panel",
         "spec": {
@@ -228,7 +459,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT\n  now(), content.proposed_resolution.diff_to_actual_resolution\nFROM \"default\".\"redis_json\"\nwhere key = 'resolution:conflict:${repo_name}-${merge}:${timestamp}'"
+                        "rawSql": "SELECT\n  now(), content.proposed_to_actual_resolution_raw\nFROM \"default\".\"redis_json\"\nwhere key = 'evaluation:merge:diff:${repo_name}-${merge}:${timestamp}'"
                       },
                       "version": "v0"
                     },
@@ -243,7 +474,7 @@
           "description": "",
           "id": 4,
           "links": [],
-          "title": "Diff",
+          "title": "Proposed/Actual Raw",
           "vizConfig": {
             "group": "logs",
             "kind": "VizConfig",
@@ -532,6 +763,160 @@
             "version": "13.0.1+security-01"
           }
         }
+      },
+      "panel-8": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT\n  now(), content.conflicted_to_actual_resolution_raw\nFROM \"default\".\"redis_json\"\nwhere key = 'evaluation:merge:diff:${repo_name}-${merge}:${timestamp}'"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 8,
+          "links": [],
+          "title": "Conflicted/Actual Raw",
+          "vizConfig": {
+            "group": "logs",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {
+                "dedupStrategy": "none",
+                "detailsMode": "inline",
+                "enableInfiniteScrolling": false,
+                "enableLogDetails": false,
+                "fontSize": "small",
+                "prettifyLogMessage": false,
+                "showControls": false,
+                "showFieldSelector": false,
+                "showLevel": false,
+                "showTime": false,
+                "sortOrder": "Descending",
+                "timestampResolution": "ms",
+                "unwrappedColumns": false,
+                "wrapLogMessage": true
+              }
+            },
+            "version": "13.0.1+security-01"
+          }
+        }
+      },
+      "panel-9": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT\n  now(), content.conflicted_to_proposed_resolution_raw\nFROM \"default\".\"redis_json\"\nwhere key = 'evaluation:merge:diff:${repo_name}-${merge}:${timestamp}'"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 9,
+          "links": [],
+          "title": "Conflicted/Proposed Raw",
+          "vizConfig": {
+            "group": "logs",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {
+                "dedupStrategy": "none",
+                "detailsMode": "inline",
+                "enableInfiniteScrolling": false,
+                "enableLogDetails": false,
+                "fontSize": "small",
+                "prettifyLogMessage": false,
+                "showControls": false,
+                "showFieldSelector": false,
+                "showLevel": false,
+                "showTime": false,
+                "sortOrder": "Descending",
+                "timestampResolution": "ms",
+                "unwrappedColumns": false,
+                "wrapLogMessage": true
+              }
+            },
+            "version": "13.0.1+security-01"
+          }
+        }
       }
     },
     "layout": {
@@ -600,22 +985,98 @@
                       "kind": "TabsLayoutTab",
                       "spec": {
                         "layout": {
-                          "kind": "AutoGridLayout",
+                          "kind": "RowsLayout",
                           "spec": {
-                            "columnWidthMode": "wide",
-                            "items": [
+                            "rows": [
                               {
-                                "kind": "AutoGridLayoutItem",
+                                "kind": "RowsLayoutRow",
                                 "spec": {
-                                  "element": {
-                                    "kind": "ElementReference",
-                                    "name": "panel-4"
-                                  }
+                                  "collapse": false,
+                                  "layout": {
+                                    "kind": "AutoGridLayout",
+                                    "spec": {
+                                      "columnWidthMode": "standard",
+                                      "items": [
+                                        {
+                                          "kind": "AutoGridLayoutItem",
+                                          "spec": {
+                                            "element": {
+                                              "kind": "ElementReference",
+                                              "name": "panel-8"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "kind": "AutoGridLayoutItem",
+                                          "spec": {
+                                            "element": {
+                                              "kind": "ElementReference",
+                                              "name": "panel-9"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "kind": "AutoGridLayoutItem",
+                                          "spec": {
+                                            "element": {
+                                              "kind": "ElementReference",
+                                              "name": "panel-4"
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "maxColumnCount": 2,
+                                      "rowHeightMode": "short"
+                                    }
+                                  },
+                                  "title": "Raw"
+                                }
+                              },
+                              {
+                                "kind": "RowsLayoutRow",
+                                "spec": {
+                                  "collapse": false,
+                                  "layout": {
+                                    "kind": "AutoGridLayout",
+                                    "spec": {
+                                      "columnWidthMode": "standard",
+                                      "items": [
+                                        {
+                                          "kind": "AutoGridLayoutItem",
+                                          "spec": {
+                                            "element": {
+                                              "kind": "ElementReference",
+                                              "name": "panel-11"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "kind": "AutoGridLayoutItem",
+                                          "spec": {
+                                            "element": {
+                                              "kind": "ElementReference",
+                                              "name": "panel-12"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "kind": "AutoGridLayoutItem",
+                                          "spec": {
+                                            "element": {
+                                              "kind": "ElementReference",
+                                              "name": "panel-10"
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "maxColumnCount": 2,
+                                      "rowHeightMode": "tall"
+                                    }
+                                  },
+                                  "title": "Patch"
                                 }
                               }
-                            ],
-                            "maxColumnCount": 3,
-                            "rowHeightMode": "tall"
+                            ]
                           }
                         },
                         "title": "Diff"
@@ -773,8 +1234,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "da78552eedb08dcf314f4ad6856b8ecfdbd0b693",
-            "value": "da78552eedb08dcf314f4ad6856b8ecfdbd0b693"
+            "text": "21a7821c2ac67cedf86b0bcab3a6d6bfdfb8903b",
+            "value": "21a7821c2ac67cedf86b0bcab3a6d6bfdfb8903b"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -792,8 +1253,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "20260611T063608.941501Z",
-            "value": "20260611T063608.941501Z"
+            "text": "20260611T060459.965378Z",
+            "value": "20260611T060459.965378Z"
           },
           "hide": "dontHide",
           "includeAll": false,
