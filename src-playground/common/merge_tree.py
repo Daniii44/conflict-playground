@@ -44,8 +44,8 @@ class ConflictType(str, Enum):
     ERROR_OBJECT_READ_FAILED = "ERROR (object read failed)"
     ERROR_OBJECT_NOT_A_BLOB = "ERROR (object is not a blob)"
 class MergeConflictedFile(BaseModel):
-    oid: str
     mode: str
+    oid: str
     stage: int
     path: str
 class MergeLogicalConflict(BaseModel):
@@ -61,9 +61,9 @@ class MergeResult(BaseModel):
 _TabTerminatedString = StringEncoded(NullTerminated(GreedyBytes, term=b"\t"), "utf8")
 _WhitespaceTerminatedString = StringEncoded(NullTerminated(GreedyBytes, term=b" "), "utf8")
 _ConstructConflictedFile = Struct(
-    "oid" / _WhitespaceTerminatedString,
-    Check(lambda ctx: len(ctx.oid) > 0),
     "mode" / _WhitespaceTerminatedString,
+    Check(lambda ctx: len(ctx.mode) > 0),
+    "oid" / _WhitespaceTerminatedString,
     "stage" / _TabTerminatedString,
     "path" / CString("utf8")
 )

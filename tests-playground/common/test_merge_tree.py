@@ -29,20 +29,20 @@ def test_parse_merge_result():
   "result_tree_oid": "ca0aab2c8106d1322fb1e420fe34dc60688d8490",
   "conflicted_files": [
     {
-      "oid": "100644",
-      "mode": "7f9eb34f3333e2198d95426428ce7de77bbe8bcd",
+      "mode": "100644",
+      "oid": "7f9eb34f3333e2198d95426428ce7de77bbe8bcd",
       "stage": 1,
       "path": "hledger-lib/Hledger/Read/JournalReader.hs"
     },
     {
-      "oid": "100644",
-      "mode": "6f9656a29cd5d1b4028a22d6cbc66c6b99564584",
+      "mode": "100644",
+      "oid": "6f9656a29cd5d1b4028a22d6cbc66c6b99564584",
       "stage": 2,
       "path": "hledger-lib/Hledger/Read/JournalReader.hs"
     },
     {
-      "oid": "100644",
-      "mode": "4d87779fa2da25552a84b27d03d3a94db4a43672",
+      "mode": "100644",
+      "oid": "4d87779fa2da25552a84b27d03d3a94db4a43672",
       "stage": 3,
       "path": "hledger-lib/Hledger/Read/JournalReader.hs"
     }
@@ -230,44 +230,44 @@ def test_parse_merge_result_long():
   "result_tree_oid": "cd106086d17dd00ef45644d30666c4f8fb855c2d",
   "conflicted_files": [
     {
-      "oid": "100644",
-      "mode": "717c9d7e4a83fb397072d9b247a2c14bdff99007",
+      "mode": "100644",
+      "oid": "717c9d7e4a83fb397072d9b247a2c14bdff99007",
       "stage": 1,
       "path": "module/spring-boot-security-oauth2-resource-server/src/main/java/org/springframework/boot/security/oauth2/server/resource/autoconfigure/reactive/ReactiveOAuth2ResourceServerJwkConfiguration.java"
     },
     {
-      "oid": "100644",
-      "mode": "da49272bc184694a236bc7b5460c56c552e36b94",
+      "mode": "100644",
+      "oid": "da49272bc184694a236bc7b5460c56c552e36b94",
       "stage": 2,
       "path": "module/spring-boot-security-oauth2-resource-server/src/main/java/org/springframework/boot/security/oauth2/server/resource/autoconfigure/reactive/ReactiveOAuth2ResourceServerJwkConfiguration.java"
     },
     {
-      "oid": "100644",
-      "mode": "573c4a9a823c5f07c990c02d46bbb39d796a0277",
+      "mode": "100644",
+      "oid": "573c4a9a823c5f07c990c02d46bbb39d796a0277",
       "stage": 1,
       "path": "module/spring-boot-security-oauth2-resource-server/src/main/java/org/springframework/boot/security/oauth2/server/resource/autoconfigure/servlet/OAuth2ResourceServerJwtConfiguration.java"
     },
     {
-      "oid": "100644",
-      "mode": "3ea6dc80ee5dbe76cad1d3cc9f3479d844fd3f56",
+      "mode": "100644",
+      "oid": "3ea6dc80ee5dbe76cad1d3cc9f3479d844fd3f56",
       "stage": 2,
       "path": "module/spring-boot-security-oauth2-resource-server/src/main/java/org/springframework/boot/security/oauth2/server/resource/autoconfigure/servlet/OAuth2ResourceServerJwtConfiguration.java"
     },
     {
-      "oid": "100644",
-      "mode": "31beee478411e02a6a35be0328b908547bdbe8c5",
+      "mode": "100644",
+      "oid": "31beee478411e02a6a35be0328b908547bdbe8c5",
       "stage": 1,
       "path": "module/spring-boot-security-oauth2-resource-server/src/test/java/org/springframework/boot/security/oauth2/server/resource/autoconfigure/OAuth2ResourceServerAutoConfigurationTests.java"
     },
     {
-      "oid": "100644",
-      "mode": "556cbf77060f0ef17f250103a7e6f39747e05ca2",
+      "mode": "100644",
+      "oid": "556cbf77060f0ef17f250103a7e6f39747e05ca2",
       "stage": 2,
       "path": "module/spring-boot-security-oauth2-resource-server/src/test/java/org/springframework/boot/security/oauth2/server/resource/autoconfigure/OAuth2ResourceServerAutoConfigurationTests.java"
     },
     {
-      "oid": "100644",
-      "mode": "e9cd6cb36af5df215dc5f3bb21bd8fc8535bf5b1",
+      "mode": "100644",
+      "oid": "e9cd6cb36af5df215dc5f3bb21bd8fc8535bf5b1",
       "stage": 3,
       "path": "module/spring-boot-security-oauth2-resource-server/src/test/java/org/springframework/boot/security/oauth2/server/resource/autoconfigure/OAuth2ResourceServerAutoConfigurationTests.java"
     }
@@ -392,104 +392,104 @@ def test_parse_merge_result_prune_auto_merged_files():
   "result_tree_oid": "011220431f89c908c13ee2fc547836374a1e1737",
   "conflicted_files": [
     {
-      "oid": "100644",
-      "mode": "5130b4f0189518462c7c387eb97fa2697ea308b6",
+      "mode": "100644",
+      "oid": "5130b4f0189518462c7c387eb97fa2697ea308b6",
       "stage": 1,
       "path": ".gitignore"
     },
     {
-      "oid": "100644",
-      "mode": "24635cf2d6f4a37843ea7091da07c0d101dcac5b",
+      "mode": "100644",
+      "oid": "24635cf2d6f4a37843ea7091da07c0d101dcac5b",
       "stage": 2,
       "path": ".gitignore"
     },
     {
-      "oid": "100644",
-      "mode": "38a41ebc58237f528196f54a8e6f35c802b8538a",
+      "mode": "100644",
+      "oid": "38a41ebc58237f528196f54a8e6f35c802b8538a",
       "stage": 3,
       "path": ".gitignore"
     },
     {
-      "oid": "100755",
-      "mode": "c2767b4136cbbf85fa2c70a558030d7fd47c176a",
+      "mode": "100755",
+      "oid": "c2767b4136cbbf85fa2c70a558030d7fd47c176a",
       "stage": 1,
       "path": "GIT-VERSION-GEN"
     },
     {
-      "oid": "100755",
-      "mode": "44240e07b881f027b64be45fafd4d7b1b0652f8c",
+      "mode": "100755",
+      "oid": "44240e07b881f027b64be45fafd4d7b1b0652f8c",
       "stage": 2,
       "path": "GIT-VERSION-GEN"
     },
     {
-      "oid": "100755",
-      "mode": "2f729de4bb55844405b619fcb821fd894ecb34fb",
+      "mode": "100755",
+      "oid": "2f729de4bb55844405b619fcb821fd894ecb34fb",
       "stage": 3,
       "path": "GIT-VERSION-GEN"
     },
     {
-      "oid": "100644",
-      "mode": "69b0b844352bc1854e74a80a9312f8e4a331fbd6",
+      "mode": "100644",
+      "oid": "69b0b844352bc1854e74a80a9312f8e4a331fbd6",
       "stage": 1,
       "path": "Makefile"
     },
     {
-      "oid": "100644",
-      "mode": "c619b5405b53005f64950465f80a212688ff002f",
+      "mode": "100644",
+      "oid": "c619b5405b53005f64950465f80a212688ff002f",
       "stage": 2,
       "path": "Makefile"
     },
     {
-      "oid": "100644",
-      "mode": "ca01068810bbe6bf31bb7b135982319da2fe63ab",
+      "mode": "100644",
+      "oid": "ca01068810bbe6bf31bb7b135982319da2fe63ab",
       "stage": 3,
       "path": "Makefile"
     },
     {
-      "oid": "100755",
-      "mode": "142d1bc3de229bcdb4473cb6fb3bac20c1445b9e",
+      "mode": "100755",
+      "oid": "142d1bc3de229bcdb4473cb6fb3bac20c1445b9e",
       "stage": 1,
       "path": "git-gui--askyesno"
     },
     {
-      "oid": "100755",
-      "mode": "142d1bc3de229bcdb4473cb6fb3bac20c1445b9e",
+      "mode": "100755",
+      "oid": "142d1bc3de229bcdb4473cb6fb3bac20c1445b9e",
       "stage": 3,
       "path": "git-gui--askyesno.sh"
     },
     {
-      "oid": "100755",
-      "mode": "142d1bc3de229bcdb4473cb6fb3bac20c1445b9e",
+      "mode": "100755",
+      "oid": "142d1bc3de229bcdb4473cb6fb3bac20c1445b9e",
       "stage": 2,
       "path": "git-gui/git-gui--askyesno"
     },
     {
-      "oid": "100644",
-      "mode": "320ba09ecfeb32188dfbce718d288c2bca0a5013",
+      "mode": "100644",
+      "oid": "320ba09ecfeb32188dfbce718d288c2bca0a5013",
       "stage": 1,
       "path": "meson.build"
     },
     {
-      "oid": "100644",
-      "mode": "9e9ba9b82b80eac305f92a9baf844303993affad",
+      "mode": "100644",
+      "oid": "9e9ba9b82b80eac305f92a9baf844303993affad",
       "stage": 2,
       "path": "meson.build"
     },
     {
-      "oid": "100644",
-      "mode": "a8119aa29fed95101cf050446a0687c2ae3248c0",
+      "mode": "100644",
+      "oid": "a8119aa29fed95101cf050446a0687c2ae3248c0",
       "stage": 3,
       "path": "meson.build"
     },
     {
-      "oid": "100644",
-      "mode": "659cbb218f46e080c1d4c763b5a299446ea9234f",
+      "mode": "100644",
+      "oid": "659cbb218f46e080c1d4c763b5a299446ea9234f",
       "stage": 2,
       "path": "meson_options.txt"
     },
     {
-      "oid": "100644",
-      "mode": "7591a34218ea9d8a826522db63d0015154c04b34",
+      "mode": "100644",
+      "oid": "7591a34218ea9d8a826522db63d0015154c04b34",
       "stage": 3,
       "path": "meson_options.txt"
     }
@@ -580,104 +580,104 @@ def test_parse_merge_result_prune_auto_merged_files():
   "result_tree_oid": "011220431f89c908c13ee2fc547836374a1e1737",
   "conflicted_files": [
     {
-      "oid": "100644",
-      "mode": "5130b4f0189518462c7c387eb97fa2697ea308b6",
+      "mode": "100644",
+      "oid": "5130b4f0189518462c7c387eb97fa2697ea308b6",
       "stage": 1,
       "path": ".gitignore"
     },
     {
-      "oid": "100644",
-      "mode": "24635cf2d6f4a37843ea7091da07c0d101dcac5b",
+      "mode": "100644",
+      "oid": "24635cf2d6f4a37843ea7091da07c0d101dcac5b",
       "stage": 2,
       "path": ".gitignore"
     },
     {
-      "oid": "100644",
-      "mode": "38a41ebc58237f528196f54a8e6f35c802b8538a",
+      "mode": "100644",
+      "oid": "38a41ebc58237f528196f54a8e6f35c802b8538a",
       "stage": 3,
       "path": ".gitignore"
     },
     {
-      "oid": "100755",
-      "mode": "c2767b4136cbbf85fa2c70a558030d7fd47c176a",
+      "mode": "100755",
+      "oid": "c2767b4136cbbf85fa2c70a558030d7fd47c176a",
       "stage": 1,
       "path": "GIT-VERSION-GEN"
     },
     {
-      "oid": "100755",
-      "mode": "44240e07b881f027b64be45fafd4d7b1b0652f8c",
+      "mode": "100755",
+      "oid": "44240e07b881f027b64be45fafd4d7b1b0652f8c",
       "stage": 2,
       "path": "GIT-VERSION-GEN"
     },
     {
-      "oid": "100755",
-      "mode": "2f729de4bb55844405b619fcb821fd894ecb34fb",
+      "mode": "100755",
+      "oid": "2f729de4bb55844405b619fcb821fd894ecb34fb",
       "stage": 3,
       "path": "GIT-VERSION-GEN"
     },
     {
-      "oid": "100644",
-      "mode": "69b0b844352bc1854e74a80a9312f8e4a331fbd6",
+      "mode": "100644",
+      "oid": "69b0b844352bc1854e74a80a9312f8e4a331fbd6",
       "stage": 1,
       "path": "Makefile"
     },
     {
-      "oid": "100644",
-      "mode": "c619b5405b53005f64950465f80a212688ff002f",
+      "mode": "100644",
+      "oid": "c619b5405b53005f64950465f80a212688ff002f",
       "stage": 2,
       "path": "Makefile"
     },
     {
-      "oid": "100644",
-      "mode": "ca01068810bbe6bf31bb7b135982319da2fe63ab",
+      "mode": "100644",
+      "oid": "ca01068810bbe6bf31bb7b135982319da2fe63ab",
       "stage": 3,
       "path": "Makefile"
     },
     {
-      "oid": "100755",
-      "mode": "142d1bc3de229bcdb4473cb6fb3bac20c1445b9e",
+      "mode": "100755",
+      "oid": "142d1bc3de229bcdb4473cb6fb3bac20c1445b9e",
       "stage": 1,
       "path": "git-gui--askyesno"
     },
     {
-      "oid": "100755",
-      "mode": "142d1bc3de229bcdb4473cb6fb3bac20c1445b9e",
+      "mode": "100755",
+      "oid": "142d1bc3de229bcdb4473cb6fb3bac20c1445b9e",
       "stage": 3,
       "path": "git-gui--askyesno.sh"
     },
     {
-      "oid": "100755",
-      "mode": "142d1bc3de229bcdb4473cb6fb3bac20c1445b9e",
+      "mode": "100755",
+      "oid": "142d1bc3de229bcdb4473cb6fb3bac20c1445b9e",
       "stage": 2,
       "path": "git-gui/git-gui--askyesno"
     },
     {
-      "oid": "100644",
-      "mode": "320ba09ecfeb32188dfbce718d288c2bca0a5013",
+      "mode": "100644",
+      "oid": "320ba09ecfeb32188dfbce718d288c2bca0a5013",
       "stage": 1,
       "path": "meson.build"
     },
     {
-      "oid": "100644",
-      "mode": "9e9ba9b82b80eac305f92a9baf844303993affad",
+      "mode": "100644",
+      "oid": "9e9ba9b82b80eac305f92a9baf844303993affad",
       "stage": 2,
       "path": "meson.build"
     },
     {
-      "oid": "100644",
-      "mode": "a8119aa29fed95101cf050446a0687c2ae3248c0",
+      "mode": "100644",
+      "oid": "a8119aa29fed95101cf050446a0687c2ae3248c0",
       "stage": 3,
       "path": "meson.build"
     },
     {
-      "oid": "100644",
-      "mode": "659cbb218f46e080c1d4c763b5a299446ea9234f",
+      "mode": "100644",
+      "oid": "659cbb218f46e080c1d4c763b5a299446ea9234f",
       "stage": 2,
       "path": "meson_options.txt"
     },
     {
-      "oid": "100644",
-      "mode": "7591a34218ea9d8a826522db63d0015154c04b34",
+      "mode": "100644",
+      "oid": "7591a34218ea9d8a826522db63d0015154c04b34",
       "stage": 3,
       "path": "meson_options.txt"
     }
