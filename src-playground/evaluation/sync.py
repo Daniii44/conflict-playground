@@ -4,23 +4,25 @@ import argparse
 import json
 import subprocess
 import sys
-from datetime import datetime, timezone
 
 from loguru import logger
 
-from common.evaluation_models import ConflictEvaluation, Evaluation, ProposedResolution
-from common.redis_util import (
-    EVALUATION_CONFLICT_PREFIX,
-    RESOLUTION_CONFLICT_PREFIX,
-    setup_redis_connection,
-)
+from common.evaluation_models import EvaluationInput
+from common.redis_util import RESOLUTION_CONFLICT_PREFIX, setup_redis_connection
 from common.resolution_models import ConflictResolution, resolution_key_parts
-from evaluation.assess import (
-    collect_proposed_resolution,
-    duration_seconds,
-    evaluate,
+from evaluation.analysis.common import (
+    EvaluationAnalysis,
     evaluation_record_key,
+    resolution_postfix,
 )
+from evaluation.analysis.core_analysis import CoreEvaluationAnalysis
+from evaluation.analysis.diff_analysis import DiffEvaluationAnalysis
+
+
+AVAILABLE_ANALYSES: dict[str, type[EvaluationAnalysis]] = {
+    "core": CoreEvaluationAnalysis,
+    "diff": DiffEvaluationAnalysis,
+}
 
 
 def normalize_key(key) -> str:
@@ -46,18 +48,20 @@ def iter_resolution_keys(redis, playground_name: str | None = None) -> list[str]
     return sorted(normalize_key(key) for key in redis.scan_iter(match=match))
 
 
-def evaluated_resolution_keys(redis) -> set[str]:
-    resolution_keys = set()
-    for key in redis.scan_iter(match=f"{EVALUATION_CONFLICT_PREFIX}*"):
-        evaluation_data = redis.json().get(normalize_key(key))
-        if not evaluation_data:
-            continue
+def collect_analyses(analyses: list[str]) -> list[EvaluationAnalysis]:
+    collected = []
+    for analysis_name in analyses:
+        analysis_type = AVAILABLE_ANALYSES.get(analysis_name)
+        if analysis_type is None:
+            raise RuntimeError(
+                f"No such analysis: {analysis_name}; available analyses: {', '.join(AVAILABLE_ANALYSES)}"
+            )
+        collected.append(analysis_type(analysis_name))
+    return collected
 
-        resolution_key = evaluation_data.get("resolution_key")
-        if resolution_key:
-            resolution_keys.add(resolution_key)
 
-    return resolution_keys
+def analysis_result_exists(redis, analysis_name: str, resolution_key: str) -> bool:
+    return bool(redis.exists(evaluation_record_key(analysis_name, resolution_key)))
 
 
 def restore_resolution(playground_name: str, git_archive: str) -> None:
@@ -73,102 +77,154 @@ def restore_resolution(playground_name: str, git_archive: str) -> None:
         raise RuntimeError(f"Could not restore resolution archive: {error}")
 
 
-def failed_evaluation(
-    resolution: ConflictResolution,
-    error: str,
+def evaluation_input_for_resolution(
     resolution_key: str,
-) -> ConflictEvaluation:
-    return ConflictEvaluation(
+    resolution: ConflictResolution,
+) -> EvaluationInput:
+    return EvaluationInput(
         resolution_key=resolution_key,
-        configuration=resolution.configuration,
-        result=Evaluation(
-            duration_seconds=duration_seconds(
-                resolution.configuration,
-                resolution.resolution_end,
-            ),
-            incomplete_merge=True,
-            perfect_match=False,
-        ),
-        hook_result=resolution.hook_result,
-        proposed_resolution=ProposedResolution(error=error),
+        resolution_postfix=resolution_postfix(resolution_key),
+        restored_playground_name=restored_playground_name_from_resolution_key(resolution_key),
+        resolution=resolution,
     )
 
 
-def evaluate_resolution(resolution_key: str, resolution: ConflictResolution) -> ConflictEvaluation:
-    playground_name = restored_playground_name_from_resolution_key(resolution_key)
-    proposed_resolution = resolution.proposed_resolution
+def restore_resolution_for_analysis(evaluation_input: EvaluationInput) -> str | None:
+    proposed_resolution = evaluation_input.resolution.proposed_resolution
     if proposed_resolution is None:
-        return failed_evaluation(resolution, "Resolution has no proposed_resolution", resolution_key)
+        return "Resolution has no proposed_resolution"
 
     if proposed_resolution.git_archive is None:
-        error = proposed_resolution.error or "Resolution has no archived .git repository"
-        return failed_evaluation(resolution, error, resolution_key)
+        return proposed_resolution.error or "Resolution has no archived .git repository"
 
     try:
-        restore_resolution(playground_name, proposed_resolution.git_archive)
+        restore_resolution(
+            evaluation_input.restored_playground_name,
+            proposed_resolution.git_archive,
+        )
     except RuntimeError as error:
-        return failed_evaluation(resolution, str(error), resolution_key)
+        return str(error)
 
-    result = evaluate(
-        resolution.configuration,
-        playground_name,
-        resolution_end=resolution.resolution_end,
-    )
-    analyzed_resolution = collect_proposed_resolution(playground_name)
-
-    return ConflictEvaluation(
-        resolution_key=resolution_key,
-        configuration=resolution.configuration,
-        result=result,
-        hook_result=resolution.hook_result,
-        proposed_resolution=analyzed_resolution,
-    )
+    return None
 
 
-def store_evaluation(redis, playground_name: str, evaluation: ConflictEvaluation) -> str:
-    evaluation_key = evaluation_record_key(playground_name, datetime.now(timezone.utc))
+def evaluate_resolution(
+    resolution_key: str,
+    resolution: ConflictResolution,
+    analyses: list[EvaluationAnalysis],
+) -> list[tuple[str, object]]:
+    evaluation_input = evaluation_input_for_resolution(resolution_key, resolution)
+    restore_error = restore_resolution_for_analysis(evaluation_input)
+
+    results = []
+    for analysis in analyses:
+        if restore_error is not None and hasattr(analysis, "failed"):
+            analysis_output = analysis.failed(evaluation_input, restore_error)
+        else:
+            analysis_output = analysis.analyse(evaluation_input)
+
+        if analysis_output is not None:
+            key = evaluation_record_key(analysis, resolution_key)
+            results.append((key, analysis_output))
+
+    return results
+
+
+def store_evaluation(redis, evaluation_key: str, evaluation) -> str:
     redis.json().set(evaluation_key, "$", json.loads(evaluation.model_dump_json()))
     return evaluation_key
 
 
-def evaluate_resolution_key(redis, resolution_key: str) -> str:
+def evaluate_resolution_key(
+    redis,
+    resolution_key: str,
+    analyses: list[str] | None = None,
+) -> list[str]:
     resolution_data = redis.json().get(resolution_key)
     if not resolution_data:
         raise RuntimeError(f"No resolution found at {resolution_key}")
 
+    selected_analyses = collect_analyses(analyses or ["core"])
     resolution = ConflictResolution.model_validate(resolution_data)
-    playground = playground_name_from_resolution_key(resolution_key)
-    evaluation = evaluate_resolution(resolution_key, resolution)
-    return store_evaluation(redis, playground, evaluation)
+    evaluations = evaluate_resolution(resolution_key, resolution, selected_analyses)
+    return [store_evaluation(redis, key, evaluation) for key, evaluation in evaluations]
 
 
-def sync_evaluations(playground_name: str | None = None, force: bool = False) -> int:
+def sync_evaluations(
+    playground_name: str | None = None,
+    force: bool = False,
+    analyses: list[str] | None = None,
+) -> int:
     redis = setup_redis_connection()
+    selected_analyses = collect_analyses(analyses or ["core"])
     resolution_keys = iter_resolution_keys(redis, playground_name)
-    already_evaluated = set() if force else evaluated_resolution_keys(redis)
     synced = 0
 
     for resolution_key in resolution_keys:
-        if resolution_key in already_evaluated:
+        pending_analyses = [
+            analysis for analysis in selected_analyses
+            if force or not analysis_result_exists(redis, analysis.get_analysis_name(), resolution_key)
+        ]
+        if not pending_analyses:
             logger.info("Skipping already evaluated resolution {}", resolution_key)
             continue
 
-        evaluation_key = evaluate_resolution_key(redis, resolution_key)
-        logger.info("Stored evaluation at {}", evaluation_key)
-        synced += 1
+        resolution_data = redis.json().get(resolution_key)
+        if not resolution_data:
+            logger.warning("Skipping missing resolution {}", resolution_key)
+            continue
+
+        resolution = ConflictResolution.model_validate(resolution_data)
+        for evaluation_key, evaluation in evaluate_resolution(resolution_key, resolution, pending_analyses):
+            store_evaluation(redis, evaluation_key, evaluation)
+            logger.info("Stored evaluation at {}", evaluation_key)
+            synced += 1
 
     logger.info("Evaluation sync complete: {} created", synced)
     return synced
 
 
+def selected_analysis_names(args) -> list[str]:
+    if args.all_analysis:
+        return list(AVAILABLE_ANALYSES)
+    if args.analysis:
+        return args.analysis
+    return ["core"]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Create evaluation records from saved conflict resolutions")
     parser.add_argument("playground_name", nargs="?", help="Only evaluate resolutions for this playground")
-    parser.add_argument("--force", action="store_true", help="Create a new evaluation even when one already links to the resolution")
+    parser.add_argument("--force", action="store_true", help="Overwrite existing evaluation records for selected analyses")
+    parser.add_argument(
+        "-a",
+        "--analysis",
+        action="append",
+        help="Name of an analysis to run",
+    )
+    parser.add_argument(
+        "--all-analysis",
+        action="store_true",
+        help="Run all available analyses",
+    )
+    parser.add_argument(
+        "--list-analyses",
+        action="store_true",
+        help="List all available analyses and exit",
+    )
     args = parser.parse_args()
 
+    if args.list_analyses:
+        for analysis in AVAILABLE_ANALYSES:
+            print(analysis)
+        return 0
+
     try:
-        sync_evaluations(args.playground_name, force=args.force)
+        sync_evaluations(
+            args.playground_name,
+            force=args.force,
+            analyses=selected_analysis_names(args),
+        )
     except RuntimeError as error:
         logger.error("{}", error)
         return 1

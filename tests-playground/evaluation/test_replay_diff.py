@@ -2,8 +2,7 @@ import importlib.util
 from pathlib import Path
 
 import evaluation
-from common.active_playground_models import Configuration
-from common.evaluation_models import ConflictEvaluation, Evaluation, ProposedResolution
+from common.evaluation_models import MergeDiffEvaluation
 
 
 REPLAY_DIFF_PATH = Path(evaluation.__path__[0]) / "replay-diff.py"
@@ -14,46 +13,63 @@ spec.loader.exec_module(replay_diff_module)
 
 
 class FakeRedisJson:
-    def __init__(self, payload):
-        self.payload = payload
+    def __init__(self, payload_by_key):
+        self.payload_by_key = payload_by_key
 
     def get(self, key):
-        return self.payload
+        return self.payload_by_key.get(key)
 
 
 class FakeRedis:
-    def __init__(self, payload, keys=None):
-        self.payload = payload
+    def __init__(self, payload_by_key, keys=None):
+        self.payload_by_key = payload_by_key
         self.keys = keys or []
 
     def json(self):
-        return FakeRedisJson(self.payload)
-
-    def exists(self, key):
-        return key in self.keys
+        return FakeRedisJson(self.payload_by_key)
 
     def scan_iter(self, match):
-        return (key for key in self.keys if key.startswith(match.removesuffix("*")))
+        prefix = match.removesuffix("*")
+        return (key for key in self.keys if key.startswith(prefix))
 
 
-def test_replay_diff_writes_recorded_diff(monkeypatch, capsys):
-    payload = ConflictEvaluation(
-        configuration=Configuration(
-            hook_type="manual-cli",
-            playground_version="test",
-            volume_type="bind-mount",
-            resolution_start="2026-06-01T00:00:00",
-        ),
-        result=Evaluation(duration_seconds=1.0, incomplete_merge=False, perfect_match=False),
-        proposed_resolution=ProposedResolution(diff_to_actual_resolution="\x1b[31m-diff\x1b[m\n"),
+def test_replay_diff_writes_recorded_diff_for_resolution_key(monkeypatch, capsys):
+    resolution_key = "resolution:conflict:owner/repo.git-actualsha:20260602T120000.000000Z"
+    evaluation_key = "evaluation:merge:diff:owner/repo.git-actualsha:20260602T120000.000000Z"
+    payload = MergeDiffEvaluation(
+        resolution_key=resolution_key,
+        diff_to_actual_resolution="\x1b[31m-diff\x1b[m\n",
+    ).model_dump(mode="json")
+    monkeypatch.setattr(
+        replay_diff_module,
+        "setup_redis_connection",
+        lambda: FakeRedis({evaluation_key: payload}),
+    )
+
+    exit_code = replay_diff_module.replay_diff(resolution_key)
+
+    assert exit_code == 0
+    assert capsys.readouterr().out == "\x1b[31m-diff\x1b[m\n"
+
+
+def test_replay_diff_resolves_latest_resolution_for_playground(monkeypatch, capsys):
+    latest_resolution = "resolution:conflict:owner/repo.git-actualsha:20260602T130000.000000Z"
+    evaluation_key = "evaluation:merge:diff:owner/repo.git-actualsha:20260602T130000.000000Z"
+    payload = MergeDiffEvaluation(
+        resolution_key=latest_resolution,
+        diff_to_actual_resolution="diff\n",
     ).model_dump(mode="json")
     keys = [
-        "evaluation:conflict:owner/repo.git-actualsha:20260602T120000.000000Z",
-        "evaluation:conflict:owner/repo.git-actualsha:20260602T130000.000000Z",
+        "resolution:conflict:owner/repo.git-actualsha:20260602T120000.000000Z",
+        latest_resolution,
     ]
-    monkeypatch.setattr(replay_diff_module, "setup_redis_connection", lambda: FakeRedis(payload, keys=keys))
+    monkeypatch.setattr(
+        replay_diff_module,
+        "setup_redis_connection",
+        lambda: FakeRedis({evaluation_key: payload}, keys=keys),
+    )
 
     exit_code = replay_diff_module.replay_diff("owner/repo.git-actualsha")
 
     assert exit_code == 0
-    assert capsys.readouterr().out == "\x1b[31m-diff\x1b[m\n"
+    assert capsys.readouterr().out == "diff\n"

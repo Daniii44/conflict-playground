@@ -5,45 +5,51 @@ import sys
 
 from loguru import logger
 
-from common.evaluation_models import ConflictEvaluation
-from common.redis_util import EVALUATION_CONFLICT_PREFIX, setup_redis_connection
+from common.evaluation_models import MergeDiffEvaluation
+from common.redis_util import RESOLUTION_CONFLICT_PREFIX, setup_redis_connection
+from evaluation.analysis.common import evaluation_record_key
 
 
-def latest_evaluation_key(redis, playground_name: str) -> str | None:
-    legacy_key = f"{EVALUATION_CONFLICT_PREFIX}{playground_name}"
-    if redis.exists(legacy_key):
-        return legacy_key
+def normalize_key(key) -> str:
+    return key.decode() if isinstance(key, bytes) else key
 
-    keys = list(redis.scan_iter(match=f"{legacy_key}:*"))
+
+def latest_resolution_key(redis, playground_name: str) -> str | None:
+    keys = list(redis.scan_iter(match=f"{RESOLUTION_CONFLICT_PREFIX}{playground_name}:*"))
     if not keys:
         return None
-    return max(key.decode() if isinstance(key, bytes) else key for key in keys)
+    return max(normalize_key(key) for key in keys)
 
 
-def replay_diff(playground_name: str) -> int:
+def diff_evaluation_key(redis, resolution_or_playground: str) -> str | None:
+    if resolution_or_playground.startswith(RESOLUTION_CONFLICT_PREFIX):
+        return evaluation_record_key("diff", resolution_or_playground)
+
+    resolution_key = latest_resolution_key(redis, resolution_or_playground)
+    if resolution_key is None:
+        return None
+    return evaluation_record_key("diff", resolution_key)
+
+
+def replay_diff(resolution_or_playground: str) -> int:
     redis = setup_redis_connection()
-    key = latest_evaluation_key(redis, playground_name)
+    key = diff_evaluation_key(redis, resolution_or_playground)
     if key is None:
-        logger.error("No evaluation found for playground {}", playground_name)
+        logger.error("No saved resolution found for {}", resolution_or_playground)
         return 1
 
     evaluation_data = redis.json().get(key)
     if not evaluation_data:
-        logger.error("No evaluation found for playground {}", playground_name)
+        logger.error("No diff evaluation found at {}", key)
         return 1
 
-    evaluation = ConflictEvaluation.model_validate(evaluation_data)
-    proposed_resolution = evaluation.proposed_resolution
-    if proposed_resolution is None:
-        logger.error("Evaluation for playground {} has no proposed resolution", playground_name)
-        return 1
-
-    diff = proposed_resolution.diff_to_actual_resolution
+    evaluation = MergeDiffEvaluation.model_validate(evaluation_data)
+    diff = evaluation.diff_to_actual_resolution
     if diff is None:
-        if proposed_resolution.error:
-            logger.error("Proposed resolution diff was not recorded: {}", proposed_resolution.error)
+        if evaluation.error:
+            logger.error("Proposed resolution diff was not recorded: {}", evaluation.error)
         else:
-            logger.error("Evaluation for playground {} has no recorded proposed resolution diff", playground_name)
+            logger.error("Diff evaluation at {} has no recorded proposed resolution diff", key)
         return 1
 
     sys.stdout.write(diff)
@@ -54,10 +60,10 @@ def replay_diff(playground_name: str) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Replay a recorded proposed-resolution diff")
-    parser.add_argument("playground_name", help="Name of the assessed playground")
+    parser.add_argument("resolution_or_playground", help="Saved resolution key or playground name")
     args = parser.parse_args()
 
-    return replay_diff(args.playground_name)
+    return replay_diff(args.resolution_or_playground)
 
 
 if __name__ == "__main__":

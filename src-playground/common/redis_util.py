@@ -6,7 +6,9 @@ IDX_INFO_CONFLICT_CORE = "idx:info:conflict:core"
 IDX_INFO_CONFLICT_OCTOPUS = "idx:info:conflict:octopus"
 RUNTIME_ACTIVE_PLAYGROUND_PREFIX = "runtime:active_playground:"
 RESOLUTION_CONFLICT_PREFIX = "resolution:conflict:"
-EVALUATION_CONFLICT_PREFIX = "evaluation:conflict:"
+EVALUATION_MERGE_PREFIX = "evaluation:merge:"
+EVALUATION_MERGE_CORE_PREFIX = "evaluation:merge:core:"
+EVALUATION_MERGE_DIFF_PREFIX = "evaluation:merge:diff:"
 INFO_SUBMODULE_PREFIX = "info:submodule:"
 
 def setup_redis_connection() -> Redis:

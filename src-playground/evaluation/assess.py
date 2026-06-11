@@ -1,125 +1,54 @@
 #!/usr/bin/env python3
 
 import argparse
-from datetime import datetime, timezone
-import json
+from datetime import datetime
 import os
-import subprocess
+import sys
 
 import rich
-from common.active_playground_models import Configuration, ActivePlayground
-from common.evaluation_models import Evaluation, ConflictEvaluation, ProposedResolution
-from common.git_util import capture_git
-from common.redis_util import (
-    EVALUATION_CONFLICT_PREFIX,
-    RUNTIME_ACTIVE_PLAYGROUND_PREFIX,
-    setup_redis_connection,
-)
-
-
-def evaluation_record_key(playground_name: str, evaluated_at: datetime | None = None) -> str:
-    if evaluated_at is None:
-        evaluated_at = datetime.now(timezone.utc)
-    timestamp = evaluated_at.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ")
-    return f"{EVALUATION_CONFLICT_PREFIX}{playground_name}:{timestamp}"
-
-
-def evaluation_check_for_merge(playground_name: str) -> bool:
-    """Check if all commits can be merged without conflicts"""
-    try:
-        subprocess.run(["evaluation-check-for-merge", playground_name], check=True)
-        return True
-    except subprocess.CalledProcessError:
-        return False
-
-def evaluation_diff(playground_name: str) -> bool:
-    """Check if there are any conflicts in the merged result"""
-    try:
-        subprocess.run(["evaluation-diff", playground_name], check=True)
-        return True
-    except subprocess.CalledProcessError:
-        return False
-
-def collect_proposed_resolution(playground_name: str) -> ProposedResolution:
-    playgrounds = os.environ.get("PLAYGROUNDS")
-    if playgrounds is None:
-        return ProposedResolution(error="PLAYGROUNDS environment variable is not set")
-
-    playground_path = f"{playgrounds}/{playground_name}"
-    try:
-        actual_resolution_sha = playground_name.rsplit("-", 1)[1]
-    except IndexError:
-        return ProposedResolution(error=f"Could not extract merge SHA from playground name: {playground_name}")
-
-    head_result = capture_git("-C", playground_path, "rev-parse", "HEAD", check=False)
-    if head_result.returncode != 0:
-        error = head_result.stderr.strip() or head_result.stdout.strip()
-        return ProposedResolution(error=f"Could not read resolved HEAD: {error}")
-
-    commit_sha = head_result.stdout.strip()
-    diff_result = capture_git(
-        "-C",
-        playground_path,
-        "diff",
-        "--color=always",
-        "HEAD",
-        actual_resolution_sha,
-        check=False,
-    )
-    if diff_result.returncode != 0:
-        error = diff_result.stderr.strip() or diff_result.stdout.strip()
-        return ProposedResolution(
-            commit_sha=commit_sha,
-            actual_resolution_sha=actual_resolution_sha,
-            error=f"Could not diff proposed resolution against actual resolution: {error}",
-        )
-
-    return ProposedResolution(
-        commit_sha=commit_sha,
-        actual_resolution_sha=actual_resolution_sha,
-        diff_to_actual_resolution=diff_result.stdout,
-    )
-
-def duration_seconds(configuration: Configuration, resolution_end: datetime) -> float:
-    resolution_start = configuration.resolution_start
-    if resolution_start.tzinfo is not None and resolution_end.tzinfo is None:
-        resolution_end = resolution_end.replace(tzinfo=resolution_start.tzinfo)
-    if resolution_start.tzinfo is None and resolution_end.tzinfo is not None:
-        resolution_start = resolution_start.replace(tzinfo=resolution_end.tzinfo)
-
-    return (resolution_end - resolution_start).total_seconds()
+from common.active_playground_models import ActivePlayground, Configuration
+from common.evaluation_models import MergeCoreEvaluation
+from common.redis_util import RUNTIME_ACTIVE_PLAYGROUND_PREFIX, setup_redis_connection
+from evaluation.analysis.common import actual_resolution_sha_from_playground_name, read_head_commit
+from evaluation.analysis.core_analysis import duration_seconds, evaluation_check_for_merge, evaluation_diff
 
 
 def evaluate(
     configuration: Configuration,
     playground_name: str,
     resolution_end: datetime | None = None,
-) -> Evaluation:
+) -> MergeCoreEvaluation:
     if resolution_end is None:
         resolution_end = datetime.now()
 
-    evaluation = Evaluation(
+    playgrounds = os.environ.get("PLAYGROUNDS")
+    playground_path = f"{playgrounds}/{playground_name}" if playgrounds is not None else playground_name
+    proposed_commit_sha, head_error = read_head_commit(playground_path)
+
+    evaluation = MergeCoreEvaluation(
+        resolution_key=f"active:{playground_name}",
         duration_seconds=duration_seconds(configuration, resolution_end),
         incomplete_merge=False,
-        perfect_match=False
+        perfect_match=False,
+        proposed_commit_sha=proposed_commit_sha,
+        actual_resolution_sha=actual_resolution_sha_from_playground_name(playground_name),
+        error=head_error,
     )
 
     if not evaluation_check_for_merge(playground_name):
         evaluation.incomplete_merge = True
         return evaluation
-    else:
-        evaluation.incomplete_merge = False
 
     if not evaluation_diff(playground_name):
         evaluation.perfect_match = False
         return evaluation
-    else:
-        evaluation.perfect_match = True
 
+    evaluation.perfect_match = True
     return evaluation
 
-def main():
-    parser = argparse.ArgumentParser(description="Assess Conflict Resolution")
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Assess an active conflict-resolution playground")
     parser.add_argument("playground_name", help="Name of the playground to assess")
     args = parser.parse_args()
 
@@ -128,25 +57,14 @@ def main():
     active_playground_data = redis.json().get(f"{RUNTIME_ACTIVE_PLAYGROUND_PREFIX}{args.playground_name}")
     if not active_playground_data:
         print(f"No active playground found with name {args.playground_name}")
-        return
+        return 1
     active_playground = ActivePlayground.model_validate(active_playground_data)
 
-    print(f"Assessing playground {args.playground_name} with config: {active_playground}")
-
     evaluation = evaluate(active_playground.configuration, args.playground_name)
-    proposed_resolution = collect_proposed_resolution(args.playground_name)
-    conflict_evaluation = ConflictEvaluation(
-        configuration=active_playground.configuration,
-        result=evaluation,
-        hook_result=active_playground.hook_result,
-        proposed_resolution=proposed_resolution,
-    )
-    evaluation_key = evaluation_record_key(args.playground_name)
-    redis.json().set(evaluation_key, "$", json.loads(conflict_evaluation.model_dump_json()))
     print(f"Evaluation result for {args.playground_name}:")
-    print(f"Stored evaluation at {evaluation_key}")
-    rich.print_json(conflict_evaluation.model_dump_json())
+    rich.print_json(evaluation.model_dump_json())
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
