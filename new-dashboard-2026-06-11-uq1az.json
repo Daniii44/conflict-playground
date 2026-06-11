@@ -667,6 +667,63 @@
           "query": "",
           "skipUrlSync": true
         }
+      },
+      {
+        "kind": "CustomVariable",
+        "spec": {
+          "allowCustomValue": true,
+          "current": {
+            "text": "",
+            "value": ""
+          },
+          "hide": "dontHide",
+          "includeAll": false,
+          "label": "Repo Name",
+          "multi": false,
+          "name": "repo_name",
+          "options": [],
+          "query": "",
+          "skipUrlSync": false,
+          "valuesFormat": "csv"
+        }
+      },
+      {
+        "kind": "CustomVariable",
+        "spec": {
+          "allowCustomValue": true,
+          "current": {
+            "text": "",
+            "value": ""
+          },
+          "hide": "dontHide",
+          "includeAll": false,
+          "label": "Merge",
+          "multi": false,
+          "name": "merge",
+          "options": [],
+          "query": "",
+          "skipUrlSync": false,
+          "valuesFormat": "csv"
+        }
+      },
+      {
+        "kind": "CustomVariable",
+        "spec": {
+          "allowCustomValue": true,
+          "current": {
+            "text": "",
+            "value": ""
+          },
+          "hide": "dontHide",
+          "includeAll": false,
+          "label": "Timestamp",
+          "multi": false,
+          "name": "timestamp",
+          "options": [],
+          "query": "",
+          "skipUrlSync": false,
+          "valuesFormat": "csv"
+        }
       }
     ]
   }
