@@ -496,7 +496,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "with\n  base as (\n    SELECT\n      arrayElement (splitByString ('resolution:conflict:', key), 2) as resolution,\n      extractGroups (\n        arrayElement (splitByString ('resolution:conflict:', key), 2),\n        '^([^.]+)\\.git-([a-f0-9]{40}):(.*)$'\n      ) AS groups\n    FROM\n      \"default\".\"redis_json\"\n    where\n      startsWith (key, 'resolution')\n      and content.proposed_resolution.error is null\n    order by\n      content.resolution_end::datetime desc\n  )\nSELECT\n  concat(groups[1], '.git') AS repo_name,\n  groups[2] AS merge,\n  groups[3] AS timestamp,\n  'Show Details' as details\nfrom\n  base;"
+                        "rawSql": "with\n  base as (\n    SELECT\n      arrayElement (splitByString ('resolution:conflict:', key), 2) as resolution,\n      extractGroups (\n        arrayElement (splitByString ('resolution:conflict:', key), 2),\n        '^([^.]+)\\.git-([a-f0-9]{40}):(.*)$'\n      ) AS groups\n    FROM\n      \"default\".\"redis_json\"\n    where\n      startsWith (key, 'resolution')\n      and content.proposed_resolution.error is null\n    order by\n      content.resolution_end::datetime desc\n  )\nSELECT\n  concat(groups[1], '.git') AS repo_name,\n  groups[2] AS merge,\n  groups[3] AS timestamp,\n  'Show Details' as details,\n  case when evaluation.content.incomplete_merge = 0 then 1 else 0 end as complete_merge,\n  case when evaluation.content.perfect_match = 0 then 0 else 1 end as perfect_match\nfrom\n  base\njoin default.redis_json as evaluation on key like concat('evaluation:merge:core:', repo_name, '-', merge, ':', timestamp);"
                       },
                       "version": "v0"
                     },
@@ -531,6 +531,17 @@
                     },
                     "inspect": false
                   },
+                  "mappings": [
+                    {
+                      "options": {
+                        "0": {
+                          "color": "red",
+                          "index": 0
+                        }
+                      },
+                      "type": "value"
+                    }
+                  ],
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -562,6 +573,34 @@
                             "url": "http://mac-studio.syntevo:3000/d/dcfostbwyhpxq8e/resolution?folderUid=r98lq8\u0026orgId=1\u0026var-repo_name=${__data.fields['repo_name']}\u0026var-merge=${__data.fields['merge']}\u0026var-timestamp=${__data.fields['timestamp']}"
                           }
                         ]
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byRegexp",
+                      "options": "/complete_merge|perfect_match/",
+                      "scope": "series"
+                    },
+                    "properties": [
+                      {
+                        "id": "unit",
+                        "value": "bool_yes_no"
+                      },
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "green",
+                          "mode": "fixed"
+                        }
+                      },
+                      {
+                        "id": "custom.cellOptions",
+                        "value": {
+                          "applyToRow": false,
+                          "mode": "basic",
+                          "type": "color-background"
+                        }
                       }
                     ]
                   }
