@@ -1,9 +1,9 @@
 import os
-import subprocess
 from datetime import datetime
 
 from common.active_playground_models import Configuration
 from common.evaluation_models import EvaluationInput, MergeCoreEvaluation
+from common.git_util import capture_git
 from evaluation.analysis.common import (
     EvaluationAnalysis,
     actual_resolution_sha_from_playground_name,
@@ -11,22 +11,56 @@ from evaluation.analysis.common import (
 )
 
 
-def evaluation_check_for_merge(playground_name: str) -> bool:
-    """Check if all commits can be merged without conflicts."""
-    try:
-        subprocess.run(["evaluation-check-for-merge", playground_name], check=True)
-        return True
-    except subprocess.CalledProcessError:
+def evaluation_check_for_merge(playground_path: str, actual_resolution_sha: str | None) -> bool:
+    if actual_resolution_sha is None:
         return False
 
-
-def evaluation_diff(playground_name: str) -> bool:
-    """Check if there are any differences in the merged result."""
-    try:
-        subprocess.run(["evaluation-diff", playground_name], check=True)
-        return True
-    except subprocess.CalledProcessError:
+    parents_result = capture_git(
+        "-C",
+        playground_path,
+        "rev-list",
+        "--parents",
+        "-n",
+        "1",
+        actual_resolution_sha,
+        check=False,
+    )
+    if parents_result.returncode != 0:
         return False
+
+    parents = parents_result.stdout.strip().split()[1:]
+    if not parents:
+        return False
+
+    return all(
+        capture_git(
+            "-C",
+            playground_path,
+            "merge-base",
+            "--is-ancestor",
+            parent,
+            "HEAD",
+            check=False,
+        ).returncode == 0
+        for parent in parents
+    )
+
+
+def evaluation_diff(playground_path: str, actual_resolution_sha: str | None) -> bool:
+    if actual_resolution_sha is None:
+        return False
+
+    return (
+        capture_git(
+            "-C",
+            playground_path,
+            "diff",
+            "--quiet",
+            actual_resolution_sha,
+            "HEAD",
+            check=False,
+        ).returncode == 0
+    )
 
 
 def duration_seconds(configuration: Configuration, resolution_end: datetime) -> float:
@@ -88,11 +122,11 @@ class CoreEvaluationAnalysis(EvaluationAnalysis):
             error=head_error,
         )
 
-        if not evaluation_check_for_merge(playground_name):
+        if not evaluation_check_for_merge(playground_path, actual_resolution_sha):
             record.incomplete_merge = True
             return record
 
-        if not evaluation_diff(playground_name):
+        if not evaluation_diff(playground_path, actual_resolution_sha):
             record.perfect_match = False
             return record
 

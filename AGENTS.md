@@ -39,7 +39,7 @@ info-conflict-count <repo>                    # Count stored conflicts
 playground-setup <owner/repo.git> <merge_sha> # Create isolated playground
 playground-ls                                 # List active playgrounds
 playbook-start <name> [--skip N] [--pool N]   # Run a playbook
-evaluation-assess <playground_name>           # Evaluate a resolved conflict
+evaluation-sync [playground] [-a <analysis>]  # Evaluate saved conflict resolutions
 ```
 
 ## Testing
@@ -74,8 +74,9 @@ GitHub repos
   → playbook-start → for each conflict:
       playground-setup (working clone with merge in progress)
       hook-dispatch-task → Redis pub/sub → hook container (user resolves)
-      evaluation-assess → stores result in Redis
+      save resolution to Redis
       playground-rm
+  → evaluation-sync → restores saved resolutions → Redis (evaluation:merge:<analysis>:...)
 ```
 
 ### Key Components
