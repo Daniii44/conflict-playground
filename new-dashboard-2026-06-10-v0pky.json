@@ -476,7 +476,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT key, content.resolution_end FROM \"default\".\"redis_json\" where startsWith(key, 'resolution') and content.proposed_resolution.error is null\norder by content.resolution_end::datetime desc"
+                        "rawSql": "SELECT arrayElement(splitByString('resolution:conflict:',key),2) as resolution, content.resolution_end FROM \"default\".\"redis_json\" where startsWith(key, 'resolution') and content.proposed_resolution.error is null\norder by content.resolution_end::datetime desc"
                       },
                       "version": "v0"
                     },
@@ -529,7 +529,7 @@
                   {
                     "matcher": {
                       "id": "byName",
-                      "options": "key",
+                      "options": "resolution",
                       "scope": "series"
                     },
                     "properties": [
@@ -539,7 +539,7 @@
                           {
                             "targetBlank": true,
                             "title": "Show Resolution",
-                            "url": "http://mac-studio.syntevo:3000/d/dcfostbwyhpxq8e/resolution?folderUid=r98lq8\u0026orgId=1\u0026var-resolution=${__data.fields['key']}"
+                            "url": "http://mac-studio.syntevo:3000/d/dcfostbwyhpxq8e/resolution?folderUid=r98lq8\u0026orgId=1\u0026var-resolution=${__data.fields['resolution']}"
                           }
                         ]
                       }
