@@ -513,7 +513,7 @@
                     }
                   ],
                   "maxColumnCount": 3,
-                  "rowHeightMode": "standard"
+                  "rowHeightMode": "tall"
                 }
               },
               "title": "Details"
