@@ -476,7 +476,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "with\n  base as (\n    SELECT\n      arrayElement (splitByString ('resolution:conflict:', key), 2) as resolution,\n      extractGroups (\n        arrayElement (splitByString ('resolution:conflict:', key), 2),\n        '^([^.]+)\\.git-([a-f0-9]{40}):(.*)$'\n      ) AS groups\n    FROM\n      \"default\".\"redis_json\"\n    where\n      startsWith (key, 'resolution')\n      and content.proposed_resolution.error is null\n    order by\n      content.resolution_end::datetime desc\n  )\nSELECT\n  groups[1] AS repo_name,\n  groups[2] AS merge,\n  groups[3] AS timestamp,\n  'Show Details' as details\nfrom\n  base;"
+                        "rawSql": "with\n  base as (\n    SELECT\n      arrayElement (splitByString ('resolution:conflict:', key), 2) as resolution,\n      extractGroups (\n        arrayElement (splitByString ('resolution:conflict:', key), 2),\n        '^([^.]+)\\.git-([a-f0-9]{40}):(.*)$'\n      ) AS groups\n    FROM\n      \"default\".\"redis_json\"\n    where\n      startsWith (key, 'resolution')\n      and content.proposed_resolution.error is null\n    order by\n      content.resolution_end::datetime desc\n  )\nSELECT\n  concat(groups[1], '.git') AS repo_name,\n  groups[2] AS merge,\n  groups[3] AS timestamp,\n  'Show Details' as details\nfrom\n  base;"
                       },
                       "version": "v0"
                     },
@@ -549,7 +549,13 @@
               },
               "options": {
                 "cellHeight": "sm",
-                "showHeader": true
+                "showHeader": true,
+                "sortBy": [
+                  {
+                    "desc": false,
+                    "displayName": "details"
+                  }
+                ]
               }
             },
             "version": "13.0.1+security-01"
