@@ -62,7 +62,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT\n    fromUnixTimestamp(message.info.time.created::integer),\n    CASE \n        WHEN part.type = 'text' THEN \n            part.text\n        WHEN part.type = 'tool' THEN \n            concat(coalesce(part.state.title, ''), ' | Command: ', coalesce(part.state.input.command, ''))\n        ELSE concat('[UNUSUAL TYPE: ', part.type, ']')\n    END AS log_line,\n    upper(part.type) as part_type\nFROM \"default\".\"redis_json\"\narray join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\narray join message.parts::Array(JSON) as part\nwhere key = 'resolution:conflict:${resolution}'\nand message.info.role = 'assistant' \nand part.type not like 'step-%'"
+                        "rawSql": "SELECT\n    fromUnixTimestamp(message.info.time.created::integer),\n    CASE \n        WHEN part.type = 'text' THEN \n            part.text\n        WHEN part.type = 'tool' THEN \n            concat(coalesce(part.state.title, ''), ' | Command: ', coalesce(part.state.input.command, ''))\n        ELSE concat('[UNUSUAL TYPE: ', part.type, ']')\n    END AS log_line,\n    upper(part.type) as part_type\nFROM \"default\".\"redis_json\"\narray join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\narray join message.parts::Array(JSON) as part\nwhere key = 'resolution:conflict:${repo_name}-${merge}:${timestamp}'\nand message.info.role = 'assistant' \nand part.type not like 'step-%'"
                       },
                       "version": "v0"
                     },
@@ -673,8 +673,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "",
-            "value": ""
+            "text": "Akaflieg-Freiburg/enroute",
+            "value": "Akaflieg-Freiburg/enroute"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -692,8 +692,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "",
-            "value": ""
+            "text": "e5ec5efd330d216ed20c67e4b2274f1cf70a8ace",
+            "value": "e5ec5efd330d216ed20c67e4b2274f1cf70a8ace"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -711,8 +711,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "",
-            "value": ""
+            "text": "20260611T062107.376938Z",
+            "value": "20260611T062107.376938Z"
           },
           "hide": "dontHide",
           "includeAll": false,
