@@ -261,6 +261,99 @@
           }
         }
       },
+      "panel-13": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "select conflicted_file.path as submodule, case when conflicted_file.stage = 1 then 'base' when conflicted_file.stage = 2 then 'ours' else 'theirs' end as stage, conflicted_file.mode as commit from redis_json\narray join content.merge_result.conflicted_files::Array(JSON) as conflicted_file\nwhere key = 'info:conflict:core:${repo_name}:${merge}' and conflicted_file.oid = '160000'"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 13,
+          "links": [],
+          "title": "Conflicting Submodules",
+          "vizConfig": {
+            "group": "table",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "custom": {
+                    "align": "auto",
+                    "cellOptions": {
+                      "type": "auto"
+                    },
+                    "footer": {
+                      "reducers": []
+                    },
+                    "inspect": false
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              },
+              "options": {
+                "cellHeight": "sm",
+                "enablePagination": false,
+                "showHeader": true
+              }
+            },
+            "version": "13.0.1+security-01"
+          }
+        }
+      },
       "panel-2": {
         "kind": "Panel",
         "spec": {
@@ -628,7 +721,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "select key, conflicted_file.path, conflicted_file.stage from redis_json\narray join content.merge_result.conflicted_files::Array(JSON) as conflicted_file\nwhere key = 'info:conflict:core:${repo_name}:${merge}'"
+                        "rawSql": "select key, conflicted_file.path, conflicted_file.oid from redis_json\narray join content.merge_result.conflicted_files::Array(JSON) as conflicted_file\nwhere key = 'info:conflict:core:${repo_name}:${merge}' and conflicted_file.oid != '160000'"
                       },
                       "version": "v0"
                     },
@@ -1107,6 +1200,15 @@
                                     "name": "panel-6"
                                   }
                                 }
+                              },
+                              {
+                                "kind": "AutoGridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-13"
+                                  }
+                                }
                               }
                             ],
                             "maxColumnCount": 3,
@@ -1234,8 +1336,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "21a7821c2ac67cedf86b0bcab3a6d6bfdfb8903b",
-            "value": "21a7821c2ac67cedf86b0bcab3a6d6bfdfb8903b"
+            "text": "e5ec5efd330d216ed20c67e4b2274f1cf70a8ace",
+            "value": "e5ec5efd330d216ed20c67e4b2274f1cf70a8ace"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -1253,8 +1355,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "20260611T060459.965378Z",
-            "value": "20260611T060459.965378Z"
+            "text": "20260611T062107.376938Z",
+            "value": "20260611T062107.376938Z"
           },
           "hide": "dontHide",
           "includeAll": false,
