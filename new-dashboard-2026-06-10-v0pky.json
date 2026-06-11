@@ -476,7 +476,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT arrayElement(splitByString('resolution:conflict:',key),2) as resolution, content.resolution_end FROM \"default\".\"redis_json\" where startsWith(key, 'resolution') and content.proposed_resolution.error is null\norder by content.resolution_end::datetime desc"
+                        "rawSql": "with\n  base as (\n    SELECT\n      arrayElement (splitByString ('resolution:conflict:', key), 2) as resolution,\n      extractGroups (\n        arrayElement (splitByString ('resolution:conflict:', key), 2),\n        '^([^.]+)\\.git-([a-f0-9]{40}):(.*)$'\n      ) AS groups\n    FROM\n      \"default\".\"redis_json\"\n    where\n      startsWith (key, 'resolution')\n      and content.proposed_resolution.error is null\n    order by\n      content.resolution_end::datetime desc\n  )\nSELECT\n  groups[1] AS repo_name,\n  groups[2] AS merge,\n  groups[3] AS timestamp,\n  'Show Details' as details\nfrom\n  base;"
                       },
                       "version": "v0"
                     },
@@ -529,7 +529,7 @@
                   {
                     "matcher": {
                       "id": "byName",
-                      "options": "resolution",
+                      "options": "details",
                       "scope": "series"
                     },
                     "properties": [
@@ -539,7 +539,7 @@
                           {
                             "targetBlank": true,
                             "title": "Show Resolution",
-                            "url": "http://mac-studio.syntevo:3000/d/dcfostbwyhpxq8e/resolution?folderUid=r98lq8\u0026orgId=1\u0026var-resolution=${__data.fields['resolution']}"
+                            "url": "http://mac-studio.syntevo:3000/d/dcfostbwyhpxq8e/resolution?folderUid=r98lq8\u0026orgId=1\u0026var-repo_name=${__data.fields['repo_name']}\u0026var-merge=${__data.fields['merge']}\u0026var-timestamp=${__data.fields['timestamp']}"
                           }
                         ]
                       }
