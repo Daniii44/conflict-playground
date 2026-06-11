@@ -457,6 +457,81 @@
             "version": "13.0.1+security-01"
           }
         }
+      },
+      "panel-7": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT\n  content.resolution_end::datetime,\n  content.proposed_resolution.error\nFROM \"default\".\"redis_json\"\nwhere key = 'resolution:conflict:${repo_name}-${merge}:${timestamp}'"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 7,
+          "links": [],
+          "title": "New panel",
+          "vizConfig": {
+            "group": "logs",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {
+                "dedupStrategy": "none",
+                "enableInfiniteScrolling": false,
+                "enableLogDetails": true,
+                "prettifyLogMessage": true,
+                "showControls": false,
+                "showFieldSelector": false,
+                "showLevel": true,
+                "showTime": false,
+                "sortOrder": "Descending",
+                "timestampResolution": "ms",
+                "unwrappedColumns": false,
+                "wrapLogMessage": true
+              }
+            },
+            "version": "13.0.1+security-01"
+          }
+        }
       }
     },
     "layout": {
@@ -579,6 +654,32 @@
                         },
                         "title": "Conflicts"
                       }
+                    },
+                    {
+                      "kind": "TabsLayoutTab",
+                      "spec": {
+                        "layout": {
+                          "kind": "GridLayout",
+                          "spec": {
+                            "items": [
+                              {
+                                "kind": "GridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-7"
+                                  },
+                                  "height": 8,
+                                  "width": 12,
+                                  "x": 0,
+                                  "y": 0
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "title": "Errors"
+                      }
                     }
                   ]
                 }
@@ -673,8 +774,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "e5ec5efd330d216ed20c67e4b2274f1cf70a8ace",
-            "value": "e5ec5efd330d216ed20c67e4b2274f1cf70a8ace"
+            "text": "da78552eedb08dcf314f4ad6856b8ecfdbd0b693",
+            "value": "da78552eedb08dcf314f4ad6856b8ecfdbd0b693"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -692,8 +793,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "20260611T062107.376938Z",
-            "value": "20260611T062107.376938Z"
+            "text": "20260611T063608.941501Z",
+            "value": "20260611T063608.941501Z"
           },
           "hide": "dontHide",
           "includeAll": false,
