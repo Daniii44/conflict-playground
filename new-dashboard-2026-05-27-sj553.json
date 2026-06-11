@@ -129,7 +129,7 @@
                 "showHeader": true
               }
             },
-            "version": "13.0.1"
+            "version": "13.0.1+security-01"
           }
         }
       },
@@ -211,7 +211,7 @@
                 "wrapLogMessage": true
               }
             },
-            "version": "13.0.1"
+            "version": "13.0.1+security-01"
           }
         }
       },
@@ -295,7 +295,7 @@
                 "wrapLogMessage": true
               }
             },
-            "version": "13.0.1"
+            "version": "13.0.1+security-01"
           }
         }
       },
@@ -398,7 +398,7 @@
                 "showHeader": true
               }
             },
-            "version": "13.0.1"
+            "version": "13.0.1+security-01"
           }
         }
       },
@@ -475,7 +475,192 @@
                 "wrapLogMessage": true
               }
             },
-            "version": "13.0.1"
+            "version": "13.0.1+security-01"
+          }
+        }
+      },
+      "panel-7": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "select key, logical_conflict.type, logical_conflict.info, logical_conflict.paths  from redis_json\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nWHERE key LIKE (\n    SELECT '%' || \n           REGEXP_REPLACE(\n               '${session}', \n               'evaluation:conflict:([^/]+/[^.]+)\\.git-([a-f0-9]{40}):.*',\n               '\\1.git:\\2'\n           ) || '%'\n);"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 7,
+          "links": [],
+          "title": "Logical Conflicts",
+          "vizConfig": {
+            "group": "table",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "custom": {
+                    "align": "auto",
+                    "cellOptions": {
+                      "type": "auto"
+                    },
+                    "footer": {
+                      "reducers": []
+                    },
+                    "inspect": false
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              },
+              "options": {
+                "cellHeight": "sm",
+                "showHeader": true
+              }
+            },
+            "version": "13.0.1+security-01"
+          }
+        }
+      },
+      "panel-8": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "select key, conflicted_file.path, conflicted_file.stage from redis_json\narray join content.merge_result.conflicted_files::Array(JSON) as conflicted_file\nWHERE key LIKE (\n    SELECT '%' || \n           REGEXP_REPLACE(\n               '${session}', \n               'evaluation:conflict:([^/]+/[^.]+)\\.git-([a-f0-9]{40}):.*',\n               '\\1.git:\\2'\n           ) || '%'\n);"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 8,
+          "links": [],
+          "title": "Conflicting Files",
+          "vizConfig": {
+            "group": "table",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "custom": {
+                    "align": "auto",
+                    "cellOptions": {
+                      "type": "auto"
+                    },
+                    "footer": {
+                      "reducers": []
+                    },
+                    "inspect": false
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              },
+              "options": {
+                "cellHeight": "sm",
+                "enablePagination": false,
+                "showHeader": true
+              }
+            },
+            "version": "13.0.1+security-01"
           }
         }
       }
@@ -606,6 +791,40 @@
                         },
                         "title": "Diff"
                       }
+                    },
+                    {
+                      "kind": "TabsLayoutTab",
+                      "spec": {
+                        "layout": {
+                          "kind": "AutoGridLayout",
+                          "spec": {
+                            "columnWidthMode": "standard",
+                            "items": [
+                              {
+                                "kind": "AutoGridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-7"
+                                  }
+                                }
+                              },
+                              {
+                                "kind": "AutoGridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-8"
+                                  }
+                                }
+                              }
+                            ],
+                            "maxColumnCount": 3,
+                            "rowHeightMode": "tall"
+                          }
+                        },
+                        "title": "Conflicts"
+                      }
                     }
                   ]
                 }
@@ -668,8 +887,8 @@
         "spec": {
           "allowCustomValue": false,
           "current": {
-            "text": "evaluation:conflict:rust-lang/rust.git-9a0f4dfa0ad40f5acceb645e126d7bcc2dce092c:20260602T093155.815418Z",
-            "value": "evaluation:conflict:rust-lang/rust.git-9a0f4dfa0ad40f5acceb645e126d7bcc2dce092c:20260602T093155.815418Z"
+            "text": "evaluation:conflict:Akaflieg-Freiburg/enroute.git-565b30e04272d3c84463a4f424224ce501da090b:20260611T082002.309118Z",
+            "value": "evaluation:conflict:Akaflieg-Freiburg/enroute.git-565b30e04272d3c84463a4f424224ce501da090b:20260611T082002.309118Z"
           },
           "definition": "SELECT key FROM \"default\".\"redis_json\" where startsWith(key, 'evaluation')",
           "hide": "dontHide",
