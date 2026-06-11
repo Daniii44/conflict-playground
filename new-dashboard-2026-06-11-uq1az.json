@@ -386,7 +386,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT content.duration_seconds as \"Resolution Duration\"\nFROM \"default\".\"redis_json\"\nwhere key = 'evaluation:merge:core:${repo_name}-${merge}:${timestamp}'"
+                        "rawSql": "SELECT content.duration_seconds::float as \"Resolution Duration\"\nFROM \"default\".\"redis_json\"\nwhere key = 'evaluation:merge:core:${repo_name}-${merge}:${timestamp}'"
                       },
                       "version": "v0"
                     },
@@ -411,6 +411,8 @@
                   "color": {
                     "mode": "thresholds"
                   },
+                  "fieldMinMax": false,
+                  "max": 1000,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -446,18 +448,18 @@
                 "orientation": "auto",
                 "reduceOptions": {
                   "calcs": [
-                    "lastNotNull"
+                    "last"
                   ],
                   "fields": "",
                   "values": false
                 },
                 "segmentCount": 1,
-                "segmentSpacing": 0.3,
+                "segmentSpacing": 0,
                 "shape": "gauge",
                 "showThresholdLabels": false,
                 "showThresholdMarkers": true,
                 "sizing": "auto",
-                "sparkline": true,
+                "sparkline": false,
                 "textMode": "value_and_name"
               }
             },
