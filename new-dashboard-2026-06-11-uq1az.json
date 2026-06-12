@@ -293,7 +293,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "select conflicted_file.path as submodule, case when conflicted_file.stage = 1 then 'base' when conflicted_file.stage = 2 then 'ours' else 'theirs' end as stage, conflicted_file.mode as commit from redis_json\narray join content.merge_result.conflicted_files::Array(JSON) as conflicted_file\nwhere key = 'info:conflict:core:${repo_name}:${merge}' and conflicted_file.oid = '160000'"
+                        "rawSql": "select\n  conflicted_file.path as submodule,\n  case\n    when conflicted_file.stage = 1 then 'base'\n    when conflicted_file.stage = 2 then 'ours'\n    else 'theirs'\n  end as stage,\n  conflicted_file.mode as\ncommit\nfrom\n  redis_json array\n  join content.merge_result.conflicted_files::Array(JSON) as conflicted_file\nwhere\n  key = 'info:conflict:core:${repo_name}:${merge}'\n  and conflicted_file.oid = '160000'"
                       },
                       "version": "v0"
                     },
@@ -942,7 +942,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "select key, conflicted_file.path, conflicted_file.oid from redis_json\narray join content.merge_result.conflicted_files::Array(JSON) as conflicted_file\nwhere key = 'info:conflict:core:${repo_name}:${merge}' and conflicted_file.oid != '160000'"
+                        "rawSql": "select\n  conflicted_file.path,\n  case\n    when conflicted_file.stage = 1 then 'base'\n    when conflicted_file.stage = 2 then 'ours'\n    else 'theirs'\n  end as stage,\n  conflicted_file.oid\nfrom\n  redis_json array\n  join content.merge_result.conflicted_files::Array(JSON) as conflicted_file\nwhere\n  key = 'info:conflict:core:${repo_name}:${merge}'\n  and conflicted_file.oid != '160000'"
                       },
                       "version": "v0"
                     },
