@@ -496,7 +496,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "with\n  base as (\n    SELECT\n      arrayElement (splitByString ('resolution:conflict:', key), 2) as resolution,\n      extractGroups (\n        arrayElement (splitByString ('resolution:conflict:', key), 2),\n        '^([^.]+)\\.git-([a-f0-9]{40}):(.*)$'\n      ) AS groups\n    FROM\n      \"default\".\"redis_json\"\n    where\n      startsWith (key, 'resolution')\n      and content.proposed_resolution.error is null\n    order by\n      content.resolution_end::datetime desc\n  )\nSELECT\n  concat(groups[1], '.git') AS repo_name,\n  groups[2] AS merge,\n  groups[3] AS timestamp,\n  'Show Details' as details,\n  case when evaluation.content.incomplete_merge = 0 then 1 else 0 end as complete_merge,\n  case when evaluation.content.perfect_match = 0 then 0 else 1 end as perfect_match\nfrom\n  base\njoin default.redis_json as evaluation on key like concat('evaluation:merge:core:', repo_name, '-', merge, ':', timestamp);"
+                        "rawSql": "with\n  base as (\n    SELECT\n      arrayElement (splitByString ('resolution:conflict:', key), 2) as resolution,\n      extractGroups (\n        arrayElement (splitByString ('resolution:conflict:', key), 2),\n        '^([^.]+)\\.git-([a-f0-9]{40}):(.*)$'\n      ) AS groups\n    FROM\n      \"default\".\"redis_json\"\n    where\n      startsWith (key, 'resolution')\n      and content.proposed_resolution.error is null\n    order by\n      content.resolution_end::datetime desc\n  )\nSELECT\n  concat(groups[1], '.git') AS repo_name,\n  groups[2] AS merge,\n  groups[3] AS timestamp,\n  'Show Details' as details,\n  case\n    when evaluation.key = '' then 'N/A'\n    when evaluation.content.incomplete_merge = 0 then 'Yes'\n    else 'No'\n  end as complete_merge,\n  case\n    when evaluation.key = '' then 'N/A'\n    when (evaluation.content.perfect_match = 0) then 'No'\n    else 'Yes'\n  end as perfect_match\nfrom\n  base\n  left join default.redis_json as evaluation on key = concat(\n    'evaluation:merge:core:',\n    repo_name,\n    '-',\n    merge,\n    ':',\n    timestamp\n  );"
                       },
                       "version": "v0"
                     },
@@ -534,9 +534,17 @@
                   "mappings": [
                     {
                       "options": {
-                        "0": {
+                        "N/A": {
+                          "color": "purple",
+                          "index": 2
+                        },
+                        "No": {
                           "color": "red",
                           "index": 0
+                        },
+                        "Yes": {
+                          "color": "green",
+                          "index": 1
                         }
                       },
                       "type": "value"
@@ -579,21 +587,10 @@
                   {
                     "matcher": {
                       "id": "byRegexp",
-                      "options": "/complete_merge|perfect_match/",
+                      "options": "/evaluation_available|complete_merge|perfect_match/",
                       "scope": "series"
                     },
                     "properties": [
-                      {
-                        "id": "unit",
-                        "value": "bool_yes_no"
-                      },
-                      {
-                        "id": "color",
-                        "value": {
-                          "fixedColor": "green",
-                          "mode": "fixed"
-                        }
-                      },
                       {
                         "id": "custom.cellOptions",
                         "value": {
