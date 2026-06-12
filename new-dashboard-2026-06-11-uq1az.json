@@ -575,6 +575,105 @@
           }
         }
       },
+      "panel-16": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "select concat('${repo_name}', '-', '${merge}', ':', '${timestamp}') as \"Key\""
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 16,
+          "links": [],
+          "title": "",
+          "vizConfig": {
+            "group": "stat",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              },
+              "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "/.*/",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "text": {
+                  "titleSize": 24,
+                  "valueSize": 13
+                },
+                "textMode": "auto",
+                "wideLayout": true
+              }
+            },
+            "version": "13.0.1+security-01"
+          }
+        }
+      },
       "panel-2": {
         "kind": "Panel",
         "spec": {
@@ -1263,6 +1362,15 @@
                           "name": "panel-15"
                         }
                       }
+                    },
+                    {
+                      "kind": "AutoGridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-16"
+                        }
+                      }
                     }
                   ],
                   "maxColumnCount": 3,
@@ -1590,8 +1698,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "labuladong/fucking-algorithm.git",
-            "value": "labuladong/fucking-algorithm.git"
+            "text": "golang/go.git",
+            "value": "golang/go.git"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -1609,8 +1717,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "b28bf5d071378efc81c35f64f834ab88cf439912",
-            "value": "b28bf5d071378efc81c35f64f834ab88cf439912"
+            "text": "32082501859c5c3c61913df5791cafbbb45c2519",
+            "value": "32082501859c5c3c61913df5791cafbbb45c2519"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -1628,8 +1736,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "20260612T084256.815231Z",
-            "value": "20260612T084256.815231Z"
+            "text": "20260612T082010.979352Z",
+            "value": "20260612T082010.979352Z"
           },
           "hide": "dontHide",
           "includeAll": false,
