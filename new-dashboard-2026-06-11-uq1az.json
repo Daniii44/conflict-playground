@@ -1284,6 +1284,49 @@
                       "kind": "TabsLayoutTab",
                       "spec": {
                         "layout": {
+                          "kind": "AutoGridLayout",
+                          "spec": {
+                            "columnWidthMode": "standard",
+                            "items": [
+                              {
+                                "kind": "AutoGridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-5"
+                                  }
+                                }
+                              },
+                              {
+                                "kind": "AutoGridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-6"
+                                  }
+                                }
+                              },
+                              {
+                                "kind": "AutoGridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-13"
+                                  }
+                                }
+                              }
+                            ],
+                            "maxColumnCount": 3,
+                            "rowHeightMode": "tall"
+                          }
+                        },
+                        "title": "Conflicts"
+                      }
+                    },
+                    {
+                      "kind": "TabsLayoutTab",
+                      "spec": {
+                        "layout": {
                           "kind": "RowsLayout",
                           "spec": {
                             "rows": [
@@ -1379,49 +1422,6 @@
                           }
                         },
                         "title": "Diff"
-                      }
-                    },
-                    {
-                      "kind": "TabsLayoutTab",
-                      "spec": {
-                        "layout": {
-                          "kind": "AutoGridLayout",
-                          "spec": {
-                            "columnWidthMode": "standard",
-                            "items": [
-                              {
-                                "kind": "AutoGridLayoutItem",
-                                "spec": {
-                                  "element": {
-                                    "kind": "ElementReference",
-                                    "name": "panel-5"
-                                  }
-                                }
-                              },
-                              {
-                                "kind": "AutoGridLayoutItem",
-                                "spec": {
-                                  "element": {
-                                    "kind": "ElementReference",
-                                    "name": "panel-6"
-                                  }
-                                }
-                              },
-                              {
-                                "kind": "AutoGridLayoutItem",
-                                "spec": {
-                                  "element": {
-                                    "kind": "ElementReference",
-                                    "name": "panel-13"
-                                  }
-                                }
-                              }
-                            ],
-                            "maxColumnCount": 3,
-                            "rowHeightMode": "tall"
-                          }
-                        },
-                        "title": "Conflicts"
                       }
                     }
                   ]
@@ -1590,8 +1590,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "Akaflieg-Freiburg/enroute.git",
-            "value": "Akaflieg-Freiburg/enroute.git"
+            "text": "labuladong/fucking-algorithm.git",
+            "value": "labuladong/fucking-algorithm.git"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -1609,8 +1609,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "565b30e04272d3c84463a4f424224ce501da090b",
-            "value": "565b30e04272d3c84463a4f424224ce501da090b"
+            "text": "b28bf5d071378efc81c35f64f834ab88cf439912",
+            "value": "b28bf5d071378efc81c35f64f834ab88cf439912"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -1628,8 +1628,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "20260611T061704.948804Z",
-            "value": "20260611T061704.948804Z"
+            "text": "20260612T084256.815231Z",
+            "value": "20260612T084256.815231Z"
           },
           "hide": "dontHide",
           "includeAll": false,
