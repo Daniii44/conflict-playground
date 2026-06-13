@@ -83,7 +83,7 @@ GitHub repos
 ### Key Components
 
 **Conflict Analysis (`src-playground/info/conflict/`)**
-`sync.py` takes repo IDs like `qt/qt5.git`, resolves them under `$CACHES/repos`, iterates merge commits via `git rev-list --merges HEAD`, and runs pluggable analyses (`core`, `divergence`, `tree-diff`). Git subprocesses should go through `common.git_util.capture_git`/`stream_git` so prompts cannot stall execution.
+`sync.py` takes repo IDs like `qt/qt5.git`, resolves them under `$CACHES/repos`, iterates merge commits via `git rev-list --merges HEAD`, and runs pluggable analyses (`core`, `octopus`). Git subprocesses should go through `common.git_util.capture_git`/`stream_git` so prompts cannot stall execution.
 
 **Repo Cache (`src-playground/repo/sync.py`, `common/repo_cache.py`)**
 `repo-sync [playbook]` reads explicit `repo_url` entries, clones bare repositories into `$CACHES/repos/<owner>/<repo>.git`, scans historical `.gitmodules` blobs, and recursively caches submodules unless `--no-submodules` is passed. Do not support the old flat cache naming scheme. Preserve the `.git` suffix in repo IDs stored in Redis and passed between commands.

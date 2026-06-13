@@ -80,7 +80,7 @@ def test_prune_conflict_keys_deletes_only_dataset_repo_keys_not_in_allowed_set()
     redis = FakeRedis(
         [
             "info:conflict:core:owner/repo.git:keep",
-            "info:conflict:tree-diff:owner/repo.git:delete",
+            "info:conflict:octopus:owner/repo.git:delete",
             "info:conflict:core:other/repo.git:unrelated",
         ]
     )
@@ -91,7 +91,7 @@ def test_prune_conflict_keys_deletes_only_dataset_repo_keys_not_in_allowed_set()
         dry_run=False,
     )
 
-    assert redis.deleted == ["info:conflict:tree-diff:owner/repo.git:delete"]
+    assert redis.deleted == ["info:conflict:octopus:owner/repo.git:delete"]
     assert result.scanned == 2
     assert result.kept == 1
     assert result.deleted == 1
