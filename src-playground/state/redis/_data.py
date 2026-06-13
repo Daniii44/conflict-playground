@@ -72,6 +72,9 @@ def iter_semantic_saves() -> Iterable[SemanticSave]:
         return
 
     for save_path in sorted(save_dir.glob(f"*{REDIS_SAVE_SUFFIX}")):
+        if save_path.name.startswith("_"):
+            continue
+
         semantic_save = parse_semantic_save_path(save_path)
         if semantic_save is not None:
             yield semantic_save

@@ -55,3 +55,13 @@ def test_resolve_sync_save_paths_selects_latest_major_and_latest_minor_per_type(
         selected_evaluation,
         selected_metrics,
     ]
+
+
+def test_resolve_sync_save_paths_ignores_underscore_prefixed_semantic_saves(monkeypatch, tmp_path):
+    stores_dir = tmp_path / "stores"
+    selected_info = touch_save(stores_dir, "submodule-info-v1")
+    touch_save(stores_dir, "_submodule-info-v9")
+
+    monkeypatch.setenv("STORES", str(stores_dir))
+
+    assert resolve_sync_save_paths("submodule") == [selected_info]

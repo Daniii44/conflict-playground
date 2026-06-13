@@ -8,7 +8,10 @@ from state.redis._data import REDIS_SAVE_SUFFIX, SEMANTIC_SAVE_NAME, resolve_sav
 def main():
     parser = argparse.ArgumentParser(
         description="List Redis save files",
-        epilog=f"Semantic playbook saves use: {SEMANTIC_SAVE_NAME}",
+        epilog=(
+            f"Semantic playbook saves use: {SEMANTIC_SAVE_NAME}. "
+            "Saves starting with _ are listed here but ignored by state sync."
+        ),
     )
     parser.parse_args()
 
