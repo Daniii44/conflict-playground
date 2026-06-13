@@ -293,7 +293,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "select\n  conflicted_file.path as submodule,\n  case\n    when conflicted_file.stage = 1 then 'base'\n    when conflicted_file.stage = 2 then 'ours'\n    else 'theirs'\n  end as stage,\n  conflicted_file.mode as\ncommit\nfrom\n  redis_json array\n  join content.merge_result.conflicted_files::Array(JSON) as conflicted_file\nwhere\n  key = 'info:conflict:core:${repo_name}:${merge}'\n  and conflicted_file.oid = '160000'"
+                        "rawSql": "select\n  conflicted_file.path as submodule,\n  case\n    when conflicted_file.stage = 1 then 'base'\n    when conflicted_file.stage = 2 then 'ours'\n    else 'theirs'\n  end as stage,\n  conflicted_file.oid as commit\nfrom\n  redis_json array\n  join content.merge_result.conflicted_files::Array(JSON) as conflicted_file\nwhere\n  key = 'info:conflict:core:${repo_name}:${merge}'\n  and conflicted_file.mode = '160000'"
                       },
                       "version": "v0"
                     },
@@ -1041,7 +1041,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "select\n  conflicted_file.path,\n  case\n    when conflicted_file.stage = 1 then 'base'\n    when conflicted_file.stage = 2 then 'ours'\n    else 'theirs'\n  end as stage,\n  conflicted_file.oid\nfrom\n  redis_json array\n  join content.merge_result.conflicted_files::Array(JSON) as conflicted_file\nwhere\n  key = 'info:conflict:core:${repo_name}:${merge}'\n  and conflicted_file.oid != '160000'"
+                        "rawSql": "select\n  conflicted_file.path,\n  case\n    when conflicted_file.stage = 1 then 'base'\n    when conflicted_file.stage = 2 then 'ours'\n    else 'theirs'\n  end as stage,\n  conflicted_file.mode\nfrom\n  redis_json array\n  join content.merge_result.conflicted_files::Array(JSON) as conflicted_file\nwhere\n  key = 'info:conflict:core:${repo_name}:${merge}'\n  and conflicted_file.mode != '160000'"
                       },
                       "version": "v0"
                     },
@@ -1698,8 +1698,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "golang/go.git",
-            "value": "golang/go.git"
+            "text": "open-webui/open-webui.git",
+            "value": "open-webui/open-webui.git"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -1717,8 +1717,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "32082501859c5c3c61913df5791cafbbb45c2519",
-            "value": "32082501859c5c3c61913df5791cafbbb45c2519"
+            "text": "46f2f0fbdbfa990a7cbedff5a9995d721dabd89c",
+            "value": "46f2f0fbdbfa990a7cbedff5a9995d721dabd89c"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -1736,8 +1736,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "20260612T082010.979352Z",
-            "value": "20260612T082010.979352Z"
+            "text": "20260610T200858.451944Z",
+            "value": "20260610T200858.451944Z"
           },
           "hide": "dontHide",
           "includeAll": false,
