@@ -94,12 +94,7 @@ class CoreAnalysis(Analysis):
             )
             return None
         if len(parents) > 2:
-            # Not supporting octopus merges for now, since git doesn't even allow to perform non trivial octopus merges directly.
-            # TODO: Take a look whether there are complex octoopus merges nonetheless
-            logger.info(
-                "Merge commit {} has more than 2 parents, skipping",
-                analysis_input.merge_commit_oid,
-            )
+            # This is what the octopus_analysis is for, we skip it here
             return None
 
         merge_result = self.collect_bare_merge_result(
