@@ -67,7 +67,7 @@ playbook:
       limit: 4
     - repo_url: https://github.com/CyC2018/CS-Notes.git
       limit: 4
-    - repo_url: https://github.com/jackfrued/Python-20-Days.git
+    - repo_url: https://github.com/jackfrued/Python-100-Days.git
       limit: 4
     - repo_url: https://github.com/flutter/flutter.git
       limit: 4
