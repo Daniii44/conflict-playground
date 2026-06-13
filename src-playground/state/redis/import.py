@@ -5,15 +5,18 @@ import json
 
 from loguru import logger
 
-from state.redis._data import resolve_save_path, restore_key, setup_data_redis_connection
+from state.redis._data import SEMANTIC_SAVE_NAME, resolve_save_path, restore_key, setup_data_redis_connection
 
 
 def main():
     parser = argparse.ArgumentParser(
         description="Import Redis data keys from an NDJSON file",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""example:
-  state-redis-import all
+        epilog=f"""example:
+  state-redis-import submodule-info-v1
+
+Semantic playbook saves use: {SEMANTIC_SAVE_NAME}
+Use state-redis-sync <playbook> to load the latest semantic set for a playbook.
 """,
     )
     parser.add_argument("save_name", help="Name of the save file under $STORES/redis-saves")

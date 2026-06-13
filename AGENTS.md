@@ -40,6 +40,7 @@ playground-setup <owner/repo.git> <merge_sha> # Create isolated playground
 playground-ls                                 # List active playgrounds
 playbook-start <name> [--skip N] [--pool N]   # Run a playbook
 evaluation-sync [playground] [-a <analysis>]  # Evaluate saved conflict resolutions
+state-sync <save|playbook>                    # Restore Redis saves, then sync ClickHouse
 ```
 
 ## Testing
@@ -94,6 +95,8 @@ GitHub repos
 
 **Stores Directory (`/data/stores`)**
 Generated, user-inspectable output that should persist outside the container belongs under `$STORES` (`/root/stores` in the container, bind-mounted from `./data/stores`). Redis export/import saves live in `$STORES/redis-saves`; Graphviz DOT output uses `$STORES/graphviz` when commands resolve a bare output name. Do not migrate or depend on older cache-based save paths.
+
+Redis saves should use semantic names when they belong to a playbook dataset: `<playbook>-<type>-v<major>[.<minor>]`, for example `submodule-info-v1`, `submodule-resolution-v1`, and `submodule-evaluation-v1.2`. The first segment is the playbook, the second is the data type (`info`, `resolution`, `evaluation`, or another single-token type), and the version describes the saved data. `state-redis-sync <playbook>` and `state-sync <playbook>` resolve this naming scheme by choosing the highest major version for the playbook, then the highest minor version for each data type within that major. `state-redis-sync` prints the selected save files and asks for confirmation before pruning Redis and importing them; if the user denies confirmation, `state-sync` must not continue to ClickHouse.
 
 **Playground Lifecycle (`src-playground/playground/`)**
 `setup.py` creates a working repo using `.git/objects/info/alternates` pointing at the cached bare repo. It checks out `feature` (first parent), then `main` (second parent), merges `feature`, and leaves conflicts in place. It also initializes clean submodule gitlinks from cached bare repos using `git submodule update --init --reference`; unresolved submodule conflicts are left for the user.

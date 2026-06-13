@@ -5,11 +5,14 @@ import sys
 
 from loguru import logger
 
-from state.redis._data import resolve_save_path
+from state.redis._data import SEMANTIC_SAVE_NAME, resolve_save_path
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Rename a Redis save file")
+    parser = argparse.ArgumentParser(
+        description="Rename a Redis save file",
+        epilog=f"Semantic playbook saves use: {SEMANTIC_SAVE_NAME}",
+    )
     parser.add_argument("old_name", help="Current save name under $STORES/redis-saves")
     parser.add_argument("new_name", help="New save name under $STORES/redis-saves")
     parser.add_argument(

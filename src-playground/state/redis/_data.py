@@ -1,5 +1,7 @@
 import base64
 import os
+import re
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -10,6 +12,21 @@ REDIS_HOST = "redis"
 REDIS_PORT = 6379
 REDIS_SAVE_DIR_NAME = "redis-saves"
 REDIS_SAVE_SUFFIX = ".ndjson"
+SEMANTIC_SAVE_NAME = "<playbook>-<type>-v<major>[.<minor>]"
+SEMANTIC_SAVE_PATTERN = re.compile(
+    r"^(?P<playbook>.+)-(?P<data_type>[^-]+)-v(?P<major>\d+)(?:\.(?P<minor>\d+))?$"
+)
+SEMANTIC_TYPE_ORDER = ("info", "resolution", "evaluation")
+
+
+@dataclass(frozen=True)
+class SemanticSave:
+    path: Path
+    name: str
+    playbook: str
+    data_type: str
+    major: int
+    minor: int
 
 
 def setup_data_redis_connection() -> Redis:
@@ -30,6 +47,68 @@ def resolve_save_path(save_name: str) -> Path:
         file_name += REDIS_SAVE_SUFFIX
 
     return resolve_save_dir() / file_name
+
+
+def parse_semantic_save_path(save_path: Path) -> SemanticSave | None:
+    name = save_path.name.removesuffix(REDIS_SAVE_SUFFIX)
+    match = SEMANTIC_SAVE_PATTERN.fullmatch(name)
+    if match is None:
+        return None
+
+    minor = match.group("minor")
+    return SemanticSave(
+        path=save_path,
+        name=name,
+        playbook=match.group("playbook"),
+        data_type=match.group("data_type"),
+        major=int(match.group("major")),
+        minor=int(minor) if minor is not None else 0,
+    )
+
+
+def iter_semantic_saves() -> Iterable[SemanticSave]:
+    save_dir = resolve_save_dir()
+    if not save_dir.exists():
+        return
+
+    for save_path in sorted(save_dir.glob(f"*{REDIS_SAVE_SUFFIX}")):
+        semantic_save = parse_semantic_save_path(save_path)
+        if semantic_save is not None:
+            yield semantic_save
+
+
+def semantic_save_sort_key(save: SemanticSave):
+    try:
+        type_order = SEMANTIC_TYPE_ORDER.index(save.data_type)
+    except ValueError:
+        type_order = len(SEMANTIC_TYPE_ORDER)
+
+    return (type_order, save.data_type, save.name)
+
+
+def resolve_sync_save_paths(save_or_playbook: str) -> list[Path]:
+    explicit_path = resolve_save_path(save_or_playbook)
+    if explicit_path.exists():
+        return [explicit_path]
+
+    candidates = [save for save in iter_semantic_saves() if save.playbook == save_or_playbook]
+    if not candidates:
+        raise FileNotFoundError(
+            f"No Redis save exists for {save_or_playbook!r}. "
+            f"Use an exact save name or a playbook with saves named {SEMANTIC_SAVE_NAME}."
+        )
+
+    latest_major = max(save.major for save in candidates)
+    latest_by_type: dict[str, SemanticSave] = {}
+    for save in candidates:
+        if save.major != latest_major:
+            continue
+
+        current = latest_by_type.get(save.data_type)
+        if current is None or (save.minor, save.name) > (current.minor, current.name):
+            latest_by_type[save.data_type] = save
+
+    return [save.path for save in sorted(latest_by_type.values(), key=semantic_save_sort_key)]
 
 
 def _encode(value: bytes) -> str:

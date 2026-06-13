@@ -5,11 +5,14 @@ import sys
 
 from loguru import logger
 
-from state.redis._data import resolve_save_path
+from state.redis._data import SEMANTIC_SAVE_NAME, resolve_save_path
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Delete a Redis save file")
+    parser = argparse.ArgumentParser(
+        description="Delete a Redis save file",
+        epilog=f"Semantic playbook saves use: {SEMANTIC_SAVE_NAME}",
+    )
     parser.add_argument("save_name", help="Name of the save file under $STORES/redis-saves")
     args = parser.parse_args()
 

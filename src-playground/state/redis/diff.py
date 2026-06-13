@@ -10,7 +10,7 @@ from typing import Any
 
 from loguru import logger
 
-from state.redis._data import dump_key, resolve_save_path, setup_data_redis_connection
+from state.redis._data import SEMANTIC_SAVE_NAME, dump_key, resolve_save_path, setup_data_redis_connection
 
 
 @dataclass(frozen=True)
@@ -128,9 +128,11 @@ def main():
     parser = argparse.ArgumentParser(
         description="Compare current Redis data keys with an NDJSON save file",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""examples:
+        epilog=f"""examples:
   state-redis-diff all
   state-redis-diff all --include-ttl
+
+Semantic playbook saves use: {SEMANTIC_SAVE_NAME}
 """,
     )
     parser.add_argument("save_name", help="Name of the save file under $STORES/redis-saves")

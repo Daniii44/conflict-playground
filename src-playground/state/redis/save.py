@@ -6,6 +6,7 @@ import json
 from loguru import logger
 
 from state.redis._data import (
+    SEMANTIC_SAVE_NAME,
     dump_key,
     iter_matching_keys,
     resolve_save_path,
@@ -17,9 +18,12 @@ def main():
     parser = argparse.ArgumentParser(
         description="Save Redis data keys to an NDJSON file",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""examples:
-  state-redis-save all
-  state-redis-save conflicts 'info:conflict:*'
+        epilog=f"""examples:
+  state-redis-save submodule-info-v1 'info:*'
+  state-redis-save submodule-resolution-v1 'resolution:*'
+  state-redis-save submodule-evaluation-v1.1 'evaluation:*'
+
+Semantic playbook saves use: {SEMANTIC_SAVE_NAME}
 """,
     )
     parser.add_argument("save_name", help="Name for the save file under $STORES/redis-saves")

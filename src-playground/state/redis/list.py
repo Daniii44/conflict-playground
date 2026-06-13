@@ -2,11 +2,14 @@
 
 import argparse
 
-from state.redis._data import REDIS_SAVE_SUFFIX, resolve_save_dir
+from state.redis._data import REDIS_SAVE_SUFFIX, SEMANTIC_SAVE_NAME, resolve_save_dir
 
 
 def main():
-    parser = argparse.ArgumentParser(description="List Redis save files")
+    parser = argparse.ArgumentParser(
+        description="List Redis save files",
+        epilog=f"Semantic playbook saves use: {SEMANTIC_SAVE_NAME}",
+    )
     parser.parse_args()
 
     save_dir = resolve_save_dir()
