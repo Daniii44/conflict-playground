@@ -5,7 +5,7 @@ import sys
 
 from loguru import logger
 
-from info.redis._data import resolve_save_path
+from state.redis._data import resolve_save_path
 
 
 def main():

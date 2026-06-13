@@ -120,7 +120,7 @@ def main() -> int:
 
     logger.info("Syncing with Clickhouse")
     try:
-        run(["info-clickhouse-sync"])
+        run(["state-clickhouse-sync"])
     except subprocess.CalledProcessError as error:
         logger.error("Failed to sync ClickHouse with command: {}", " ".join(error.cmd))
         return error.returncode

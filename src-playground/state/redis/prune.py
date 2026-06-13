@@ -5,7 +5,7 @@ import sys
 
 from loguru import logger
 
-from info.redis._data import iter_matching_keys, setup_data_redis_connection
+from state.redis._data import iter_matching_keys, setup_data_redis_connection
 
 
 def main():
@@ -13,8 +13,8 @@ def main():
         description="Delete Redis data keys",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""examples:
-  info-redis-prune --all
-  info-redis-prune 'info:conflict:*'
+  state-redis-prune --all
+  state-redis-prune 'info:conflict:*'
 """,
     )
     parser.add_argument(

@@ -2,7 +2,7 @@
 
 import argparse
 
-from info.redis._data import REDIS_SAVE_SUFFIX, resolve_save_dir
+from state.redis._data import REDIS_SAVE_SUFFIX, resolve_save_dir
 
 
 def main():

@@ -34,7 +34,7 @@ def test_info_sync_continues_after_failed_repo(monkeypatch):
     assert commands == [
         ["info-conflict-sync", "--all-analysis", "missing/repo.git"],
         ["info-conflict-sync", "--all-analysis", "ok/repo.git"],
-        ["info-clickhouse-sync"],
+        ["state-clickhouse-sync"],
     ]
 
 
@@ -54,7 +54,7 @@ def test_info_sync_returns_clickhouse_failure(monkeypatch):
     monkeypatch.setattr(info_sync, "collect_repos", lambda playbook: ["ok/repo.git"])
 
     def fake_run(command):
-        if command == ["info-clickhouse-sync"]:
+        if command == ["state-clickhouse-sync"]:
             raise subprocess.CalledProcessError(7, command)
 
     monkeypatch.setattr(info_sync, "run", fake_run)

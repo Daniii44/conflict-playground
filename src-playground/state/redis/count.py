@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from info.redis._data import setup_data_redis_connection
+from state.redis._data import setup_data_redis_connection
 
 
 def main():

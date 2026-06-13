@@ -3,8 +3,8 @@ import json
 
 import pytest
 
-from info.redis import diff as redis_diff
-from info.redis._data import resolve_save_path
+from state.redis import diff as redis_diff
+from state.redis._data import resolve_save_path
 
 
 def make_record(key: bytes, *, key_type: str = "string", dump: str = "payload", ttl_ms=None):

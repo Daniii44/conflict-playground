@@ -5,7 +5,7 @@ import json
 
 from loguru import logger
 
-from info.redis._data import resolve_save_path, restore_key, setup_data_redis_connection
+from state.redis._data import resolve_save_path, restore_key, setup_data_redis_connection
 
 
 def main():
@@ -13,7 +13,7 @@ def main():
         description="Import Redis data keys from an NDJSON file",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""example:
-  info-redis-import all
+  state-redis-import all
 """,
     )
     parser.add_argument("save_name", help="Name of the save file under $STORES/redis-saves")

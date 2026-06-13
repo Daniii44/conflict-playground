@@ -5,7 +5,7 @@ import json
 
 from loguru import logger
 
-from info.redis._data import (
+from state.redis._data import (
     dump_key,
     iter_matching_keys,
     resolve_save_path,
@@ -18,8 +18,8 @@ def main():
         description="Save Redis data keys to an NDJSON file",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""examples:
-  info-redis-save all
-  info-redis-save conflicts 'info:conflict:*'
+  state-redis-save all
+  state-redis-save conflicts 'info:conflict:*'
 """,
     )
     parser.add_argument("save_name", help="Name for the save file under $STORES/redis-saves")
