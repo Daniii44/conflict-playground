@@ -706,7 +706,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT\n    distinct message.info.modelID as Model\nFROM \"default\".\"redis_json\"\narray join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\narray join message.parts::Array(JSON) as part\nwhere key = 'resolution:conflict:codecrafters-io/build-your-own-x.git-e01bd303ddd35a92bc26202903836e897cd7bb05:20260609T204310.324506Z'\nand message.info.role = 'assistant' \nand part.type not like 'step-%'\n"
+                        "rawSql": "SELECT\n    distinct message.info.modelID as Model\nFROM \"default\".\"redis_json\"\narray join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\narray join message.parts::Array(JSON) as part\nwhere key = 'resolution:conflict:${repo_name}-${merge}:${timestamp}'\nand message.info.role = 'assistant' \nand part.type not like 'step-%'\n"
                       },
                       "version": "v0"
                     },
@@ -1806,8 +1806,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "codecrafters-io/build-your-own-x.git",
-            "value": "codecrafters-io/build-your-own-x.git"
+            "text": "qt/qt5.git",
+            "value": "qt/qt5.git"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -1825,8 +1825,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "e01bd303ddd35a92bc26202903836e897cd7bb05",
-            "value": "e01bd303ddd35a92bc26202903836e897cd7bb05"
+            "text": "26775d4e3eabcbdc84a99bd28475440803792866",
+            "value": "26775d4e3eabcbdc84a99bd28475440803792866"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -1844,8 +1844,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "20260609T204310.324506Z",
-            "value": "20260609T204310.324506Z"
+            "text": "20260611T002825.672532Z",
+            "value": "20260611T002825.672532Z"
           },
           "definition": "  WITH base AS (\n  SELECT\n    key,\n    extractGroups (\n      arrayElement(splitByString('resolution:conflict:', key), 2),\n      '(.+)\\.git-([a-f0-9]{40}):(.*)$'\n    ) AS groups\n  FROM\n    \"default\".\"redis_json\"\n  WHERE\n    startsWith(key, 'resolution')\n    AND content.proposed_resolution.error IS NULL\n)\nSELECT\n  groups[3] AS timestamp\nFROM\n  base\nWHERE\n    concat(groups[1], '.git') = '${repo_name}'  -- \u003c-- Replace with your target repo (e.g., 'framework.git')\n  AND groups[2] = '${merge}'    -- \u003c-- Replace with your target merge commit hash\nORDER BY\n  timestamp DESC;",
           "hide": "dontHide",
