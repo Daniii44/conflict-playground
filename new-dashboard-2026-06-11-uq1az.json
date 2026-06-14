@@ -1698,8 +1698,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "facebook/react.git",
-            "value": "facebook/react.git"
+            "text": "codecrafters-io/build-your-own-x.git",
+            "value": "codecrafters-io/build-your-own-x.git"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -1717,8 +1717,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "3ad50710a769838c9ae9c2d1669c5981e7639092",
-            "value": "3ad50710a769838c9ae9c2d1669c5981e7639092"
+            "text": "e01bd303ddd35a92bc26202903836e897cd7bb05",
+            "value": "e01bd303ddd35a92bc26202903836e897cd7bb05"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -1736,8 +1736,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "20260614T170239.563360Z",
-            "value": "20260614T170239.563360Z"
+            "text": "20260609T204310.324506Z",
+            "value": "20260609T204310.324506Z"
           },
           "definition": "  WITH base AS (\n  SELECT\n    key,\n    extractGroups (\n      arrayElement(splitByString('resolution:conflict:', key), 2),\n      '(.+)\\.git-([a-f0-9]{40}):(.*)$'\n    ) AS groups\n  FROM\n    \"default\".\"redis_json\"\n  WHERE\n    startsWith(key, 'resolution')\n    AND content.proposed_resolution.error IS NULL\n)\nSELECT\n  groups[3] AS timestamp\nFROM\n  base\nWHERE\n    concat(groups[1], '.git') = '${repo_name}'  -- \u003c-- Replace with your target repo (e.g., 'framework.git')\n  AND groups[2] = '${merge}'    -- \u003c-- Replace with your target merge commit hash\nORDER BY\n  timestamp DESC;",
           "hide": "dontHide",
