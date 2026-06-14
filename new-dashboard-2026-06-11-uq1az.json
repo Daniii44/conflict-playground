@@ -1698,8 +1698,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "open-webui/open-webui.git",
-            "value": "open-webui/open-webui.git"
+            "text": "facebook/react.git",
+            "value": "facebook/react.git"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -1717,8 +1717,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "46f2f0fbdbfa990a7cbedff5a9995d721dabd89c",
-            "value": "46f2f0fbdbfa990a7cbedff5a9995d721dabd89c"
+            "text": "3ad50710a769838c9ae9c2d1669c5981e7639092",
+            "value": "3ad50710a769838c9ae9c2d1669c5981e7639092"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -1732,22 +1732,36 @@
         }
       },
       {
-        "kind": "CustomVariable",
+        "kind": "QueryVariable",
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "20260610T200858.451944Z",
-            "value": "20260610T200858.451944Z"
+            "text": "3ad50710a769838c9ae9c2d1669c5981e7639092",
+            "value": "facebook/react.git"
           },
+          "definition": "  WITH base AS (\n  SELECT\n    key,\n    extractGroups (\n      arrayElement(splitByString('resolution:conflict:', key), 2),\n      '(.+)\\.git-([a-f0-9]{40}):(.*)$'\n    ) AS groups\n  FROM\n    \"default\".\"redis_json\"\n  WHERE\n    startsWith(key, 'resolution')\n    AND content.proposed_resolution.error IS NULL\n)\nSELECT\n  concat(groups[1], '.git') AS repo_name,\n  groups[2] AS merge,\n  groups[3] AS timestamp\nFROM\n  base\nWHERE\n  repo_name = '${repo_name}'  -- \u003c-- Replace with your target repo (e.g., 'framework.git')\n  AND merge = '${merge}'    -- \u003c-- Replace with your target merge commit hash\nORDER BY\n  timestamp DESC;",
           "hide": "dontHide",
           "includeAll": false,
           "label": "Timestamp",
           "multi": false,
           "name": "timestamp",
           "options": [],
-          "query": "",
+          "query": {
+            "datasource": {
+              "name": "clickhouse"
+            },
+            "group": "grafana-clickhouse-datasource",
+            "kind": "DataQuery",
+            "spec": {
+              "__legacyStringValue": "  WITH base AS (\n  SELECT\n    key,\n    extractGroups (\n      arrayElement(splitByString('resolution:conflict:', key), 2),\n      '(.+)\\.git-([a-f0-9]{40}):(.*)$'\n    ) AS groups\n  FROM\n    \"default\".\"redis_json\"\n  WHERE\n    startsWith(key, 'resolution')\n    AND content.proposed_resolution.error IS NULL\n)\nSELECT\n  concat(groups[1], '.git') AS repo_name,\n  groups[2] AS merge,\n  groups[3] AS timestamp\nFROM\n  base\nWHERE\n  repo_name = '${repo_name}'  -- \u003c-- Replace with your target repo (e.g., 'framework.git')\n  AND merge = '${merge}'    -- \u003c-- Replace with your target merge commit hash\nORDER BY\n  timestamp DESC;"
+            },
+            "version": "v0"
+          },
+          "refresh": "onDashboardLoad",
+          "regex": "",
+          "regexApplyTo": "value",
           "skipUrlSync": false,
-          "valuesFormat": "csv"
+          "sort": "disabled"
         }
       }
     ]
