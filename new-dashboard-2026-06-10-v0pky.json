@@ -496,7 +496,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "with\n  base as (\n    SELECT\n      key,\n      arrayElement (splitByString ('resolution:conflict:', key), 2) as resolution,\n      extractGroups (\n        arrayElement (splitByString ('resolution:conflict:', key), 2),\n        '(.+)\\.git-([a-f0-9]{40}):(.*)$'\n      ) AS groups\n    FROM\n      \"default\".\"redis_json\"\n    where\n      startsWith (key, 'resolution')\n      and content.proposed_resolution.error is null\n    order by\n      content.resolution_end::datetime desc\n  )\nSELECT\n  concat(groups[1], '.git') AS repo_name,\n  groups[2] AS merge,\n  groups[3] AS timestamp,\n  'Show Details' as details,\n  case\n    when evaluation.key = '' then 'N/A'\n    when evaluation.content.incomplete_merge = 0 then 'Yes'\n    else 'No'\n  end as complete_merge,\n  case\n    when evaluation.key = '' then 'N/A'\n    when (evaluation.content.perfect_match = 0) then 'No'\n    else 'Yes'\n  end as perfect_match\nfrom\n  base b\n  left join default.redis_json as evaluation on evaluation.key = concat(\n    'evaluation:merge:core:',\n    repo_name,\n    '-',\n    merge,\n    ':',\n    timestamp\n  );"
+                        "rawSql": "WITH base AS (\n  SELECT\n    key,\n    extractGroups (\n      arrayElement(splitByString('resolution:conflict:', key), 2),\n      '(.+)\\.git-([a-f0-9]{40}):(.*)$'\n    ) AS groups\n  FROM\n    \"default\".\"redis_json\"\n  WHERE\n    startsWith(key, 'resolution')\n    AND content.proposed_resolution.error IS NULL\n)\nSELECT\n  concat(groups[1], '.git') AS repo_name,\n  groups[2] AS merge,\n  MAX(groups[3]) AS timestamp, -- Keeps the latest timestamp for the merge group\n  COUNT(evaluation.key) AS total_evaluations,\n  'Show Details' AS details,    -- Retains the static string\n  \n  -- Complete Merge Ratio (Evaluations with incomplete_merge = 0 / Total Evaluations)\n  CASE \n    WHEN COUNT(evaluation.key) = 0 THEN -1\n    ELSE SUM(CASE WHEN evaluation.key != '' AND evaluation.content.incomplete_merge = 0 THEN 1 ELSE 0 END) \n         / COUNT(evaluation.key)\n  END AS complete_merge_ratio,\n\n  -- Perfect Match Ratio (Evaluations with perfect_match != 0 / Total Evaluations)\n  CASE \n    WHEN COUNT(evaluation.key) = 0 THEN -1\n    ELSE SUM(CASE WHEN evaluation.key != '' AND evaluation.content.perfect_match != 0 THEN 1 ELSE 0 END) \n         / COUNT(evaluation.key)\n  END AS perfect_match_ratio\n\nFROM\n  base b\n  LEFT JOIN default.redis_json AS evaluation ON evaluation.key = concat(\n    'evaluation:merge:core:',\n    concat(b.groups[1], '.git'),\n    '-',\n    b.groups[2],\n    ':',\n    b.groups[3]\n  )\nGROUP BY\n  repo_name,\n  merge;"
                       },
                       "version": "v0"
                     },
@@ -519,7 +519,7 @@
               "fieldConfig": {
                 "defaults": {
                   "color": {
-                    "mode": "thresholds"
+                    "mode": "continuous-RdYlGr"
                   },
                   "custom": {
                     "align": "auto",
@@ -531,35 +531,18 @@
                     },
                     "inspect": false
                   },
-                  "mappings": [
-                    {
-                      "options": {
-                        "N/A": {
-                          "color": "purple",
-                          "index": 2
-                        },
-                        "No": {
-                          "color": "red",
-                          "index": 0
-                        },
-                        "Yes": {
-                          "color": "green",
-                          "index": 1
-                        }
-                      },
-                      "type": "value"
-                    }
-                  ],
+                  "max": 1,
+                  "min": 0,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
                       {
-                        "color": "green",
+                        "color": "red",
                         "value": 0
                       },
                       {
-                        "color": "red",
-                        "value": 80
+                        "color": "green",
+                        "value": 1
                       }
                     ]
                   }
@@ -609,7 +592,7 @@
                 "sortBy": [
                   {
                     "desc": true,
-                    "displayName": "perfect_match"
+                    "displayName": "total_evaluations"
                   }
                 ]
               }
