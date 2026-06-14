@@ -608,8 +608,8 @@
                 "showHeader": true,
                 "sortBy": [
                   {
-                    "desc": false,
-                    "displayName": "details"
+                    "desc": true,
+                    "displayName": "perfect_match"
                   }
                 ]
               }
