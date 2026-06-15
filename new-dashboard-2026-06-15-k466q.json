@@ -197,7 +197,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT\n    count(*) as count,\n    part.state.input.command::text as command,\n    sum(case when part.state.status = 'completed' then 1 else 0 end)/count(*) as success_rate,\n    median(part.state.time.end::integer - part.state.time.start::integer) as median_duration_ms,\n    avg(part.state.time.end::integer - part.state.time.start::integer) as avg_duration_ms,\n    max(part.state.time.end::integer - part.state.time.start::integer) as max_duration_ms,\n    median(length(part.state.output)) as median_output_length,\n    avg(length(part.state.output)) as avg_output_length,\n    max(length(part.state.output)) as max_output_length\nFROM \"default\".\"redis_json\"\narray join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\narray join message.parts::Array(JSON) as part\nwhere message.info.role = 'assistant' \nand part.type = 'tool'\nand part.tool = 'bash'\ngroup by command\norder by count desc"
+                        "rawSql": "SELECT\n    count(*) as count,\n    part.state.input.command::text as command,\n    median(part.state.time.end::integer - part.state.time.start::integer) as median_duration_ms,\n    avg(part.state.time.end::integer - part.state.time.start::integer) as avg_duration_ms,\n    max(part.state.time.end::integer - part.state.time.start::integer) as max_duration_ms,\n    median(length(part.state.output)) as median_output_length,\n    avg(length(part.state.output)) as avg_output_length,\n    max(length(part.state.output)) as max_output_length\nFROM \"default\".\"redis_json\"\narray join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\narray join message.parts::Array(JSON) as part\nwhere message.info.role = 'assistant' \nand part.type = 'tool'\nand part.tool = 'bash'\nand part.state.status = 'completed'\ngroup by command\norder by count desc"
                       },
                       "version": "v0"
                     },
@@ -299,6 +299,222 @@
             "version": "13.0.1+security-01"
           }
         }
+      },
+      "panel-3": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT\n    count(*) as count,\n    arrayElement(splitByChar(' ', part.state.input.command::text),1) as command\nFROM \"default\".\"redis_json\"\narray join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\narray join message.parts::Array(JSON) as part\nwhere message.info.role = 'assistant' \nand part.type = 'tool'\nand part.tool = 'bash'\nand part.state.status = 'completed'\ngroup by command\norder by count desc"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 3,
+          "links": [],
+          "title": "Primary Bash Commands",
+          "vizConfig": {
+            "group": "table",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "align": "auto",
+                    "cellOptions": {
+                      "type": "auto"
+                    },
+                    "footer": {
+                      "reducers": []
+                    },
+                    "inspect": false
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "count",
+                      "scope": "series"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.cellOptions",
+                        "value": {
+                          "type": "gauge"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "options": {
+                "cellHeight": "sm",
+                "showHeader": true
+              }
+            },
+            "version": "13.0.1+security-01"
+          }
+        }
+      },
+      "panel-4": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT\n    count(*) as count,\n    -- 4. Extract the first word (the actual command) from each piped stage\n    arrayElement(splitByChar(' ', trimBoth(pipe_stage)), 1) as command\nFROM \"default\".\"redis_json\"\nARRAY JOIN content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\nARRAY JOIN message.parts::Array(JSON) as part\n-- 1. Split the full bash command by the pipe character '|'\n-- 2. Use arraySlice to skip the first element (the initial command)\n-- 3. ARRAY JOIN to flatten only the remaining piped commands\nARRAY JOIN arraySlice(splitByString(' | ', part.state.input.command::text), 2) as pipe_stage\nWHERE message.info.role = 'assistant' \n  AND part.type = 'tool'\n  AND part.tool = 'bash'\n  AND part.state.status = 'completed'\n  AND length(trimBoth(command)) \u003e 0\nGROUP BY command\nORDER BY count DESC"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 4,
+          "links": [],
+          "title": "Pipe Bash Commands",
+          "vizConfig": {
+            "group": "table",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "align": "auto",
+                    "cellOptions": {
+                      "type": "auto"
+                    },
+                    "footer": {
+                      "reducers": []
+                    },
+                    "inspect": false
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "count",
+                      "scope": "series"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.cellOptions",
+                        "value": {
+                          "type": "gauge"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "options": {
+                "cellHeight": "sm",
+                "showHeader": true
+              }
+            },
+            "version": "13.0.1+security-01"
+          }
+        }
       }
     },
     "layout": {
@@ -346,6 +562,24 @@
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-2"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "AutoGridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-3"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "AutoGridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-4"
                         }
                       }
                     }
