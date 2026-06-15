@@ -197,7 +197,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT\n    count(*) as count,\n    part.state.input.command::text as command,\n    sum(case when part.state.status = 'completed' then 1 else 0 end)/count(*) as success_rate,\n    median(part.state.time.end::integer - part.state.time.start::integer) as median_duration_ms,\n    avg(part.state.time.end::integer - part.state.time.start::integer) as avg_duration_ms,\n    max(part.state.time.end::integer - part.state.time.start::integer) as max_duration_ms,\n    median(length(part.state.output)) as median_output_length,\n    avg(length(part.state.output)) as avg_output_length,\n    max(length(part.state.output)) as max_output_length,\n    any(part)\nFROM \"default\".\"redis_json\"\narray join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\narray join message.parts::Array(JSON) as part\nwhere message.info.role = 'assistant' \nand part.type = 'tool'\nand part.tool = 'bash'\ngroup by command\norder by count desc"
+                        "rawSql": "SELECT\n    count(*) as count,\n    part.state.input.command::text as command,\n    sum(case when part.state.status = 'completed' then 1 else 0 end)/count(*) as success_rate,\n    median(part.state.time.end::integer - part.state.time.start::integer) as median_duration_ms,\n    avg(part.state.time.end::integer - part.state.time.start::integer) as avg_duration_ms,\n    max(part.state.time.end::integer - part.state.time.start::integer) as max_duration_ms,\n    median(length(part.state.output)) as median_output_length,\n    avg(length(part.state.output)) as avg_output_length,\n    max(length(part.state.output)) as max_output_length\nFROM \"default\".\"redis_json\"\narray join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\narray join message.parts::Array(JSON) as part\nwhere message.info.role = 'assistant' \nand part.type = 'tool'\nand part.tool = 'bash'\ngroup by command\norder by count desc"
                       },
                       "version": "v0"
                     },
@@ -291,7 +291,7 @@
               },
               "options": {
                 "cellHeight": "sm",
-                "enablePagination": true,
+                "enablePagination": false,
                 "showHeader": true,
                 "sortBy": []
               }
