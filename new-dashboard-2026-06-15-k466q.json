@@ -62,7 +62,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT\n    count(*) as \"Total Tool Call Count\"\nFROM \"default\".\"redis_json\"\narray join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\narray join message.parts::Array(JSON) as part\nwhere message.info.role = 'assistant' \nand part.type = 'tool'\nand part.tool = 'bash'"
+                        "rawSql": "SELECT\n    count(*) as \"Total Bash Tool Call Count\"\nFROM \"default\".\"redis_json\"\narray join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\narray join message.parts::Array(JSON) as part\nwhere message.info.role = 'assistant' \nand part.type = 'tool'\nand part.tool = 'bash'"
                       },
                       "version": "v0"
                     },
@@ -94,7 +94,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "with\n  base as (\n    SELECT\n      count(*) as tool_call_count\n    FROM\n      \"default\".\"redis_json\" array\n      join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message array\n      join message.parts::Array(JSON) as part\n    where\n      message.info.role = 'assistant'\n      and part.type = 'tool'\n      and part.tool = 'bash'\n    group by\n      key\n  )\nselect\n  median(tool_call_count) as \"Median Tool Count per Session\",\n  avg(tool_call_count) as \"Average Tool Count per Session\",\n  max(tool_call_count) as \"Max Tool Count per Session\"\nfrom\n  base"
+                        "rawSql": "with\n  base as (\n    SELECT\n      count(*) as tool_call_count\n    FROM\n      \"default\".\"redis_json\" array\n      join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message array\n      join message.parts::Array(JSON) as part\n    where\n      message.info.role = 'assistant'\n      and part.type = 'tool'\n      and part.tool = 'bash'\n    group by\n      key\n  )\nselect\n  median(tool_call_count) as \"Median Bash Tool Count per Session\",\n  avg(tool_call_count) as \"Average Bash Tool Count per Session\",\n  max(tool_call_count) as \"Max Bash Tool Count per Session\"\nfrom\n  base"
                       },
                       "version": "v0"
                     },
@@ -212,7 +212,7 @@
           "description": "",
           "id": 2,
           "links": [],
-          "title": "New panel",
+          "title": "Common Bash Commands",
           "vizConfig": {
             "group": "table",
             "kind": "VizConfig",
