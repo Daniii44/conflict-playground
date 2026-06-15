@@ -68,10 +68,50 @@
                     },
                     "refId": "A"
                   }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "with\n  base as (\n    SELECT\n      count(*) as tool_call_count\n    FROM\n      \"default\".\"redis_json\" array\n      join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message array\n      join message.parts::Array(JSON) as part\n    where\n      message.info.role = 'assistant'\n      and part.type = 'tool'\n      and part.tool = 'bash'\n    group by\n      key\n  )\nselect\n  median(tool_call_count) as \"Median Tool Count per Session\",\n  avg(tool_call_count) as \"Average Tool Count per Session\",\n  max(tool_call_count) as \"Max Tool Count per Session\"\nfrom\n  base"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "B"
+                  }
                 }
               ],
               "queryOptions": {},
-              "transformations": []
+              "transformations": [
+                {
+                  "group": "renameByRegex",
+                  "kind": "Transformation",
+                  "spec": {
+                    "options": {}
+                  }
+                }
+              ]
             }
           },
           "description": "",
@@ -111,7 +151,7 @@
                 "percentChangeColorMode": "standard",
                 "reduceOptions": {
                   "calcs": [
-                    "lastNotNull"
+                    "median"
                   ],
                   "fields": "",
                   "values": false
