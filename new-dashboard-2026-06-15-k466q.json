@@ -251,7 +251,9 @@
               },
               "options": {
                 "cellHeight": "sm",
-                "showHeader": true
+                "enablePagination": true,
+                "showHeader": true,
+                "sortBy": []
               }
             },
             "version": "13.0.1+security-01"
@@ -260,39 +262,78 @@
       }
     },
     "layout": {
-      "kind": "GridLayout",
+      "kind": "RowsLayout",
       "spec": {
-        "items": [
+        "rows": [
           {
-            "kind": "GridLayoutItem",
+            "kind": "RowsLayoutRow",
             "spec": {
-              "element": {
-                "kind": "ElementReference",
-                "name": "panel-1"
+              "collapse": false,
+              "layout": {
+                "kind": "AutoGridLayout",
+                "spec": {
+                  "columnWidthMode": "standard",
+                  "items": [
+                    {
+                      "kind": "AutoGridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-1"
+                        }
+                      }
+                    }
+                  ],
+                  "maxColumnCount": 3,
+                  "rowHeightMode": "standard"
+                }
               },
-              "height": 11,
-              "width": 8,
-              "x": 0,
-              "y": 0
+              "title": "Overview"
             }
           },
           {
-            "kind": "GridLayoutItem",
+            "kind": "RowsLayoutRow",
             "spec": {
-              "element": {
-                "kind": "ElementReference",
-                "name": "panel-2"
+              "collapse": false,
+              "layout": {
+                "kind": "AutoGridLayout",
+                "spec": {
+                  "columnWidthMode": "standard",
+                  "items": [
+                    {
+                      "kind": "AutoGridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-2"
+                        }
+                      }
+                    }
+                  ],
+                  "maxColumnCount": 3,
+                  "rowHeightMode": "tall"
+                }
               },
-              "height": 11,
-              "width": 16,
-              "x": 8,
-              "y": 0
+              "title": "Insights"
             }
           }
         ]
       }
     },
-    "links": [],
+    "links": [
+      {
+        "asDropdown": false,
+        "icon": "external link",
+        "includeVars": false,
+        "keepTime": false,
+        "tags": [],
+        "targetBlank": true,
+        "title": "Source (GitHub)",
+        "tooltip": "View source file in repository",
+        "type": "link",
+        "url": "https://github.com/Daniii44/conflict-playground/blob/grafana/new-dashboard-2026-06-15-k466q.json"
+      }
+    ],
     "liveNow": false,
     "preferences": {
       "layout": {
