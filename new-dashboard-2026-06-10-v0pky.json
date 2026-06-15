@@ -844,7 +844,7 @@
                       }
                     }
                   ],
-                  "maxColumnCount": 4,
+                  "maxColumnCount": 5,
                   "rowHeightMode": "standard"
                 }
               },
