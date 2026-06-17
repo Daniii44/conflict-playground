@@ -26,6 +26,7 @@ class MergeCoreEvaluation(MergeEvaluationRecord):
 class MergeDiffOutput(BaseModel):
     patch: str | None = None
     raw: str | None = None
+    exact_match: bool | None = None
 
 
 class MergeDiffEvaluation(MergeEvaluationRecord):

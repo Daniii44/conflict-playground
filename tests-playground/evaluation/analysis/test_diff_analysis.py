@@ -83,6 +83,7 @@ def test_diff_analysis_records_patch_and_raw_diff_tree_outputs(monkeypatch):
         record.conflicted_to_proposed_resolution_diffs["ignore_cr_at_eol"]["ignore_blank_lines"].patch
         == "patch --ignore-cr-at-eol+--ignore-blank-lines conflicted-tree..HEAD\n"
     )
+    assert record.proposed_to_actual_resolution_diffs["exact"]["include_blank_lines"].exact_match is False
     assert record.error is None
     dumped = record.model_dump()
     assert "configuration" not in dumped
@@ -192,6 +193,18 @@ def test_diff_analysis_records_patch_and_raw_diff_tree_outputs(monkeypatch):
     assert [key for key, _ in BLANK_LINE_DIFF_MODES] == list(
         record.proposed_to_actual_resolution_diffs["exact"].keys()
     )
+
+
+def test_diff_analysis_records_exact_match_for_empty_diff(monkeypatch):
+    with patch("evaluation.analysis.diff_analysis.capture_git") as diff_capture_git:
+        diff_capture_git.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
+
+        diffs, error = DiffEvaluationAnalysis().collect_diff_matrix("/playground", "HEAD", "actualsha")
+
+    assert error is None
+    assert diffs["exact"]["include_blank_lines"].patch == ""
+    assert diffs["exact"]["include_blank_lines"].raw == ""
+    assert diffs["exact"]["include_blank_lines"].exact_match is True
 
 
 def test_diff_analysis_records_diff_command_failure(monkeypatch):
