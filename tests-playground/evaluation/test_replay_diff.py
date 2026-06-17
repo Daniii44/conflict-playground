@@ -2,7 +2,7 @@ import importlib.util
 from pathlib import Path
 
 import evaluation
-from common.evaluation_models import MergeDiffEvaluation
+from common.evaluation_models import MergeDiffEvaluation, MergeDiffOutput
 
 
 REPLAY_DIFF_PATH = Path(evaluation.__path__[0]) / "replay-diff.py"
@@ -38,7 +38,11 @@ def test_replay_diff_writes_recorded_diff_for_resolution_key(monkeypatch, capsys
     evaluation_key = "evaluation:merge:diff:owner/repo.git-actualsha:20260602T120000.000000Z"
     payload = MergeDiffEvaluation(
         resolution_key=resolution_key,
-        proposed_to_actual_resolution_patch="\x1b[31m-diff\x1b[m\n",
+        proposed_to_actual_resolution_diffs={
+            "exact": {
+                "include_blank_lines": MergeDiffOutput(patch="\x1b[31m-diff\x1b[m\n"),
+            },
+        },
     ).model_dump(mode="json")
     monkeypatch.setattr(
         replay_diff_module,

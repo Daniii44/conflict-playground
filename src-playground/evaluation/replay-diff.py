@@ -31,6 +31,20 @@ def diff_evaluation_key(redis, resolution_or_playground: str) -> str | None:
     return evaluation_record_key("diff", resolution_key)
 
 
+def recorded_proposed_to_actual_patch(evaluation: MergeDiffEvaluation, evaluation_data) -> str | None:
+    default_diff = evaluation.proposed_to_actual_resolution_diffs.get("exact", {}).get("include_blank_lines")
+    if default_diff is not None and default_diff.patch is not None:
+        return default_diff.patch
+
+    if evaluation.proposed_to_actual_resolution_patch is not None:
+        return evaluation.proposed_to_actual_resolution_patch
+
+    if isinstance(evaluation_data, dict):
+        return evaluation_data.get("diff_to_actual_resolution")
+
+    return None
+
+
 def replay_diff(resolution_or_playground: str) -> int:
     redis = setup_redis_connection()
     key = diff_evaluation_key(redis, resolution_or_playground)
@@ -44,9 +58,7 @@ def replay_diff(resolution_or_playground: str) -> int:
         return 1
 
     evaluation = MergeDiffEvaluation.model_validate(evaluation_data)
-    diff = evaluation.proposed_to_actual_resolution_patch
-    if diff is None and isinstance(evaluation_data, dict):
-        diff = evaluation_data.get("diff_to_actual_resolution")
+    diff = recorded_proposed_to_actual_patch(evaluation, evaluation_data)
     if diff is None:
         if evaluation.error:
             logger.error("Proposed resolution diff was not recorded: {}", evaluation.error)

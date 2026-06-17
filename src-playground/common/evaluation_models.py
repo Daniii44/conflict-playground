@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from common.resolution_models import ConflictResolution
 
@@ -23,10 +23,18 @@ class MergeCoreEvaluation(MergeEvaluationRecord):
     actual_resolution_sha: str | None = None
 
 
+class MergeDiffOutput(BaseModel):
+    patch: str | None = None
+    raw: str | None = None
+
+
 class MergeDiffEvaluation(MergeEvaluationRecord):
     proposed_commit_sha: str | None = None
     actual_resolution_sha: str | None = None
     conflicted_tree_oid: str | None = None
+    proposed_to_actual_resolution_diffs: dict[str, dict[str, MergeDiffOutput]] = Field(default_factory=dict)
+    conflicted_to_actual_resolution_diffs: dict[str, dict[str, MergeDiffOutput]] = Field(default_factory=dict)
+    conflicted_to_proposed_resolution_diffs: dict[str, dict[str, MergeDiffOutput]] = Field(default_factory=dict)
     proposed_to_actual_resolution_patch: str | None = None
     proposed_to_actual_resolution_raw: str | None = None
     conflicted_to_actual_resolution_patch: str | None = None

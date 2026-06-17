@@ -1,12 +1,27 @@
 import os
 
-from common.evaluation_models import EvaluationInput, MergeDiffEvaluation
+from common.evaluation_models import EvaluationInput, MergeDiffEvaluation, MergeDiffOutput
 from common.git_util import capture_git
 from evaluation.analysis.common import (
     EvaluationAnalysis,
     actual_resolution_sha_from_playground_name,
     read_head_commit,
 )
+
+
+WHITESPACE_DIFF_MODES: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("exact", ()),
+    ("ignore_cr_at_eol", ("--ignore-cr-at-eol",)),
+    ("ignore_space_at_eol", ("--ignore-space-at-eol",)),
+    ("ignore_space_change", ("--ignore-space-change",)),
+    ("ignore_all_space", ("--ignore-all-space",)),
+)
+BLANK_LINE_DIFF_MODES: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("include_blank_lines", ()),
+    ("ignore_blank_lines", ("--ignore-blank-lines",)),
+)
+DEFAULT_WHITESPACE_MODE = "exact"
+DEFAULT_BLANK_LINE_MODE = "include_blank_lines"
 
 
 class DiffEvaluationAnalysis(EvaluationAnalysis):
@@ -73,6 +88,7 @@ class DiffEvaluationAnalysis(EvaluationAnalysis):
         target_ref: str,
         *,
         patch: bool,
+        diff_flags: tuple[str, ...] = (),
     ) -> tuple[str | None, str | None]:
         command = [
             "-C",
@@ -80,6 +96,7 @@ class DiffEvaluationAnalysis(EvaluationAnalysis):
             "diff-tree",
             "--color=always",
         ]
+        command.extend(diff_flags)
         if patch:
             command.append("-p")
         command.extend([base_ref, target_ref])
@@ -90,6 +107,51 @@ class DiffEvaluationAnalysis(EvaluationAnalysis):
 
         error = result.stderr.strip() or result.stdout.strip()
         return None, error
+
+    def collect_diff_matrix(
+        self,
+        playground_path: str,
+        base_ref: str,
+        target_ref: str,
+    ) -> tuple[dict[str, dict[str, MergeDiffOutput]], str | None]:
+        diffs: dict[str, dict[str, MergeDiffOutput]] = {}
+        for whitespace_key, whitespace_flags in WHITESPACE_DIFF_MODES:
+            diffs[whitespace_key] = {}
+            for blank_line_key, blank_line_flags in BLANK_LINE_DIFF_MODES:
+                diff_flags = whitespace_flags + blank_line_flags
+                patch, diff_error = self.diff_tree(
+                    playground_path,
+                    base_ref,
+                    target_ref,
+                    patch=True,
+                    diff_flags=diff_flags,
+                )
+                if diff_error is not None:
+                    return diffs, (
+                        f"Could not diff {base_ref} against {target_ref} "
+                        f"with {whitespace_key}/{blank_line_key} patch: {diff_error}"
+                    )
+
+                raw, diff_error = self.diff_tree(
+                    playground_path,
+                    base_ref,
+                    target_ref,
+                    patch=False,
+                    diff_flags=diff_flags,
+                )
+                if diff_error is not None:
+                    diffs[whitespace_key][blank_line_key] = MergeDiffOutput(patch=patch)
+                    return diffs, (
+                        f"Could not diff-tree {base_ref} against {target_ref} "
+                        f"with {whitespace_key}/{blank_line_key} raw: {diff_error}"
+                    )
+
+                diffs[whitespace_key][blank_line_key] = MergeDiffOutput(patch=patch, raw=raw)
+
+        return diffs, None
+
+    def default_diff_output(self, diffs: dict[str, dict[str, MergeDiffOutput]]) -> MergeDiffOutput:
+        return diffs.get(DEFAULT_WHITESPACE_MODE, {}).get(DEFAULT_BLANK_LINE_MODE, MergeDiffOutput())
 
     def analyse(self, evaluation_input: EvaluationInput) -> MergeDiffEvaluation:
         proposed_resolution = evaluation_input.resolution.proposed_resolution
@@ -121,33 +183,21 @@ class DiffEvaluationAnalysis(EvaluationAnalysis):
                 error=head_error,
             )
 
-        proposed_to_actual_patch, diff_error = self.diff_tree(
+        proposed_to_actual_diffs, diff_error = self.collect_diff_matrix(
             playground_path,
             "HEAD",
             actual_resolution_sha,
-            patch=True,
         )
+        proposed_to_actual_default = self.default_diff_output(proposed_to_actual_diffs)
         if diff_error is not None:
             return MergeDiffEvaluation(
                 resolution_key=evaluation_input.resolution_key,
                 proposed_commit_sha=commit_sha,
                 actual_resolution_sha=actual_resolution_sha,
+                proposed_to_actual_resolution_diffs=proposed_to_actual_diffs,
+                proposed_to_actual_resolution_patch=proposed_to_actual_default.patch,
+                proposed_to_actual_resolution_raw=proposed_to_actual_default.raw,
                 error=f"Could not diff proposed resolution against actual resolution: {diff_error}",
-            )
-
-        proposed_to_actual_raw, diff_error = self.diff_tree(
-            playground_path,
-            "HEAD",
-            actual_resolution_sha,
-            patch=False,
-        )
-        if diff_error is not None:
-            return MergeDiffEvaluation(
-                resolution_key=evaluation_input.resolution_key,
-                proposed_commit_sha=commit_sha,
-                actual_resolution_sha=actual_resolution_sha,
-                proposed_to_actual_resolution_patch=proposed_to_actual_patch,
-                error=f"Could not diff-tree proposed resolution against actual resolution: {diff_error}",
             )
 
         parents, parents_error = self.collect_parents(playground_path, actual_resolution_sha)
@@ -156,8 +206,9 @@ class DiffEvaluationAnalysis(EvaluationAnalysis):
                 resolution_key=evaluation_input.resolution_key,
                 proposed_commit_sha=commit_sha,
                 actual_resolution_sha=actual_resolution_sha,
-                proposed_to_actual_resolution_patch=proposed_to_actual_patch,
-                proposed_to_actual_resolution_raw=proposed_to_actual_raw,
+                proposed_to_actual_resolution_diffs=proposed_to_actual_diffs,
+                proposed_to_actual_resolution_patch=proposed_to_actual_default.patch,
+                proposed_to_actual_resolution_raw=proposed_to_actual_default.raw,
                 error=parents_error,
             )
 
@@ -166,8 +217,9 @@ class DiffEvaluationAnalysis(EvaluationAnalysis):
                 resolution_key=evaluation_input.resolution_key,
                 proposed_commit_sha=commit_sha,
                 actual_resolution_sha=actual_resolution_sha,
-                proposed_to_actual_resolution_patch=proposed_to_actual_patch,
-                proposed_to_actual_resolution_raw=proposed_to_actual_raw,
+                proposed_to_actual_resolution_diffs=proposed_to_actual_diffs,
+                proposed_to_actual_resolution_patch=proposed_to_actual_default.patch,
+                proposed_to_actual_resolution_raw=proposed_to_actual_default.raw,
                 error=f"Actual resolution has {len(parents)} parents; expected 2",
             )
 
@@ -181,83 +233,55 @@ class DiffEvaluationAnalysis(EvaluationAnalysis):
                 resolution_key=evaluation_input.resolution_key,
                 proposed_commit_sha=commit_sha,
                 actual_resolution_sha=actual_resolution_sha,
-                proposed_to_actual_resolution_patch=proposed_to_actual_patch,
-                proposed_to_actual_resolution_raw=proposed_to_actual_raw,
+                proposed_to_actual_resolution_diffs=proposed_to_actual_diffs,
+                proposed_to_actual_resolution_patch=proposed_to_actual_default.patch,
+                proposed_to_actual_resolution_raw=proposed_to_actual_default.raw,
                 error=conflicted_tree_error,
             )
 
-        conflicted_to_actual_patch, diff_error = self.diff_tree(
+        conflicted_to_actual_diffs, diff_error = self.collect_diff_matrix(
             playground_path,
             conflicted_tree_oid,
             actual_resolution_sha,
-            patch=True,
         )
+        conflicted_to_actual_default = self.default_diff_output(conflicted_to_actual_diffs)
         if diff_error is not None:
             return MergeDiffEvaluation(
                 resolution_key=evaluation_input.resolution_key,
                 proposed_commit_sha=commit_sha,
                 actual_resolution_sha=actual_resolution_sha,
-                proposed_to_actual_resolution_patch=proposed_to_actual_patch,
-                proposed_to_actual_resolution_raw=proposed_to_actual_raw,
+                proposed_to_actual_resolution_diffs=proposed_to_actual_diffs,
+                proposed_to_actual_resolution_patch=proposed_to_actual_default.patch,
+                proposed_to_actual_resolution_raw=proposed_to_actual_default.raw,
                 conflicted_tree_oid=conflicted_tree_oid,
+                conflicted_to_actual_resolution_diffs=conflicted_to_actual_diffs,
+                conflicted_to_actual_resolution_patch=conflicted_to_actual_default.patch,
+                conflicted_to_actual_resolution_raw=conflicted_to_actual_default.raw,
                 error=f"Could not diff actual resolution against conflicted tree: {diff_error}",
             )
 
-        conflicted_to_actual_raw, diff_error = self.diff_tree(
-            playground_path,
-            conflicted_tree_oid,
-            actual_resolution_sha,
-            patch=False,
-        )
-        if diff_error is not None:
-            return MergeDiffEvaluation(
-                resolution_key=evaluation_input.resolution_key,
-                proposed_commit_sha=commit_sha,
-                actual_resolution_sha=actual_resolution_sha,
-                proposed_to_actual_resolution_patch=proposed_to_actual_patch,
-                proposed_to_actual_resolution_raw=proposed_to_actual_raw,
-                conflicted_tree_oid=conflicted_tree_oid,
-                conflicted_to_actual_resolution_patch=conflicted_to_actual_patch,
-                error=f"Could not diff-tree actual resolution against conflicted tree: {diff_error}",
-            )
-
-        conflicted_to_proposed_patch, diff_error = self.diff_tree(
+        conflicted_to_proposed_diffs, diff_error = self.collect_diff_matrix(
             playground_path,
             conflicted_tree_oid,
             "HEAD",
-            patch=True,
         )
+        conflicted_to_proposed_default = self.default_diff_output(conflicted_to_proposed_diffs)
         if diff_error is not None:
             return MergeDiffEvaluation(
                 resolution_key=evaluation_input.resolution_key,
                 proposed_commit_sha=commit_sha,
                 actual_resolution_sha=actual_resolution_sha,
+                proposed_to_actual_resolution_diffs=proposed_to_actual_diffs,
+                proposed_to_actual_resolution_patch=proposed_to_actual_default.patch,
+                proposed_to_actual_resolution_raw=proposed_to_actual_default.raw,
                 conflicted_tree_oid=conflicted_tree_oid,
-                proposed_to_actual_resolution_patch=proposed_to_actual_patch,
-                proposed_to_actual_resolution_raw=proposed_to_actual_raw,
-                conflicted_to_actual_resolution_patch=conflicted_to_actual_patch,
-                conflicted_to_actual_resolution_raw=conflicted_to_actual_raw,
+                conflicted_to_actual_resolution_diffs=conflicted_to_actual_diffs,
+                conflicted_to_actual_resolution_patch=conflicted_to_actual_default.patch,
+                conflicted_to_actual_resolution_raw=conflicted_to_actual_default.raw,
+                conflicted_to_proposed_resolution_diffs=conflicted_to_proposed_diffs,
+                conflicted_to_proposed_resolution_patch=conflicted_to_proposed_default.patch,
+                conflicted_to_proposed_resolution_raw=conflicted_to_proposed_default.raw,
                 error=f"Could not diff proposed resolution against conflicted tree: {diff_error}",
-            )
-
-        conflicted_to_proposed_raw, diff_error = self.diff_tree(
-            playground_path,
-            conflicted_tree_oid,
-            "HEAD",
-            patch=False,
-        )
-        if diff_error is not None:
-            return MergeDiffEvaluation(
-                resolution_key=evaluation_input.resolution_key,
-                proposed_commit_sha=commit_sha,
-                actual_resolution_sha=actual_resolution_sha,
-                conflicted_tree_oid=conflicted_tree_oid,
-                proposed_to_actual_resolution_patch=proposed_to_actual_patch,
-                proposed_to_actual_resolution_raw=proposed_to_actual_raw,
-                conflicted_to_actual_resolution_patch=conflicted_to_actual_patch,
-                conflicted_to_actual_resolution_raw=conflicted_to_actual_raw,
-                conflicted_to_proposed_resolution_patch=conflicted_to_proposed_patch,
-                error=f"Could not diff-tree proposed resolution against conflicted tree: {diff_error}",
             )
 
         return MergeDiffEvaluation(
@@ -265,10 +289,13 @@ class DiffEvaluationAnalysis(EvaluationAnalysis):
             proposed_commit_sha=commit_sha,
             actual_resolution_sha=actual_resolution_sha,
             conflicted_tree_oid=conflicted_tree_oid,
-            proposed_to_actual_resolution_patch=proposed_to_actual_patch,
-            proposed_to_actual_resolution_raw=proposed_to_actual_raw,
-            conflicted_to_actual_resolution_patch=conflicted_to_actual_patch,
-            conflicted_to_actual_resolution_raw=conflicted_to_actual_raw,
-            conflicted_to_proposed_resolution_patch=conflicted_to_proposed_patch,
-            conflicted_to_proposed_resolution_raw=conflicted_to_proposed_raw,
+            proposed_to_actual_resolution_diffs=proposed_to_actual_diffs,
+            conflicted_to_actual_resolution_diffs=conflicted_to_actual_diffs,
+            conflicted_to_proposed_resolution_diffs=conflicted_to_proposed_diffs,
+            proposed_to_actual_resolution_patch=proposed_to_actual_default.patch,
+            proposed_to_actual_resolution_raw=proposed_to_actual_default.raw,
+            conflicted_to_actual_resolution_patch=conflicted_to_actual_default.patch,
+            conflicted_to_actual_resolution_raw=conflicted_to_actual_default.raw,
+            conflicted_to_proposed_resolution_patch=conflicted_to_proposed_default.patch,
+            conflicted_to_proposed_resolution_raw=conflicted_to_proposed_default.raw,
         )

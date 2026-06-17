@@ -5,7 +5,7 @@ from unittest.mock import patch
 from common.active_playground_models import Configuration
 from common.evaluation_models import EvaluationInput
 from common.resolution_models import ConflictResolution, ProposedResolution
-from evaluation.analysis.diff_analysis import DiffEvaluationAnalysis
+from evaluation.analysis.diff_analysis import BLANK_LINE_DIFF_MODES, WHITESPACE_DIFF_MODES, DiffEvaluationAnalysis
 
 
 def evaluation_input(restored_playground_name="owner/repo.git-20260602T120000.000000Z-actualsha"):
@@ -27,6 +27,29 @@ def evaluation_input(restored_playground_name="owner/repo.git-20260602T120000.00
     )
 
 
+def successful_diff_tree(*args, **kwargs):
+    if args[2] == "show":
+        return CompletedProcess(args=[], returncode=0, stdout="p1 p2\n", stderr="")
+
+    if args[2] == "merge-tree":
+        return CompletedProcess(args=[], returncode=1, stdout="conflicted-tree\0metadata", stderr="")
+
+    patch = "-p" in args
+    refs = args[-2:]
+    flags = [arg for arg in args[4:-2] if arg != "-p"]
+    output_type = "patch" if patch else "raw"
+    return CompletedProcess(
+        args=[],
+        returncode=0,
+        stdout=f"{output_type} {'+'.join(flags) or 'exact'} {refs[0]}..{refs[1]}\n",
+        stderr="",
+    )
+
+
+def diff_tree_calls(calls):
+    return [call.args for call in calls if call.args[2] == "diff-tree"]
+
+
 def test_diff_analysis_records_patch_and_raw_diff_tree_outputs(monkeypatch):
     monkeypatch.setenv("PLAYGROUNDS", "/playgrounds")
 
@@ -35,34 +58,39 @@ def test_diff_analysis_records_patch_and_raw_diff_tree_outputs(monkeypatch):
         patch("evaluation.analysis.diff_analysis.capture_git") as diff_capture_git,
     ):
         head_capture_git.return_value = CompletedProcess(args=[], returncode=0, stdout="proposed-sha\n", stderr="")
-        diff_capture_git.side_effect = [
-            CompletedProcess(args=[], returncode=0, stdout="patch to actual\n", stderr=""),
-            CompletedProcess(args=[], returncode=0, stdout="raw to actual\n", stderr=""),
-            CompletedProcess(args=[], returncode=0, stdout="p1 p2\n", stderr=""),
-            CompletedProcess(args=[], returncode=1, stdout="conflicted-tree\0metadata", stderr=""),
-            CompletedProcess(args=[], returncode=0, stdout="patch conflicted to actual\n", stderr=""),
-            CompletedProcess(args=[], returncode=0, stdout="raw conflicted to actual\n", stderr=""),
-            CompletedProcess(args=[], returncode=0, stdout="patch from conflicted\n", stderr=""),
-            CompletedProcess(args=[], returncode=0, stdout="raw from conflicted\n", stderr=""),
-        ]
+        diff_capture_git.side_effect = successful_diff_tree
 
         record = DiffEvaluationAnalysis().analyse(evaluation_input())
 
     assert record.proposed_commit_sha == "proposed-sha"
     assert record.actual_resolution_sha == "actualsha"
     assert record.conflicted_tree_oid == "conflicted-tree"
-    assert record.proposed_to_actual_resolution_patch == "patch to actual\n"
-    assert record.proposed_to_actual_resolution_raw == "raw to actual\n"
-    assert record.conflicted_to_actual_resolution_patch == "patch conflicted to actual\n"
-    assert record.conflicted_to_actual_resolution_raw == "raw conflicted to actual\n"
-    assert record.conflicted_to_proposed_resolution_patch == "patch from conflicted\n"
-    assert record.conflicted_to_proposed_resolution_raw == "raw from conflicted\n"
+    assert record.proposed_to_actual_resolution_patch == "patch exact HEAD..actualsha\n"
+    assert record.proposed_to_actual_resolution_raw == "raw exact HEAD..actualsha\n"
+    assert record.conflicted_to_actual_resolution_patch == "patch exact conflicted-tree..actualsha\n"
+    assert record.conflicted_to_actual_resolution_raw == "raw exact conflicted-tree..actualsha\n"
+    assert record.conflicted_to_proposed_resolution_patch == "patch exact conflicted-tree..HEAD\n"
+    assert record.conflicted_to_proposed_resolution_raw == "raw exact conflicted-tree..HEAD\n"
+    assert (
+        record.proposed_to_actual_resolution_diffs["ignore_all_space"]["ignore_blank_lines"].patch
+        == "patch --ignore-all-space+--ignore-blank-lines HEAD..actualsha\n"
+    )
+    assert (
+        record.conflicted_to_actual_resolution_diffs["ignore_space_change"]["include_blank_lines"].raw
+        == "raw --ignore-space-change conflicted-tree..actualsha\n"
+    )
+    assert (
+        record.conflicted_to_proposed_resolution_diffs["ignore_cr_at_eol"]["ignore_blank_lines"].patch
+        == "patch --ignore-cr-at-eol+--ignore-blank-lines conflicted-tree..HEAD\n"
+    )
     assert record.error is None
     dumped = record.model_dump()
     assert "configuration" not in dumped
     assert "hook_result" not in dumped
     assert "git_archive" not in dumped
-    assert [call.args for call in diff_capture_git.call_args_list] == [
+    calls = diff_tree_calls(diff_capture_git.call_args_list)
+    assert len(calls) == 60
+    assert calls[:4] == [
         (
             "-C",
             "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
@@ -80,6 +108,69 @@ def test_diff_analysis_records_patch_and_raw_diff_tree_outputs(monkeypatch):
             "HEAD",
             "actualsha",
         ),
+        (
+            "-C",
+            "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
+            "diff-tree",
+            "--color=always",
+            "--ignore-blank-lines",
+            "-p",
+            "HEAD",
+            "actualsha",
+        ),
+        (
+            "-C",
+            "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
+            "diff-tree",
+            "--color=always",
+            "--ignore-blank-lines",
+            "HEAD",
+            "actualsha",
+        ),
+    ]
+    assert calls[16:18] == [
+        (
+            "-C",
+            "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
+            "diff-tree",
+            "--color=always",
+            "--ignore-all-space",
+            "-p",
+            "HEAD",
+            "actualsha",
+        ),
+        (
+            "-C",
+            "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
+            "diff-tree",
+            "--color=always",
+            "--ignore-all-space",
+            "HEAD",
+            "actualsha",
+        ),
+    ]
+    assert calls[36:38] == [
+        (
+            "-C",
+            "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
+            "diff-tree",
+            "--color=always",
+            "--ignore-all-space",
+            "-p",
+            "conflicted-tree",
+            "actualsha",
+        ),
+        (
+            "-C",
+            "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
+            "diff-tree",
+            "--color=always",
+            "--ignore-all-space",
+            "conflicted-tree",
+            "actualsha",
+        ),
+    ]
+    assert [call.args for call in diff_capture_git.call_args_list if call.args[2] != "diff-tree"] == [
         (
             "-C",
             "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
@@ -96,41 +187,11 @@ def test_diff_analysis_records_patch_and_raw_diff_tree_outputs(monkeypatch):
             "p1",
             "p2",
         ),
-        (
-            "-C",
-            "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
-            "diff-tree",
-            "--color=always",
-            "-p",
-            "conflicted-tree",
-            "actualsha",
-        ),
-        (
-            "-C",
-            "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
-            "diff-tree",
-            "--color=always",
-            "conflicted-tree",
-            "actualsha",
-        ),
-        (
-            "-C",
-            "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
-            "diff-tree",
-            "--color=always",
-            "-p",
-            "conflicted-tree",
-            "HEAD",
-        ),
-        (
-            "-C",
-            "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
-            "diff-tree",
-            "--color=always",
-            "conflicted-tree",
-            "HEAD",
-        ),
     ]
+    assert [key for key, _ in WHITESPACE_DIFF_MODES] == list(record.proposed_to_actual_resolution_diffs.keys())
+    assert [key for key, _ in BLANK_LINE_DIFF_MODES] == list(
+        record.proposed_to_actual_resolution_diffs["exact"].keys()
+    )
 
 
 def test_diff_analysis_records_diff_command_failure(monkeypatch):
@@ -148,7 +209,11 @@ def test_diff_analysis_records_diff_command_failure(monkeypatch):
     assert record.proposed_commit_sha == "proposed-sha"
     assert record.proposed_to_actual_resolution_patch is None
     assert record.proposed_to_actual_resolution_raw is None
-    assert record.error == "Could not diff proposed resolution against actual resolution: bad diff"
+    assert record.proposed_to_actual_resolution_diffs == {"exact": {}}
+    assert record.error == (
+        "Could not diff proposed resolution against actual resolution: "
+        "Could not diff HEAD against actualsha with exact/include_blank_lines patch: bad diff"
+    )
 
 
 def test_diff_analysis_records_conflicted_tree_comparison_failure_with_reference_diffs(monkeypatch):
@@ -159,18 +224,21 @@ def test_diff_analysis_records_conflicted_tree_comparison_failure_with_reference
         patch("evaluation.analysis.diff_analysis.capture_git") as diff_capture_git,
     ):
         head_capture_git.return_value = CompletedProcess(args=[], returncode=0, stdout="proposed-sha\n", stderr="")
-        diff_capture_git.side_effect = [
-            CompletedProcess(args=[], returncode=0, stdout="patch to actual\n", stderr=""),
-            CompletedProcess(args=[], returncode=0, stdout="raw to actual\n", stderr=""),
-            CompletedProcess(args=[], returncode=0, stdout="p1 p2\n", stderr=""),
-            CompletedProcess(args=[], returncode=0, stdout="clean-tree\0", stderr=""),
-        ]
+        def clean_merge_diff_tree(*args, **kwargs):
+            if args[2] == "show":
+                return CompletedProcess(args=[], returncode=0, stdout="p1 p2\n", stderr="")
+            if args[2] == "merge-tree":
+                return CompletedProcess(args=[], returncode=0, stdout="clean-tree\0", stderr="")
+            return successful_diff_tree(*args, **kwargs)
+
+        diff_capture_git.side_effect = clean_merge_diff_tree
 
         record = DiffEvaluationAnalysis().analyse(evaluation_input())
 
     assert record.proposed_commit_sha == "proposed-sha"
-    assert record.proposed_to_actual_resolution_patch == "patch to actual\n"
-    assert record.proposed_to_actual_resolution_raw == "raw to actual\n"
+    assert record.proposed_to_actual_resolution_patch == "patch exact HEAD..actualsha\n"
+    assert record.proposed_to_actual_resolution_raw == "raw exact HEAD..actualsha\n"
+    assert len(diff_tree_calls(diff_capture_git.call_args_list)) == 20
     assert record.conflicted_tree_oid is None
     assert record.error == "Actual resolution parents merge cleanly"
 
