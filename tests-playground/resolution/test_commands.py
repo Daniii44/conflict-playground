@@ -15,6 +15,12 @@ resolution_list = importlib.util.module_from_spec(list_spec)
 assert list_spec.loader is not None
 list_spec.loader.exec_module(resolution_list)
 
+RESOLUTION_SESSION_PATH = Path(resolution.__path__[0]) / "session.py"
+session_spec = importlib.util.spec_from_file_location("resolution_session", RESOLUTION_SESSION_PATH)
+resolution_session = importlib.util.module_from_spec(session_spec)
+assert session_spec.loader is not None
+session_spec.loader.exec_module(resolution_session)
+
 
 class FakeRedisJson:
     def __init__(self, values=None):
@@ -57,6 +63,39 @@ def resolution_payload(git_archive="archive"):
             git_archive=git_archive,
         ),
     ).model_dump(mode="json")
+
+
+def resolution_session_payload():
+    return {
+        "hook_result": {
+            "opencode_session_export": {
+                "data": {
+                    "messages": [
+                        {
+                            "info": {"role": "user"},
+                            "parts": [{"type": "text", "text": "ignore user message"}],
+                        },
+                        {
+                            "info": {"role": "assistant"},
+                            "parts": [
+                                {"type": "step-start", "text": "ignore step part"},
+                                {"type": "text", "text": "I inspected the conflict."},
+                                {"type": "patch", "files": {"file.txt": {"added": 1}}},
+                                {
+                                    "type": "tool",
+                                    "state": {
+                                        "title": "Run tests",
+                                        "input": {"command": "pytest tests-playground/resolution"},
+                                    },
+                                },
+                                {"type": "unexpected"},
+                            ],
+                        },
+                    ]
+                }
+            }
+        }
+    }
 
 
 def test_list_resolution_keys_returns_sorted_resolution_keys_only():
@@ -139,3 +178,44 @@ def test_prune_resolution_deletes_all_resolution_keys():
         "resolution:conflict:owner/repo.git-b:20260609T120000.000000Z",
     ]
     assert redis.deleted == deleted
+
+
+def test_simplified_session_lines_include_assistant_parts_only():
+    assert resolution_session.simplified_session_lines(resolution_session_payload()) == [
+        "I inspected the conflict.",
+        '{"file.txt": {"added": 1}}',
+        "Run tests | Command: pytest tests-playground/resolution",
+        "[UNUSUAL TYPE: unexpected]",
+    ]
+
+
+def test_simplified_session_lines_accept_clickhouse_dump_content_wrapper():
+    payload = {"content": resolution_session_payload()}
+
+    assert resolution_session.simplified_session_lines(payload) == [
+        "I inspected the conflict.",
+        '{"file.txt": {"added": 1}}',
+        "Run tests | Command: pytest tests-playground/resolution",
+        "[UNUSUAL TYPE: unexpected]",
+    ]
+
+
+def test_resolution_session_reads_payload_from_redis_key():
+    key = "resolution:conflict:owner/repo.git-a:20260609T120000.000000Z"
+    redis = FakeRedis(values={key: resolution_session_payload()})
+
+    assert resolution_session.resolution_session(redis, key) == [
+        "I inspected the conflict.",
+        '{"file.txt": {"added": 1}}',
+        "Run tests | Command: pytest tests-playground/resolution",
+        "[UNUSUAL TYPE: unexpected]",
+    ]
+
+
+def test_simplified_session_lines_reports_missing_export_error():
+    try:
+        resolution_session.simplified_session_lines({"hook_result": {}})
+    except RuntimeError as error:
+        assert str(error) == "Resolution has no hook_result.opencode_session_export"
+    else:
+        raise AssertionError("Expected missing export error")

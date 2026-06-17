@@ -11,7 +11,7 @@ Available Tools:
     dataset-*           Inspect imported paper datasets
     evaluation-*        Sync, assess, and replay conflict resolution evaluation output
     state-*             Sync, save, import, diff, and prune state data
-    resolution-*        List, restore, and prune saved conflict resolutions
+    resolution-*        List, inspect, restore, and prune saved conflict resolutions
     repo-*              Scripts from src/repo
     playground-*         Scripts from src/playgrounds
     playbooks-*         Scripts from src/playbooks
