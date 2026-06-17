@@ -22,10 +22,11 @@ SUMMARY_PROMPT = """You are a technical code-review judge analyzing automated co
 
 Analyze the provided data:
 1. Original git conflicts
-2. Diff (Proposed Resolution vs. Reference Solution)
-3. Agent's internal thoughts/chat logs
+2. A Git diff-tree output comparing the agent's proposed resolution (HEAD) against the correct reference solution (actual_resolution_sha). 
+   - CRITICAL DIFF MECHANICS: Lines prefixed with '-' are errors introduced by the agent that must be deleted. Lines prefixed with '+' are missing code that the agent failed to include, which are required to match the correct reference.
+3. The Agent's internal thoughts/chat logs
 
-Task: Describe exactly what went wrong in a single, concise paragraph of 50 words or less. Focus purely on the root cause of the failure mode (e.g., context drift, submodule blindness, rogue syntax injection, or execution slip). Do not include introductory phrases, pleasantries, or broad generalizations. Start directly with the technical explanation."""
+Task: Describe exactly what went wrong in a single, concise paragraph of 50 words or less. Focus purely on the root cause of the failure mode (e.g., context drift, submodule blindness, rogue syntax injection, or execution slip) as revealed by the diff analysis. Do not include introductory phrases, pleasantries, or broad generalizations. Start directly with the technical explanation."""
 
 
 @dataclass(frozen=True)
