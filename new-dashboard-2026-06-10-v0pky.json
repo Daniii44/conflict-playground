@@ -1367,7 +1367,7 @@
                               }
                             ],
                             "maxColumnCount": 3,
-                            "rowHeightMode": "standard"
+                            "rowHeightMode": "short"
                           }
                         },
                         "title": "Ignoring Blank Lines"
@@ -1402,7 +1402,7 @@
                               }
                             ],
                             "maxColumnCount": 3,
-                            "rowHeightMode": "standard"
+                            "rowHeightMode": "short"
                           }
                         },
                         "title": "Including Blank Lines"
