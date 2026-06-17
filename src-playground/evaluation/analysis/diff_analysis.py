@@ -149,7 +149,7 @@ class DiffEvaluationAnalysis(EvaluationAnalysis):
                 diffs[whitespace_key][blank_line_key] = MergeDiffOutput(
                     patch=patch,
                     raw=raw,
-                    exact_match=patch == "" and raw == "",
+                    exact_match=patch == "",
                 )
 
         return diffs, None
