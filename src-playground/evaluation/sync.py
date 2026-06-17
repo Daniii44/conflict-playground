@@ -179,7 +179,11 @@ def sync_evaluations(
         resolution = ConflictResolution.model_validate(resolution_data)
         for evaluation_key, evaluation in evaluate_resolution(resolution_key, resolution, pending_analyses):
             store_evaluation(redis, evaluation_key, evaluation)
-            logger.info("Stored evaluation at {}", evaluation_key)
+            evaluation_error = getattr(evaluation, "error", None)
+            if evaluation_error:
+                logger.error("Stored failed evaluation at {}: {}", evaluation_key, evaluation_error)
+            else:
+                logger.info("Stored evaluation at {}", evaluation_key)
             synced += 1
 
     logger.info("Evaluation sync complete: {} created", synced)

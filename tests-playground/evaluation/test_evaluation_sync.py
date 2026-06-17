@@ -3,6 +3,7 @@ from evaluation.sync import (
     selected_analysis_names,
     playground_name_from_resolution_key,
     restored_playground_name_from_resolution_key,
+    sync_evaluations,
 )
 from evaluation.analysis.common import evaluation_record_key
 
@@ -57,3 +58,55 @@ def test_all_analysis_includes_summary():
         analysis = None
 
     assert selected_analysis_names(Args()) == ["core", "diff", "summary"]
+
+class FakeRedisJson:
+    def __init__(self, values=None):
+        self.values = values or {}
+        self.set_calls = []
+
+    def get(self, key):
+        return self.values.get(key)
+
+    def set(self, *args):
+        self.set_calls.append(args)
+
+
+class SyncFakeRedis(FakeRedis):
+    def __init__(self, keys, values=None):
+        super().__init__(keys)
+        self.json_api = FakeRedisJson(values)
+
+    def scan_iter(self, match):
+        prefix = match.removesuffix("*")
+        return (key for key in self.keys if key.startswith(prefix))
+
+    def json(self):
+        return self.json_api
+
+
+def test_sync_evaluations_logs_failed_evaluation_as_error():
+    resolution_key = "resolution:conflict:owner/repo.git-abc:20260609T120000.000000Z"
+    resolution = ConflictResolution(
+        configuration=Configuration(
+            hook_type="opencode",
+            playground_version="test",
+            volume_type="bind-mount",
+            resolution_start=datetime(2026, 6, 9, 12, 0, 0),
+        ),
+        resolution_end=datetime(2026, 6, 9, 12, 1, 0),
+        proposed_resolution=ProposedResolution(error="hook failed"),
+    ).model_dump(mode="json")
+    redis = SyncFakeRedis([resolution_key], {resolution_key: resolution})
+
+    with (
+        patch("evaluation.sync.setup_redis_connection", return_value=redis),
+        patch("evaluation.sync.logger") as logger,
+    ):
+        synced = sync_evaluations(analyses=["summary"])
+
+    assert synced == 1
+    logger.error.assert_called_once_with(
+        "Stored failed evaluation at {}: {}",
+        "evaluation:merge:summary:owner/repo.git-abc:20260609T120000.000000Z",
+        "hook failed",
+    )

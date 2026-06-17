@@ -200,3 +200,57 @@ def test_summary_analysis_records_missing_model_config(monkeypatch):
     )
     assert record.prompt is not None
     assert record.failure_summary is None
+
+
+def test_summary_analysis_logs_judge_exception(monkeypatch):
+    monkeypatch.setenv("CACHES", "/caches")
+    info_key = "info:conflict:core:owner/repo.git:actualsha"
+    redis = FakeRedis({info_key: {"merge_result": {"logical_conflicts": []}}})
+
+    def failing_judge(prompt, config):
+        raise RuntimeError("Ollama chat completion failed for model 'missing': 404 model not found")
+
+    with (
+        patch("evaluation.analysis.summary_analysis.capture_git") as summary_capture_git,
+        patch("evaluation.analysis.summary_analysis.logger") as logger,
+    ):
+        summary_capture_git.return_value = CompletedProcess(args=[], returncode=0, stdout="diff\n", stderr="")
+
+        record = SummaryEvaluationAnalysis(
+            redis=redis,
+            judge=failing_judge,
+            config=SummaryJudgeConfig(ollama_model="missing", ollama_base_url="http://ollama:11434"),
+        ).analyse(evaluation_input())
+
+    assert record.failure_summary is None
+    assert record.error == "Ollama chat completion failed for model 'missing': 404 model not found"
+    logger.info.assert_called_once()
+    logger.opt.assert_called_once()
+    logger.opt.return_value.error.assert_called_once()
+
+
+def test_invoke_ollama_judge_rejects_empty_response(monkeypatch):
+    class EmptyResponse:
+        content = ""
+
+    class FakeChatOllama:
+        def __init__(self, **kwargs):
+            self.kwargs = kwargs
+
+        def invoke(self, prompt):
+            return EmptyResponse()
+
+    import types
+    import sys
+
+    fake_module = types.SimpleNamespace(ChatOllama=FakeChatOllama)
+    monkeypatch.setitem(sys.modules, "langchain_ollama", fake_module)
+
+    from evaluation.analysis.summary_analysis import invoke_ollama_judge
+
+    try:
+        invoke_ollama_judge("prompt", SummaryJudgeConfig(ollama_model="llama-test"))
+    except RuntimeError as error:
+        assert str(error) == "Ollama chat completion returned an empty response for model 'llama-test'"
+    else:
+        raise AssertionError("Expected empty response error")

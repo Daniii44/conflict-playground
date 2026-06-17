@@ -1,5 +1,6 @@
 import json
 import os
+import time
 from dataclasses import dataclass
 from typing import Any, Callable
 
@@ -102,14 +103,28 @@ def invoke_ollama_judge(prompt: str, config: SummaryJudgeConfig) -> str:
     if config.ollama_base_url:
         kwargs["base_url"] = config.ollama_base_url
 
-    response = ChatOllama(**kwargs).invoke(prompt)
+    try:
+        response = ChatOllama(**kwargs).invoke(prompt)
+    except Exception as error:
+        location = config.ollama_base_url or "default Ollama base URL"
+        raise RuntimeError(
+            "Ollama chat completion failed "
+            f"for model {config.ollama_model!r} at {location}: "
+            f"{type(error).__name__}: {error}"
+        ) from error
+
     content = getattr(response, "content", response)
     if isinstance(content, list):
         content = "\n".join(
             str(part.get("text", part)) if isinstance(part, dict) else str(part)
             for part in content
         )
-    return str(content).strip()
+    summary = str(content).strip()
+    if not summary:
+        raise RuntimeError(
+            f"Ollama chat completion returned an empty response for model {config.ollama_model!r}"
+        )
+    return summary
 
 
 class SummaryEvaluationAnalysis(EvaluationAnalysis):
@@ -266,6 +281,11 @@ class SummaryEvaluationAnalysis(EvaluationAnalysis):
         try:
             judge_config = self.config or summary_judge_config()
         except RuntimeError as error:
+            logger.error(
+                "Cannot run summary judge for {}: {}",
+                evaluation_input.resolution_key,
+                error,
+            )
             return self.failed(
                 evaluation_input,
                 str(error),
@@ -278,9 +298,25 @@ class SummaryEvaluationAnalysis(EvaluationAnalysis):
                 prompt=prompt,
             )
 
+        started = time.monotonic()
+        logger.info(
+            "Calling Ollama summary judge for {} with model={} base_url={}",
+            evaluation_input.resolution_key,
+            judge_config.ollama_model,
+            judge_config.ollama_base_url or "<default>",
+        )
         try:
             summary = self.judge(prompt, judge_config)
         except Exception as error:
+            elapsed = time.monotonic() - started
+            logger.opt(exception=error).error(
+                "Summary judge failed for {} after {:.2f}s with model={} base_url={}: {}",
+                evaluation_input.resolution_key,
+                elapsed,
+                judge_config.ollama_model,
+                judge_config.ollama_base_url or "<default>",
+                error,
+            )
             return self.failed(
                 evaluation_input,
                 str(error),
@@ -294,6 +330,13 @@ class SummaryEvaluationAnalysis(EvaluationAnalysis):
                 prompt=prompt,
             )
 
+        elapsed = time.monotonic() - started
+        logger.info(
+            "Summary judge completed for {} in {:.2f}s with {} characters",
+            evaluation_input.resolution_key,
+            elapsed,
+            len(summary),
+        )
         return MergeSummaryEvaluation(
             resolution_key=evaluation_input.resolution_key,
             proposed_commit_sha=commit_sha,
