@@ -607,12 +607,7 @@
               "options": {
                 "cellHeight": "sm",
                 "showHeader": true,
-                "sortBy": [
-                  {
-                    "desc": true,
-                    "displayName": "total_evaluations"
-                  }
-                ]
+                "sortBy": []
               }
             },
             "version": "13.0.1+security-01"
