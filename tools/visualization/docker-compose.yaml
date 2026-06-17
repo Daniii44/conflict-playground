@@ -10,6 +10,7 @@ services:
       CLICKHOUSE_USER: default
       CLICKHOUSE_PASSWORD: dev-dynha9-fenvYc-daqmeh
     volumes:
+      - ./large_json_imports.xml:/etc/clickhouse-server/users.d/large_json_imports.xml
       - clickhouse_data:/var/lib/clickhouse
     networks:
       - conflict-playground-bridge

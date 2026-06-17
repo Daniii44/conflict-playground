@@ -1,0 +1,7 @@
+<clickhouse>
+    <profiles>
+        <default>
+            <min_chunk_bytes_for_parallel_parsing>262144000</min_chunk_bytes_for_parallel_parsing>
+        </default>
+    </profiles>
+</clickhouse>
