@@ -16,6 +16,8 @@ RUN apt-get -y install python3-loguru
 RUN apt-get -y install python3-tqdm
 RUN apt-get -y install python3-requests
 RUN apt-get -y install python3-yaml
+RUN apt-get -y install --no-install-recommends python3-pip
+RUN pip3 install --break-system-packages --no-cache-dir langchain-ollama
 RUN apt-get -y install redis-tools
 RUN apt-get -y install tree
 

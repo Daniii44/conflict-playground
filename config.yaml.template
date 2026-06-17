@@ -17,3 +17,10 @@ hook_type: manual-cli
 # GitHub personal access token for GraphQL API calls used by repo-size.
 # Leave empty unless you need commands that query GitHub GraphQL.
 gh_graphql_token:
+
+# Ollama settings for evaluation-sync --analysis summary.
+# The model is required for that analysis; base URL defaults to Ollama's client default when empty.
+evaluation_summary_ollama_model:
+#evaluation_summary_ollama_model: llama3.1
+evaluation_summary_ollama_base_url: http://host.docker.internal:11434
+evaluation_summary_ollama_temperature: 0

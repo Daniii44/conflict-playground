@@ -29,6 +29,8 @@ services:
       dockerfile: Dockerfile
     image: conflict-playground:playground
     container_name: conflict-playground
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       LOGURU_LEVEL: INFO
     networks:

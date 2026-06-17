@@ -25,6 +25,9 @@ load_runtime_config() {
     HOOK_TYPE=$(config_value "hook_type" | tr -d ' ')
     SMARTGIT_BINARY=$(strip_quotes "$(config_value "smartgit_binary")")
     GH_GRAPHQL_TOKEN=$(strip_quotes "$(config_value "gh_graphql_token")")
+    EVALUATION_SUMMARY_OLLAMA_MODEL=$(strip_quotes "$(config_value "evaluation_summary_ollama_model")")
+    EVALUATION_SUMMARY_OLLAMA_BASE_URL=$(strip_quotes "$(config_value "evaluation_summary_ollama_base_url")")
+    EVALUATION_SUMMARY_OLLAMA_TEMPERATURE=$(strip_quotes "$(config_value "evaluation_summary_ollama_temperature")")
 
     if [ -z "$VOLUME_TYPE" ] || [ -z "$HOOK_TYPE" ]; then
         echo "Error: Failed to parse configuration from $CONFIG_FILE"
@@ -46,6 +49,9 @@ load_runtime_config() {
     export HOOK_TYPE
     export SMARTGIT_BINARY
     export GH_GRAPHQL_TOKEN
+    export EVALUATION_SUMMARY_OLLAMA_MODEL
+    export EVALUATION_SUMMARY_OLLAMA_BASE_URL
+    export EVALUATION_SUMMARY_OLLAMA_TEMPERATURE
 }
 
 load_playground_env() {
@@ -66,6 +72,15 @@ playground_exec_command() {
     printf " -e %q" "HOOK_TYPE=$HOOK_TYPE"
     if [ -n "${GH_GRAPHQL_TOKEN:-}" ]; then
         printf " -e %q" "GH_GRAPHQL_TOKEN=$GH_GRAPHQL_TOKEN"
+    fi
+    if [ -n "${EVALUATION_SUMMARY_OLLAMA_MODEL:-}" ]; then
+        printf " -e %q" "EVALUATION_SUMMARY_OLLAMA_MODEL=$EVALUATION_SUMMARY_OLLAMA_MODEL"
+    fi
+    if [ -n "${EVALUATION_SUMMARY_OLLAMA_BASE_URL:-}" ]; then
+        printf " -e %q" "EVALUATION_SUMMARY_OLLAMA_BASE_URL=$EVALUATION_SUMMARY_OLLAMA_BASE_URL"
+    fi
+    if [ -n "${EVALUATION_SUMMARY_OLLAMA_TEMPERATURE:-}" ]; then
+        printf " -e %q" "EVALUATION_SUMMARY_OLLAMA_TEMPERATURE=$EVALUATION_SUMMARY_OLLAMA_TEMPERATURE"
     fi
     printf " %q" "conflict-playground" "bash" "src/entrypoint.sh"
 }

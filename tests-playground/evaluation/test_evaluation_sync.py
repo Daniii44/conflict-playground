@@ -1,5 +1,6 @@
 from evaluation.sync import (
     analysis_result_exists,
+    selected_analysis_names,
     playground_name_from_resolution_key,
     restored_playground_name_from_resolution_key,
 )
@@ -48,3 +49,11 @@ def test_analysis_result_exists_checks_deterministic_key():
 
     assert analysis_result_exists(redis, "core", resolution_key)
     assert not analysis_result_exists(redis, "diff", resolution_key)
+
+
+def test_all_analysis_includes_summary():
+    class Args:
+        all_analysis = True
+        analysis = None
+
+    assert selected_analysis_names(Args()) == ["core", "diff", "summary"]
