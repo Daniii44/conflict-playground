@@ -8,6 +8,7 @@ from common.resolution_models import ConflictResolution, ProposedResolution
 from evaluation.analysis.summary_analysis import (
     SummaryEvaluationAnalysis,
     SummaryJudgeConfig,
+    clear_diff_direction,
     summary_judge_config,
 )
 
@@ -66,6 +67,23 @@ def evaluation_input():
             proposed_resolution=ProposedResolution(git_archive="archive"),
         ),
     )
+
+
+def test_clear_diff_direction_labels_changes_and_strips_headers():
+    labeled = clear_diff_direction(
+        "diff --git a/file.txt b/file.txt\n"
+        "index abc..def 100644\n"
+        "--- a/file.txt\n"
+        "+++ b/file.txt\n"
+        "@@ -1,2 +1,2 @@\n"
+        " context\n"
+        "-required\n"
+        "+extra\n",
+        removed_label="REMOVED LABEL",
+        added_label="ADDED LABEL",
+    )
+
+    assert labeled == "   context\n[REMOVED LABEL]: required\n[ADDED LABEL]: extra"
 
 
 def test_summary_analysis_builds_prompt_from_info_diff_and_session(monkeypatch):
@@ -128,10 +146,14 @@ def test_summary_analysis_builds_prompt_from_info_diff_and_session(monkeypatch):
     prompt, config = judge_calls[0]
     assert config.ollama_model == "llama-test"
     assert "Original git conflicts:" in prompt
-    assert "Diff (Reference Solution -> Proposed Resolution):" in prompt
-    assert "Diff (Conflicted State vs. Proposed Resolution):" in prompt
-    assert "Diff (Conflicted State vs. Reference Solution):" in prompt
-    assert "In Reference -> Proposed only" in prompt
+    assert "Comparison (Reference Solution -> Proposed Resolution):" in prompt
+    assert "Comparison (Conflicted State -> Proposed Resolution):" in prompt
+    assert "Comparison (Conflicted State -> Reference Solution):" in prompt
+    assert "[AGENT INTRODUCED ERROR / DELETE THIS]: bad" in prompt
+    assert "[AGENT FORGOT THIS / REQUIRED CODE]: required" in prompt
+    assert "[AGENT ADDED THIS IN PROPOSED RESOLUTION]: proposed" in prompt
+    assert "[REFERENCE ADDED THIS IN CORRECT RESOLUTION]: actual" in prompt
+    assert "diff --git" not in prompt
     assert "Agent's internal thoughts/chat logs:" in prompt
     assert "50 words or less" in prompt
     assert [call.args for call in summary_capture_git.call_args_list] == [

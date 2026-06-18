@@ -22,15 +22,15 @@ SUMMARY_PROMPT = """You are a technical code-review judge analyzing an automated
 
 You will be given:
 1. Original git conflicts
-2. A Git diff from the reference solution to the agent's proposed resolution.
-3. Git diffs from the original conflicted tree to the agent's proposed resolution and the reference solution.
+2. A labeled comparison from the reference solution to the agent's proposed resolution.
+3. Labeled comparisons from the original conflicted tree to the agent's proposed resolution and the reference solution.
 4. The Agent's internal thoughts/chat logs
 
-CRITICAL DIFF READING RULES:
-- In the Reference -> Proposed diff only, a line starting with '+' means the agent generated BAD/ERRONEOUS code that should not be there.
-- In the Reference -> Proposed diff only, a line starting with '-' means the agent FORGOT to generate required code, leaving a gap.
-- In the conflicted-state diffs, lines starting with '+' are lines added by that resolution, and lines starting with '-' are lines removed from the conflicted state.
-- Compare all diffs against the Agent's thoughts to identify the exact breakdown in reasoning.
+CRITICAL COMPARISON READING RULES:
+- The comparisons use explicit bracketed labels instead of raw git +/- markers.
+- Treat [AGENT INTRODUCED ERROR / DELETE THIS] and [AGENT FORGOT THIS / REQUIRED CODE] as the main error signals.
+- Use the conflicted-state comparisons to understand what the agent changed versus what the reference solution changed.
+- Compare all labeled comparisons against the Agent's thoughts to identify the exact breakdown in reasoning.
 
 Task: Describe exactly what went wrong in a single, concise paragraph of 50 words or less. Focus purely on the root cause of the failure mode (e.g., context drift, submodule blindness, rogue syntax injection, or execution slip). Do not say "Based on the diff..." or "The agent failed because...". Start directly with the technical explanation."""
 
@@ -85,6 +85,41 @@ def summary_judge_config(config: dict[str, Any] | None = None) -> SummaryJudgeCo
     )
 
 
+DIFF_HEADER_PREFIXES = (
+    "---",
+    "+++",
+    "@@",
+    "diff --git",
+    "index ",
+    "new file mode ",
+    "deleted file mode ",
+    "similarity index ",
+    "rename from ",
+    "rename to ",
+)
+
+
+def clear_diff_direction(
+    diff_text: str,
+    *,
+    removed_label: str,
+    added_label: str,
+) -> str:
+    cleaned_lines = []
+    for line in diff_text.splitlines():
+        if line.startswith(DIFF_HEADER_PREFIXES):
+            continue
+
+        if line.startswith("-"):
+            cleaned_lines.append(f"[{removed_label}]: {line[1:]}")
+        elif line.startswith("+"):
+            cleaned_lines.append(f"[{added_label}]: {line[1:]}")
+        else:
+            cleaned_lines.append(f"  {line}")
+
+    return "\n".join(cleaned_lines) or "[NO CONTENT CHANGES]"
+
+
 def build_summary_prompt(
     original_conflicts: str,
     proposed_to_actual_diff: str,
@@ -92,23 +127,38 @@ def build_summary_prompt(
     conflicted_to_actual_diff: str,
     agent_session: str,
 ) -> str:
+    proposed_vs_reference = clear_diff_direction(
+        proposed_to_actual_diff,
+        removed_label="AGENT FORGOT THIS / REQUIRED CODE",
+        added_label="AGENT INTRODUCED ERROR / DELETE THIS",
+    )
+    conflicted_vs_proposed = clear_diff_direction(
+        conflicted_to_proposed_diff,
+        removed_label="AGENT REMOVED THIS FROM CONFLICTED STATE",
+        added_label="AGENT ADDED THIS IN PROPOSED RESOLUTION",
+    )
+    conflicted_vs_actual = clear_diff_direction(
+        conflicted_to_actual_diff,
+        removed_label="REFERENCE REMOVED THIS FROM CONFLICTED STATE",
+        added_label="REFERENCE ADDED THIS IN CORRECT RESOLUTION",
+    )
     return (
         f"{SUMMARY_PROMPT}\n\n"
         "Original git conflicts:\n"
         f"```json\n{original_conflicts}\n```\n\n"
         "Agent's internal thoughts/chat logs:\n"
         f"```text\n{agent_session}\n```\n\n"
-        "Diff Analysis:\n"
-        "CRITICAL DIFF READING REMINDER:\n"
-        "- In Reference -> Proposed only, lines starting with '+' are BAD code the agent erroneously generated.\n"
-        "- In Reference -> Proposed only, lines starting with '-' are MISSING code the agent forgot to generate.\n"
-        "- In conflicted-state diffs, '+' and '-' show what each resolution added or removed.\n\n"
-        "Diff (Reference Solution -> Proposed Resolution):\n"
-        f"```diff\n{proposed_to_actual_diff}\n```\n\n"
-        "Diff (Conflicted State vs. Proposed Resolution):\n"
-        f"```diff\n{conflicted_to_proposed_diff}\n```\n\n"
-        "Diff (Conflicted State vs. Reference Solution):\n"
-        f"```diff\n{conflicted_to_actual_diff}\n```"
+        "Comparison Analysis:\n"
+        "CRITICAL COMPARISON READING REMINDER:\n"
+        "- [AGENT INTRODUCED ERROR / DELETE THIS] means the proposed resolution contains code absent from the reference solution.\n"
+        "- [AGENT FORGOT THIS / REQUIRED CODE] means the reference solution contains code missing from the proposed resolution.\n"
+        "- Conflicted-state labels describe what each resolution added to or removed from the original conflicted tree.\n\n"
+        "Comparison (Reference Solution -> Proposed Resolution):\n"
+        f"```text\n{proposed_vs_reference}\n```\n\n"
+        "Comparison (Conflicted State -> Proposed Resolution):\n"
+        f"```text\n{conflicted_vs_proposed}\n```\n\n"
+        "Comparison (Conflicted State -> Reference Solution):\n"
+        f"```text\n{conflicted_vs_actual}\n```"
     )
 
 def invoke_ollama_judge(prompt: str, config: SummaryJudgeConfig) -> str:
