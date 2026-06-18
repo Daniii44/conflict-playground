@@ -47,10 +47,13 @@ class MergeDiffEvaluation(MergeEvaluationRecord):
 class MergeSummaryEvaluation(MergeEvaluationRecord):
     proposed_commit_sha: str | None = None
     actual_resolution_sha: str | None = None
+    conflicted_tree_oid: str | None = None
     info_conflict_key: str | None = None
     judge_model: str | None = None
     original_conflicts: str | None = None
     proposed_to_actual_resolution_patch: str | None = None
+    conflicted_to_proposed_resolution_patch: str | None = None
+    conflicted_to_actual_resolution_patch: str | None = None
     agent_session: str | None = None
     prompt: str | None = None
     failure_summary: str | None = None

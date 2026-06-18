@@ -22,13 +22,15 @@ SUMMARY_PROMPT = """You are a technical code-review judge analyzing an automated
 
 You will be given:
 1. Original git conflicts
-2. A Git diff showing the difference between what the agent generated and what it SHOULD have generated.
-3. The Agent's internal thoughts/chat logs
+2. A Git diff from the reference solution to the agent's proposed resolution.
+3. Git diffs from the original conflicted tree to the agent's proposed resolution and the reference solution.
+4. The Agent's internal thoughts/chat logs
 
 CRITICAL DIFF READING RULES:
-- A line starting with '+' means the agent generated BAD/ERRONEOUS code that should not be there.
-- A line starting with '-' means the agent FORGOT to generate required code, leaving a gap.
-- Compare these signs against the Agent's thoughts to identify the exact breakdown in reasoning.
+- In the Reference -> Proposed diff only, a line starting with '+' means the agent generated BAD/ERRONEOUS code that should not be there.
+- In the Reference -> Proposed diff only, a line starting with '-' means the agent FORGOT to generate required code, leaving a gap.
+- In the conflicted-state diffs, lines starting with '+' are lines added by that resolution, and lines starting with '-' are lines removed from the conflicted state.
+- Compare all diffs against the Agent's thoughts to identify the exact breakdown in reasoning.
 
 Task: Describe exactly what went wrong in a single, concise paragraph of 50 words or less. Focus purely on the root cause of the failure mode (e.g., context drift, submodule blindness, rogue syntax injection, or execution slip). Do not say "Based on the diff..." or "The agent failed because...". Start directly with the technical explanation."""
 
@@ -83,7 +85,13 @@ def summary_judge_config(config: dict[str, Any] | None = None) -> SummaryJudgeCo
     )
 
 
-def build_summary_prompt(original_conflicts: str, proposed_to_actual_diff: str, agent_session: str) -> str:
+def build_summary_prompt(
+    original_conflicts: str,
+    proposed_to_actual_diff: str,
+    conflicted_to_proposed_diff: str,
+    conflicted_to_actual_diff: str,
+    agent_session: str,
+) -> str:
     return (
         f"{SUMMARY_PROMPT}\n\n"
         "Original git conflicts:\n"
@@ -92,10 +100,15 @@ def build_summary_prompt(original_conflicts: str, proposed_to_actual_diff: str, 
         f"```text\n{agent_session}\n```\n\n"
         "Diff Analysis:\n"
         "CRITICAL DIFF READING REMINDER:\n"
-        "- Lines starting with '+' are BAD code the agent erroneously generated.\n"
-        "- Lines starting with '-' are MISSING code the agent forgot to generate.\n\n"
-        "Diff (Proposed Resolution vs. Reference Solution):\n"
-        f"```diff\n{proposed_to_actual_diff}\n```"
+        "- In Reference -> Proposed only, lines starting with '+' are BAD code the agent erroneously generated.\n"
+        "- In Reference -> Proposed only, lines starting with '-' are MISSING code the agent forgot to generate.\n"
+        "- In conflicted-state diffs, '+' and '-' show what each resolution added or removed.\n\n"
+        "Diff (Reference Solution -> Proposed Resolution):\n"
+        f"```diff\n{proposed_to_actual_diff}\n```\n\n"
+        "Diff (Conflicted State vs. Proposed Resolution):\n"
+        f"```diff\n{conflicted_to_proposed_diff}\n```\n\n"
+        "Diff (Conflicted State vs. Reference Solution):\n"
+        f"```diff\n{conflicted_to_actual_diff}\n```"
     )
 
 def invoke_ollama_judge(prompt: str, config: SummaryJudgeConfig) -> str:
@@ -160,6 +173,9 @@ class SummaryEvaluationAnalysis(EvaluationAnalysis):
         judge_model: str | None = None,
         original_conflicts: str | None = None,
         proposed_to_actual_resolution_patch: str | None = None,
+        conflicted_tree_oid: str | None = None,
+        conflicted_to_proposed_resolution_patch: str | None = None,
+        conflicted_to_actual_resolution_patch: str | None = None,
         agent_session: str | None = None,
         prompt: str | None = None,
     ) -> MergeSummaryEvaluation:
@@ -167,10 +183,13 @@ class SummaryEvaluationAnalysis(EvaluationAnalysis):
             resolution_key=evaluation_input.resolution_key,
             proposed_commit_sha=proposed_commit_sha,
             actual_resolution_sha=actual_resolution_sha,
+            conflicted_tree_oid=conflicted_tree_oid,
             info_conflict_key=info_conflict_key,
             judge_model=judge_model,
             original_conflicts=original_conflicts,
             proposed_to_actual_resolution_patch=proposed_to_actual_resolution_patch,
+            conflicted_to_proposed_resolution_patch=conflicted_to_proposed_resolution_patch,
+            conflicted_to_actual_resolution_patch=conflicted_to_actual_resolution_patch,
             agent_session=agent_session,
             prompt=prompt,
             error=error,
@@ -200,21 +219,70 @@ class SummaryEvaluationAnalysis(EvaluationAnalysis):
             return None, f"No corresponding info:core analysis data at {key}"
         return json.dumps(payload, sort_keys=True, indent=2), None
 
-    def diff_tree(self, playground_path: str, actual_resolution_sha: str) -> tuple[str | None, str | None]:
+    def collect_parents(self, playground_path: str, merge_commit_oid: str) -> tuple[list[str], str | None]:
+        result = capture_git(
+            "-C",
+            playground_path,
+            "show",
+            "--no-patch",
+            "--format=%P",
+            merge_commit_oid,
+            check=False,
+        )
+        if result.returncode == 0:
+            return result.stdout.strip().split(), None
+
+        error = result.stderr.strip() or result.stdout.strip()
+        return [], f"Could not read actual resolution parents: {error}"
+
+    def collect_conflicted_tree_oid(
+        self,
+        playground_path: str,
+        left_parent_oid: str,
+        right_parent_oid: str,
+    ) -> tuple[str | None, str | None]:
+        result = capture_git(
+            "-C",
+            playground_path,
+            "merge-tree",
+            "-z",
+            left_parent_oid,
+            right_parent_oid,
+            check=False,
+        )
+        if result.returncode == 0:
+            return None, "Actual resolution parents merge cleanly"
+
+        output = result.stdout + result.stderr
+        if "fatal: refusing to merge unrelated histories" in output:
+            return None, "Actual resolution parents have unrelated histories"
+
+        conflicted_tree_oid = result.stdout.split("\0", 1)[0].strip()
+        if not conflicted_tree_oid:
+            return None, "Could not read conflicted tree oid from merge-tree output"
+
+        return conflicted_tree_oid, None
+
+    def diff_tree(
+        self,
+        playground_path: str,
+        base_ref: str,
+        target_ref: str,
+    ) -> tuple[str | None, str | None]:
         result = capture_git(
             "-C",
             playground_path,
             "diff-tree",
             "-p",
-            actual_resolution_sha,
-            "HEAD",
+            base_ref,
+            target_ref,
             check=False,
         )
         if result.returncode == 0:
             return result.stdout, None
 
         error = result.stderr.strip() or result.stdout.strip()
-        return None, f"Could not diff proposed resolution against actual resolution: {error}"
+        return None, error
 
     def agent_session(self, evaluation_input: EvaluationInput) -> str:
         try:
@@ -273,19 +341,103 @@ class SummaryEvaluationAnalysis(EvaluationAnalysis):
                 info_conflict_key=info_key,
             )
 
-        diff, diff_error = self.diff_tree(playground_path, actual_resolution_sha)
+        proposed_to_actual_diff, diff_error = self.diff_tree(
+            playground_path,
+            actual_resolution_sha,
+            "HEAD",
+        )
         if diff_error is not None:
             return self.failed(
                 evaluation_input,
-                diff_error,
+                f"Could not diff proposed resolution against actual resolution: {diff_error}",
                 actual_resolution_sha=actual_resolution_sha,
                 proposed_commit_sha=commit_sha,
                 info_conflict_key=info_key,
                 original_conflicts=original_conflicts,
             )
 
+        parents, parents_error = self.collect_parents(playground_path, actual_resolution_sha)
+        if parents_error is not None:
+            return self.failed(
+                evaluation_input,
+                parents_error,
+                actual_resolution_sha=actual_resolution_sha,
+                proposed_commit_sha=commit_sha,
+                info_conflict_key=info_key,
+                original_conflicts=original_conflicts,
+                proposed_to_actual_resolution_patch=proposed_to_actual_diff,
+            )
+
+        if len(parents) != 2:
+            return self.failed(
+                evaluation_input,
+                f"Actual resolution has {len(parents)} parents; expected 2",
+                actual_resolution_sha=actual_resolution_sha,
+                proposed_commit_sha=commit_sha,
+                info_conflict_key=info_key,
+                original_conflicts=original_conflicts,
+                proposed_to_actual_resolution_patch=proposed_to_actual_diff,
+            )
+
+        conflicted_tree_oid, conflicted_tree_error = self.collect_conflicted_tree_oid(
+            playground_path,
+            parents[0],
+            parents[1],
+        )
+        if conflicted_tree_error is not None:
+            return self.failed(
+                evaluation_input,
+                conflicted_tree_error,
+                actual_resolution_sha=actual_resolution_sha,
+                proposed_commit_sha=commit_sha,
+                info_conflict_key=info_key,
+                original_conflicts=original_conflicts,
+                proposed_to_actual_resolution_patch=proposed_to_actual_diff,
+            )
+
+        conflicted_to_proposed_diff, diff_error = self.diff_tree(
+            playground_path,
+            conflicted_tree_oid,
+            "HEAD",
+        )
+        if diff_error is not None:
+            return self.failed(
+                evaluation_input,
+                f"Could not diff proposed resolution against conflicted tree: {diff_error}",
+                actual_resolution_sha=actual_resolution_sha,
+                proposed_commit_sha=commit_sha,
+                conflicted_tree_oid=conflicted_tree_oid,
+                info_conflict_key=info_key,
+                original_conflicts=original_conflicts,
+                proposed_to_actual_resolution_patch=proposed_to_actual_diff,
+            )
+
+        conflicted_to_actual_diff, diff_error = self.diff_tree(
+            playground_path,
+            conflicted_tree_oid,
+            actual_resolution_sha,
+        )
+        if diff_error is not None:
+            return self.failed(
+                evaluation_input,
+                f"Could not diff actual resolution against conflicted tree: {diff_error}",
+                actual_resolution_sha=actual_resolution_sha,
+                proposed_commit_sha=commit_sha,
+                conflicted_tree_oid=conflicted_tree_oid,
+                info_conflict_key=info_key,
+                original_conflicts=original_conflicts,
+                proposed_to_actual_resolution_patch=proposed_to_actual_diff,
+                conflicted_to_proposed_resolution_patch=conflicted_to_proposed_diff,
+            )
+
         session = self.agent_session(evaluation_input)
-        prompt = build_summary_prompt(original_conflicts or "", diff or "", session)
+        prompt = build_summary_prompt(
+            original_conflicts or "",
+            proposed_to_actual_diff or "",
+            conflicted_to_proposed_diff or "",
+            conflicted_to_actual_diff or "",
+            session,
+        )
         try:
             judge_config = self.config or summary_judge_config()
         except RuntimeError as error:
@@ -299,9 +451,12 @@ class SummaryEvaluationAnalysis(EvaluationAnalysis):
                 str(error),
                 actual_resolution_sha=actual_resolution_sha,
                 proposed_commit_sha=commit_sha,
+                conflicted_tree_oid=conflicted_tree_oid,
                 info_conflict_key=info_key,
                 original_conflicts=original_conflicts,
-                proposed_to_actual_resolution_patch=diff,
+                proposed_to_actual_resolution_patch=proposed_to_actual_diff,
+                conflicted_to_proposed_resolution_patch=conflicted_to_proposed_diff,
+                conflicted_to_actual_resolution_patch=conflicted_to_actual_diff,
                 agent_session=session,
                 prompt=prompt,
             )
@@ -330,10 +485,13 @@ class SummaryEvaluationAnalysis(EvaluationAnalysis):
                 str(error),
                 actual_resolution_sha=actual_resolution_sha,
                 proposed_commit_sha=commit_sha,
+                conflicted_tree_oid=conflicted_tree_oid,
                 info_conflict_key=info_key,
                 judge_model=judge_config.ollama_model,
                 original_conflicts=original_conflicts,
-                proposed_to_actual_resolution_patch=diff,
+                proposed_to_actual_resolution_patch=proposed_to_actual_diff,
+                conflicted_to_proposed_resolution_patch=conflicted_to_proposed_diff,
+                conflicted_to_actual_resolution_patch=conflicted_to_actual_diff,
                 agent_session=session,
                 prompt=prompt,
             )
@@ -349,10 +507,13 @@ class SummaryEvaluationAnalysis(EvaluationAnalysis):
             resolution_key=evaluation_input.resolution_key,
             proposed_commit_sha=commit_sha,
             actual_resolution_sha=actual_resolution_sha,
+            conflicted_tree_oid=conflicted_tree_oid,
             info_conflict_key=info_key,
             judge_model=judge_config.ollama_model,
             original_conflicts=original_conflicts,
-            proposed_to_actual_resolution_patch=diff,
+            proposed_to_actual_resolution_patch=proposed_to_actual_diff,
+            conflicted_to_proposed_resolution_patch=conflicted_to_proposed_diff,
+            conflicted_to_actual_resolution_patch=conflicted_to_actual_diff,
             agent_session=session,
             prompt=prompt,
             failure_summary=summary,

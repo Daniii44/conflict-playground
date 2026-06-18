@@ -91,12 +91,18 @@ def test_summary_analysis_builds_prompt_from_info_diff_and_session(monkeypatch):
         patch("evaluation.analysis.summary_analysis.capture_git") as summary_capture_git,
     ):
         head_capture_git.return_value = CompletedProcess(args=[], returncode=0, stdout="proposed-sha\n", stderr="")
-        summary_capture_git.return_value = CompletedProcess(
-            args=[],
-            returncode=0,
-            stdout="diff --git a/file.txt b/file.txt\n",
-            stderr="",
-        )
+        summary_capture_git.side_effect = [
+            CompletedProcess(
+                args=[],
+                returncode=0,
+                stdout="diff --git a/file.txt b/file.txt\n+bad\n-required\n",
+                stderr="",
+            ),
+            CompletedProcess(args=[], returncode=0, stdout="left-parent right-parent\n", stderr=""),
+            CompletedProcess(args=[], returncode=1, stdout="conflicted-tree\0metadata", stderr=""),
+            CompletedProcess(args=[], returncode=0, stdout="diff --git a/file.txt b/file.txt\n+proposed\n", stderr=""),
+            CompletedProcess(args=[], returncode=0, stdout="diff --git a/file.txt b/file.txt\n+actual\n", stderr=""),
+        ]
 
         record = SummaryEvaluationAnalysis(
             redis=redis,
@@ -109,7 +115,10 @@ def test_summary_analysis_builds_prompt_from_info_diff_and_session(monkeypatch):
     assert record.actual_resolution_sha == "actualsha"
     assert record.info_conflict_key == info_key
     assert record.judge_model == "llama-test"
-    assert record.proposed_to_actual_resolution_patch == "diff --git a/file.txt b/file.txt\n"
+    assert record.conflicted_tree_oid == "conflicted-tree"
+    assert record.proposed_to_actual_resolution_patch == "diff --git a/file.txt b/file.txt\n+bad\n-required\n"
+    assert record.conflicted_to_proposed_resolution_patch == "diff --git a/file.txt b/file.txt\n+proposed\n"
+    assert record.conflicted_to_actual_resolution_patch == "diff --git a/file.txt b/file.txt\n+actual\n"
     assert "CONFLICT (content)" in record.original_conflicts
     assert "I inspected the conflict." in record.agent_session
     assert "Run tests | Command: pytest" in record.agent_session
@@ -119,7 +128,10 @@ def test_summary_analysis_builds_prompt_from_info_diff_and_session(monkeypatch):
     prompt, config = judge_calls[0]
     assert config.ollama_model == "llama-test"
     assert "Original git conflicts:" in prompt
-    assert "Diff (Proposed Resolution vs. Reference Solution):" in prompt
+    assert "Diff (Reference Solution -> Proposed Resolution):" in prompt
+    assert "Diff (Conflicted State vs. Proposed Resolution):" in prompt
+    assert "Diff (Conflicted State vs. Reference Solution):" in prompt
+    assert "In Reference -> Proposed only" in prompt
     assert "Agent's internal thoughts/chat logs:" in prompt
     assert "50 words or less" in prompt
     assert [call.args for call in summary_capture_git.call_args_list] == [
@@ -128,7 +140,39 @@ def test_summary_analysis_builds_prompt_from_info_diff_and_session(monkeypatch):
             "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
             "diff-tree",
             "-p",
+            "actualsha",
             "HEAD",
+        ),
+        (
+            "-C",
+            "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
+            "show",
+            "--no-patch",
+            "--format=%P",
+            "actualsha",
+        ),
+        (
+            "-C",
+            "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
+            "merge-tree",
+            "-z",
+            "left-parent",
+            "right-parent",
+        ),
+        (
+            "-C",
+            "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
+            "diff-tree",
+            "-p",
+            "conflicted-tree",
+            "HEAD",
+        ),
+        (
+            "-C",
+            "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha",
+            "diff-tree",
+            "-p",
+            "conflicted-tree",
             "actualsha",
         )
     ]
@@ -188,7 +232,13 @@ def test_summary_analysis_records_missing_model_config(monkeypatch):
         patch("evaluation.analysis.summary_analysis.load_config", return_value={}),
     ):
         head_capture_git.return_value = CompletedProcess(args=[], returncode=0, stdout="proposed-sha\n", stderr="")
-        summary_capture_git.return_value = CompletedProcess(args=[], returncode=0, stdout="diff\n", stderr="")
+        summary_capture_git.side_effect = [
+            CompletedProcess(args=[], returncode=0, stdout="diff\n", stderr=""),
+            CompletedProcess(args=[], returncode=0, stdout="left-parent right-parent\n", stderr=""),
+            CompletedProcess(args=[], returncode=1, stdout="conflicted-tree\0metadata", stderr=""),
+            CompletedProcess(args=[], returncode=0, stdout="conflicted to proposed diff\n", stderr=""),
+            CompletedProcess(args=[], returncode=0, stdout="conflicted to actual diff\n", stderr=""),
+        ]
 
         record = SummaryEvaluationAnalysis(
             redis=redis,
@@ -203,7 +253,7 @@ def test_summary_analysis_records_missing_model_config(monkeypatch):
 
 
 def test_summary_analysis_logs_judge_exception(monkeypatch):
-    monkeypatch.setenv("CACHES", "/caches")
+    monkeypatch.setenv("PLAYGROUNDS", "/playgrounds")
     info_key = "info:conflict:core:owner/repo.git:actualsha"
     redis = FakeRedis({info_key: {"merge_result": {"logical_conflicts": []}}})
 
@@ -211,10 +261,18 @@ def test_summary_analysis_logs_judge_exception(monkeypatch):
         raise RuntimeError("Ollama chat completion failed for model 'missing': 404 model not found")
 
     with (
+        patch("evaluation.analysis.common.capture_git") as head_capture_git,
         patch("evaluation.analysis.summary_analysis.capture_git") as summary_capture_git,
         patch("evaluation.analysis.summary_analysis.logger") as logger,
     ):
-        summary_capture_git.return_value = CompletedProcess(args=[], returncode=0, stdout="diff\n", stderr="")
+        head_capture_git.return_value = CompletedProcess(args=[], returncode=0, stdout="proposed-sha\n", stderr="")
+        summary_capture_git.side_effect = [
+            CompletedProcess(args=[], returncode=0, stdout="diff\n", stderr=""),
+            CompletedProcess(args=[], returncode=0, stdout="left-parent right-parent\n", stderr=""),
+            CompletedProcess(args=[], returncode=1, stdout="conflicted-tree\0metadata", stderr=""),
+            CompletedProcess(args=[], returncode=0, stdout="conflicted to proposed diff\n", stderr=""),
+            CompletedProcess(args=[], returncode=0, stdout="conflicted to actual diff\n", stderr=""),
+        ]
 
         record = SummaryEvaluationAnalysis(
             redis=redis,
