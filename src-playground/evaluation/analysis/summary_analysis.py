@@ -26,8 +26,8 @@ You will be given:
 3. The Agent's internal thoughts/chat logs
 
 CRITICAL DIFF READING RULES:
-- A line starting with '-' means the agent generated BAD/ERRONEOUS code that should not be there.
-- A line starting with '+' means the agent FORGOT to generate required code, leaving a gap.
+- A line starting with '+' means the agent generated BAD/ERRONEOUS code that should not be there.
+- A line starting with '-' means the agent FORGOT to generate required code, leaving a gap.
 - Compare these signs against the Agent's thoughts to identify the exact breakdown in reasoning.
 
 Task: Describe exactly what went wrong in a single, concise paragraph of 50 words or less. Focus purely on the root cause of the failure mode (e.g., context drift, submodule blindness, rogue syntax injection, or execution slip). Do not say "Based on the diff..." or "The agent failed because...". Start directly with the technical explanation."""
@@ -92,8 +92,8 @@ def build_summary_prompt(original_conflicts: str, proposed_to_actual_diff: str, 
         f"```text\n{agent_session}\n```\n\n"
         "Diff Analysis:\n"
         "CRITICAL DIFF READING REMINDER:\n"
-        "- Lines starting with '-' are BAD code the agent erroneously generated.\n"
-        "- Lines starting with '+' are MISSING code the agent forgot to generate.\n\n"
+        "- Lines starting with '+' are BAD code the agent erroneously generated.\n"
+        "- Lines starting with '-' are MISSING code the agent forgot to generate.\n\n"
         "Diff (Proposed Resolution vs. Reference Solution):\n"
         f"```diff\n{proposed_to_actual_diff}\n```"
     )
@@ -206,8 +206,8 @@ class SummaryEvaluationAnalysis(EvaluationAnalysis):
             playground_path,
             "diff-tree",
             "-p",
-            "HEAD",
             actual_resolution_sha,
+            "HEAD",
             check=False,
         )
         if result.returncode == 0:
