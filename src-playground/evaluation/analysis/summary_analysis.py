@@ -18,15 +18,19 @@ from evaluation.analysis.common import (
 from resolution.session import simplified_session_lines
 
 
-SUMMARY_PROMPT = """You are a technical code-review judge analyzing automated conflict resolution failures.
+SUMMARY_PROMPT = """You are a technical code-review judge analyzing an automated conflict resolution failure.
 
-Analyze the provided data:
+You will be given:
 1. Original git conflicts
-2. A Git diff-tree output comparing the agent's proposed resolution (HEAD) against the correct reference solution (actual_resolution_sha). 
-   - CRITICAL DIFF MECHANICS: Lines prefixed with '-' are errors introduced by the agent that must be deleted. Lines prefixed with '+' are missing code that the agent failed to include, which are required to match the correct reference.
+2. A Git diff showing the difference between what the agent generated and what it SHOULD have generated.
 3. The Agent's internal thoughts/chat logs
 
-Task: Describe exactly what went wrong in a single, concise paragraph of 50 words or less. Focus purely on the root cause of the failure mode (e.g., context drift, submodule blindness, rogue syntax injection, or execution slip) as revealed by the diff analysis. Do not include introductory phrases, pleasantries, or broad generalizations. Start directly with the technical explanation."""
+CRITICAL DIFF READING RULES:
+- A line starting with '-' means the agent generated BAD/ERRONEOUS code that should not be there.
+- A line starting with '+' means the agent FORGOT to generate required code, leaving a gap.
+- Compare these signs against the Agent's thoughts to identify the exact breakdown in reasoning.
+
+Task: Describe exactly what went wrong in a single, concise paragraph of 50 words or less. Focus purely on the root cause of the failure mode (e.g., context drift, submodule blindness, rogue syntax injection, or execution slip). Do not say "Based on the diff..." or "The agent failed because...". Start directly with the technical explanation."""
 
 
 @dataclass(frozen=True)
@@ -84,12 +88,15 @@ def build_summary_prompt(original_conflicts: str, proposed_to_actual_diff: str, 
         f"{SUMMARY_PROMPT}\n\n"
         "Original git conflicts:\n"
         f"```json\n{original_conflicts}\n```\n\n"
-        "Diff (Proposed Resolution vs. Reference Solution):\n"
-        f"```diff\n{proposed_to_actual_diff}\n```\n\n"
         "Agent's internal thoughts/chat logs:\n"
-        f"```text\n{agent_session}\n```"
+        f"```text\n{agent_session}\n```\n\n"
+        "Diff Analysis:\n"
+        "CRITICAL DIFF READING REMINDER:\n"
+        "- Lines starting with '-' are BAD code the agent erroneously generated.\n"
+        "- Lines starting with '+' are MISSING code the agent forgot to generate.\n\n"
+        "Diff (Proposed Resolution vs. Reference Solution):\n"
+        f"```diff\n{proposed_to_actual_diff}\n```"
     )
-
 
 def invoke_ollama_judge(prompt: str, config: SummaryJudgeConfig) -> str:
     try:
