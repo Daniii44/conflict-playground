@@ -773,6 +773,105 @@
           }
         }
       },
+      "panel-18": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT\n    distinct content.failure_summary as \"Resolution Failure Summary\"\nFROM \"default\".\"redis_json\"\nwhere key = 'evaluation:merge:summary:${repo_name}-${merge}:${timestamp}'"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 18,
+          "links": [],
+          "title": "Summary",
+          "vizConfig": {
+            "group": "stat",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              },
+              "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "/.*/",
+                  "values": true
+                },
+                "showPercentChange": false,
+                "text": {
+                  "titleSize": 24,
+                  "valueSize": 16
+                },
+                "textMode": "value_and_name",
+                "wideLayout": true
+              }
+            },
+            "version": "13.0.1+security-01"
+          }
+        }
+      },
       "panel-2": {
         "kind": "Panel",
         "spec": {
@@ -1479,6 +1578,15 @@
                           "name": "panel-17"
                         }
                       }
+                    },
+                    {
+                      "kind": "AutoGridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-18"
+                        }
+                      }
                     }
                   ],
                   "maxColumnCount": 3,
@@ -1806,8 +1914,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "qt/qt5.git",
-            "value": "qt/qt5.git"
+            "text": "adangel/pmd.git",
+            "value": "adangel/pmd.git"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -1825,8 +1933,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "29befcc995ebb3572ebe082c28e0e01f47b2baa2",
-            "value": "29befcc995ebb3572ebe082c28e0e01f47b2baa2"
+            "text": "e52be1498094e7947e341cbb49c2b537e761d395",
+            "value": "e52be1498094e7947e341cbb49c2b537e761d395"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -1844,8 +1952,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "20260615T043325.553583Z",
-            "value": "20260615T043325.553583Z"
+            "text": "20260615T165933.075361Z",
+            "value": "20260615T165933.075361Z"
           },
           "definition": "  WITH base AS (\n  SELECT\n    key,\n    extractGroups (\n      arrayElement(splitByString('resolution:conflict:', key), 2),\n      '(.+)\\.git-([a-f0-9]{40}):(.*)$'\n    ) AS groups\n  FROM\n    \"default\".\"redis_json\"\n  WHERE\n    startsWith(key, 'resolution')\n    AND content.proposed_resolution.error IS NULL\n)\nSELECT\n  groups[3] AS timestamp\nFROM\n  base\nWHERE\n    concat(groups[1], '.git') = '${repo_name}'  -- \u003c-- Replace with your target repo (e.g., 'framework.git')\n  AND groups[2] = '${merge}'    -- \u003c-- Replace with your target merge commit hash\nORDER BY\n  timestamp DESC;",
           "hide": "dontHide",
