@@ -133,7 +133,7 @@
                 "textMode": "auto"
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -242,7 +242,7 @@
                 "textMode": "auto"
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -351,7 +351,7 @@
                 "textMode": "auto"
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -449,7 +449,219 @@
                 "wideLayout": true
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-13": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "with base as (\n    SELECT * FROM \"default\".\"redis_json\"\n    where startsWith(key, 'evaluation:merge:schesch')\n    and content.human.compilation_failed = false\n    and content.human.test_execution_failed = false\n    and content.human.timed_out = false\n    and content.proposed.timed_out = false\n)\nselect\n    sum(case when content.proposed.compilation_failed::boolean then 1 else 0 end)/count(*) as compilation_failures,\n    sum(case when content.proposed.test_execution_failed::boolean then 1 else 0 end)/count(*) as test_failures\nfrom base\n--select content.proposed.timed_out, content.human.compilation_failed, content.proposed.compilation_failed, content.human.test_execution_failed, content.proposed.test_execution_failed, content.human.passed, content.proposed.passed from base"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 13,
+          "links": [],
+          "title": "New panel",
+          "vizConfig": {
+            "group": "gauge",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "fixedColor": "red",
+                    "mode": "fixed"
+                  },
+                  "max": 1,
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  "unit": "percentunit"
+                },
+                "overrides": []
+              },
+              "options": {
+                "barShape": "flat",
+                "barWidthFactor": 0.3,
+                "effects": {
+                  "barGlow": false,
+                  "centerGlow": false,
+                  "gradient": false
+                },
+                "endpointMarker": "point",
+                "minVizHeight": 75,
+                "minVizWidth": 75,
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "segmentCount": 1,
+                "segmentSpacing": 0.3,
+                "shape": "gauge",
+                "showThresholdLabels": false,
+                "showThresholdMarkers": false,
+                "sizing": "auto",
+                "sparkline": false,
+                "textMode": "auto"
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-14": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "with base as (\n    SELECT * FROM \"default\".\"redis_json\"\n    where startsWith(key, 'evaluation:merge:schesch')\n    and content.human.compilation_failed = false\n    and content.human.test_execution_failed = false\n    and content.human.timed_out = false\n    and content.proposed.timed_out = false\n)\nselect\n    sum(case when content.proposed.compilation_failed::boolean then 1 else 0 end) as compilation_failures,\n    sum(case when content.proposed.test_execution_failed::boolean then 1 else 0 end) as test_failures\nfrom base\n--select content.proposed.timed_out, content.human.compilation_failed, content.proposed.compilation_failed, content.human.test_execution_failed, content.proposed.test_execution_failed, content.human.passed, content.proposed.passed from base"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 14,
+          "links": [],
+          "title": "New panel",
+          "vizConfig": {
+            "group": "gauge",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "fixedColor": "red",
+                    "mode": "fixed"
+                  },
+                  "max": 1,
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  "unit": "none"
+                },
+                "overrides": []
+              },
+              "options": {
+                "barShape": "flat",
+                "barWidthFactor": 0.3,
+                "effects": {
+                  "barGlow": false,
+                  "centerGlow": false,
+                  "gradient": false
+                },
+                "endpointMarker": "point",
+                "minVizHeight": 75,
+                "minVizWidth": 75,
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "segmentCount": 1,
+                "segmentSpacing": 0.3,
+                "shape": "gauge",
+                "showThresholdLabels": false,
+                "showThresholdMarkers": false,
+                "sizing": "auto",
+                "sparkline": false,
+                "textMode": "auto"
+              }
+            },
+            "version": "13.0.2"
           }
         }
       },
@@ -556,7 +768,7 @@
                 "textMode": "auto"
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -675,7 +887,7 @@
                 ]
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -782,7 +994,7 @@
                 "textMode": "auto"
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -926,7 +1138,7 @@
                 "sortBy": []
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -1017,7 +1229,7 @@
                 "wideLayout": true
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -1109,7 +1321,7 @@
                 "wideLayout": true
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -1207,7 +1419,7 @@
                 "wideLayout": true
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       }
@@ -1360,6 +1572,41 @@
                 }
               },
               "title": "Exact Match Metrics"
+            }
+          },
+          {
+            "kind": "RowsLayoutRow",
+            "spec": {
+              "collapse": false,
+              "layout": {
+                "kind": "AutoGridLayout",
+                "spec": {
+                  "columnWidthMode": "standard",
+                  "items": [
+                    {
+                      "kind": "AutoGridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-13"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "AutoGridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-14"
+                        }
+                      }
+                    }
+                  ],
+                  "maxColumnCount": 3,
+                  "rowHeightMode": "standard"
+                }
+              },
+              "title": "Schesch"
             }
           },
           {
