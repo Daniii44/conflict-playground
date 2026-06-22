@@ -81,6 +81,18 @@ def restore_resolution(playground_name: str, git_archive: str) -> None:
         raise RuntimeError(f"Could not restore resolution archive: {error}")
 
 
+def remove_restored_playground(playground_name: str) -> str | None:
+    result = subprocess.run(
+        ["playground-rm", playground_name],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        return result.stderr.strip() or result.stdout.strip()
+    return None
+
+
 def evaluation_input_for_resolution(
     resolution_key: str,
     resolution: ConflictResolution,
@@ -93,13 +105,13 @@ def evaluation_input_for_resolution(
     )
 
 
-def restore_resolution_for_analysis(evaluation_input: EvaluationInput) -> str | None:
+def restore_resolution_for_analysis(evaluation_input: EvaluationInput) -> tuple[str | None, bool]:
     proposed_resolution = evaluation_input.resolution.proposed_resolution
     if proposed_resolution is None:
-        return "Resolution has no proposed_resolution"
+        return "Resolution has no proposed_resolution", False
 
     if proposed_resolution.git_archive is None:
-        return proposed_resolution.error or "Resolution has no archived .git repository"
+        return proposed_resolution.error or "Resolution has no archived .git repository", False
 
     try:
         restore_resolution(
@@ -107,9 +119,9 @@ def restore_resolution_for_analysis(evaluation_input: EvaluationInput) -> str | 
             proposed_resolution.git_archive,
         )
     except RuntimeError as error:
-        return str(error)
+        return str(error), True
 
-    return None
+    return None, True
 
 
 def evaluate_resolution(
@@ -118,20 +130,30 @@ def evaluate_resolution(
     analyses: list[EvaluationAnalysis],
 ) -> list[tuple[str, object]]:
     evaluation_input = evaluation_input_for_resolution(resolution_key, resolution)
-    restore_error = restore_resolution_for_analysis(evaluation_input)
+    restore_error, restored = restore_resolution_for_analysis(evaluation_input)
 
-    results = []
-    for analysis in analyses:
-        if restore_error is not None and hasattr(analysis, "failed"):
-            analysis_output = analysis.failed(evaluation_input, restore_error)
-        else:
-            analysis_output = analysis.analyse(evaluation_input)
+    try:
+        results = []
+        for analysis in analyses:
+            if restore_error is not None and hasattr(analysis, "failed"):
+                analysis_output = analysis.failed(evaluation_input, restore_error)
+            else:
+                analysis_output = analysis.analyse(evaluation_input)
 
-        if analysis_output is not None:
-            key = evaluation_record_key(analysis, resolution_key)
-            results.append((key, analysis_output))
+            if analysis_output is not None:
+                key = evaluation_record_key(analysis, resolution_key)
+                results.append((key, analysis_output))
 
-    return results
+        return results
+    finally:
+        if restored:
+            cleanup_error = remove_restored_playground(evaluation_input.restored_playground_name)
+            if cleanup_error:
+                logger.warning(
+                    "Could not remove restored playground {}: {}",
+                    evaluation_input.restored_playground_name,
+                    cleanup_error,
+                )
 
 
 def store_evaluation(redis, evaluation_key: str, evaluation) -> str:

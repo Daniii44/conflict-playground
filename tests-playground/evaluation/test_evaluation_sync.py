@@ -2,9 +2,11 @@ from datetime import datetime
 from unittest.mock import patch
 
 from common.active_playground_models import Configuration
+from common.evaluation_models import MergeEvaluationRecord
 from common.resolution_models import ConflictResolution, ProposedResolution
 from evaluation.sync import (
     analysis_result_exists,
+    evaluate_resolution,
     selected_analysis_names,
     playground_name_from_resolution_key,
     restored_playground_name_from_resolution_key,
@@ -115,3 +117,61 @@ def test_sync_evaluations_logs_failed_evaluation_as_error():
         "evaluation:merge:summary:owner/repo.git-abc:20260609T120000.000000Z",
         "hook failed",
     )
+
+
+class FakeAnalysis:
+    def __init__(self, name="fake", error=None):
+        self.name = name
+        self.error = error
+
+    def get_analysis_name(self):
+        return self.name
+
+    def analyse(self, evaluation_input):
+        if self.error is not None:
+            raise self.error
+        return MergeEvaluationRecord(resolution_key=evaluation_input.resolution_key)
+
+
+def archived_resolution():
+    return ConflictResolution(
+        configuration=Configuration(
+            hook_type="opencode",
+            playground_version="test",
+            volume_type="bind-mount",
+            resolution_start=datetime(2026, 6, 9, 12, 0, 0),
+        ),
+        resolution_end=datetime(2026, 6, 9, 12, 1, 0),
+        proposed_resolution=ProposedResolution(git_archive="archive"),
+    )
+
+
+def test_evaluate_resolution_removes_restored_playground_after_analysis():
+    resolution_key = "resolution:conflict:owner/repo.git-abc:20260609T120000.000000Z"
+
+    with (
+        patch("evaluation.sync.restore_resolution") as restore_resolution,
+        patch("evaluation.sync.remove_restored_playground", return_value=None) as remove_restored_playground,
+    ):
+        results = evaluate_resolution(resolution_key, archived_resolution(), [FakeAnalysis()])
+
+    assert len(results) == 1
+    restore_resolution.assert_called_once_with("owner/repo.git-20260609T120000.000000Z-abc", "archive")
+    remove_restored_playground.assert_called_once_with("owner/repo.git-20260609T120000.000000Z-abc")
+
+
+def test_evaluate_resolution_removes_restored_playground_after_analysis_error():
+    resolution_key = "resolution:conflict:owner/repo.git-abc:20260609T120000.000000Z"
+
+    with (
+        patch("evaluation.sync.restore_resolution"),
+        patch("evaluation.sync.remove_restored_playground", return_value=None) as remove_restored_playground,
+    ):
+        try:
+            evaluate_resolution(resolution_key, archived_resolution(), [FakeAnalysis(error=RuntimeError("boom"))])
+        except RuntimeError as error:
+            assert str(error) == "boom"
+        else:
+            raise AssertionError("Expected analysis error")
+
+    remove_restored_playground.assert_called_once_with("owner/repo.git-20260609T120000.000000Z-abc")
