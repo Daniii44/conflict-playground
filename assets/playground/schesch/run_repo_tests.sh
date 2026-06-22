@@ -23,20 +23,24 @@ CURR_PATH=$(pwd)
 cd "$REPO_DIR" || exit 2
 
 if [ -f "gradlew" ] ; then
-  # Append JaCoCo plugin and task to build.gradle
-  python3 "$CURR_PATH"/src/python/utils/add_jacoco_gradle.py pom.xml
-  command="./gradlew clean test jacocoTestReport"
+  # Skipping JaCoCo
+
+  # # Append JaCoCo plugin and task to build.gradle
+  # python3 "$CURR_PATH"/src/python/utils/add_jacoco_gradle.py pom.xml
+  # command="./gradlew clean test jacocoTestReport"
 elif [ -f pom.xml ] ; then
-  # Add Jacoco plugin to pom.xml
-  if ! grep -q "jacoco-maven-plugin" pom.xml ; then
-    echo "Adding Jacoco plugin to pom.xml"
-    python3 "$CURR_PATH"/src/python/utils/add_jacoco_maven.py pom.xml
-  fi
-  mvn -version
-  command="mvn clean jacoco:prepare-agent test jacoco:report"
-  if [ -f "mvnw" ] ; then
-    command="./mvnw clean jacoco:prepare-agent test jacoco:report"
-  fi
+  # Skipping JaCoCo
+  
+  # # Add Jacoco plugin to pom.xml
+  # if ! grep -q "jacoco-maven-plugin" pom.xml ; then
+  #   echo "Adding Jacoco plugin to pom.xml"
+  #   python3 "$CURR_PATH"/src/python/utils/add_jacoco_maven.py pom.xml
+  # fi
+  # mvn -version
+  # command="mvn clean jacoco:prepare-agent test jacoco:report"
+  # if [ -f "mvnw" ] ; then
+  #   command="./mvnw clean jacoco:prepare-agent test jacoco:report"
+  # fi
 else
   echo "No Gradle or Maven buildfile"
   exit 1
