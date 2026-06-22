@@ -27,7 +27,7 @@ if [ -f "gradlew" ] ; then
 
   # # Append JaCoCo plugin and task to build.gradle
   # python3 "$CURR_PATH"/src/python/utils/add_jacoco_gradle.py pom.xml
-  # command="./gradlew clean test jacocoTestReport"
+  command="./gradlew clean test"
 elif [ -f pom.xml ] ; then
   # Skipping JaCoCo
   
@@ -36,11 +36,11 @@ elif [ -f pom.xml ] ; then
   #   echo "Adding Jacoco plugin to pom.xml"
   #   python3 "$CURR_PATH"/src/python/utils/add_jacoco_maven.py pom.xml
   # fi
-  # mvn -version
-  # command="mvn clean jacoco:prepare-agent test jacoco:report"
-  # if [ -f "mvnw" ] ; then
-  #   command="./mvnw clean jacoco:prepare-agent test jacoco:report"
-  # fi
+  mvn -version
+  command="mvn clean test"
+  if [ -f "mvnw" ] ; then
+    command="./mvnw clean test"
+  fi
 else
   echo "No Gradle or Maven buildfile"
   exit 1
