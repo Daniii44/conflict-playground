@@ -24,6 +24,8 @@ RUN apt-get -y install --no-install-recommends python3-pip
 RUN pip3 install --break-system-packages --no-cache-dir langchain-ollama
 RUN apt-get -y install redis-tools
 RUN apt-get -y install tree
+RUN apt-get -y install maven
+RUN apt-get -y install gradle
 
 ADD src-playground src
 ADD src-hooks src-hooks
