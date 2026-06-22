@@ -97,12 +97,18 @@ class ScheschEvaluationAnalysis(EvaluationAnalysis):
     ) -> ScheschCommandResult:
         remaining_seconds = max(0.0, deadline - time.monotonic())
         if remaining_seconds <= 0:
-            return ScheschCommandResult(command=command, timed_out=True, output_tail="Timed out before command start")
+            return ScheschCommandResult(
+                command=command,
+                duration_seconds=0.0,
+                timed_out=True,
+                output_tail="Timed out before command start",
+            )
 
         env = os.environ.copy()
         env["JAVA_HOME"] = java_home
         env["PATH"] = f"{java_home}/bin:{env.get('PATH', '')}"
 
+        start = time.monotonic()
         try:
             result = subprocess.run(
                 command,
@@ -114,17 +120,21 @@ class ScheschEvaluationAnalysis(EvaluationAnalysis):
                 check=False,
             )
         except subprocess.TimeoutExpired as error:
+            duration_seconds = time.monotonic() - start
             stdout = command_output_text(error.stdout)
             stderr = command_output_text(error.stderr)
             return ScheschCommandResult(
                 command=command,
+                duration_seconds=duration_seconds,
                 timed_out=True,
                 output_tail=output_tail(f"{stdout}{stderr}"),
             )
 
+        duration_seconds = time.monotonic() - start
         return ScheschCommandResult(
             command=command,
             returncode=result.returncode,
+            duration_seconds=duration_seconds,
             output_tail=output_tail(f"{result.stdout}{result.stderr}"),
         )
 

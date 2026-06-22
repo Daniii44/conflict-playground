@@ -64,6 +64,10 @@ def test_schesch_analysis_records_compilation_failure(monkeypatch, tmp_path):
     assert not record.timed_out
     assert len(record.attempts) == 3
     assert all(attempt.test_result is None for attempt in record.attempts)
+    assert all(
+        attempt.compile_result is not None and attempt.compile_result.duration_seconds >= 0
+        for attempt in record.attempts
+    )
     assert [call.args[0] for call in run.call_args_list] == [
         ["mvn", "clean", "test-compile"],
         ["mvn", "clean", "test-compile"],
@@ -104,6 +108,14 @@ def test_schesch_analysis_records_test_execution_failure(monkeypatch, tmp_path):
     assert not record.timed_out
     assert len(record.attempts) == 3
     assert all(attempt.test_result is not None for attempt in record.attempts)
+    assert all(
+        attempt.compile_result is not None and attempt.compile_result.duration_seconds >= 0
+        for attempt in record.attempts
+    )
+    assert all(
+        attempt.test_result is not None and attempt.test_result.duration_seconds >= 0
+        for attempt in record.attempts
+    )
     assert [call.args[0] for call in run.call_args_list] == [
         ["./gradlew", "clean", "testClasses"],
         ["./gradlew", "clean", "test"],

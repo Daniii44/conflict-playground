@@ -62,6 +62,7 @@ class MergeSummaryEvaluation(MergeEvaluationRecord):
 class ScheschCommandResult(BaseModel):
     command: list[str]
     returncode: int | None = None
+    duration_seconds: float
     timed_out: bool = False
     output_tail: str | None = None
 
