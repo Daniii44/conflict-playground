@@ -29,7 +29,7 @@ ADD src-playground src
 ADD src-hooks src-hooks
 ADD tests-playground tests-playground
 ADD pyproject.toml .
-ADD assets/playground/* .
+ADD assets/playground/ .
 
 COPY --from=java8 /opt/java/openjdk /opt/java/openjdk-8
 COPY --from=java11 /opt/java/openjdk /opt/java/openjdk-11
