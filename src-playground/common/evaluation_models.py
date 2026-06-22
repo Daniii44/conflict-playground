@@ -57,3 +57,37 @@ class MergeSummaryEvaluation(MergeEvaluationRecord):
     agent_session: str | None = None
     prompt: str | None = None
     failure_summary: str | None = None
+
+
+class ScheschCommandResult(BaseModel):
+    command: list[str]
+    returncode: int | None = None
+    timed_out: bool = False
+    output_tail: str | None = None
+
+
+class ScheschJavaAttempt(BaseModel):
+    java_home: str
+    compile_result: ScheschCommandResult | None = None
+    test_result: ScheschCommandResult | None = None
+
+
+class ScheschResolutionResult(BaseModel):
+    label: str
+    commit_sha: str | None = None
+    build_tool: str | None = None
+    passed: bool = False
+    compilation_failed: bool = False
+    test_execution_failed: bool = False
+    timed_out: bool = False
+    successful_java_home: str | None = None
+    error: str | None = None
+    attempts: list[ScheschJavaAttempt] = Field(default_factory=list)
+
+
+class MergeScheschEvaluation(MergeEvaluationRecord):
+    proposed_commit_sha: str | None = None
+    actual_resolution_sha: str | None = None
+    timeout_seconds: int
+    proposed: ScheschResolutionResult | None = None
+    human: ScheschResolutionResult | None = None

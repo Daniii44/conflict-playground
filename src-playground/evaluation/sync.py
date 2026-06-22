@@ -17,12 +17,14 @@ from evaluation.analysis.common import (
 )
 from evaluation.analysis.core_analysis import CoreEvaluationAnalysis
 from evaluation.analysis.diff_analysis import DiffEvaluationAnalysis
+from evaluation.analysis.schesch_analysis import ScheschEvaluationAnalysis
 from evaluation.analysis.summary_analysis import SummaryEvaluationAnalysis
 
 
 AVAILABLE_ANALYSES: dict[str, type[EvaluationAnalysis]] = {
     "core": CoreEvaluationAnalysis,
     "diff": DiffEvaluationAnalysis,
+    "schesch": ScheschEvaluationAnalysis,
     "summary": SummaryEvaluationAnalysis,
 }
 
