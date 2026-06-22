@@ -40,3 +40,5 @@ COPY --from=java17 /opt/java/openjdk /opt/java/openjdk-17
 ENV JAVA8_HOME=/opt/java/openjdk-8
 ENV JAVA11_HOME=/opt/java/openjdk-11
 ENV JAVA17_HOME=/opt/java/openjdk-17
+
+ENV MAVEN_OPTS="-Dmaven.repo.local=/root/caches/m2/repository"
