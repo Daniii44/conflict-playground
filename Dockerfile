@@ -1,7 +1,21 @@
+# JDKs
 FROM eclipse-temurin:8-jdk AS java8
 FROM eclipse-temurin:11-jdk AS java11
 FROM eclipse-temurin:17-jdk AS java17
 
+# MergeGitAnalyzer
+FROM eclipse-temurin:17-jdk AS merge-git-analyzer
+WORKDIR /app
+
+COPY tools/merge-git-analyzer/pom.xml .
+COPY tools/merge-git-analyzer/.mvn .mvn
+COPY tools/merge-git-analyzer/mvnw .
+RUN ./mvnw dependency:go-offline
+
+COPY tools/merge-git-analyzer/src ./src
+RUN ./mvnw package
+
+# Conflict Playground
 FROM debian:trixie
 WORKDIR /root
 ENTRYPOINT ["tail", "-f", "/dev/null"]
@@ -36,6 +50,8 @@ ADD assets/playground/ .
 COPY --from=java8 /opt/java/openjdk /opt/java/openjdk-8
 COPY --from=java11 /opt/java/openjdk /opt/java/openjdk-11
 COPY --from=java17 /opt/java/openjdk /opt/java/openjdk-17
+
+COPY --from=merge-git-analyzer /app/target/conflict-resolution-analyzer-1.0.0.jar tools/conflict-resolution-analyzer-1.0.0.jar
 
 ENV JAVA8_HOME=/opt/java/openjdk-8
 ENV JAVA11_HOME=/opt/java/openjdk-11

@@ -1,0 +1,26 @@
+package ch.unibe.inf.seg.gitanalyzerplus.analyze.analyzer.conflictingfile.conflictresolution;
+
+public enum ConflictResolutionResult {
+    UNKNOWN("UNKNOWN"),
+    CONTEXT_CHANGED("CONTEXT_CHANGED"),
+    CONTEXT_UNCHANGED("CONTEXT_UNCHANGED"),
+    CHUNK_CANONICAL_OURS("CHUNK_CANONICAL_OURS"),
+    CHUNK_CANONICAL_THEIRS("CHUNK_CANONICAL_THEIRS"),
+    CHUNK_CANONICAL_BASE("CHUNK_CANONICAL_BASE"),
+    CHUNK_SEMICANONICAL_OURSTHEIRS("CHUNK_SEMICANONICAL_OURSTHEIRS"),
+    CHUNK_SEMICANONICAL_OURSBASE("CHUNK_SEMICANONICAL_OURSBASE"),
+    CHUNK_SEMICANONICAL_BASETHEIRS("CHUNK_SEMICANONICAL_BASETHEIRS"),
+    CHUNK_SEMICANONICAL_OURSBASETHEIRS("CHUNK_SEMICANONICAL_THEIRSBASE"),
+    CHUNK_SEMICANONICAL_EMPTY("CHUNK_SEMICANONICAL_EMPTY"),
+    CHUNK_NONCANONICAL("CHUNK_NONCANONICAL");
+    private final String typeString;
+
+    ConflictResolutionResult(String typeString) {
+        this.typeString = typeString;
+    }
+
+    @Override
+    public String toString() {
+        return this.typeString;
+    }
+}

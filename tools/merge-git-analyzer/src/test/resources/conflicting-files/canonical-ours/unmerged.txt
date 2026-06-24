@@ -1,0 +1,9 @@
+line before
+<<<<<<< ours
+ours line
+||||||| base
+base line
+=======
+theirs line
+>>>>>>> theirs
+line after
