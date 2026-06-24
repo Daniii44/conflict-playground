@@ -288,9 +288,11 @@
                 "fullHighlight": false,
                 "groupWidth": 0.7,
                 "legend": {
-                  "calcs": [],
-                  "displayMode": "list",
-                  "placement": "bottom",
+                  "calcs": [
+                    "mean"
+                  ],
+                  "displayMode": "table",
+                  "placement": "right",
                   "showLegend": true
                 },
                 "orientation": "horizontal",
