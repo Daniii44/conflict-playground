@@ -113,6 +113,7 @@ class ClassificationEvaluationAnalysis(EvaluationAnalysis):
                 "java",
                 "-jar",
                 jar_path,
+                "--formatting",
                 str(unmerged_file),
                 str(merged_file),
             ],
