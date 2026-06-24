@@ -103,7 +103,7 @@
                 "wrapLogMessage": true
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -180,7 +180,7 @@
                 "wrapLogMessage": true
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -257,7 +257,7 @@
                 "wrapLogMessage": true
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -1204,7 +1204,7 @@
                 "wrapLogMessage": true
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -1541,7 +1541,7 @@
                 "wrapLogMessage": true
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -1618,7 +1618,7 @@
                 "wrapLogMessage": true
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       }
