@@ -904,7 +904,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "with base as (\nSELECT \nlogical_conflict.logical_conflict_index,\nlogical_conflict.status,\narrayStringConcat(coalesce(logical_conflict.agent_classifications, []), '\\n') as agentClassification,\narrayStringConcat(coalesce(logical_conflict.human_classifications, []), '\\n') as humanClassification\nFROM \"default\".\"redis_json\"\narray join content.logical_conflicts::Array(JSON) as logical_conflict\nwhere key = 'evaluation:merge:classification:${repo_name}-${merge}:${timestamp}'\n)\nselect *, (humanClassification = agentClassification)::boolean as exact_match from base"
+                        "rawSql": "WITH\n  base AS (\n    SELECT\n      key,\n      logical_conflict.logical_conflict_index AS conflict_index,\n      logical_conflict.status AS status,\n      arrayStringConcat (logical_conflict.agent_classifications, '\\n') AS agentClassification,\n      arrayStringConcat (logical_conflict.human_classifications, '\\n') AS humanClassification,\n      -- Force the zipped array out of the 'Dynamic' type into a strict String Tuple Array\n      CAST(\n        arrayZip (\n          logical_conflict.agent_classifications,\n          logical_conflict.human_classifications\n        ),\n        'Array(Tuple(String, String))'\n      ) AS zipped_classifications\n    FROM\n      \"default\".\"redis_json\" ARRAY\n      JOIN content.logical_conflicts::Array(JSON) AS logical_conflict\n    WHERE\n      key like 'evaluation:merge:classification:${repo_name}-${merge}:${timestamp}%'\n  )\nSELECT\n  conflict_index,\n  status,\n  agentClassification,\n  humanClassification,\n  (humanClassification = agentClassification) AS exact_match,\n  -- Now that it's strictly typed, arrayExists will execute without complaints\n  arrayExists (\n    tuple -\u003e (\n      tuple .1 IN (\n        'CHUNK_CANONICAL_OURS',\n        'CHUNK_CANONICAL_THEIRS',\n        'CHUNK_CANONICAL_BASE'\n      )\n      AND tuple .2 IN (\n        'CHUNK_CANONICAL_OURS',\n        'CHUNK_CANONICAL_THEIRS',\n        'CHUNK_CANONICAL_BASE'\n      )\n      AND tuple .1 != tuple .2\n    ),\n    zipped_classifications\n  )\n  and agentClassification NOT LIKE '%CONTEXT_CHANGED%'\n  AND humanClassification NOT LIKE '%CONTEXT_CHANGED%' AS canonical_resolution_differs\nFROM\n  base"
                       },
                       "version": "v0"
                     },
@@ -2033,8 +2033,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "addthis/stream-lib.git",
-            "value": "addthis/stream-lib.git"
+            "text": "aweber/rabbitmq-flume-plugin.git",
+            "value": "aweber/rabbitmq-flume-plugin.git"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -2052,8 +2052,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "a946396485c9f3cb1aeb11230a19233a0c9c88c0",
-            "value": "a946396485c9f3cb1aeb11230a19233a0c9c88c0"
+            "text": "710a5fb3b85f30fc1992e135ee8b303591aa6bce",
+            "value": "710a5fb3b85f30fc1992e135ee8b303591aa6bce"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -2071,8 +2071,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "20260617T131504.273600Z",
-            "value": "20260617T131504.273600Z"
+            "text": "20260616T020808.509956Z",
+            "value": "20260616T020808.509956Z"
           },
           "definition": "  WITH base AS (\n  SELECT\n    key,\n    extractGroups (\n      arrayElement(splitByString('resolution:conflict:', key), 2),\n      '(.+)\\.git-([a-f0-9]{40}):(.*)$'\n    ) AS groups\n  FROM\n    \"default\".\"redis_json\"\n  WHERE\n    startsWith(key, 'resolution')\n    AND content.proposed_resolution.error IS NULL\n)\nSELECT\n  groups[3] AS timestamp\nFROM\n  base\nWHERE\n    concat(groups[1], '.git') = '${repo_name}'  -- \u003c-- Replace with your target repo (e.g., 'framework.git')\n  AND groups[2] = '${merge}'    -- \u003c-- Replace with your target merge commit hash\nORDER BY\n  timestamp DESC;",
           "hide": "dontHide",
