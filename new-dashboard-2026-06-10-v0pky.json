@@ -1156,7 +1156,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "WITH base AS (\n  SELECT\n    key,\n    extractGroups (\n      arrayElement(splitByString('resolution:conflict:', key), 2),\n      '(.+)\\.git-([a-f0-9]{40}):(.*)$'\n    ) AS groups\n  FROM\n    \"default\".\"redis_json\"\n  WHERE\n    startsWith(key, 'resolution')\n    AND content.proposed_resolution.error IS NULL\n)\nSELECT\n  concat(groups[1], '.git') AS repo_name,\n  groups[2] AS merge,\n  MAX(groups[3]) AS timestamp, -- Keeps the latest timestamp for the merge group\n  COUNT(evaluation.key) AS total_evaluations,\n  'Show Details' AS details,    -- Retains the static string\n  \n  -- Complete Merge Ratio (Evaluations with incomplete_merge = 0 / Total Evaluations)\n  CASE \n    WHEN MIN(CASE WHEN evaluation.key = '' then -1 else 0 end) = -1 THEN -1\n    ELSE SUM(CASE WHEN evaluation.key != '' AND evaluation.content.incomplete_merge = 0 THEN 1 ELSE 0 END) \n         / COUNT(evaluation.key)\n  END AS complete_merge_ratio,\n\n  -- Exact Match Ratio (Evaluations with perfect_match != 0 / Total Evaluations)\n  CASE \n    WHEN MIN(CASE WHEN evaluation.key = '' then -1 else 0 end) = -1 THEN -1\n    ELSE SUM(CASE WHEN evaluation.key != '' AND evaluation.content.perfect_match != 0 THEN 1 ELSE 0 END) \n         / COUNT(evaluation.key)\n  END AS exact_match_ratio\n\nFROM\n  base b\n  LEFT JOIN default.redis_json AS evaluation ON evaluation.key = concat(\n    'evaluation:merge:core:',\n    concat(b.groups[1], '.git'),\n    '-',\n    b.groups[2],\n    ':',\n    b.groups[3]\n  )\nGROUP BY\n  repo_name,\n  merge;"
+                        "rawSql": "WITH \n-- Step 1: Base ledger of repository and merge combinations (plus resolution errors)\nbase_merges AS (\n    SELECT DISTINCT\n        concat(groups[1], '.git') AS repo_name,\n        groups[2] AS merge,\n        max(groups[3]) AS timestamp,  \n        max(content.proposed_resolution.error IS NOT NULL) AS contradiction_proposed_resolution_error  \n    FROM (\n        SELECT\n            key,\n            content,\n            extractGroups(\n                arrayElement(splitByString('resolution:conflict:', key), 2),\n                '(.+)\\.git-([a-f0-9]{40}):(.*)$'\n            ) AS groups\n        FROM \"default\".\"redis_json\"\n        WHERE startsWith(key, 'resolution')\n    )\n    GROUP BY repo_name, merge\n),\n\n-- Step 2: Core execution metrics and proof metrics\ncore_metrics AS (\n    SELECT\n        splitByString('evaluation:merge:core:', key)[2] AS core_suffix,\n        COUNT(DISTINCT key) AS total_evaluations,\n        \n        -- Flag: 1 if ALL evaluations within the group are complete\n        min(CASE WHEN key != '' AND content.incomplete_merge = 1 THEN 1 ELSE 0 END) AS contradiction_is_incomplete_merge,\n\n        -- Proof Flag: 1 only if EVERY evaluation achieved a strict perfect match\n        min(CASE WHEN key != '' AND content.perfect_match != 0 THEN 1 ELSE 0 END) AS proof_is_exact_match\n    FROM \"default\".\"redis_json\"\n    WHERE key LIKE 'evaluation:merge:core:%'\n    GROUP BY core_suffix\n),\n\n-- Step 3: Whitespace-normalized exact match text diffs\ndiff_metrics AS (\n    SELECT\n        splitByString('evaluation:merge:diff:', key)[2] AS diff_suffix,\n        \n        -- Proof Flag: 1 only if EVERY evaluation matches exactly when normalizing for whitespace and blanks\n        min(CASE WHEN content.proposed_to_actual_resolution_diffs.ignore_all_space.ignore_blank_lines.exact_match::boolean THEN 1 ELSE 0 END) AS proof_is_exact_match_normalized\n    FROM \"default\".\"redis_json\"\n    WHERE key LIKE 'evaluation:merge:diff%'\n    GROUP BY diff_suffix\n),\n\n-- Step 4: Schesch runtime compilation and test metrics\nschesch_metrics AS (\n    SELECT\n        splitByString('evaluation:merge:schesch:', key)[2] AS schesch_suffix,\n        \n        -- Flag: 1 if ANY run had a compilation failure on the proposed side (where human side succeeded)\n        max(CASE WHEN content.human.compilation_failed = false \n                  AND content.human.test_execution_failed = false \n                  AND content.human.timed_out = false \n                  AND content.proposed.timed_out = false\n                  AND content.proposed.compilation_failed::boolean THEN 1 ELSE 0 END) AS contradiction_proposed_compilation_failed,\n                  \n        -- Flag: 1 if ANY run had a test failure on the proposed side (where human side succeeded)\n        max(CASE WHEN content.human.compilation_failed = false \n                  AND content.human.test_execution_failed = false \n                  AND content.human.timed_out = false \n                  AND content.proposed.timed_out = false\n                  AND content.proposed.test_execution_failed::boolean THEN 1 ELSE 0 END) AS contradiction_proposed_test_failed\n    FROM \"default\".\"redis_json\"\n    WHERE key LIKE 'evaluation:merge:schesch:%'\n    GROUP BY schesch_suffix\n),\n\n-- Step 5: Process conflict classification arrays and aggregate structural failure flags\nclassification_metrics AS (\n    SELECT \n        splitByString('evaluation:merge:classification:', key)[2] AS class_suffix,\n        \n        MAX(agentClassification NOT LIKE '%CONTEXT_CHANGED%' AND humanClassification NOT LIKE '%CONTEXT_CHANGED%' AND canonical_diff_exists) AS contradiction_canonical_resolution_differs,\n        MAX(agentClassification NOT LIKE '%CONTEXT_CHANGED%' AND humanClassification NOT LIKE '%CONTEXT_CHANGED%' AND contradiction_exists) AS contradiction_semicanonical_contradiction,\n        MAX(agentClassification NOT LIKE '%CONTEXT_CHANGED%' AND humanClassification NOT LIKE '%CONTEXT_CHANGED%' AND dilution_exists) AS contradiction_semicanonical_dilution,\n        MAX(agentClassification NOT LIKE '%CONTEXT_CHANGED%' AND humanClassification NOT LIKE '%CONTEXT_CHANGED%' AND ghost_exists) AS contradiction_ghost_resolution,\n        MAX(agentClassification NOT LIKE '%CONTEXT_CHANGED%' AND humanClassification NOT LIKE '%CONTEXT_CHANGED%' AND fallback_exists) AS contradiction_noncanonical_fallback\n    FROM (\n        SELECT \n            key,\n            arrayStringConcat(logical_conflict.agent_classifications, '\\n') AS agentClassification,\n            arrayStringConcat(logical_conflict.human_classifications, '\\n') AS humanClassification,\n            \n            CAST(\n                arrayZip(logical_conflict.agent_classifications, logical_conflict.human_classifications), \n                'Array(Tuple(String, String))'\n            ) AS zipped,\n\n            arrayExists(t -\u003e (\n                t.1 IN ('CHUNK_CANONICAL_OURS', 'CHUNK_CANONICAL_THEIRS', 'CHUNK_CANONICAL_BASE') AND\n                t.2 IN ('CHUNK_CANONICAL_OURS', 'CHUNK_CANONICAL_THEIRS', 'CHUNK_CANONICAL_BASE') AND t.1 != t.2\n            ), zipped) AS canonical_diff_exists,\n            \n            arrayExists(t -\u003e (\n                (t.1 = 'CHUNK_CANONICAL_OURS'   AND t.2 = 'CHUNK_SEMICANONICAL_BASETHEIRS') OR\n                (t.2 = 'CHUNK_CANONICAL_OURS'   AND t.1 = 'CHUNK_SEMICANONICAL_BASETHEIRS') OR\n                (t.1 = 'CHUNK_CANONICAL_THEIRS' AND t.2 = 'CHUNK_SEMICANONICAL_OURSBASE')   OR\n                (t.2 = 'CHUNK_CANONICAL_THEIRS' AND t.1 = 'CHUNK_SEMICANONICAL_OURSBASE')   OR\n                (t.1 = 'CHUNK_CANONICAL_BASE'   AND t.2 = 'CHUNK_SEMICANONICAL_OURSTHEIRS') OR\n                (t.2 = 'CHUNK_CANONICAL_BASE'   AND t.1 = 'CHUNK_SEMICANONICAL_OURSTHEIRS')\n            ), zipped) AS contradiction_exists,\n            \n            arrayExists(t -\u003e (\n                (t.1 LIKE 'CHUNK_SEMICANONICAL_%' AND t.1 != 'CHUNK_SEMICANONICAL_OURSBASETHEIRS' AND t.2 = 'CHUNK_SEMICANONICAL_OURSBASETHEIRS') OR\n                (t.2 LIKE 'CHUNK_SEMICANONICAL_%' AND t.2 != 'CHUNK_SEMICANONICAL_OURSBASETHEIRS' AND t.1 = 'CHUNK_SEMICANONICAL_OURSBASETHEIRS')\n            ), zipped) AS dilution_exists,\n            \n            arrayExists(t -\u003e (t.1 LIKE 'CHUNK_%CANONICAL%' AND t.2 = 'CHUNK_SEMICANONICAL_EMPTY'), zipped) AS ghost_exists,\n            arrayExists(t -\u003e (t.1 LIKE 'CHUNK_%CANONICAL%' AND t.2 = 'CHUNK_NONCANONICAL'), zipped) AS fallback_exists\n        FROM \"default\".\"redis_json\"\n        ARRAY JOIN content.logical_conflicts::Array(JSON) AS logical_conflict\n        WHERE key LIKE 'evaluation:merge:classification:%'\n    )\n    GROUP BY class_suffix\n)\n\n-- Step 6: Final assembly tracking your precise requested sequential columns layout\nSELECT\n    b.repo_name,\n    b.merge,\n    b.timestamp,\n    coalesce(m.total_evaluations, 0) AS total_evaluations,\n    'Show Details' AS details,\n    \n    -- Proof Metrics Group\n    coalesce(m.proof_is_exact_match, 0)            AS proof_is_exact_match,\n    coalesce(d.proof_is_exact_match_normalized, 0) AS proof_is_exact_match_normalized,\n    \n    -- Contradiction Metrics Group\n    b.contradiction_proposed_resolution_error,\n    coalesce(m.contradiction_is_incomplete_merge, 0)         AS contradiction_is_incomplete_merge,\n    coalesce(s.contradiction_proposed_compilation_failed, 0) AS contradiction_proposed_compilation_failed,\n    coalesce(s.contradiction_proposed_test_failed, 0)        AS contradiction_proposed_test_failed,\n    coalesce(c.contradiction_canonical_resolution_differs, 0) AS contradiction_canonical_resolution_differs,\n    coalesce(c.contradiction_semicanonical_contradiction, 0)   AS contradiction_semicanonical_contradiction,\n    coalesce(c.contradiction_semicanonical_dilution, 0)        AS contradiction_semicanonical_dilution,\n    coalesce(c.contradiction_ghost_resolution, 0)              AS contradiction_ghost_resolution,\n    coalesce(c.contradiction_noncanonical_fallback, 0)         AS contradiction_noncanonical_fallback\n\nFROM base_merges b\nLEFT JOIN core_metrics m \n    ON m.core_suffix = concat(b.repo_name, '-', b.merge, ':', b.timestamp)\nLEFT JOIN diff_metrics d\n    ON d.diff_suffix = concat(b.repo_name, '-', b.merge, ':', b.timestamp)\nLEFT JOIN schesch_metrics s\n    ON s.schesch_suffix = concat(b.repo_name, '-', b.merge, ':', b.timestamp)\nLEFT JOIN classification_metrics c \n    ON c.class_suffix = concat(b.repo_name, '-', b.merge, ':', b.timestamp)\nORDER BY \n    proof_is_exact_match DESC,\n    proof_is_exact_match_normalized DESC,\n    contradiction_proposed_resolution_error DESC,\n    contradiction_is_incomplete_merge DESC,\n    contradiction_proposed_compilation_failed DESC,\n    contradiction_proposed_test_failed DESC,\n    contradiction_canonical_resolution_differs DESC,\n    contradiction_semicanonical_contradiction DESC,\n    contradiction_semicanonical_dilution DESC,\n    contradiction_ghost_resolution DESC,\n    contradiction_noncanonical_fallback DESC\n"
                       },
                       "version": "v0"
                     },
@@ -1242,7 +1242,7 @@
                   {
                     "matcher": {
                       "id": "byRegexp",
-                      "options": "/evaluation_available|complete_merge|exact_match/",
+                      "options": "proof.*|contradiction.*",
                       "scope": "series"
                     },
                     "properties": [
@@ -1253,6 +1253,64 @@
                           "mode": "basic",
                           "type": "color-background"
                         }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byRegexp",
+                      "options": "contradiction.*",
+                      "scope": "series"
+                    },
+                    "properties": [
+                      {
+                        "id": "mappings",
+                        "value": [
+                          {
+                            "options": {
+                              "0": {
+                                "color": "transparent",
+                                "index": 0,
+                                "text": "No Contradiction"
+                              },
+                              "1": {
+                                "color": "red",
+                                "index": 1,
+                                "text": "Contradiction"
+                              }
+                            },
+                            "type": "value"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byRegexp",
+                      "options": "proof.*",
+                      "scope": "series"
+                    },
+                    "properties": [
+                      {
+                        "id": "mappings",
+                        "value": [
+                          {
+                            "options": {
+                              "0": {
+                                "color": "transparent",
+                                "index": 1,
+                                "text": "No Proof"
+                              },
+                              "1": {
+                                "color": "green",
+                                "index": 0,
+                                "text": "Proof"
+                              }
+                            },
+                            "type": "value"
+                          }
+                        ]
                       }
                     ]
                   }
