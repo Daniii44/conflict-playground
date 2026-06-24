@@ -137,660 +137,6 @@
           }
         }
       },
-      "panel-10": {
-        "kind": "Panel",
-        "spec": {
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "hidden": false,
-                    "query": {
-                      "datasource": {
-                        "name": "clickhouse"
-                      },
-                      "group": "grafana-clickhouse-datasource",
-                      "kind": "DataQuery",
-                      "spec": {
-                        "editorType": "sql",
-                        "format": 1,
-                        "meta": {
-                          "builderOptions": {
-                            "columns": [],
-                            "database": "",
-                            "limit": 1000,
-                            "mode": "list",
-                            "queryType": "table",
-                            "table": ""
-                          }
-                        },
-                        "pluginVersion": "4.17.0",
-                        "queryType": "table",
-                        "rawSql": "SELECT \n    outer_pair.1 AS match_type,\n    -- 3. The ratio (exact_matches / total) expressed as a decimal between 0.0 and 1.0\n    avg(JSONExtractString(inner_pair.2, 'exact_match') = 'true') AS exact_match_ratio\nFROM \"default\".\"redis_json\"\n-- 1. Parse the target object straight into a ClickHouse Map (String -\u003e String)\nARRAY JOIN JSONExtract(\n    JSONExtractRaw(content, 'proposed_to_actual_resolution_diffs'), \n    'Map(String, String)'\n) AS outer_pair\n-- 2. Take the value of the outer map (which is the inner JSON) and explode its pairs\nARRAY JOIN JSONExtractKeysAndValuesRaw(outer_pair.2) AS inner_pair\nwhere inner_pair.1 = 'include_blank_lines'\nGROUP BY \n    outer_pair.1\norder by exact_match_ratio"
-                      },
-                      "version": "v0"
-                    },
-                    "refId": "A"
-                  }
-                }
-              ],
-              "queryOptions": {},
-              "transformations": []
-            }
-          },
-          "description": "",
-          "id": 10,
-          "links": [],
-          "title": "Including Blank Lines",
-          "vizConfig": {
-            "group": "gauge",
-            "kind": "VizConfig",
-            "spec": {
-              "fieldConfig": {
-                "defaults": {
-                  "color": {
-                    "mode": "thresholds"
-                  },
-                  "max": 1,
-                  "min": 0,
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "green",
-                        "value": 0
-                      },
-                      {
-                        "color": "red",
-                        "value": 80
-                      }
-                    ]
-                  },
-                  "unit": "percentunit"
-                },
-                "overrides": []
-              },
-              "options": {
-                "barShape": "flat",
-                "barWidthFactor": 0.5,
-                "effects": {
-                  "barGlow": false,
-                  "centerGlow": false,
-                  "gradient": true
-                },
-                "endpointMarker": "point",
-                "minVizHeight": 75,
-                "minVizWidth": 75,
-                "orientation": "auto",
-                "reduceOptions": {
-                  "calcs": [
-                    "lastNotNull"
-                  ],
-                  "fields": "",
-                  "values": true
-                },
-                "segmentCount": 1,
-                "segmentSpacing": 0.3,
-                "shape": "gauge",
-                "showThresholdLabels": false,
-                "showThresholdMarkers": true,
-                "sizing": "auto",
-                "sparkline": true,
-                "textMode": "auto"
-              }
-            },
-            "version": "13.0.2"
-          }
-        }
-      },
-      "panel-11": {
-        "kind": "Panel",
-        "spec": {
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "hidden": false,
-                    "query": {
-                      "datasource": {
-                        "name": "clickhouse"
-                      },
-                      "group": "grafana-clickhouse-datasource",
-                      "kind": "DataQuery",
-                      "spec": {
-                        "editorType": "sql",
-                        "format": 1,
-                        "meta": {
-                          "builderOptions": {
-                            "columns": [],
-                            "database": "",
-                            "limit": 1000,
-                            "mode": "list",
-                            "queryType": "table",
-                            "table": ""
-                          }
-                        },
-                        "pluginVersion": "4.17.0",
-                        "queryType": "table",
-                        "rawSql": "SELECT \n    outer_pair.1 AS match_type,\n    -- 3. The ratio (exact_matches / total) expressed as a decimal between 0.0 and 1.0\n    avg(JSONExtractString(inner_pair.2, 'exact_match') = 'true') AS exact_match_ratio\nFROM \"default\".\"redis_json\"\n-- 1. Parse the target object straight into a ClickHouse Map (String -\u003e String)\nARRAY JOIN JSONExtract(\n    JSONExtractRaw(content, 'proposed_to_actual_resolution_diffs'), \n    'Map(String, String)'\n) AS outer_pair\n-- 2. Take the value of the outer map (which is the inner JSON) and explode its pairs\nARRAY JOIN JSONExtractKeysAndValuesRaw(outer_pair.2) AS inner_pair\nwhere inner_pair.1 = 'ignore_blank_lines'\nGROUP BY \n    outer_pair.1\norder by exact_match_ratio"
-                      },
-                      "version": "v0"
-                    },
-                    "refId": "A"
-                  }
-                }
-              ],
-              "queryOptions": {},
-              "transformations": []
-            }
-          },
-          "description": "",
-          "id": 11,
-          "links": [],
-          "title": "Ignoring Blank Lines",
-          "vizConfig": {
-            "group": "gauge",
-            "kind": "VizConfig",
-            "spec": {
-              "fieldConfig": {
-                "defaults": {
-                  "color": {
-                    "mode": "thresholds"
-                  },
-                  "max": 1,
-                  "min": 0,
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "green",
-                        "value": 0
-                      },
-                      {
-                        "color": "red",
-                        "value": 80
-                      }
-                    ]
-                  },
-                  "unit": "percentunit"
-                },
-                "overrides": []
-              },
-              "options": {
-                "barShape": "flat",
-                "barWidthFactor": 0.5,
-                "effects": {
-                  "barGlow": false,
-                  "centerGlow": false,
-                  "gradient": true
-                },
-                "endpointMarker": "point",
-                "minVizHeight": 75,
-                "minVizWidth": 75,
-                "orientation": "auto",
-                "reduceOptions": {
-                  "calcs": [
-                    "lastNotNull"
-                  ],
-                  "fields": "",
-                  "values": true
-                },
-                "segmentCount": 1,
-                "segmentSpacing": 0.3,
-                "shape": "gauge",
-                "showThresholdLabels": false,
-                "showThresholdMarkers": true,
-                "sizing": "auto",
-                "sparkline": true,
-                "textMode": "auto"
-              }
-            },
-            "version": "13.0.2"
-          }
-        }
-      },
-      "panel-12": {
-        "kind": "Panel",
-        "spec": {
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "hidden": false,
-                    "query": {
-                      "datasource": {
-                        "name": "clickhouse"
-                      },
-                      "group": "grafana-clickhouse-datasource",
-                      "kind": "DataQuery",
-                      "spec": {
-                        "editorType": "sql",
-                        "format": 1,
-                        "meta": {
-                          "builderOptions": {
-                            "columns": [],
-                            "database": "",
-                            "limit": 1000,
-                            "mode": "list",
-                            "queryType": "table",
-                            "table": ""
-                          }
-                        },
-                        "pluginVersion": "4.17.0",
-                        "queryType": "table",
-                        "rawSql": "SELECT \n    outer_pair.1 AS match_type,\n    countIf(JSONExtractString(inner_pair.2, 'exact_match') = 'true') AS exact_match_count\nFROM \"default\".\"redis_json\"\n-- 1. Parse the target object straight into a ClickHouse Map (String -\u003e String)\nARRAY JOIN JSONExtract(\n    JSONExtractRaw(content, 'proposed_to_actual_resolution_diffs'), \n    'Map(String, String)'\n) AS outer_pair\n-- 2. Take the value of the outer map (which is the inner JSON) and explode its pairs\nARRAY JOIN JSONExtractKeysAndValuesRaw(outer_pair.2) AS inner_pair\nwhere inner_pair.1 = 'include_blank_lines'\nGROUP BY \n    outer_pair.1\norder by exact_match_count"
-                      },
-                      "version": "v0"
-                    },
-                    "refId": "A"
-                  }
-                }
-              ],
-              "queryOptions": {},
-              "transformations": []
-            }
-          },
-          "description": "",
-          "id": 12,
-          "links": [],
-          "title": "Including Blank Lines",
-          "vizConfig": {
-            "group": "stat",
-            "kind": "VizConfig",
-            "spec": {
-              "fieldConfig": {
-                "defaults": {
-                  "color": {
-                    "mode": "thresholds"
-                  },
-                  "max": 1,
-                  "min": 0,
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "green",
-                        "value": 0
-                      },
-                      {
-                        "color": "red",
-                        "value": 80
-                      }
-                    ]
-                  },
-                  "unit": "none"
-                },
-                "overrides": []
-              },
-              "options": {
-                "colorMode": "value",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                  "calcs": [
-                    "lastNotNull"
-                  ],
-                  "fields": "",
-                  "values": true
-                },
-                "showPercentChange": false,
-                "textMode": "auto",
-                "wideLayout": true
-              }
-            },
-            "version": "13.0.2"
-          }
-        }
-      },
-      "panel-13": {
-        "kind": "Panel",
-        "spec": {
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "hidden": false,
-                    "query": {
-                      "datasource": {
-                        "name": "clickhouse"
-                      },
-                      "group": "grafana-clickhouse-datasource",
-                      "kind": "DataQuery",
-                      "spec": {
-                        "editorType": "sql",
-                        "format": 1,
-                        "meta": {
-                          "builderOptions": {
-                            "columns": [],
-                            "database": "",
-                            "limit": 1000,
-                            "mode": "list",
-                            "queryType": "table",
-                            "table": ""
-                          }
-                        },
-                        "pluginVersion": "4.17.0",
-                        "queryType": "table",
-                        "rawSql": "with base as (\n    SELECT * FROM \"default\".\"redis_json\"\n    where startsWith(key, 'evaluation:merge:schesch')\n    and content.human.compilation_failed = false\n    and content.human.test_execution_failed = false\n    and content.human.timed_out = false\n    and content.proposed.timed_out = false\n)\nselect\n    sum(case when content.proposed.compilation_failed::boolean then 1 else 0 end)/count(*) as compilation_failures,\n    sum(case when content.proposed.test_execution_failed::boolean then 1 else 0 end)/count(*) as test_failures\nfrom base\n--select content.proposed.timed_out, content.human.compilation_failed, content.proposed.compilation_failed, content.human.test_execution_failed, content.proposed.test_execution_failed, content.human.passed, content.proposed.passed from base"
-                      },
-                      "version": "v0"
-                    },
-                    "refId": "A"
-                  }
-                }
-              ],
-              "queryOptions": {},
-              "transformations": []
-            }
-          },
-          "description": "",
-          "id": 13,
-          "links": [],
-          "title": "New panel",
-          "vizConfig": {
-            "group": "gauge",
-            "kind": "VizConfig",
-            "spec": {
-              "fieldConfig": {
-                "defaults": {
-                  "color": {
-                    "fixedColor": "red",
-                    "mode": "fixed"
-                  },
-                  "max": 1,
-                  "min": 0,
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "green",
-                        "value": 0
-                      }
-                    ]
-                  },
-                  "unit": "percentunit"
-                },
-                "overrides": []
-              },
-              "options": {
-                "barShape": "flat",
-                "barWidthFactor": 0.3,
-                "effects": {
-                  "barGlow": false,
-                  "centerGlow": false,
-                  "gradient": false
-                },
-                "endpointMarker": "point",
-                "minVizHeight": 75,
-                "minVizWidth": 75,
-                "orientation": "auto",
-                "reduceOptions": {
-                  "calcs": [
-                    "lastNotNull"
-                  ],
-                  "fields": "",
-                  "values": false
-                },
-                "segmentCount": 1,
-                "segmentSpacing": 0.3,
-                "shape": "gauge",
-                "showThresholdLabels": false,
-                "showThresholdMarkers": false,
-                "sizing": "auto",
-                "sparkline": false,
-                "textMode": "auto"
-              }
-            },
-            "version": "13.0.2"
-          }
-        }
-      },
-      "panel-14": {
-        "kind": "Panel",
-        "spec": {
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "hidden": false,
-                    "query": {
-                      "datasource": {
-                        "name": "clickhouse"
-                      },
-                      "group": "grafana-clickhouse-datasource",
-                      "kind": "DataQuery",
-                      "spec": {
-                        "editorType": "sql",
-                        "format": 1,
-                        "meta": {
-                          "builderOptions": {
-                            "columns": [],
-                            "database": "",
-                            "limit": 1000,
-                            "mode": "list",
-                            "queryType": "table",
-                            "table": ""
-                          }
-                        },
-                        "pluginVersion": "4.17.0",
-                        "queryType": "table",
-                        "rawSql": "with base as (\n    SELECT * FROM \"default\".\"redis_json\"\n    where startsWith(key, 'evaluation:merge:schesch')\n    and content.human.compilation_failed = false\n    and content.human.test_execution_failed = false\n    and content.human.timed_out = false\n    and content.proposed.timed_out = false\n)\nselect\n    sum(case when content.proposed.compilation_failed::boolean then 1 else 0 end) as compilation_failures,\n    sum(case when content.proposed.test_execution_failed::boolean then 1 else 0 end) as test_failures\nfrom base\n--select content.proposed.timed_out, content.human.compilation_failed, content.proposed.compilation_failed, content.human.test_execution_failed, content.proposed.test_execution_failed, content.human.passed, content.proposed.passed from base"
-                      },
-                      "version": "v0"
-                    },
-                    "refId": "A"
-                  }
-                }
-              ],
-              "queryOptions": {},
-              "transformations": []
-            }
-          },
-          "description": "",
-          "id": 14,
-          "links": [],
-          "title": "New panel",
-          "vizConfig": {
-            "group": "gauge",
-            "kind": "VizConfig",
-            "spec": {
-              "fieldConfig": {
-                "defaults": {
-                  "color": {
-                    "fixedColor": "red",
-                    "mode": "fixed"
-                  },
-                  "max": 1,
-                  "min": 0,
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "green",
-                        "value": 0
-                      }
-                    ]
-                  },
-                  "unit": "none"
-                },
-                "overrides": []
-              },
-              "options": {
-                "barShape": "flat",
-                "barWidthFactor": 0.3,
-                "effects": {
-                  "barGlow": false,
-                  "centerGlow": false,
-                  "gradient": false
-                },
-                "endpointMarker": "point",
-                "minVizHeight": 75,
-                "minVizWidth": 75,
-                "orientation": "auto",
-                "reduceOptions": {
-                  "calcs": [
-                    "lastNotNull"
-                  ],
-                  "fields": "",
-                  "values": false
-                },
-                "segmentCount": 1,
-                "segmentSpacing": 0.3,
-                "shape": "gauge",
-                "showThresholdLabels": false,
-                "showThresholdMarkers": false,
-                "sizing": "auto",
-                "sparkline": false,
-                "textMode": "auto"
-              }
-            },
-            "version": "13.0.2"
-          }
-        }
-      },
-      "panel-15": {
-        "kind": "Panel",
-        "spec": {
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "hidden": false,
-                    "query": {
-                      "datasource": {
-                        "name": "clickhouse"
-                      },
-                      "group": "grafana-clickhouse-datasource",
-                      "kind": "DataQuery",
-                      "spec": {
-                        "editorType": "sql",
-                        "format": 1,
-                        "meta": {
-                          "builderOptions": {
-                            "columns": [],
-                            "database": "",
-                            "limit": 1000,
-                            "mode": "list",
-                            "queryType": "table",
-                            "table": ""
-                          }
-                        },
-                        "pluginVersion": "4.17.0",
-                        "queryType": "table",
-                        "rawSql": "WITH base AS (\n    SELECT \n        key,\n        logical_conflict.logical_conflict_index AS conflict_index,\n        arrayStringConcat(logical_conflict.agent_classifications, '\\n') AS agentClassification,\n        arrayStringConcat(logical_conflict.human_classifications, '\\n') AS humanClassification,\n        \n        -- Secure array mapping out of Dynamic JSON tracking\n        CAST(\n            arrayZip(logical_conflict.agent_classifications, logical_conflict.human_classifications),\n            'Array(Tuple(String, String))'\n        ) AS zipped_classifications\n    FROM \"default\".\"redis_json\"\n    ARRAY JOIN content.logical_conflicts::Array(JSON) AS logical_conflict\n    WHERE key LIKE 'evaluation:merge:classification:%'\n)\nSELECT\n    key,\n    \n    -- Mode 0: Original check (Canonical mismatch)\n    max(\n        agentClassification NOT LIKE '%CONTEXT_CHANGED%' AND \n        humanClassification NOT LIKE '%CONTEXT_CHANGED%' AND\n        arrayExists(t -\u003e (\n            t.1 IN ('CHUNK_CANONICAL_OURS', 'CHUNK_CANONICAL_THEIRS', 'CHUNK_CANONICAL_BASE') AND\n            t.2 IN ('CHUNK_CANONICAL_OURS', 'CHUNK_CANONICAL_THEIRS', 'CHUNK_CANONICAL_BASE') AND\n            t.1 != t.2\n        ), zipped_classifications)\n    ) AS canonical_contradiction,\n\n    -- Mode 1: Canonical vs Semicanonical Contradiction (e.g., One picked OURS, other dropped it for BASE/THEIRS)\n    max(\n        agentClassification NOT LIKE '%CONTEXT_CHANGED%' AND \n        humanClassification NOT LIKE '%CONTEXT_CHANGED%' AND\n        arrayExists(t -\u003e (\n            (t.1 = 'CHUNK_CANONICAL_OURS'   AND t.2 = 'CHUNK_SEMICANONICAL_BASETHEIRS') OR\n            (t.2 = 'CHUNK_CANONICAL_OURS'   AND t.1 = 'CHUNK_SEMICANONICAL_BASETHEIRS') OR\n            (t.1 = 'CHUNK_CANONICAL_THEIRS' AND t.2 = 'CHUNK_SEMICANONICAL_OURSBASE')   OR\n            (t.2 = 'CHUNK_CANONICAL_THEIRS' AND t.1 = 'CHUNK_SEMICANONICAL_OURSBASE')   OR\n            (t.1 = 'CHUNK_CANONICAL_BASE'   AND t.2 = 'CHUNK_SEMICANONICAL_OURSTHEIRS') OR\n            (t.2 = 'CHUNK_CANONICAL_BASE'   AND t.1 = 'CHUNK_SEMICANONICAL_OURSTHEIRS')\n        ), zipped_classifications)\n    ) AS semicanonical_contradiction,\n\n    -- Mode 3: Asymmetric Ghost Resolutions (One kept history, one completely emptied logic)\n    max(\n        agentClassification NOT LIKE '%CONTEXT_CHANGED%' AND \n        humanClassification NOT LIKE '%CONTEXT_CHANGED%' AND\n        arrayExists(t -\u003e (\n            (t.1 LIKE 'CHUNK_%CANONICAL%' AND t.2 = 'CHUNK_SEMICANONICAL_EMPTY') or\n            (t.2 LIKE 'CHUNK_%CANONICAL%' AND t.1 = 'CHUNK_SEMICANONICAL_EMPTY')\n        ), zipped_classifications)\n    ) AS ghost_resolution,\n\n    -- Mode 4: Heuristic Fallback Breakdown (The agent resolved structurally, human resorted to raw text)\n    max(\n        agentClassification NOT LIKE '%CONTEXT_CHANGED%' AND \n        humanClassification NOT LIKE '%CONTEXT_CHANGED%' AND\n        arrayExists(t -\u003e (\n            (t.1 LIKE 'CHUNK_%CANONICAL%' AND t.2 = 'CHUNK_NONCANONICAL')\n        ), zipped_classifications)\n    ) AS missed_noncanonical_necessity\n\nFROM base\nGROUP BY key\nORDER BY \n    canonical_contradiction DESC, \n    semicanonical_contradiction DESC, \n    ghost_resolution DESC, \n    missed_noncanonical_necessity DESC"
-                      },
-                      "version": "v0"
-                    },
-                    "refId": "A"
-                  }
-                }
-              ],
-              "queryOptions": {},
-              "transformations": []
-            }
-          },
-          "description": "",
-          "id": 15,
-          "links": [],
-          "title": "New panel",
-          "vizConfig": {
-            "group": "table",
-            "kind": "VizConfig",
-            "spec": {
-              "fieldConfig": {
-                "defaults": {
-                  "color": {
-                    "mode": "palette-classic"
-                  },
-                  "custom": {
-                    "align": "auto",
-                    "cellOptions": {
-                      "mode": "basic",
-                      "type": "color-background"
-                    },
-                    "footer": {
-                      "reducers": []
-                    },
-                    "inspect": false
-                  },
-                  "mappings": [
-                    {
-                      "options": {
-                        "0": {
-                          "color": "transparent",
-                          "index": 1,
-                          "text": "No Contradiction"
-                        },
-                        "1": {
-                          "color": "red",
-                          "index": 0,
-                          "text": "Contradiction"
-                        }
-                      },
-                      "type": "value"
-                    }
-                  ],
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "green",
-                        "value": 0
-                      },
-                      {
-                        "color": "red",
-                        "value": 80
-                      }
-                    ]
-                  }
-                },
-                "overrides": [
-                  {
-                    "matcher": {
-                      "id": "byName",
-                      "options": "key",
-                      "scope": "series"
-                    },
-                    "properties": [
-                      {
-                        "id": "custom.cellOptions",
-                        "value": {
-                          "type": "auto"
-                        }
-                      }
-                    ]
-                  }
-                ]
-              },
-              "options": {
-                "cellHeight": "sm",
-                "showHeader": true
-              }
-            },
-            "version": "13.0.2"
-          }
-        }
-      },
       "panel-16": {
         "kind": "Panel",
         "spec": {
@@ -838,7 +184,7 @@
           "description": "",
           "id": 16,
           "links": [],
-          "title": "Evaluation",
+          "title": "Overview",
           "vizConfig": {
             "group": "barchart",
             "kind": "VizConfig",
@@ -960,6 +306,125 @@
           }
         }
       },
+      "panel-19": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "with\n  base as (\n    SELECT\n      arrayElement (splitByString ('resolution:conflict:', key), 2) as resolution,\n      extractGroups (\n        arrayElement (splitByString ('resolution:conflict:', key), 2),\n        '(.+)\\.git-([a-f0-9]{40}):(.*)$'\n      ) AS groups,\n      content.proposed_resolution.error\n    FROM\n      \"default\".\"redis_json\"\n    where\n      startsWith (key, 'resolution')\n      and content.proposed_resolution.error is not null\n    order by\n      content.resolution_end::datetime desc\n  )\nSELECT\n  concat(groups[1], '.git') AS repo_name,\n  groups[2] AS merge,\n  groups[3] AS timestamp,\n  content.proposed_resolution.error,\n  'Show Details' as details\nfrom\n  base;"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 19,
+          "links": [],
+          "title": "Error Messages",
+          "vizConfig": {
+            "group": "table",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "custom": {
+                    "align": "auto",
+                    "cellOptions": {
+                      "type": "auto"
+                    },
+                    "footer": {
+                      "reducers": []
+                    },
+                    "inspect": false
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "decbytes"
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "details",
+                      "scope": "series"
+                    },
+                    "properties": [
+                      {
+                        "id": "links",
+                        "value": [
+                          {
+                            "targetBlank": true,
+                            "title": "Show Resolution",
+                            "url": "http://mac-studio.syntevo:3000/d/dcfostbwyhpxq8e/resolution?folderUid=r98lq8\u0026orgId=1\u0026var-repo_name=${__data.fields['repo_name']}\u0026var-merge=${__data.fields['merge']}\u0026var-timestamp=${__data.fields['timestamp']}"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              "options": {
+                "cellHeight": "sm",
+                "showHeader": true,
+                "sortBy": [
+                  {
+                    "desc": false,
+                    "displayName": "merge"
+                  }
+                ]
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
       "panel-2": {
         "kind": "Panel",
         "spec": {
@@ -1067,7 +532,7 @@
           }
         }
       },
-      "panel-3": {
+      "panel-20": {
         "kind": "Panel",
         "spec": {
           "data": {
@@ -1099,7 +564,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "with\n  base as (\n    SELECT\n      arrayElement (splitByString ('resolution:conflict:', key), 2) as resolution,\n      extractGroups (\n        arrayElement (splitByString ('resolution:conflict:', key), 2),\n        '(.+)\\.git-([a-f0-9]{40}):(.*)$'\n      ) AS groups,\n      content.proposed_resolution.error\n    FROM\n      \"default\".\"redis_json\"\n    where\n      startsWith (key, 'resolution')\n      and content.proposed_resolution.error is not null\n    order by\n      content.resolution_end::datetime desc\n  )\nSELECT\n  concat(groups[1], '.git') AS repo_name,\n  groups[2] AS merge,\n  groups[3] AS timestamp,\n  content.proposed_resolution.error,\n  'Show Details' as details\nfrom\n  base;"
+                        "rawSql": "WITH base AS (\n    SELECT \n        key,\n        logical_conflict.logical_conflict_index AS conflict_index,\n        arrayStringConcat(logical_conflict.agent_classifications, '\\n') AS agentClassification,\n        arrayStringConcat(logical_conflict.human_classifications, '\\n') AS humanClassification,\n        \n        -- Secure array mapping out of Dynamic JSON tracking\n        CAST(\n            arrayZip(logical_conflict.agent_classifications, logical_conflict.human_classifications),\n            'Array(Tuple(String, String))'\n        ) AS zipped_classifications\n    FROM \"default\".\"redis_json\"\n    ARRAY JOIN content.logical_conflicts::Array(JSON) AS logical_conflict\n    WHERE key LIKE 'evaluation:merge:classification:%'\n)\nSELECT\n    key,\n    \n    -- Mode 0: Original check (Canonical mismatch)\n    max(\n        agentClassification NOT LIKE '%CONTEXT_CHANGED%' AND \n        humanClassification NOT LIKE '%CONTEXT_CHANGED%' AND\n        arrayExists(t -\u003e (\n            t.1 IN ('CHUNK_CANONICAL_OURS', 'CHUNK_CANONICAL_THEIRS', 'CHUNK_CANONICAL_BASE') AND\n            t.2 IN ('CHUNK_CANONICAL_OURS', 'CHUNK_CANONICAL_THEIRS', 'CHUNK_CANONICAL_BASE') AND\n            t.1 != t.2\n        ), zipped_classifications)\n    ) AS canonical_contradiction,\n\n    -- Mode 1: Canonical vs Semicanonical Contradiction (e.g., One picked OURS, other dropped it for BASE/THEIRS)\n    max(\n        agentClassification NOT LIKE '%CONTEXT_CHANGED%' AND \n        humanClassification NOT LIKE '%CONTEXT_CHANGED%' AND\n        arrayExists(t -\u003e (\n            (t.1 = 'CHUNK_CANONICAL_OURS'   AND t.2 = 'CHUNK_SEMICANONICAL_BASETHEIRS') OR\n            (t.2 = 'CHUNK_CANONICAL_OURS'   AND t.1 = 'CHUNK_SEMICANONICAL_BASETHEIRS') OR\n            (t.1 = 'CHUNK_CANONICAL_THEIRS' AND t.2 = 'CHUNK_SEMICANONICAL_OURSBASE')   OR\n            (t.2 = 'CHUNK_CANONICAL_THEIRS' AND t.1 = 'CHUNK_SEMICANONICAL_OURSBASE')   OR\n            (t.1 = 'CHUNK_CANONICAL_BASE'   AND t.2 = 'CHUNK_SEMICANONICAL_OURSTHEIRS') OR\n            (t.2 = 'CHUNK_CANONICAL_BASE'   AND t.1 = 'CHUNK_SEMICANONICAL_OURSTHEIRS')\n        ), zipped_classifications)\n    ) AS semicanonical_contradiction,\n\n    -- Mode 3: Asymmetric Ghost Resolutions (One kept history, one completely emptied logic)\n    max(\n        agentClassification NOT LIKE '%CONTEXT_CHANGED%' AND \n        humanClassification NOT LIKE '%CONTEXT_CHANGED%' AND\n        arrayExists(t -\u003e (\n            (t.1 LIKE 'CHUNK_%CANONICAL%' AND t.2 = 'CHUNK_SEMICANONICAL_EMPTY') or\n            (t.2 LIKE 'CHUNK_%CANONICAL%' AND t.1 = 'CHUNK_SEMICANONICAL_EMPTY')\n        ), zipped_classifications)\n    ) AS ghost_resolution,\n\n    -- Mode 4: Heuristic Fallback Breakdown (The agent resolved structurally, human resorted to raw text)\n    max(\n        agentClassification NOT LIKE '%CONTEXT_CHANGED%' AND \n        humanClassification NOT LIKE '%CONTEXT_CHANGED%' AND\n        arrayExists(t -\u003e (\n            (t.1 LIKE 'CHUNK_%CANONICAL%' AND t.2 = 'CHUNK_NONCANONICAL')\n        ), zipped_classifications)\n    ) AS missed_noncanonical_necessity\n\nFROM base\nGROUP BY key\nORDER BY \n    canonical_contradiction DESC, \n    semicanonical_contradiction DESC, \n    ghost_resolution DESC, \n    missed_noncanonical_necessity DESC"
                       },
                       "version": "v0"
                     },
@@ -1112,9 +577,9 @@
             }
           },
           "description": "",
-          "id": 3,
+          "id": 20,
           "links": [],
-          "title": "Error Messages",
+          "title": "New panel",
           "vizConfig": {
             "group": "table",
             "kind": "VizConfig",
@@ -1122,18 +587,348 @@
               "fieldConfig": {
                 "defaults": {
                   "color": {
-                    "mode": "thresholds"
+                    "mode": "palette-classic"
                   },
                   "custom": {
                     "align": "auto",
                     "cellOptions": {
-                      "type": "auto"
+                      "mode": "basic",
+                      "type": "color-background"
                     },
                     "footer": {
                       "reducers": []
                     },
                     "inspect": false
                   },
+                  "mappings": [
+                    {
+                      "options": {
+                        "0": {
+                          "color": "transparent",
+                          "index": 1,
+                          "text": "No Contradiction"
+                        },
+                        "1": {
+                          "color": "red",
+                          "index": 0,
+                          "text": "Contradiction"
+                        }
+                      },
+                      "type": "value"
+                    }
+                  ],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "key",
+                      "scope": "series"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.cellOptions",
+                        "value": {
+                          "type": "auto"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "options": {
+                "cellHeight": "sm",
+                "showHeader": true
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-21": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "with base as (\n    SELECT * FROM \"default\".\"redis_json\"\n    where startsWith(key, 'evaluation:merge:schesch')\n    and content.human.compilation_failed = false\n    and content.human.test_execution_failed = false\n    and content.human.timed_out = false\n    and content.proposed.timed_out = false\n)\nselect\n    sum(case when content.proposed.compilation_failed::boolean then 1 else 0 end)/count(*) as compilation_failures,\n    sum(case when content.proposed.test_execution_failed::boolean then 1 else 0 end)/count(*) as test_failures\nfrom base\n--select content.proposed.timed_out, content.human.compilation_failed, content.proposed.compilation_failed, content.human.test_execution_failed, content.proposed.test_execution_failed, content.human.passed, content.proposed.passed from base"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 21,
+          "links": [],
+          "title": "New panel",
+          "vizConfig": {
+            "group": "gauge",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "fixedColor": "red",
+                    "mode": "fixed"
+                  },
+                  "max": 1,
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  "unit": "percentunit"
+                },
+                "overrides": []
+              },
+              "options": {
+                "barShape": "flat",
+                "barWidthFactor": 0.3,
+                "effects": {
+                  "barGlow": false,
+                  "centerGlow": false,
+                  "gradient": false
+                },
+                "endpointMarker": "point",
+                "minVizHeight": 75,
+                "minVizWidth": 75,
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "segmentCount": 1,
+                "segmentSpacing": 0.3,
+                "shape": "gauge",
+                "showThresholdLabels": false,
+                "showThresholdMarkers": false,
+                "sizing": "auto",
+                "sparkline": false,
+                "textMode": "auto"
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-22": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "with base as (\n    SELECT * FROM \"default\".\"redis_json\"\n    where startsWith(key, 'evaluation:merge:schesch')\n    and content.human.compilation_failed = false\n    and content.human.test_execution_failed = false\n    and content.human.timed_out = false\n    and content.proposed.timed_out = false\n)\nselect\n    sum(case when content.proposed.compilation_failed::boolean then 1 else 0 end) as compilation_failures,\n    sum(case when content.proposed.test_execution_failed::boolean then 1 else 0 end) as test_failures\nfrom base\n--select content.proposed.timed_out, content.human.compilation_failed, content.proposed.compilation_failed, content.human.test_execution_failed, content.proposed.test_execution_failed, content.human.passed, content.proposed.passed from base"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 22,
+          "links": [],
+          "title": "New panel",
+          "vizConfig": {
+            "group": "gauge",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "fixedColor": "red",
+                    "mode": "fixed"
+                  },
+                  "max": 1,
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  "unit": "none"
+                },
+                "overrides": []
+              },
+              "options": {
+                "barShape": "flat",
+                "barWidthFactor": 0.3,
+                "effects": {
+                  "barGlow": false,
+                  "centerGlow": false,
+                  "gradient": false
+                },
+                "endpointMarker": "point",
+                "minVizHeight": 75,
+                "minVizWidth": 75,
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "segmentCount": 1,
+                "segmentSpacing": 0.3,
+                "shape": "gauge",
+                "showThresholdLabels": false,
+                "showThresholdMarkers": false,
+                "sizing": "auto",
+                "sparkline": false,
+                "textMode": "auto"
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-23": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT \n    outer_pair.1 AS match_type,\n    -- 3. The ratio (exact_matches / total) expressed as a decimal between 0.0 and 1.0\n    avg(JSONExtractString(inner_pair.2, 'exact_match') = 'true') AS exact_match_ratio\nFROM \"default\".\"redis_json\"\n-- 1. Parse the target object straight into a ClickHouse Map (String -\u003e String)\nARRAY JOIN JSONExtract(\n    JSONExtractRaw(content, 'proposed_to_actual_resolution_diffs'), \n    'Map(String, String)'\n) AS outer_pair\n-- 2. Take the value of the outer map (which is the inner JSON) and explode its pairs\nARRAY JOIN JSONExtractKeysAndValuesRaw(outer_pair.2) AS inner_pair\nwhere inner_pair.1 = 'include_blank_lines'\nGROUP BY \n    outer_pair.1\norder by exact_match_ratio"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 23,
+          "links": [],
+          "title": "Including Blank Lines",
+          "vizConfig": {
+            "group": "gauge",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "max": 1,
+                  "min": 0,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -1147,39 +942,342 @@
                       }
                     ]
                   },
-                  "unit": "decbytes"
+                  "unit": "percentunit"
                 },
-                "overrides": [
-                  {
-                    "matcher": {
-                      "id": "byName",
-                      "options": "details",
-                      "scope": "series"
-                    },
-                    "properties": [
-                      {
-                        "id": "links",
-                        "value": [
-                          {
-                            "targetBlank": true,
-                            "title": "Show Resolution",
-                            "url": "http://mac-studio.syntevo:3000/d/dcfostbwyhpxq8e/resolution?folderUid=r98lq8\u0026orgId=1\u0026var-repo_name=${__data.fields['repo_name']}\u0026var-merge=${__data.fields['merge']}\u0026var-timestamp=${__data.fields['timestamp']}"
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
+                "overrides": []
               },
               "options": {
-                "cellHeight": "sm",
-                "showHeader": true,
-                "sortBy": [
-                  {
-                    "desc": false,
-                    "displayName": "merge"
+                "barShape": "flat",
+                "barWidthFactor": 0.5,
+                "effects": {
+                  "barGlow": false,
+                  "centerGlow": false,
+                  "gradient": true
+                },
+                "endpointMarker": "point",
+                "minVizHeight": 75,
+                "minVizWidth": 75,
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": true
+                },
+                "segmentCount": 1,
+                "segmentSpacing": 0.3,
+                "shape": "gauge",
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true,
+                "sizing": "auto",
+                "sparkline": true,
+                "textMode": "auto"
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-24": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT \n    outer_pair.1 AS match_type,\n    countIf(JSONExtractString(inner_pair.2, 'exact_match') = 'true') AS exact_match_count\nFROM \"default\".\"redis_json\"\n-- 1. Parse the target object straight into a ClickHouse Map (String -\u003e String)\nARRAY JOIN JSONExtract(\n    JSONExtractRaw(content, 'proposed_to_actual_resolution_diffs'), \n    'Map(String, String)'\n) AS outer_pair\n-- 2. Take the value of the outer map (which is the inner JSON) and explode its pairs\nARRAY JOIN JSONExtractKeysAndValuesRaw(outer_pair.2) AS inner_pair\nwhere inner_pair.1 = 'include_blank_lines'\nGROUP BY \n    outer_pair.1\norder by exact_match_count"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
                   }
-                ]
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 24,
+          "links": [],
+          "title": "Including Blank Lines",
+          "vizConfig": {
+            "group": "stat",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "max": 1,
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "none"
+                },
+                "overrides": []
+              },
+              "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": true
+                },
+                "showPercentChange": false,
+                "textMode": "auto",
+                "wideLayout": true
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-25": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT \n    outer_pair.1 AS match_type,\n    -- 3. The ratio (exact_matches / total) expressed as a decimal between 0.0 and 1.0\n    avg(JSONExtractString(inner_pair.2, 'exact_match') = 'true') AS exact_match_ratio\nFROM \"default\".\"redis_json\"\n-- 1. Parse the target object straight into a ClickHouse Map (String -\u003e String)\nARRAY JOIN JSONExtract(\n    JSONExtractRaw(content, 'proposed_to_actual_resolution_diffs'), \n    'Map(String, String)'\n) AS outer_pair\n-- 2. Take the value of the outer map (which is the inner JSON) and explode its pairs\nARRAY JOIN JSONExtractKeysAndValuesRaw(outer_pair.2) AS inner_pair\nwhere inner_pair.1 = 'ignore_blank_lines'\nGROUP BY \n    outer_pair.1\norder by exact_match_ratio"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 25,
+          "links": [],
+          "title": "Ignoring Blank Lines",
+          "vizConfig": {
+            "group": "gauge",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "max": 1,
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "percentunit"
+                },
+                "overrides": []
+              },
+              "options": {
+                "barShape": "flat",
+                "barWidthFactor": 0.5,
+                "effects": {
+                  "barGlow": false,
+                  "centerGlow": false,
+                  "gradient": true
+                },
+                "endpointMarker": "point",
+                "minVizHeight": 75,
+                "minVizWidth": 75,
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": true
+                },
+                "segmentCount": 1,
+                "segmentSpacing": 0.3,
+                "shape": "gauge",
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true,
+                "sizing": "auto",
+                "sparkline": true,
+                "textMode": "auto"
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-26": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT \n    outer_pair.1 AS match_type,\n    countIf(JSONExtractString(inner_pair.2, 'exact_match') = 'true') AS exact_match_count\nFROM \"default\".\"redis_json\"\n-- 1. Parse the target object straight into a ClickHouse Map (String -\u003e String)\nARRAY JOIN JSONExtract(\n    JSONExtractRaw(content, 'proposed_to_actual_resolution_diffs'), \n    'Map(String, String)'\n) AS outer_pair\n-- 2. Take the value of the outer map (which is the inner JSON) and explode its pairs\nARRAY JOIN JSONExtractKeysAndValuesRaw(outer_pair.2) AS inner_pair\nwhere inner_pair.1 = 'ignore_blank_lines'\nGROUP BY \n    outer_pair.1\norder by exact_match_count"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 26,
+          "links": [],
+          "title": "Ignoring Blank Lines",
+          "vizConfig": {
+            "group": "stat",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "max": 1,
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "none"
+                },
+                "overrides": []
+              },
+              "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": true
+                },
+                "showPercentChange": false,
+                "textMode": "auto",
+                "wideLayout": true
               }
             },
             "version": "13.0.2"
@@ -1677,104 +1775,6 @@
             "version": "13.0.2"
           }
         }
-      },
-      "panel-9": {
-        "kind": "Panel",
-        "spec": {
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "hidden": false,
-                    "query": {
-                      "datasource": {
-                        "name": "clickhouse"
-                      },
-                      "group": "grafana-clickhouse-datasource",
-                      "kind": "DataQuery",
-                      "spec": {
-                        "editorType": "sql",
-                        "format": 1,
-                        "meta": {
-                          "builderOptions": {
-                            "columns": [],
-                            "database": "",
-                            "limit": 1000,
-                            "mode": "list",
-                            "queryType": "table",
-                            "table": ""
-                          }
-                        },
-                        "pluginVersion": "4.17.0",
-                        "queryType": "table",
-                        "rawSql": "SELECT \n    outer_pair.1 AS match_type,\n    countIf(JSONExtractString(inner_pair.2, 'exact_match') = 'true') AS exact_match_count\nFROM \"default\".\"redis_json\"\n-- 1. Parse the target object straight into a ClickHouse Map (String -\u003e String)\nARRAY JOIN JSONExtract(\n    JSONExtractRaw(content, 'proposed_to_actual_resolution_diffs'), \n    'Map(String, String)'\n) AS outer_pair\n-- 2. Take the value of the outer map (which is the inner JSON) and explode its pairs\nARRAY JOIN JSONExtractKeysAndValuesRaw(outer_pair.2) AS inner_pair\nwhere inner_pair.1 = 'ignore_blank_lines'\nGROUP BY \n    outer_pair.1\norder by exact_match_count"
-                      },
-                      "version": "v0"
-                    },
-                    "refId": "A"
-                  }
-                }
-              ],
-              "queryOptions": {},
-              "transformations": []
-            }
-          },
-          "description": "",
-          "id": 9,
-          "links": [],
-          "title": "Ignoring Blank Lines",
-          "vizConfig": {
-            "group": "stat",
-            "kind": "VizConfig",
-            "spec": {
-              "fieldConfig": {
-                "defaults": {
-                  "color": {
-                    "mode": "thresholds"
-                  },
-                  "max": 1,
-                  "min": 0,
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "green",
-                        "value": 0
-                      },
-                      {
-                        "color": "red",
-                        "value": 80
-                      }
-                    ]
-                  },
-                  "unit": "none"
-                },
-                "overrides": []
-              },
-              "options": {
-                "colorMode": "value",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                  "calcs": [
-                    "lastNotNull"
-                  ],
-                  "fields": "",
-                  "values": true
-                },
-                "showPercentChange": false,
-                "textMode": "auto",
-                "wideLayout": true
-              }
-            },
-            "version": "13.0.2"
-          }
-        }
       }
     },
     "layout": {
@@ -1874,7 +1874,7 @@
                             "rowHeightMode": "standard"
                           }
                         },
-                        "title": "Evaluation"
+                        "title": "Evaluation Analysis"
                       }
                     }
                   ]
@@ -1886,152 +1886,7 @@
           {
             "kind": "RowsLayoutRow",
             "spec": {
-              "collapse": true,
-              "layout": {
-                "kind": "RowsLayout",
-                "spec": {
-                  "rows": [
-                    {
-                      "kind": "RowsLayoutRow",
-                      "spec": {
-                        "collapse": false,
-                        "layout": {
-                          "kind": "AutoGridLayout",
-                          "spec": {
-                            "columnWidthMode": "standard",
-                            "items": [
-                              {
-                                "kind": "AutoGridLayoutItem",
-                                "spec": {
-                                  "element": {
-                                    "kind": "ElementReference",
-                                    "name": "panel-10"
-                                  }
-                                }
-                              },
-                              {
-                                "kind": "AutoGridLayoutItem",
-                                "spec": {
-                                  "element": {
-                                    "kind": "ElementReference",
-                                    "name": "panel-12"
-                                  }
-                                }
-                              }
-                            ],
-                            "maxColumnCount": 3,
-                            "rowHeightMode": "short"
-                          }
-                        },
-                        "title": "Including Blank Lines"
-                      }
-                    },
-                    {
-                      "kind": "RowsLayoutRow",
-                      "spec": {
-                        "collapse": false,
-                        "layout": {
-                          "kind": "AutoGridLayout",
-                          "spec": {
-                            "columnWidthMode": "standard",
-                            "items": [
-                              {
-                                "kind": "AutoGridLayoutItem",
-                                "spec": {
-                                  "element": {
-                                    "kind": "ElementReference",
-                                    "name": "panel-11"
-                                  }
-                                }
-                              },
-                              {
-                                "kind": "AutoGridLayoutItem",
-                                "spec": {
-                                  "element": {
-                                    "kind": "ElementReference",
-                                    "name": "panel-9"
-                                  }
-                                }
-                              }
-                            ],
-                            "maxColumnCount": 3,
-                            "rowHeightMode": "short"
-                          }
-                        },
-                        "title": "Ignoring Blank Lines"
-                      }
-                    }
-                  ]
-                }
-              },
-              "title": "Exact Match Metrics"
-            }
-          },
-          {
-            "kind": "RowsLayoutRow",
-            "spec": {
-              "collapse": true,
-              "layout": {
-                "kind": "AutoGridLayout",
-                "spec": {
-                  "columnWidthMode": "standard",
-                  "items": [
-                    {
-                      "kind": "AutoGridLayoutItem",
-                      "spec": {
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "panel-13"
-                        }
-                      }
-                    },
-                    {
-                      "kind": "AutoGridLayoutItem",
-                      "spec": {
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "panel-14"
-                        }
-                      }
-                    }
-                  ],
-                  "maxColumnCount": 3,
-                  "rowHeightMode": "standard"
-                }
-              },
-              "title": "Schesch"
-            }
-          },
-          {
-            "kind": "RowsLayoutRow",
-            "spec": {
-              "collapse": true,
-              "layout": {
-                "kind": "AutoGridLayout",
-                "spec": {
-                  "columnWidthMode": "standard",
-                  "items": [
-                    {
-                      "kind": "AutoGridLayoutItem",
-                      "spec": {
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "panel-15"
-                        }
-                      }
-                    }
-                  ],
-                  "maxColumnCount": 3,
-                  "rowHeightMode": "standard"
-                }
-              },
-              "title": "Classification"
-            }
-          },
-          {
-            "kind": "RowsLayoutRow",
-            "spec": {
-              "collapse": true,
+              "collapse": false,
               "layout": {
                 "kind": "AutoGridLayout",
                 "spec": {
@@ -2051,33 +1906,7 @@
                   "rowHeightMode": "tall"
                 }
               },
-              "title": "List"
-            }
-          },
-          {
-            "kind": "RowsLayoutRow",
-            "spec": {
-              "collapse": true,
-              "layout": {
-                "kind": "AutoGridLayout",
-                "spec": {
-                  "columnWidthMode": "standard",
-                  "items": [
-                    {
-                      "kind": "AutoGridLayoutItem",
-                      "spec": {
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "panel-3"
-                        }
-                      }
-                    }
-                  ],
-                  "maxColumnCount": 3,
-                  "rowHeightMode": "tall"
-                }
-              },
-              "title": "Errors"
+              "title": "Resolution Groups"
             }
           },
           {
@@ -2085,12 +1914,184 @@
             "spec": {
               "collapse": false,
               "layout": {
-                "kind": "GridLayout",
+                "kind": "RowsLayout",
                 "spec": {
-                  "items": []
+                  "rows": [
+                    {
+                      "kind": "RowsLayoutRow",
+                      "spec": {
+                        "collapse": true,
+                        "layout": {
+                          "kind": "AutoGridLayout",
+                          "spec": {
+                            "columnWidthMode": "standard",
+                            "items": [
+                              {
+                                "kind": "AutoGridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-19"
+                                  }
+                                }
+                              }
+                            ],
+                            "maxColumnCount": 3,
+                            "rowHeightMode": "tall"
+                          }
+                        },
+                        "title": "Errors"
+                      }
+                    },
+                    {
+                      "kind": "RowsLayoutRow",
+                      "spec": {
+                        "collapse": true,
+                        "layout": {
+                          "kind": "AutoGridLayout",
+                          "spec": {
+                            "columnWidthMode": "standard",
+                            "items": [
+                              {
+                                "kind": "AutoGridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-20"
+                                  }
+                                }
+                              }
+                            ],
+                            "maxColumnCount": 3,
+                            "rowHeightMode": "standard"
+                          }
+                        },
+                        "title": "Classification"
+                      }
+                    },
+                    {
+                      "kind": "RowsLayoutRow",
+                      "spec": {
+                        "collapse": true,
+                        "layout": {
+                          "kind": "AutoGridLayout",
+                          "spec": {
+                            "columnWidthMode": "standard",
+                            "items": [
+                              {
+                                "kind": "AutoGridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-21"
+                                  }
+                                }
+                              },
+                              {
+                                "kind": "AutoGridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-22"
+                                  }
+                                }
+                              }
+                            ],
+                            "maxColumnCount": 3,
+                            "rowHeightMode": "standard"
+                          }
+                        },
+                        "title": "Schesch"
+                      }
+                    },
+                    {
+                      "kind": "RowsLayoutRow",
+                      "spec": {
+                        "collapse": true,
+                        "layout": {
+                          "kind": "RowsLayout",
+                          "spec": {
+                            "rows": [
+                              {
+                                "kind": "RowsLayoutRow",
+                                "spec": {
+                                  "collapse": false,
+                                  "layout": {
+                                    "kind": "AutoGridLayout",
+                                    "spec": {
+                                      "columnWidthMode": "standard",
+                                      "items": [
+                                        {
+                                          "kind": "AutoGridLayoutItem",
+                                          "spec": {
+                                            "element": {
+                                              "kind": "ElementReference",
+                                              "name": "panel-23"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "kind": "AutoGridLayoutItem",
+                                          "spec": {
+                                            "element": {
+                                              "kind": "ElementReference",
+                                              "name": "panel-24"
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "maxColumnCount": 3,
+                                      "rowHeightMode": "short"
+                                    }
+                                  },
+                                  "title": "Including Blank Lines"
+                                }
+                              },
+                              {
+                                "kind": "RowsLayoutRow",
+                                "spec": {
+                                  "collapse": false,
+                                  "layout": {
+                                    "kind": "AutoGridLayout",
+                                    "spec": {
+                                      "columnWidthMode": "standard",
+                                      "items": [
+                                        {
+                                          "kind": "AutoGridLayoutItem",
+                                          "spec": {
+                                            "element": {
+                                              "kind": "ElementReference",
+                                              "name": "panel-25"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "kind": "AutoGridLayoutItem",
+                                          "spec": {
+                                            "element": {
+                                              "kind": "ElementReference",
+                                              "name": "panel-26"
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "maxColumnCount": 3,
+                                      "rowHeightMode": "short"
+                                    }
+                                  },
+                                  "title": "Ignoring Blank Lines"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "title": "Exact Match Metrics"
+                      }
+                    }
+                  ]
                 }
               },
-              "title": "New row"
+              "title": "Evaluation Details"
             }
           }
         ]
