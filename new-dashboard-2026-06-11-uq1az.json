@@ -350,7 +350,7 @@
                 "showHeader": true
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -464,7 +464,7 @@
                 "textMode": "value_and_name"
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -571,7 +571,7 @@
                 "wideLayout": true
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -670,7 +670,7 @@
                 "wideLayout": true
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -769,7 +769,7 @@
                 "wideLayout": true
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -868,7 +868,100 @@
                 "wideLayout": true
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-19": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "with base as (\nSELECT \nlogical_conflict.logical_conflict_index,\nlogical_conflict.status,\narrayStringConcat(logical_conflict.agent_classifications, '\\n') as agentClassification,\narrayStringConcat(logical_conflict.human_classifications, '\\n') as humanClassification\nFROM \"default\".\"redis_json\"\narray join content.logical_conflicts::Array(JSON) as logical_conflict\nwhere key = 'evaluation:merge:classification:${repo_name}-${merge}:${timestamp}'\n)\nselect *, (humanClassification = agentClassification)::boolean as exact_match from base"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 19,
+          "links": [],
+          "title": "New panel",
+          "vizConfig": {
+            "group": "table",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "align": "auto",
+                    "cellOptions": {
+                      "type": "auto"
+                    },
+                    "footer": {
+                      "reducers": []
+                    },
+                    "inspect": false,
+                    "wrapText": true
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              },
+              "options": {
+                "cellHeight": "sm",
+                "showHeader": true
+              }
+            },
+            "version": "13.0.2"
           }
         }
       },
@@ -950,7 +1043,7 @@
                 "wrapLogMessage": true
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -1203,7 +1296,7 @@
                 "showHeader": true
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -1296,7 +1389,7 @@
                 "showHeader": true
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -1747,6 +1840,32 @@
                         },
                         "title": "Diff"
                       }
+                    },
+                    {
+                      "kind": "TabsLayoutTab",
+                      "spec": {
+                        "layout": {
+                          "kind": "GridLayout",
+                          "spec": {
+                            "items": [
+                              {
+                                "kind": "GridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-19"
+                                  },
+                                  "height": 8,
+                                  "width": 12,
+                                  "x": 0,
+                                  "y": 0
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "title": "Classification"
+                      }
                     }
                   ]
                 }
@@ -1914,8 +2033,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "adangel/pmd.git",
-            "value": "adangel/pmd.git"
+            "text": "datastax/java-driver.git",
+            "value": "datastax/java-driver.git"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -1933,8 +2052,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "e52be1498094e7947e341cbb49c2b537e761d395",
-            "value": "e52be1498094e7947e341cbb49c2b537e761d395"
+            "text": "e670818d76f0d9a6571ddfe0d8d624398449a930",
+            "value": "e670818d76f0d9a6571ddfe0d8d624398449a930"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -1952,8 +2071,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "20260615T165933.075361Z",
-            "value": "20260615T165933.075361Z"
+            "text": "20260616T175331.323535Z",
+            "value": "20260616T175331.323535Z"
           },
           "definition": "  WITH base AS (\n  SELECT\n    key,\n    extractGroups (\n      arrayElement(splitByString('resolution:conflict:', key), 2),\n      '(.+)\\.git-([a-f0-9]{40}):(.*)$'\n    ) AS groups\n  FROM\n    \"default\".\"redis_json\"\n  WHERE\n    startsWith(key, 'resolution')\n    AND content.proposed_resolution.error IS NULL\n)\nSELECT\n  groups[3] AS timestamp\nFROM\n  base\nWHERE\n    concat(groups[1], '.git') = '${repo_name}'  -- \u003c-- Replace with your target repo (e.g., 'framework.git')\n  AND groups[2] = '${merge}'    -- \u003c-- Replace with your target merge commit hash\nORDER BY\n  timestamp DESC;",
           "hide": "dontHide",
