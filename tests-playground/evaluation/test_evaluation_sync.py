@@ -64,7 +64,7 @@ def test_all_analysis_includes_summary():
         all_analysis = True
         analysis = None
 
-    assert selected_analysis_names(Args()) == ["core", "diff", "schesch", "summary"]
+    assert selected_analysis_names(Args()) == ["core", "diff", "classification", "schesch", "summary"]
 
 class FakeRedisJson:
     def __init__(self, values=None):

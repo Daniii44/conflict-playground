@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 
+from common.merge_tree import ConflictType
 from common.resolution_models import ConflictResolution
 
 
@@ -92,3 +93,21 @@ class MergeScheschEvaluation(MergeEvaluationRecord):
     timeout_seconds: int
     proposed: ScheschResolutionResult | None = None
     human: ScheschResolutionResult | None = None
+
+
+class MergeConflictResolutionLogicalConflict(BaseModel):
+    logical_conflict_index: int
+    type: ConflictType
+    info: str
+    paths: list[str]
+    status: str
+    agent_classifications: list[str] | None = None
+    human_classifications: list[str] | None = None
+    error: str | None = None
+
+
+class MergeConflictResolutionEvaluation(MergeEvaluationRecord):
+    proposed_commit_sha: str | None = None
+    actual_resolution_sha: str | None = None
+    conflicted_tree_oid: str | None = None
+    logical_conflicts: list[MergeConflictResolutionLogicalConflict] = Field(default_factory=list)
