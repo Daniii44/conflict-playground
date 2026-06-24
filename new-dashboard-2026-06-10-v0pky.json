@@ -739,12 +739,12 @@
                         "0": {
                           "color": "transparent",
                           "index": 1,
-                          "text": "N/A"
+                          "text": "No Contradiction"
                         },
                         "1": {
                           "color": "red",
                           "index": 0,
-                          "text": "Differs"
+                          "text": "Contradiction"
                         }
                       },
                       "type": "value"
