@@ -215,6 +215,8 @@
                       "mode": "off"
                     }
                   },
+                  "max": 1,
+                  "min": 0,
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -227,7 +229,8 @@
                         "value": 80
                       }
                     ]
-                  }
+                  },
+                  "unit": "percentunit"
                 },
                 "overrides": [
                   {
@@ -299,7 +302,7 @@
                   "sort": "none"
                 },
                 "xTickLabelRotation": 0,
-                "xTickLabelSpacing": 0
+                "xTickLabelSpacing": 200
               }
             },
             "version": "13.0.2"
