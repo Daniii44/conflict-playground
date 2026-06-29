@@ -197,13 +197,29 @@ def format_generated_patch(playground_path: Path, base_ref: str) -> str | None:
 
 def load_conflict_info(redis, repo_name: str, merge_sha: str) -> InfoConflictCore:
     key = conflict_info_key(repo_name, merge_sha)
+    logger.info("Loading info:core conflict record from {}", key)
     payload = redis.json().get(key)
     if not payload:
         raise RuntimeError(f"No info:core conflict record found at {key}")
-    return InfoConflictCore.model_validate(payload)
+    conflict_info = InfoConflictCore.model_validate(payload)
+    logger.info(
+        "Loaded conflict record for {} {} with {} logical conflicts and {} conflicted file entries",
+        conflict_info.repo,
+        conflict_info.merge_commit_oid,
+        len(conflict_info.merge_result.logical_conflicts),
+        len(conflict_info.merge_result.conflicted_files),
+    )
+    return conflict_info
 
 
 def store_generation(redis, record: ScheschGeneratedTests) -> None:
+    logger.info(
+        "Storing Schesch generated test record at {} (files={}, patch={}, error={})",
+        record.redis_key,
+        len(record.files),
+        record.patch is not None,
+        record.error is not None,
+    )
     redis.json().set(record.redis_key, "$", json.loads(record.model_dump_json()))
 
 
@@ -218,6 +234,12 @@ def generate_tests(
 ) -> ScheschGeneratedTests:
     started_at = time.monotonic()
     redis_key = generated_tests_record_key(repo_name, merge_sha)
+    logger.info(
+        "Starting Schesch test generation for {} {} using opencode {}",
+        repo_name,
+        merge_sha,
+        opencode_executable,
+    )
     record = ScheschGeneratedTests(
         repo=repo_name,
         merge_sha=merge_sha,
@@ -234,14 +256,22 @@ def generate_tests(
         paths = content_conflict_paths(conflict_info)
         if not paths:
             raise RuntimeError(f"Conflict record {record.conflict_info_key} has no content conflict paths")
+        logger.info("Selected {} content-conflicting files for test generation", len(paths))
+        for index, path in enumerate(paths, start=1):
+            logger.info("Content conflict file {}/{}: {}", index, len(paths), path)
 
+        logger.info("Creating playground for {} {}", repo_name, merge_sha)
         playground_name = setup_playground(repo_name, merge_sha)
         record.playground_name = playground_name
         playgrounds = Path(os.environ.get("PLAYGROUNDS", str(Path.home() / "playgrounds")))
         playground_path = playgrounds / playground_name
+        logger.info("Created playground {} at {}", playground_name, playground_path)
+        logger.info("Checking out human sample solution {}", merge_sha)
         prepare_human_solution_worktree(playground_path, merge_sha)
+        logger.info("Prepared human sample solution worktree")
 
-        for file_path in paths:
+        for index, file_path in enumerate(paths, start=1):
+            logger.info("Running opencode for file {}/{}: {}", index, len(paths), file_path)
             prompt = prompt_for_file(conflict_info, file_path)
             exit_code, tail, error, duration = run_opencode_for_file(
                 playground_path,
@@ -259,21 +289,46 @@ def generate_tests(
                     error=error,
                 )
             )
+            logger.info(
+                "Finished opencode for {} in {:.2f}s with exit_code={} error={}",
+                file_path,
+                duration,
+                exit_code,
+                error is not None,
+            )
             if error is not None:
                 raise RuntimeError(f"Test generation failed for {file_path}: {error}")
 
+        logger.info("Committing generated test changes")
         record.test_commit_sha = commit_generated_tests(playground_path)
+        if record.test_commit_sha is None:
+            logger.info("No generated test changes found to commit")
+        else:
+            logger.info("Committed generated tests as {}", record.test_commit_sha)
+            logger.info("Formatting generated test patch against {}", merge_sha)
         record.patch = format_generated_patch(playground_path, merge_sha) if record.test_commit_sha else None
         if record.patch is None:
             record.error = "opencode completed but did not create any test changes"
+            logger.info("No patch was produced for generated tests")
+        else:
+            logger.info("Generated test patch has {} characters", len(record.patch))
     except Exception as error:
         record.error = str(error)
         logger.error("{}", error)
     finally:
         record.duration_seconds = time.monotonic() - started_at
+        logger.info(
+            "Finished Schesch test generation for {} {} in {:.2f}s",
+            repo_name,
+            merge_sha,
+            record.duration_seconds,
+        )
         store_generation(redis, record)
         if playground_path is not None and not keep_playground:
+            logger.info("Removing playground {}", playground_path)
             shutil.rmtree(playground_path, ignore_errors=True)
+        elif playground_path is not None:
+            logger.info("Keeping playground {}", playground_path)
 
     return record
 
@@ -323,7 +378,15 @@ def main() -> int:
         return 1
 
     try:
+        if args.parents:
+            logger.info(
+                "Resolving merge commit for {} from parent pair {} {}",
+                args.repo_name,
+                args.parents[0],
+                args.parents[1],
+            )
         merge_sha = args.merge_sha or resolve_merge_sha_from_parents(args.repo_name, tuple(args.parents))
+        logger.info("Using merge commit {}", merge_sha)
         record = generate_tests(
             setup_redis_connection(),
             args.repo_name,
