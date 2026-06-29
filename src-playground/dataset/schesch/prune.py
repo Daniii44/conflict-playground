@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+from collections import defaultdict
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -166,6 +167,8 @@ def resolve_allowed_merge_shas_from_playbook(playbook_path: Path) -> ResolveResu
         skipped_repos=skipped_repos,
         unresolved_parent_pairs=unresolved_parent_pairs,
         repos_with_unresolved_parent_pairs=len(repos_with_unresolved_parent_pairs),
+        ambiguous_parent_pairs=0,
+        repos_with_ambiguous_parent_pairs=0,
     )
 
 

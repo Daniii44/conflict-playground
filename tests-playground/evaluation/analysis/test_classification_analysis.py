@@ -160,6 +160,7 @@ def test_analyze_files_runs_java_jar_and_parses_classification_array(monkeypatch
             "java",
             "-jar",
             "/tools/analyzer.jar",
+            "--formatting",
             str(unmerged_file),
             str(merged_file),
         ],

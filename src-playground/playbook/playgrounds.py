@@ -9,6 +9,7 @@ import sys
 import yaml
 
 from common.repo_cache import repo_cache_key
+from dataset.schesch.merge_lookup import resolve_unique_merge_sha_from_parents
 from info.conflict.list import ConflictRecord, list_conflict_records
 
 
@@ -16,12 +17,15 @@ from info.conflict.list import ConflictRecord, list_conflict_records
 class Playground:
     repo_name: str
     merge_sha: str | None = None
+    parent_shas: tuple[str, str] | None = None
     conflict_type: str | None = None
     conflict_types: tuple[str, ...] = tuple()
 
     def target_label(self) -> str:
         if self.merge_sha:
             return self.merge_sha
+        if self.parent_shas:
+            return f"{self.parent_shas[0]}..{self.parent_shas[1]}"
 
         return "<missing merge target>"
 
@@ -195,12 +199,24 @@ def playground_from_override(repo_name: str, override) -> Playground:
     if isinstance(override, str):
         return Playground(repo_name=repo_name, merge_sha=override)
 
+    if isinstance(override, dict) and "parents" in override:
+        parent_shas = override["parents"]
+        if (
+            not isinstance(parent_shas, list)
+            or len(parent_shas) != 2
+            or not all(isinstance(parent_sha, str) for parent_sha in parent_shas)
+        ):
+            raise ValueError(f"Unsupported override_merge_shas entry for {repo_name}: {override!r}")
+        return Playground(repo_name=repo_name, parent_shas=(parent_shas[0], parent_shas[1]))
+
     raise ValueError(f"Unsupported override_merge_shas entry for {repo_name}: {override!r}")
 
 
 def resolve_playground_merge_sha(pg: Playground) -> str:
     if pg.merge_sha:
         return pg.merge_sha
+    if pg.parent_shas:
+        return resolve_unique_merge_sha_from_parents(pg.repo_name, pg.parent_shas)
 
     raise RuntimeError(f"Playground for {pg.repo_name} has no merge_sha")
 

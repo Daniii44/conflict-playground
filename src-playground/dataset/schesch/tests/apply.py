@@ -10,8 +10,8 @@ from loguru import logger
 
 from common.git_util import capture_git, git_env
 from common.redis_util import setup_redis_connection
+from dataset.schesch.merge_lookup import resolve_unique_merge_sha_from_parents
 from dataset.schesch.tests.generate import ScheschGeneratedTests, generated_tests_record_key
-from playbook.playgrounds import resolve_merge_sha_from_parents
 
 
 def resolve_playground_path(playground: str | None) -> Path:
@@ -137,7 +137,7 @@ def resolve_record_key(args: argparse.Namespace) -> str:
     if not args.merge_sha and not args.parents:
         raise RuntimeError("Specify merge_sha or --parents")
 
-    merge_sha = args.merge_sha or resolve_merge_sha_from_parents(args.repo_name, tuple(args.parents))
+    merge_sha = args.merge_sha or resolve_unique_merge_sha_from_parents(args.repo_name, tuple(args.parents))
     return generated_tests_record_key(args.repo_name, merge_sha)
 
 
