@@ -78,6 +78,10 @@ def merge_conflict_types(repo: str, left_parent: str, right_parent: str) -> tupl
     return tuple(conflict.type for conflict in merge_result.logical_conflicts)
 
 
+def repo_is_cached(repo: str) -> bool:
+    return repo_cache_path(repo).is_dir()
+
+
 def select_random_candidates(
     candidates: list[PlaybookCandidate],
     *,
@@ -136,6 +140,11 @@ def build_schesch_playbook_result(
     candidates: list[PlaybookCandidate] = []
 
     for repo in sorted(merges_by_repo):
+        if not repo_is_cached(repo):
+            logger.warning("Skipping {}: cached bare repository does not exist", repo)
+            skipped_repos.add(repo)
+            continue
+
         try:
             index = merge_parent_index(repo)
         except RuntimeError as error:

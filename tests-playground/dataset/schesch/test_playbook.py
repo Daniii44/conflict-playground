@@ -1,8 +1,15 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from common.merge_tree import ConflictType
 from dataset.schesch.playbook import build_schesch_playbook, build_schesch_playbook_result
+
+
+@pytest.fixture(autouse=True)
+def cached_repos(monkeypatch):
+    monkeypatch.setattr("dataset.schesch.playbook.repo_is_cached", lambda _repo: True)
 
 
 def qualifying_merge():
@@ -129,6 +136,54 @@ def test_build_schesch_playbook_filters_non_maven_and_non_content_conflicts(monk
     assert result.non_maven_merges == 1
     assert result.non_content_conflict_merges == 1
     assert result.no_content_conflict_merges == 1
+
+
+def test_build_schesch_playbook_filters_uncached_repositories(monkeypatch, tmp_path):
+    root = tmp_path / "merge_analysis"
+    write_json(
+        root / "cached" / "repo.json",
+        {
+            "left1_right1": qualifying_merge(),
+        },
+    )
+    write_json(
+        root / "missing" / "repo.json",
+        {
+            "left2_right2": qualifying_merge(),
+        },
+    )
+
+    monkeypatch.setattr(
+        "dataset.schesch.playbook.repo_is_cached",
+        lambda repo: repo == "cached/repo.git",
+    )
+
+    def fake_merge_parent_index(repo):
+        assert repo == "cached/repo.git"
+        return {
+            frozenset(("left1", "right1")): ["merge1"],
+        }
+
+    monkeypatch.setattr("dataset.schesch.playbook.merge_parent_index", fake_merge_parent_index)
+    monkeypatch.setattr("dataset.schesch.playbook.has_top_level_pom", lambda _repo, _merge_sha: True)
+    monkeypatch.setattr(
+        "dataset.schesch.playbook.merge_conflict_types",
+        lambda _repo, _left_parent, _right_parent: (ConflictType.CONFLICT_CONTENTS,),
+    )
+
+    result = build_schesch_playbook_result(root)
+
+    assert result.playbook == {
+        "playbook": {
+            "sources": [
+                {
+                    "repo_url": "https://github.com/cached/repo.git",
+                    "override_merge_shas": ["merge1"],
+                },
+            ]
+        }
+    }
+    assert result.skipped_repos == {"missing/repo.git"}
 
 
 def test_build_schesch_playbook_applies_global_random_limit(monkeypatch, tmp_path):
