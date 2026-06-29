@@ -11,6 +11,7 @@ from loguru import logger
 
 from common.git_util import capture_git
 from common.merge_tree import ConflictType, parse_merge_result, prune_auto_merged
+from common.redis_util import setup_redis_connection
 from dataset.schesch.count import default_merge_analysis_path, iter_qualifying_merge_pairs
 from dataset.schesch.merge_lookup import group_merge_pairs_by_repo, merge_parent_index, repo_cache_path
 
@@ -31,6 +32,7 @@ class PlaybookBuildResult:
     unresolved_parent_pairs: int
     ambiguous_parent_pairs: int
     non_maven_merges: int
+    missing_conflict_info_merges: int
     no_content_conflict_merges: int
     non_content_conflict_merges: int
     sampled_out_merges: int
@@ -82,6 +84,14 @@ def repo_is_cached(repo: str) -> bool:
     return repo_cache_path(repo).is_dir()
 
 
+def conflict_info_key(repo: str, merge_sha: str) -> str:
+    return f"info:conflict:core:{repo}:{merge_sha}"
+
+
+def has_core_conflict_info(redis, repo: str, merge_sha: str) -> bool:
+    return bool(redis.exists(conflict_info_key(repo, merge_sha)))
+
+
 def select_random_candidates(
     candidates: list[PlaybookCandidate],
     *,
@@ -129,11 +139,14 @@ def build_schesch_playbook_result(
     *,
     limit: int | None = DEFAULT_LIMIT,
     seed: int = DEFAULT_SEED,
+    redis=None,
 ) -> PlaybookBuildResult:
+    redis = redis or setup_redis_connection()
     merges_by_repo = group_merge_pairs_by_repo(list(iter_qualifying_merge_pairs(merge_analysis)))
     unresolved_parent_pairs = 0
     ambiguous_parent_pairs = 0
     non_maven_merges = 0
+    missing_conflict_info_merges = 0
     no_content_conflict_merges = 0
     non_content_conflict_merges = 0
     skipped_repos: set[str] = set()
@@ -180,6 +193,16 @@ def build_schesch_playbook_result(
                 non_maven_merges += 1
                 continue
 
+            if not has_core_conflict_info(redis, repo, merge_sha):
+                logger.warning(
+                    "{}: pruning merge {} because {} is missing",
+                    repo,
+                    merge_sha,
+                    conflict_info_key(repo, merge_sha),
+                )
+                missing_conflict_info_merges += 1
+                continue
+
             try:
                 conflict_types = merge_conflict_types(repo, left_parent, right_parent)
             except Exception as error:
@@ -209,6 +232,7 @@ def build_schesch_playbook_result(
         unresolved_parent_pairs=unresolved_parent_pairs,
         ambiguous_parent_pairs=ambiguous_parent_pairs,
         non_maven_merges=non_maven_merges,
+        missing_conflict_info_merges=missing_conflict_info_merges,
         no_content_conflict_merges=no_content_conflict_merges,
         non_content_conflict_merges=non_content_conflict_merges,
         sampled_out_merges=len(candidates) - len(selected_candidates),
@@ -221,8 +245,9 @@ def build_schesch_playbook(
     *,
     limit: int | None = DEFAULT_LIMIT,
     seed: int = DEFAULT_SEED,
+    redis=None,
 ) -> dict:
-    return build_schesch_playbook_result(merge_analysis, limit=limit, seed=seed).playbook
+    return build_schesch_playbook_result(merge_analysis, limit=limit, seed=seed, redis=redis).playbook
 
 
 def write_playbook(playbook: dict, output_path: Path) -> None:
@@ -300,6 +325,11 @@ def main() -> int:
         )
     if result.non_maven_merges:
         logger.warning("Pruned {} merges without a top-level pom.xml", result.non_maven_merges)
+    if result.missing_conflict_info_merges:
+        logger.warning(
+            "Pruned {} merges without a matching info:conflict:core Redis record",
+            result.missing_conflict_info_merges,
+        )
     if result.no_content_conflict_merges:
         logger.warning(
             "Pruned {} merges that did not produce content conflicts",

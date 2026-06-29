@@ -7,9 +7,20 @@ from common.merge_tree import ConflictType
 from dataset.schesch.playbook import build_schesch_playbook, build_schesch_playbook_result
 
 
+class FakeRedis:
+    def __init__(self, existing_keys=None):
+        self.existing_keys = existing_keys
+
+    def exists(self, key):
+        if self.existing_keys is None:
+            return 1
+        return 1 if key in self.existing_keys else 0
+
+
 @pytest.fixture(autouse=True)
 def cached_repos(monkeypatch):
     monkeypatch.setattr("dataset.schesch.playbook.repo_is_cached", lambda _repo: True)
+    monkeypatch.setattr("dataset.schesch.playbook.setup_redis_connection", FakeRedis)
 
 
 def qualifying_merge():
@@ -136,6 +147,47 @@ def test_build_schesch_playbook_filters_non_maven_and_non_content_conflicts(monk
     assert result.non_maven_merges == 1
     assert result.non_content_conflict_merges == 1
     assert result.no_content_conflict_merges == 1
+
+
+def test_build_schesch_playbook_filters_missing_core_conflict_info(monkeypatch, tmp_path):
+    root = tmp_path / "merge_analysis"
+    write_json(
+        root / "owner" / "repo.json",
+        {
+            "left1_right1": qualifying_merge(),
+            "left2_right2": qualifying_merge(),
+        },
+    )
+
+    monkeypatch.setattr(
+        "dataset.schesch.playbook.merge_parent_index",
+        lambda _repo: {
+            frozenset(("left1", "right1")): ["keep"],
+            frozenset(("left2", "right2")): ["missing-info"],
+        },
+    )
+    monkeypatch.setattr("dataset.schesch.playbook.has_top_level_pom", lambda _repo, _merge_sha: True)
+    monkeypatch.setattr(
+        "dataset.schesch.playbook.merge_conflict_types",
+        lambda _repo, _left_parent, _right_parent: (ConflictType.CONFLICT_CONTENTS,),
+    )
+
+    result = build_schesch_playbook_result(
+        root,
+        redis=FakeRedis({"info:conflict:core:owner/repo.git:keep"}),
+    )
+
+    assert result.playbook == {
+        "playbook": {
+            "sources": [
+                {
+                    "repo_url": "https://github.com/owner/repo.git",
+                    "override_merge_shas": ["keep"],
+                },
+            ]
+        }
+    }
+    assert result.missing_conflict_info_merges == 1
 
 
 def test_build_schesch_playbook_filters_uncached_repositories(monkeypatch, tmp_path):
