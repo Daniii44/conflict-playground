@@ -1,0 +1,25 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "ollama/qwen3-coder-next:latest",
+  "provider": {
+   "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama",
+      "options": {
+        "baseURL": "http://mac-studio.syntevo:11434/v1"
+      },
+      "models": {
+        "qwen3-coder-next:latest": {
+          "name": "Qwen3 Coder Next"
+        }
+      }
+    }
+  },
+  "permission": {
+    "external_directory": {
+      "/root/playgrounds-bind-mount//**": "allow",
+      "/root/playgrounds/**": "allow",
+      "/root/playgrounds-named-volume//**": "allow"
+    }
+  }
+}

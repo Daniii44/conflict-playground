@@ -40,6 +40,9 @@ RUN apt-get -y install redis-tools
 RUN apt-get -y install tree
 RUN apt-get -y install maven
 RUN apt-get -y install gradle
+RUN apt-get -y install curl
+
+RUN curl -fsSL https://opencode.ai/install | bash
 
 ADD src-playground src
 ADD src-hooks src-hooks
