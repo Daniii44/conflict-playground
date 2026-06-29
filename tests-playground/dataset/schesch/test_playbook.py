@@ -1,7 +1,8 @@
 import json
 from pathlib import Path
 
-from dataset.schesch.playbook import build_schesch_playbook
+from common.merge_tree import ConflictType
+from dataset.schesch.playbook import build_schesch_playbook, build_schesch_playbook_result
 
 
 def qualifying_merge():
@@ -51,6 +52,11 @@ def test_build_schesch_playbook_resolves_unique_merge_commits_by_repo(monkeypatc
         }[repo]
 
     monkeypatch.setattr("dataset.schesch.playbook.merge_parent_index", fake_merge_parent_index)
+    monkeypatch.setattr("dataset.schesch.playbook.has_top_level_pom", lambda _repo, _merge_sha: True)
+    monkeypatch.setattr(
+        "dataset.schesch.playbook.merge_conflict_types",
+        lambda _repo, _left_parent, _right_parent: (ConflictType.CONFLICT_CONTENTS,),
+    )
 
     playbook = build_schesch_playbook(root)
 
@@ -72,3 +78,85 @@ def test_build_schesch_playbook_resolves_unique_merge_commits_by_repo(monkeypatc
             ]
         }
     }
+
+
+def test_build_schesch_playbook_filters_non_maven_and_non_content_conflicts(monkeypatch, tmp_path):
+    root = tmp_path / "merge_analysis"
+    write_json(
+        root / "owner" / "repo.json",
+        {
+            "left1_right1": qualifying_merge(),
+            "left2_right2": qualifying_merge(),
+            "left3_right3": qualifying_merge(),
+            "left4_right4": qualifying_merge(),
+        },
+    )
+
+    monkeypatch.setattr(
+        "dataset.schesch.playbook.merge_parent_index",
+        lambda _repo: {
+            frozenset(("left1", "right1")): ["keep"],
+            frozenset(("left2", "right2")): ["non-maven"],
+            frozenset(("left3", "right3")): ["rename-conflict"],
+            frozenset(("left4", "right4")): ["no-conflict"],
+        },
+    )
+    monkeypatch.setattr(
+        "dataset.schesch.playbook.has_top_level_pom",
+        lambda _repo, merge_sha: merge_sha != "non-maven",
+    )
+    monkeypatch.setattr(
+        "dataset.schesch.playbook.merge_conflict_types",
+        lambda _repo, left_parent, _right_parent: {
+            "left1": (ConflictType.CONFLICT_CONTENTS,),
+            "left3": (ConflictType.CONFLICT_CONTENTS, ConflictType.CONFLICT_RENAME_RENAME),
+            "left4": tuple(),
+        }[left_parent],
+    )
+
+    result = build_schesch_playbook_result(root)
+
+    assert result.playbook == {
+        "playbook": {
+            "sources": [
+                {
+                    "repo_url": "https://github.com/owner/repo.git",
+                    "override_merge_shas": ["keep"],
+                },
+            ]
+        }
+    }
+    assert result.non_maven_merges == 1
+    assert result.non_content_conflict_merges == 1
+    assert result.no_content_conflict_merges == 1
+
+
+def test_build_schesch_playbook_applies_global_random_limit(monkeypatch, tmp_path):
+    root = tmp_path / "merge_analysis"
+    write_json(
+        root / "owner" / "repo.json",
+        {
+            f"left{index}_right{index}": qualifying_merge()
+            for index in range(5)
+        },
+    )
+
+    monkeypatch.setattr(
+        "dataset.schesch.playbook.merge_parent_index",
+        lambda _repo: {
+            frozenset((f"left{index}", f"right{index}")): [f"merge{index}"]
+            for index in range(5)
+        },
+    )
+    monkeypatch.setattr("dataset.schesch.playbook.has_top_level_pom", lambda _repo, _merge_sha: True)
+    monkeypatch.setattr(
+        "dataset.schesch.playbook.merge_conflict_types",
+        lambda _repo, _left_parent, _right_parent: (ConflictType.CONFLICT_CONTENTS,),
+    )
+
+    result = build_schesch_playbook_result(root, limit=2, seed=7)
+    selected_shas = result.playbook["playbook"]["sources"][0]["override_merge_shas"]
+
+    assert len(selected_shas) == 2
+    assert set(selected_shas) <= {f"merge{index}" for index in range(5)}
+    assert result.sampled_out_merges == 3

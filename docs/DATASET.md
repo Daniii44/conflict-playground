@@ -164,7 +164,10 @@ the same filter and writes a playbook with one source per retained repository.
 
 `merge_analysis` does not store the merge commit SHA directly. The generated
 playbook resolves each retained parent pair to a merge commit using the cached
-bare repositories and writes plain `override_merge_shas` entries:
+bare repositories, keeps only merge commits whose tree has a top-level
+`pom.xml`, keeps only merges whose `git merge-tree` conflicts are all
+`CONFLICT (contents)`, randomly samples 500 retained conflicts by default, and
+writes plain `override_merge_shas` entries:
 
 ```yaml
 override_merge_shas:
@@ -172,7 +175,9 @@ override_merge_shas:
 ```
 
 Parent pairs that cannot be resolved, or that resolve to more than one merge
-commit, are pruned from the generated playbook.
+commit, are pruned from the generated playbook. The sample size can be changed
+with `dataset-schesch-playbook --limit <count>`; use `--limit 0` to disable
+sampling.
 
 After running `info-sync` on the generated Schesch playbook, Redis may contain
 `info:conflict:*` entries for merge commits from the same repositories that are
