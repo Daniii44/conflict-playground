@@ -21,5 +21,8 @@
       "/root/playgrounds/**": "allow",
       "/root/playgrounds-named-volume//**": "allow"
     }
+  },
+  "experimental": {
+    "continue_loop_on_deny": true
   }
 }
