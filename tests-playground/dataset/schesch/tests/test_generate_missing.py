@@ -3,6 +3,8 @@ import importlib.util
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 from dataset.schesch.tests.generate import ScheschGeneratedTests
 
 
@@ -151,3 +153,55 @@ def test_generate_missing_tests_records_failures_and_continues(monkeypatch, tmp_
     assert result.generated == 1
     assert result.failed == 1
     assert result.failed_keys == ["dataset:schesch:tests:owner/repo.git:failed"]
+
+
+def test_main_uses_default_schesch_playbook(monkeypatch, tmp_path, capsys):
+    module = load_generate_missing_module()
+    playbook_path = tmp_path / "schesch.yaml"
+    playbook_path.write_text("playbook:\n  sources: []\n", encoding="utf-8")
+    calls = []
+
+    monkeypatch.setattr(module, "default_playbook_output_path", lambda: playbook_path)
+    monkeypatch.setattr(module, "setup_redis_connection", lambda: "redis")
+    monkeypatch.setattr(module.sys, "argv", ["dataset-schesch-tests-generate-missing", "--limit", "1"])
+
+    def fake_generate_missing_tests_for_playbook(redis, path, **kwargs):
+        calls.append((redis, path, kwargs))
+        return module.MissingGenerationResult(total=1, generated=1)
+
+    monkeypatch.setattr(module, "generate_missing_tests_for_playbook", fake_generate_missing_tests_for_playbook)
+
+    assert module.main() == 0
+    assert calls == [
+        (
+            "redis",
+            playbook_path,
+            {
+                "opencode_executable": module.DEFAULT_OPENCODE_EXECUTABLE,
+                "timeout_seconds": module.DEFAULT_OPENCODE_TIMEOUT_SECONDS,
+                "keep_playground": False,
+                "skip": 0,
+                "limit": 1,
+                "stop_on_error": False,
+            },
+        )
+    ]
+    assert "total=1 generated=1 skipped=0 failed=0" in capsys.readouterr().out
+
+
+def test_main_rejects_missing_default_schesch_playbook(monkeypatch, tmp_path):
+    module = load_generate_missing_module()
+
+    monkeypatch.setattr(module, "default_playbook_output_path", lambda: tmp_path / "missing.yaml")
+    monkeypatch.setattr(module.sys, "argv", ["dataset-schesch-tests-generate-missing"])
+
+    assert module.main() == 1
+
+
+def test_parse_args_rejects_positional_playbook(monkeypatch):
+    module = load_generate_missing_module()
+
+    monkeypatch.setattr(module.sys, "argv", ["dataset-schesch-tests-generate-missing", "other"])
+
+    with pytest.raises(SystemExit):
+        module.parse_args()

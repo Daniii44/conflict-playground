@@ -10,6 +10,7 @@ from pathlib import Path
 from loguru import logger
 
 from common.redis_util import setup_redis_connection
+from dataset.schesch.playbook import default_playbook_output_path
 from dataset.schesch.tests.generate import (
     DEFAULT_OPENCODE_EXECUTABLE,
     DEFAULT_OPENCODE_TIMEOUT_SECONDS,
@@ -20,7 +21,6 @@ from dataset.schesch.tests.generate import (
 from playbook.playgrounds import (
     Playground,
     load_playbook_result,
-    resolve_playbook_path,
     resolve_playground_merge_sha,
 )
 
@@ -129,11 +129,10 @@ def generate_missing_tests_for_playbook(
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Generate Schesch test suites for every conflict in a playbook that does not "
+            "Generate Schesch test suites for every conflict in the Schesch playbook that does not "
             "already have a usable generated-test Redis record."
         )
     )
-    parser.add_argument("playbook", help="Playbook name under PLAYBOOKS, or a path to a YAML playbook.")
     parser.add_argument(
         "--opencode",
         default=os.environ.get("OPENCODE", DEFAULT_OPENCODE_EXECUTABLE),
@@ -152,13 +151,6 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def resolve_input_playbook(playbook: str) -> Path:
-    path = Path(playbook)
-    if path.is_file():
-        return path
-    return resolve_playbook_path(playbook)
-
-
 def main() -> int:
     args = parse_args()
     if args.timeout < 1:
@@ -172,9 +164,14 @@ def main() -> int:
         return 1
 
     try:
+        playbook_path = default_playbook_output_path()
+        if not playbook_path.is_file():
+            logger.error("Schesch playbook does not exist: {}", playbook_path)
+            return 1
+
         result = generate_missing_tests_for_playbook(
             setup_redis_connection(),
-            resolve_input_playbook(args.playbook),
+            playbook_path,
             opencode_executable=args.opencode,
             timeout_seconds=args.timeout,
             keep_playground=args.keep_playground,
