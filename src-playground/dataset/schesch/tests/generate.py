@@ -17,8 +17,8 @@ from pydantic import BaseModel, Field
 from common.git_util import capture_git, git_env
 from common.merge_tree import ConflictType
 from common.redis_util import setup_redis_connection
+from dataset.schesch.merge_lookup import resolve_unique_merge_sha_from_parents
 from info.conflict.analysis.core_analysis import InfoConflictCore
-from playbook.playgrounds import resolve_merge_sha_from_parents
 from playground.setup import setup_playground
 
 
@@ -385,7 +385,7 @@ def main() -> int:
                 args.parents[0],
                 args.parents[1],
             )
-        merge_sha = args.merge_sha or resolve_merge_sha_from_parents(args.repo_name, tuple(args.parents))
+        merge_sha = args.merge_sha or resolve_unique_merge_sha_from_parents(args.repo_name, tuple(args.parents))
         logger.info("Using merge commit {}", merge_sha)
         record = generate_tests(
             setup_redis_connection(),

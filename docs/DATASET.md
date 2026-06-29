@@ -163,17 +163,16 @@ repositories with at least one retained merge. `dataset-schesch-playbook` applie
 the same filter and writes a playbook with one source per retained repository.
 
 `merge_analysis` does not store the merge commit SHA directly. The generated
-playbook therefore uses `override_merge_shas` entries in this form:
+playbook resolves each retained parent pair to a merge commit using the cached
+bare repositories and writes plain `override_merge_shas` entries:
 
 ```yaml
 override_merge_shas:
-  - parents:
-      - <left-parent-sha>
-      - <right-parent-sha>
+  - <merge-commit-sha>
 ```
 
-`playbook-start` resolves these parent-pair overrides to a real merge commit in
-the cached bare repository before calling `playground-setup`.
+Parent pairs that cannot be resolved, or that resolve to more than one merge
+commit, are pruned from the generated playbook.
 
 After running `info-sync` on the generated Schesch playbook, Redis may contain
 `info:conflict:*` entries for merge commits from the same repositories that are
@@ -181,9 +180,9 @@ not part of the retained dataset subset. Use `dataset-schesch-prune --dry-run`
 to preview cleanup, then `dataset-schesch-prune` to delete those extra
 `info:conflict:*` keys. The command resolves retained parent pairs to merge
 commit SHAs using the cached bare repositories. Retained parent pairs whose merge
-commit no longer exists are reported as warning statistics, but the repository is
-still pruned against the retained pairs that could be resolved. Repositories with
-missing bare caches are skipped entirely.
+commit no longer exists, or whose parents resolve to multiple merge commits, are
+reported as warning statistics and pruned. Repositories with missing bare caches
+are skipped entirely.
 
 ## Practical Inspection Patterns
 

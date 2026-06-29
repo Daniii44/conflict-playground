@@ -21,13 +21,14 @@ def write_json(path: Path, payload):
     path.write_text(json.dumps(payload), encoding="utf-8")
 
 
-def test_build_schesch_playbook_groups_qualifying_parent_pairs_by_repo(tmp_path):
+def test_build_schesch_playbook_resolves_unique_merge_commits_by_repo(monkeypatch, tmp_path):
     root = tmp_path / "merge_analysis"
     write_json(
         root / "owner" / "repo.json",
         {
             "left2_right2": qualifying_merge(),
             "left1_right1": qualifying_merge(),
+            "left4_right4": qualifying_merge(),
             "left3_right3": qualifying_merge() | {"parents pass": False},
         },
     )
@@ -38,6 +39,19 @@ def test_build_schesch_playbook_groups_qualifying_parent_pairs_by_repo(tmp_path)
         },
     )
 
+    def fake_merge_parent_index(repo):
+        return {
+            "other/project.git": {
+                frozenset(("left4", "right4")): ["merge4"],
+            },
+            "owner/repo.git": {
+                frozenset(("left1", "right1")): ["merge1"],
+                frozenset(("left2", "right2")): ["merge2a", "merge2b"],
+            },
+        }[repo]
+
+    monkeypatch.setattr("dataset.schesch.playbook.merge_parent_index", fake_merge_parent_index)
+
     playbook = build_schesch_playbook(root)
 
     assert playbook == {
@@ -46,14 +60,13 @@ def test_build_schesch_playbook_groups_qualifying_parent_pairs_by_repo(tmp_path)
                 {
                     "repo_url": "https://github.com/other/project.git",
                     "override_merge_shas": [
-                        {"parents": ["left4", "right4"]},
+                        "merge4",
                     ],
                 },
                 {
                     "repo_url": "https://github.com/owner/repo.git",
                     "override_merge_shas": [
-                        {"parents": ["left1", "right1"]},
-                        {"parents": ["left2", "right2"]},
+                        "merge1",
                     ],
                 },
             ]

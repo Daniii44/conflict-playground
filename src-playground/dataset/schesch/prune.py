@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
 
 import argparse
-import os
 import sys
-from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 
 from loguru import logger
 
-from common.git_util import capture_git
-from common.repo_cache import repo_cache_key
 from common.redis_util import setup_redis_connection
 from dataset.schesch.count import (
     ScheschMergePair,
     default_merge_analysis_path,
     iter_qualifying_merge_pairs,
+)
+from dataset.schesch.merge_lookup import (
+    group_merge_pairs_by_repo,
+    merge_parent_index,
+    repo_cache_path,
 )
 
 
@@ -41,6 +42,8 @@ class ResolveResult:
     skipped_repos: set[str]
     unresolved_parent_pairs: int
     repos_with_unresolved_parent_pairs: int
+    ambiguous_parent_pairs: int
+    repos_with_ambiguous_parent_pairs: int
 
 
 def parse_conflict_key(key: str) -> ConflictKey | None:
@@ -55,43 +58,6 @@ def parse_conflict_key(key: str) -> ConflictKey | None:
     return ConflictKey(key=key, analysis=analysis, repo=repo, merge_sha=merge_sha)
 
 
-def repo_cache_path(repo: str) -> Path:
-    caches = Path(os.environ.get("CACHES", str(Path.home() / "caches")))
-    return caches / "repos" / repo_cache_key(repo)
-
-
-def merge_parent_index(repo: str) -> dict[frozenset[str], list[str]]:
-    bare_repo = repo_cache_path(repo)
-    if not bare_repo.is_dir():
-        raise RuntimeError(f"Bare repository does not exist: {bare_repo}")
-
-    result = capture_git(
-        f"--git-dir={bare_repo}",
-        "rev-list",
-        "--all",
-        "--merges",
-        "--parents",
-    )
-
-    index: dict[frozenset[str], list[str]] = {}
-    for line in result.stdout.splitlines():
-        parts = line.split()
-        if len(parts) != 3:
-            continue
-
-        merge_sha, first_parent, second_parent = parts
-        index.setdefault(frozenset((first_parent, second_parent)), []).append(merge_sha)
-
-    return index
-
-
-def group_merge_pairs_by_repo(merge_pairs: list[ScheschMergePair]) -> dict[str, set[tuple[str, str]]]:
-    grouped: dict[str, set[tuple[str, str]]] = defaultdict(set)
-    for merge_pair in merge_pairs:
-        grouped[repo_cache_key(merge_pair.repo)].add((merge_pair.left_parent, merge_pair.right_parent))
-    return grouped
-
-
 def resolve_allowed_merge_shas(
     merge_pairs: list[ScheschMergePair],
 ) -> ResolveResult:
@@ -99,6 +65,8 @@ def resolve_allowed_merge_shas(
     skipped_repos: set[str] = set()
     unresolved_parent_pairs = 0
     repos_with_unresolved_parent_pairs: set[str] = set()
+    ambiguous_parent_pairs = 0
+    repos_with_ambiguous_parent_pairs: set[str] = set()
 
     for repo, parent_pairs in group_merge_pairs_by_repo(merge_pairs).items():
         try:
@@ -124,12 +92,15 @@ def resolve_allowed_merge_shas(
 
             if len(matches) > 1:
                 logger.warning(
-                    "{} has {} merge commits for parents {} and {}; keeping all matches",
+                    "{} has {} merge commits for parents {} and {}; pruning parent pair",
                     repo,
                     len(matches),
                     left_parent,
                     right_parent,
                 )
+                ambiguous_parent_pairs += 1
+                repos_with_ambiguous_parent_pairs.add(repo)
+                continue
 
             allowed_shas.update(matches)
 
@@ -140,6 +111,8 @@ def resolve_allowed_merge_shas(
         skipped_repos=skipped_repos,
         unresolved_parent_pairs=unresolved_parent_pairs,
         repos_with_unresolved_parent_pairs=len(repos_with_unresolved_parent_pairs),
+        ambiguous_parent_pairs=ambiguous_parent_pairs,
+        repos_with_ambiguous_parent_pairs=len(repos_with_ambiguous_parent_pairs),
     )
 
 
@@ -209,6 +182,12 @@ def main() -> int:
             "{} retained parent pairs across {} repositories could not be resolved to merge commits",
             resolve_result.unresolved_parent_pairs,
             resolve_result.repos_with_unresolved_parent_pairs,
+        )
+    if resolve_result.ambiguous_parent_pairs:
+        logger.warning(
+            "{} retained parent pairs across {} repositories resolved to multiple merge commits and were pruned",
+            resolve_result.ambiguous_parent_pairs,
+            resolve_result.repos_with_ambiguous_parent_pairs,
         )
 
     redis = setup_redis_connection()

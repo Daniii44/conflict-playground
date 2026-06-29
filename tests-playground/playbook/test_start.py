@@ -14,9 +14,7 @@ from playbook.start import (
     collect_proposed_resolution,
     format_playground_summary_line,
     load_playbook,
-    merge_parent_index,
     process_playground,
-    resolve_merge_sha_from_parents,
     save_resolution,
     validate_playground_setup,
 )
@@ -281,7 +279,7 @@ playbook:
     ]
 
 
-def test_load_playbook_accepts_parent_pair_overrides(tmp_path):
+def test_load_playbook_rejects_parent_pair_overrides(tmp_path):
     playbook_path = tmp_path / "override-parents.yaml"
     playbook_path.write_text(
         """
@@ -298,13 +296,10 @@ playbook:
     )
 
     with patch("playbook.playgrounds.list_conflict_records") as list_conflict_records:
-        playgrounds = load_playbook(str(playbook_path))
+        with pytest.raises(ValueError, match="Unsupported override_merge_shas entry"):
+            load_playbook(str(playbook_path))
 
     list_conflict_records.assert_not_called()
-    assert playgrounds == [
-        Playground(repo_name="example/project.git", parent_shas=("left123", "right456")),
-        Playground(repo_name="example/project.git", merge_sha="abc123"),
-    ]
 
 
 def test_format_playground_summary_line_includes_conflict_types():
@@ -389,29 +384,6 @@ playbook:
         "  - CONFLICT (contents): 1/2 (50.0%; target 75.0%)\n"
         "  - CONFLICT (rename/rename): 1/2 (50.0%; target 25.0%)\n"
     )
-
-
-def test_resolve_merge_sha_from_parents_matches_parent_pair(monkeypatch, tmp_path):
-    merge_parent_index.cache_clear()
-    caches = tmp_path / "caches"
-    bare_repo = caches / "repos" / "example" / "project.git"
-    bare_repo.mkdir(parents=True)
-    monkeypatch.setenv("CACHES", str(caches))
-
-    class Result:
-        stdout = (
-            "merge1 other parent\n"
-            "merge2 left123 right456\n"
-            "merge3 right456 left123\n"
-        )
-
-    with patch("playbook.playgrounds.capture_git", return_value=Result()):
-        merge_sha = resolve_merge_sha_from_parents(
-            "example/project.git",
-            ("left123", "right456"),
-        )
-
-    assert merge_sha == "merge2"
 
 
 def test_validate_playground_setup_rejects_uninitialized_submodules(monkeypatch, tmp_path):

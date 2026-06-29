@@ -74,6 +74,25 @@ def test_resolve_allowed_merge_shas_keeps_repo_with_unresolved_parent_pairs(monk
     assert result.skipped_repos == set()
     assert result.unresolved_parent_pairs == 1
     assert result.repos_with_unresolved_parent_pairs == 1
+    assert result.ambiguous_parent_pairs == 0
+
+
+def test_resolve_allowed_merge_shas_prunes_ambiguous_parent_pairs(monkeypatch):
+    def fake_merge_parent_index(repo):
+        assert repo == "owner/repo.git"
+        return {frozenset(("left1", "right1")): ["merge1", "merge2"]}
+
+    monkeypatch.setattr("dataset.schesch.prune.merge_parent_index", fake_merge_parent_index)
+
+    result = resolve_allowed_merge_shas(
+        [
+            ScheschMergePair(repo="owner/repo", left_parent="left1", right_parent="right1"),
+        ]
+    )
+
+    assert result.allowed_by_repo == {"owner/repo.git": set()}
+    assert result.ambiguous_parent_pairs == 1
+    assert result.repos_with_ambiguous_parent_pairs == 1
 
 
 def test_prune_conflict_keys_deletes_only_dataset_repo_keys_not_in_allowed_set():

@@ -2,14 +2,12 @@
 
 import argparse
 from dataclasses import dataclass
-from functools import cache
 import os
 from pathlib import Path
 import sys
 
 import yaml
 
-from common.git_util import capture_git
 from common.repo_cache import repo_cache_key
 from info.conflict.list import ConflictRecord, list_conflict_records
 
@@ -18,16 +16,12 @@ from info.conflict.list import ConflictRecord, list_conflict_records
 class Playground:
     repo_name: str
     merge_sha: str | None = None
-    parent_shas: tuple[str, str] | None = None
     conflict_type: str | None = None
     conflict_types: tuple[str, ...] = tuple()
 
     def target_label(self) -> str:
         if self.merge_sha:
             return self.merge_sha
-
-        if self.parent_shas:
-            return f"{self.parent_shas[0]}_{self.parent_shas[1]}"
 
         return "<missing merge target>"
 
@@ -201,77 +195,14 @@ def playground_from_override(repo_name: str, override) -> Playground:
     if isinstance(override, str):
         return Playground(repo_name=repo_name, merge_sha=override)
 
-    if not isinstance(override, dict):
-        raise ValueError(f"Unsupported override_merge_shas entry for {repo_name}: {override!r}")
-
-    merge_sha = override.get("merge_sha")
-    if isinstance(merge_sha, str) and merge_sha:
-        return Playground(repo_name=repo_name, merge_sha=merge_sha)
-
-    parents = override.get("parents")
-    if (
-        isinstance(parents, list)
-        and len(parents) == 2
-        and all(isinstance(parent, str) and parent for parent in parents)
-    ):
-        return Playground(repo_name=repo_name, parent_shas=(parents[0], parents[1]))
-
     raise ValueError(f"Unsupported override_merge_shas entry for {repo_name}: {override!r}")
-
-
-@cache
-def merge_parent_index(repo_name: str) -> dict[frozenset[str], list[str]]:
-    caches = Path(os.environ.get("CACHES", str(Path.home() / "caches")))
-    bare_repo = caches / "repos" / repo_name
-    if not bare_repo.is_dir():
-        raise RuntimeError(f"Bare repository {bare_repo} does not exist")
-
-    result = capture_git(
-        f"--git-dir={bare_repo}",
-        "rev-list",
-        "--all",
-        "--merges",
-        "--parents",
-    )
-
-    index: dict[frozenset[str], list[str]] = {}
-    for line in result.stdout.splitlines():
-        parts = line.split()
-        merge_sha = parts[0]
-        parents = parts[1:]
-        if len(parents) != 2:
-            continue
-
-        index.setdefault(frozenset(parents), []).append(merge_sha)
-
-    return index
-
-
-def resolve_merge_sha_from_parents(repo_name: str, parent_shas: tuple[str, str]) -> str:
-    matches = merge_parent_index(repo_name).get(frozenset(parent_shas), [])
-
-    if not matches:
-        raise RuntimeError(
-            f"No merge commit found in {repo_name} with parents {parent_shas[0]} and {parent_shas[1]}"
-        )
-
-    if len(matches) > 1:
-        print(
-            f"Found {len(matches)} merge commits in {repo_name} with parents "
-            f"{parent_shas[0]} and {parent_shas[1]}; using {matches[0]}"
-        )
-
-    return matches[0]
 
 
 def resolve_playground_merge_sha(pg: Playground) -> str:
     if pg.merge_sha:
         return pg.merge_sha
 
-    if pg.parent_shas:
-        return resolve_merge_sha_from_parents(pg.repo_name, pg.parent_shas)
-
-    raise RuntimeError(f"Playground for {pg.repo_name} has neither merge_sha nor parent_shas")
+    raise RuntimeError(f"Playground for {pg.repo_name} has no merge_sha")
 
 
 def load_playbook_result(playbook_path: str | Path) -> PlaybookLoadResult:

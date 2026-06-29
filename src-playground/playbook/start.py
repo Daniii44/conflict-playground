@@ -20,9 +20,7 @@ from playbook.playgrounds import (
     format_playground_summary_line,
     load_playbook,
     load_playbook_result,
-    merge_parent_index,
     print_playground_summary,
-    resolve_merge_sha_from_parents,
     resolve_playground_merge_sha,
 )
 
