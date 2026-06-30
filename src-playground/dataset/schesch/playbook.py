@@ -11,6 +11,7 @@ from loguru import logger
 
 from common.git_util import capture_git
 from common.merge_tree import ConflictType, MergeLogicalConflict, parse_merge_result, prune_auto_merged
+from common.redis_util import setup_redis_connection
 from dataset.schesch.count import default_merge_analysis_path, iter_qualifying_merge_pairs
 from dataset.schesch.merge_lookup import group_merge_pairs_by_repo, merge_parent_index, repo_cache_path
 
@@ -27,8 +28,9 @@ class PlaybookCandidate:
 
 
 @dataclass(frozen=True)
-class PlaybookBuildResult:
+class RawPlaybookBuildResult:
     playbook: dict
+    candidates: list[PlaybookCandidate]
     unresolved_parent_pairs: int
     ambiguous_parent_pairs: int
     non_maven_merges: int
@@ -36,6 +38,17 @@ class PlaybookBuildResult:
     non_content_conflict_merges: int
     sampled_out_merges: int
     skipped_repos: set[str]
+
+
+@dataclass(frozen=True)
+class PlaybookBuildResult:
+    playbook: dict
+    candidates: list[PlaybookCandidate]
+    raw_result: RawPlaybookBuildResult
+    missing_schesch_info_merges: int
+    failed_schesch_info_merges: int
+    inconsistent_schesch_environment_merges: int
+    sampled_out_merges: int
 
 
 def default_playbook_output_path() -> Path:
@@ -48,6 +61,11 @@ def default_playbook_output_path() -> Path:
         return local_playbooks / "schesch.yaml"
 
     return Path("/root/playbooks/schesch.yaml")
+
+
+def default_raw_playbook_output_path() -> Path:
+    final_output = default_playbook_output_path()
+    return final_output.with_name("schesch-raw.yaml")
 
 
 def has_top_level_pom(repo: str, merge_sha: str) -> bool:
@@ -88,6 +106,38 @@ def is_content_conflict(conflict: MergeLogicalConflict) -> bool:
 
 def repo_is_cached(repo: str) -> bool:
     return repo_cache_path(repo).is_dir()
+
+
+def schesch_info_key(candidate: PlaybookCandidate) -> str:
+    return f"info:conflict:schesch:{candidate.repo}:{candidate.merge_sha}"
+
+
+def passed_schesch_resolution(result: dict | None) -> bool:
+    return bool(result and result.get("passed"))
+
+
+def schesch_results_use_same_environment(results: list[dict]) -> bool:
+    build_tools = {result.get("build_tool") for result in results}
+    java_homes = {result.get("successful_java_home") for result in results}
+    return (
+        len(build_tools) == 1
+        and None not in build_tools
+        and len(java_homes) == 1
+        and None not in java_homes
+    )
+
+
+def schesch_info_allows_candidate(info: dict) -> tuple[bool, bool]:
+    human = info.get("human")
+    parents = info.get("parents") or []
+    results = [human, *parents]
+    if human is None or len(parents) != 2:
+        return False, False
+    if not all(passed_schesch_resolution(result) for result in results):
+        return False, False
+    if not schesch_results_use_same_environment(results):
+        return False, True
+    return True, False
 
 
 def select_random_candidates(
@@ -132,12 +182,9 @@ def build_playbook_from_candidates(candidates: list[PlaybookCandidate]) -> dict:
     return {"playbook": {"sources": sources}}
 
 
-def build_schesch_playbook_result(
+def build_schesch_raw_playbook_result(
     merge_analysis: Path,
-    *,
-    limit: int | None = DEFAULT_LIMIT,
-    seed: int = DEFAULT_SEED,
-) -> PlaybookBuildResult:
+) -> RawPlaybookBuildResult:
     merges_by_repo = group_merge_pairs_by_repo(list(iter_qualifying_merge_pairs(merge_analysis)))
     unresolved_parent_pairs = 0
     ambiguous_parent_pairs = 0
@@ -210,18 +257,90 @@ def build_schesch_playbook_result(
 
             candidates.append(PlaybookCandidate(repo=repo, merge_sha=merge_sha))
 
-    selected_candidates = select_random_candidates(candidates, limit=limit, seed=seed)
-
-    return PlaybookBuildResult(
-        playbook=build_playbook_from_candidates(selected_candidates),
+    return RawPlaybookBuildResult(
+        playbook=build_playbook_from_candidates(candidates),
+        candidates=sorted(candidates),
         unresolved_parent_pairs=unresolved_parent_pairs,
         ambiguous_parent_pairs=ambiguous_parent_pairs,
         non_maven_merges=non_maven_merges,
         no_content_conflict_merges=no_content_conflict_merges,
         non_content_conflict_merges=non_content_conflict_merges,
-        sampled_out_merges=len(candidates) - len(selected_candidates),
+        sampled_out_merges=0,
         skipped_repos=skipped_repos,
     )
+
+
+def filter_schesch_candidates(
+    candidates: list[PlaybookCandidate],
+    redis,
+) -> tuple[list[PlaybookCandidate], int, int, int]:
+    selected: list[PlaybookCandidate] = []
+    missing_info = 0
+    failed_info = 0
+    inconsistent_environment = 0
+
+    for candidate in sorted(candidates):
+        data = redis.json().get(schesch_info_key(candidate))
+        if not data:
+            missing_info += 1
+            logger.error("{} is missing", schesch_info_key(candidate))
+            continue
+
+        allowed, environment_mismatch = schesch_info_allows_candidate(data)
+        if allowed:
+            selected.append(candidate)
+        elif environment_mismatch:
+            inconsistent_environment += 1
+        else:
+            failed_info += 1
+
+    return selected, missing_info, failed_info, inconsistent_environment
+
+
+def build_schesch_playbook_result(
+    raw_result: RawPlaybookBuildResult,
+    *,
+    limit: int | None = DEFAULT_LIMIT,
+    seed: int = DEFAULT_SEED,
+    redis=None,
+) -> PlaybookBuildResult:
+    redis = redis or setup_redis_connection()
+    filtered_candidates, missing_info, failed_info, inconsistent_environment = filter_schesch_candidates(
+        raw_result.candidates,
+        redis,
+    )
+    selected_candidates = select_random_candidates(filtered_candidates, limit=limit, seed=seed)
+
+    return PlaybookBuildResult(
+        playbook=build_playbook_from_candidates(selected_candidates),
+        candidates=selected_candidates,
+        raw_result=raw_result,
+        missing_schesch_info_merges=missing_info,
+        failed_schesch_info_merges=failed_info,
+        inconsistent_schesch_environment_merges=inconsistent_environment,
+        sampled_out_merges=len(filtered_candidates) - len(selected_candidates),
+    )
+
+
+def build_schesch_playbook_result_from_merge_analysis(
+    merge_analysis: Path,
+    *,
+    limit: int | None = DEFAULT_LIMIT,
+    seed: int = DEFAULT_SEED,
+    redis=None,
+) -> PlaybookBuildResult:
+    return build_schesch_playbook_result(
+        build_schesch_raw_playbook_result(merge_analysis),
+        limit=limit,
+        seed=seed,
+        redis=redis or setup_redis_connection(),
+    )
+
+
+def build_schesch_raw_playbook(
+    merge_analysis: Path,
+) -> dict:
+    return build_schesch_raw_playbook_result(merge_analysis).playbook
 
 
 def build_schesch_playbook(
@@ -229,8 +348,47 @@ def build_schesch_playbook(
     *,
     limit: int | None = DEFAULT_LIMIT,
     seed: int = DEFAULT_SEED,
+    redis=None,
 ) -> dict:
-    return build_schesch_playbook_result(merge_analysis, limit=limit, seed=seed).playbook
+    result = build_schesch_playbook_result_from_merge_analysis(
+        merge_analysis,
+        limit=limit,
+        seed=seed,
+        redis=redis,
+    )
+    if result.missing_schesch_info_merges:
+        raise RuntimeError(
+            f"Missing info:conflict:schesch data for {result.missing_schesch_info_merges} raw candidates"
+        )
+    return result.playbook
+
+
+def generate_schesch_playbooks(
+    merge_analysis: Path,
+    raw_output: Path,
+    output: Path,
+    *,
+    limit: int | None = DEFAULT_LIMIT,
+    seed: int = DEFAULT_SEED,
+    redis=None,
+) -> tuple[RawPlaybookBuildResult, PlaybookBuildResult | None]:
+    raw_result = build_schesch_raw_playbook_result(merge_analysis)
+    write_playbook(raw_result.playbook, raw_output)
+
+    if raw_result.skipped_repos:
+        return raw_result, None
+
+    result = build_schesch_playbook_result(
+        raw_result,
+        limit=limit,
+        seed=seed,
+        redis=redis or setup_redis_connection(),
+    )
+    if result.missing_schesch_info_merges:
+        return raw_result, result
+
+    write_playbook(result.playbook, output)
+    return raw_result, result
 
 
 def write_playbook(playbook: dict, output_path: Path) -> None:
@@ -262,7 +420,13 @@ def main() -> int:
         "--output",
         type=Path,
         default=default_playbook_output_path(),
-        help="Output playbook path.",
+        help="Output filtered playbook path.",
+    )
+    parser.add_argument(
+        "--raw-output",
+        type=Path,
+        default=default_raw_playbook_output_path(),
+        help="Output raw playbook path.",
     )
     parser.add_argument(
         "--limit",
@@ -284,48 +448,84 @@ def main() -> int:
         parser.error("--limit must be non-negative")
 
     limit = None if args.limit == 0 else args.limit
-    result = build_schesch_playbook_result(args.merge_analysis, limit=limit, seed=args.seed)
-    playbook = result.playbook
-    sources = playbook["playbook"]["sources"]
+    raw_result, result = generate_schesch_playbooks(
+        args.merge_analysis,
+        args.raw_output,
+        args.output,
+        limit=limit,
+        seed=args.seed,
+    )
+    raw_sources = raw_result.playbook["playbook"]["sources"]
+    raw_merge_count = sum(len(source["override_merge_shas"]) for source in raw_sources)
+
+    logger.info(
+        "Wrote raw Schesch playbook with {} repositories and {} merge overrides to {}",
+        len(raw_sources),
+        raw_merge_count,
+        args.raw_output,
+    )
+
+    if raw_result.unresolved_parent_pairs:
+        logger.warning(
+            "Pruned {} parent pairs that could not be resolved to a merge commit",
+            raw_result.unresolved_parent_pairs,
+        )
+    if raw_result.ambiguous_parent_pairs:
+        logger.warning(
+            "Pruned {} parent pairs that resolved to multiple merge commits",
+            raw_result.ambiguous_parent_pairs,
+        )
+    if raw_result.non_maven_merges:
+        logger.warning("Pruned {} merges without a top-level pom.xml", raw_result.non_maven_merges)
+    if raw_result.no_content_conflict_merges:
+        logger.warning(
+            "Pruned {} merges that did not produce content conflicts",
+            raw_result.no_content_conflict_merges,
+        )
+    if raw_result.non_content_conflict_merges:
+        logger.warning(
+            "Pruned {} merges containing at least one non-contents conflict",
+            raw_result.non_content_conflict_merges,
+        )
+    if raw_result.skipped_repos:
+        logger.error(
+            "Skipped {} repositories because their cached bare repository was missing or inaccessible",
+            len(raw_result.skipped_repos),
+        )
+        return 1
+
+    if result is None:
+        return 1
+
+    if result.missing_schesch_info_merges:
+        logger.error(
+            "Refusing to write {} because {} raw candidates are missing info:conflict:schesch records",
+            args.output,
+            result.missing_schesch_info_merges,
+        )
+        return 1
+
+    sources = result.playbook["playbook"]["sources"]
     merge_count = sum(len(source["override_merge_shas"]) for source in sources)
 
-    write_playbook(playbook, args.output)
     logger.info(
-        "Wrote Schesch playbook with {} repositories and {} merge overrides to {}",
+        "Wrote filtered Schesch playbook with {} repositories and {} merge overrides to {}",
         len(sources),
         merge_count,
         args.output,
     )
-    if result.unresolved_parent_pairs:
+    if result.failed_schesch_info_merges:
         logger.warning(
-            "Pruned {} parent pairs that could not be resolved to a merge commit",
-            result.unresolved_parent_pairs,
+            "Pruned {} raw candidates because the human resolution or a parent did not pass",
+            result.failed_schesch_info_merges,
         )
-    if result.ambiguous_parent_pairs:
+    if result.inconsistent_schesch_environment_merges:
         logger.warning(
-            "Pruned {} parent pairs that resolved to multiple merge commits",
-            result.ambiguous_parent_pairs,
-        )
-    if result.non_maven_merges:
-        logger.warning("Pruned {} merges without a top-level pom.xml", result.non_maven_merges)
-    if result.no_content_conflict_merges:
-        logger.warning(
-            "Pruned {} merges that did not produce content conflicts",
-            result.no_content_conflict_merges,
-        )
-    if result.non_content_conflict_merges:
-        logger.warning(
-            "Pruned {} merges containing at least one non-contents conflict",
-            result.non_content_conflict_merges,
+            "Pruned {} raw candidates because human and parent checks did not use the same build tool and Java home",
+            result.inconsistent_schesch_environment_merges,
         )
     if result.sampled_out_merges:
-        logger.info("Random sampling pruned {} otherwise eligible merges", result.sampled_out_merges)
-    if result.skipped_repos:
-        logger.error(
-            "Skipped {} repositories because their cached bare repository was missing or inaccessible",
-            len(result.skipped_repos),
-        )
-        return 1
+        logger.info("Random sampling pruned {} otherwise eligible Schesch-passing merges", result.sampled_out_merges)
 
     return 0
 
