@@ -104,6 +104,7 @@ def main() -> int:
         ]
     if args.max_workers is not None:
         analysis_args.extend(["--max-workers", str(args.max_workers)])
+    analysis_args.extend(["--playbook", args.playbook])
 
     failed_repos = []
     for repo in repos:

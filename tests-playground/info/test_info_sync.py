@@ -32,8 +32,8 @@ def test_info_sync_continues_after_failed_repo(monkeypatch):
 
     assert exit_code == 1
     assert commands == [
-        ["info-conflict-sync", "--all-analysis", "missing/repo.git"],
-        ["info-conflict-sync", "--all-analysis", "ok/repo.git"],
+        ["info-conflict-sync", "--all-analysis", "--playbook", "sample", "missing/repo.git"],
+        ["info-conflict-sync", "--all-analysis", "--playbook", "sample", "ok/repo.git"],
         ["state-clickhouse-sync"],
     ]
 

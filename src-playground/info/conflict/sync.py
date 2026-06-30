@@ -13,11 +13,14 @@ from redis.commands.json.path import Path as RedisPath
 from tqdm import tqdm
 
 from common.git_util import capture_git
+from common.playbook import load_playbook_data, resolve_playbook_path
+from common.repo_cache import repo_cache_key
 from common.redis_util import setup_redis_connection
 from info.conflict.analysis.common import Analysis, AnalysisInput
 from info.conflict.analysis.core_analysis import CoreAnalysis
 from info.conflict.analysis.octopus_analysis import OctopusAnalysis
 from info.conflict.analysis.schesch_analysis import ScheschInfoAnalysis
+from playbook.playgrounds import playground_from_override, resolve_playground_merge_sha
 
 # Script to collect all dirty merge commits in a bare git repository
 # Usage: python collect-conflict.py <git-repo-name> [-f]
@@ -57,7 +60,46 @@ def collect_analyses(analyses: list[str]) -> list[Analysis]:
     
     return [create_analysis(analysis) for analysis in analyses]
 
-def collect_analysis_candidates(git_dir: str, git_repo_name: str) -> list[AnalysisInput]:
+def collect_playbook_override_merge_shas(playbook_path: Path, git_repo_name: str) -> list[str] | None:
+    data = load_playbook_data(playbook_path)
+    sources = data.get("playbook", {}).get("sources") or []
+    merge_shas: list[str] = []
+
+    for source in sources:
+        if not isinstance(source, dict) or not source.get("repo_url"):
+            continue
+        if repo_cache_key(source["repo_url"]) != git_repo_name:
+            continue
+
+        overrides = source.get("override_merge_shas") or []
+        if not overrides:
+            continue
+
+        for override in overrides:
+            playground = playground_from_override(git_repo_name, override)
+            merge_shas.append(resolve_playground_merge_sha(playground))
+
+    if not merge_shas:
+        return None
+
+    return list(dict.fromkeys(merge_shas))
+
+
+def collect_analysis_candidates(
+    git_dir: str,
+    git_repo_name: str,
+    override_merge_shas: list[str] | None = None,
+) -> list[AnalysisInput]:
+    if override_merge_shas:
+        return [
+            AnalysisInput(
+                git_dir=git_dir,
+                git_repo_name=git_repo_name,
+                merge_commit_oid=merge_commit_oid,
+            )
+            for merge_commit_oid in override_merge_shas
+        ]
+
     result = capture_git(
         f"--git-dir={git_dir}",
         "rev-list",
@@ -137,6 +179,10 @@ def main():
         default=None,
         help="Maximum number of worker threads to use for analysis (defaults to CPU count)",
     )
+    parser.add_argument(
+        "--playbook",
+        help="Restrict candidates to override_merge_shas for this repo when the playbook provides them",
+    )
     args = parser.parse_args()
 
     if args.list_analyses:
@@ -175,12 +221,28 @@ def main():
         logger.error("Bare repository does not exist: {}", git_dir)
         sys.exit(1)
 
+    override_merge_shas = None
+    if args.playbook:
+        playbooks_dir = Path(os.environ.get("PLAYBOOKS", "../../data/playbooks"))
+        playbook_path = resolve_playbook_path(args.playbook, playbooks_dir)
+        if not playbook_path.is_file():
+            logger.error("Playbook does not exist: {}", playbook_path)
+            sys.exit(1)
+        override_merge_shas = collect_playbook_override_merge_shas(playbook_path, git_repo_name)
+        if override_merge_shas:
+            logger.info(
+                "Restricting {} to {} override merge SHAs from {}",
+                git_repo_name,
+                len(override_merge_shas),
+                playbook_path,
+            )
+
     for analysis in analyses:
         if already_analysed(analysis, git_repo_name) and not force:
             print(f"Analysis data for repo {git_repo_name} of type {analysis.get_analysis_name()} already exists (use -f to force rebuild)")
             continue
 
-        conflict_candidates = collect_analysis_candidates(str(git_dir), git_repo_name)
+        conflict_candidates = collect_analysis_candidates(str(git_dir), git_repo_name, override_merge_shas)
         execute_analyses(analysis, conflict_candidates, args.verbose, args.max_workers)
 
 if __name__ == "__main__":
