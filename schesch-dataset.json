@@ -310,7 +310,7 @@
           "description": "",
           "id": 3,
           "links": [],
-          "title": "Qualifying Conflicts",
+          "title": "Disqualified Conflicts",
           "vizConfig": {
             "group": "gauge",
             "kind": "VizConfig",
@@ -381,36 +381,31 @@
             "spec": {
               "collapse": false,
               "layout": {
-                "kind": "GridLayout",
+                "kind": "AutoGridLayout",
                 "spec": {
+                  "columnWidthMode": "standard",
                   "items": [
                     {
-                      "kind": "GridLayoutItem",
+                      "kind": "AutoGridLayoutItem",
                       "spec": {
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-2"
-                        },
-                        "height": 8,
-                        "width": 12,
-                        "x": 0,
-                        "y": 0
+                        }
                       }
                     },
                     {
-                      "kind": "GridLayoutItem",
+                      "kind": "AutoGridLayoutItem",
                       "spec": {
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-3"
-                        },
-                        "height": 8,
-                        "width": 12,
-                        "x": 0,
-                        "y": 8
+                        }
                       }
                     }
-                  ]
+                  ],
+                  "maxColumnCount": 3,
+                  "rowHeightMode": "standard"
                 }
               },
               "title": "Overview"
