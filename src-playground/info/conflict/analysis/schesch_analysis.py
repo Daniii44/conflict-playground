@@ -1,5 +1,6 @@
+import os
 import shutil
-import tempfile
+import subprocess
 from pathlib import Path
 
 from loguru import logger
@@ -9,6 +10,7 @@ from common.evaluation_models import ScheschResolutionResult
 from common.git_util import capture_git
 from common.schesch import DEFAULT_TIMEOUT_SECONDS, ScheschResolutionRunner
 from info.conflict.analysis.common import Analysis, AnalysisInput, InfoConflict
+from playground.setup import playground_name, setup_playground
 
 
 class InfoConflictSchesch(InfoConflict):
@@ -43,18 +45,6 @@ class ScheschInfoAnalysis(Analysis, ScheschResolutionRunner):
             return []
         return result.stdout.strip().split()
 
-    def clone_worktree(self, git_dir: str, worktree_path: Path) -> str | None:
-        result = capture_git(
-            "clone",
-            "--shared",
-            git_dir,
-            str(worktree_path),
-            check=False,
-        )
-        if result.returncode != 0:
-            return result.stderr.strip() or result.stdout.strip()
-        return None
-
     def failed(
         self,
         analysis_input: AnalysisInput,
@@ -73,6 +63,10 @@ class ScheschInfoAnalysis(Analysis, ScheschResolutionRunner):
             ),
         )
 
+    def playground_path(self, analysis_input: AnalysisInput) -> Path:
+        playgrounds = Path(os.environ.get("PLAYGROUNDS", str(Path.home() / "playgrounds")))
+        return playgrounds / playground_name(analysis_input.git_repo_name, analysis_input.merge_commit_oid)
+
     def analyse(self, analysis_input: AnalysisInput) -> tuple[AnalysisInput, BaseModel] | None:
         parent_shas = self.collect_parents(analysis_input)
         if len(parent_shas) != 2:
@@ -82,12 +76,9 @@ class ScheschInfoAnalysis(Analysis, ScheschResolutionRunner):
                 f"Expected exactly 2 parents, found {len(parent_shas)}",
             )
 
-        worktree_path = None
+        worktree_path = self.playground_path(analysis_input)
         try:
-            worktree_path = Path(tempfile.mkdtemp(prefix="schesch-info-"))
-            clone_error = self.clone_worktree(analysis_input.git_dir, worktree_path)
-            if clone_error is not None:
-                return self.failed(analysis_input, parent_shas, f"Could not clone analysis worktree: {clone_error}")
+            setup_playground(analysis_input.git_repo_name, analysis_input.merge_commit_oid)
 
             human = self.run_tests_for_ref(
                 worktree_path,
@@ -112,6 +103,7 @@ class ScheschInfoAnalysis(Analysis, ScheschResolutionRunner):
                     parents=parent_results,
                 ),
             )
+        except (RuntimeError, subprocess.CalledProcessError) as error:
+            return self.failed(analysis_input, parent_shas, f"Could not setup analysis playground: {error}")
         finally:
-            if worktree_path is not None:
-                shutil.rmtree(worktree_path, ignore_errors=True)
+            shutil.rmtree(worktree_path, ignore_errors=True)

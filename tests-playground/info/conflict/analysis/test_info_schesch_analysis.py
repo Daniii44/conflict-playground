@@ -14,22 +14,21 @@ def analysis_input() -> AnalysisInput:
     )
 
 
-def test_schesch_info_analysis_runs_human_and_parent_refs(tmp_path):
+def test_schesch_info_analysis_runs_human_and_parent_refs(monkeypatch, tmp_path):
     analysis = ScheschInfoAnalysis(timeout_seconds=900)
-    worktree_path = tmp_path / "worktree"
+    worktree_path = tmp_path / "owner" / "repo.git-merge-sha"
     run_calls = []
+    monkeypatch.setenv("PLAYGROUNDS", str(tmp_path))
 
     with (
         patch.object(analysis, "collect_parents", return_value=["left-sha", "right-sha"]),
-        patch("info.conflict.analysis.schesch_analysis.tempfile.mkdtemp", return_value=str(worktree_path)),
-        patch.object(analysis, "clone_worktree", return_value=None) as clone_worktree,
+        patch("info.conflict.analysis.schesch_analysis.setup_playground") as setup_playground,
         patch.object(analysis, "run_tests_for_ref") as run_tests,
         patch("info.conflict.analysis.schesch_analysis.shutil.rmtree") as rmtree,
     ):
         run_tests.side_effect = lambda path, ref, label, commit_sha: run_calls.append(
             (path, ref, label, commit_sha)
         ) or ScheschResolutionResult(label=label, commit_sha=commit_sha, passed=True)
-
         result = analysis.analyse(analysis_input())
 
     assert result is not None
@@ -48,7 +47,7 @@ def test_schesch_info_analysis_runs_human_and_parent_refs(tmp_path):
         (worktree_path, "left-sha", "parent-1", "left-sha"),
         (worktree_path, "right-sha", "parent-2", "right-sha"),
     ]
-    clone_worktree.assert_called_once_with("/repos/example.git", worktree_path)
+    setup_playground.assert_called_once_with("owner/repo.git", "merge-sha")
     rmtree.assert_called_once_with(worktree_path, ignore_errors=True)
 
 
