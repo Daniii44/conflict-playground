@@ -607,7 +607,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "select concat('${repo_name}', '-', '${merge}', ':', '${timestamp}') as \"Key\""
+                        "rawSql": "select concat('resolution:conflict:','${repo_name}', '-', '${merge}', ':', '${timestamp}') as \"Key\""
                       },
                       "version": "v0"
                     },
@@ -2032,8 +2032,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "aweber/rabbitmq-flume-plugin.git",
-            "value": "aweber/rabbitmq-flume-plugin.git"
+            "text": "ab0oo/javaprslib.git",
+            "value": "ab0oo/javaprslib.git"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -2051,8 +2051,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "710a5fb3b85f30fc1992e135ee8b303591aa6bce",
-            "value": "710a5fb3b85f30fc1992e135ee8b303591aa6bce"
+            "text": "a929486b0e7bf006bd2a192329a16f2b15ab95f1",
+            "value": "a929486b0e7bf006bd2a192329a16f2b15ab95f1"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -2070,8 +2070,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "20260616T020808.509956Z",
-            "value": "20260616T020808.509956Z"
+            "text": "20260617T123800.863390Z",
+            "value": "20260617T123800.863390Z"
           },
           "definition": "  WITH base AS (\n  SELECT\n    key,\n    extractGroups (\n      arrayElement(splitByString('resolution:conflict:', key), 2),\n      '(.+)\\.git-([a-f0-9]{40}):(.*)$'\n    ) AS groups\n  FROM\n    \"default\".\"redis_json\"\n  WHERE\n    startsWith(key, 'resolution')\n    AND content.proposed_resolution.error IS NULL\n)\nSELECT\n  groups[3] AS timestamp\nFROM\n  base\nWHERE\n    concat(groups[1], '.git') = '${repo_name}'  -- \u003c-- Replace with your target repo (e.g., 'framework.git')\n  AND groups[2] = '${merge}'    -- \u003c-- Replace with your target merge commit hash\nORDER BY\n  timestamp DESC;",
           "hide": "dontHide",
