@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 from common.active_playground_models import Configuration
 from common.evaluation_models import EvaluationInput, ScheschResolutionResult
+from common.schesch import ScheschResolutionRunner
 from common.resolution_models import ConflictResolution, ProposedResolution
 from evaluation.analysis.schesch_analysis import ScheschEvaluationAnalysis
 
@@ -45,13 +46,13 @@ def test_schesch_analysis_records_compilation_failure(monkeypatch, tmp_path):
     configure_java_homes(monkeypatch, tmp_path)
 
     with (
-        patch("evaluation.analysis.schesch_analysis.capture_git", side_effect=successful_git),
-        patch("evaluation.analysis.schesch_analysis.read_head_commit", return_value=("head-sha", None)),
-        patch("evaluation.analysis.schesch_analysis.subprocess.run") as run,
+        patch("common.schesch.capture_git", side_effect=successful_git),
+        patch("common.schesch.read_head_commit", return_value=("head-sha", None)),
+        patch("common.schesch.subprocess.run") as run,
     ):
         run.return_value = CompletedProcess(args=[], returncode=1, stdout="compile failed", stderr="")
 
-        record = ScheschEvaluationAnalysis(timeout_seconds=900).run_tests_for_ref(
+        record = ScheschResolutionRunner(timeout_seconds=900).run_tests_for_ref(
             repo_path,
             "HEAD",
             "proposed",
@@ -82,9 +83,9 @@ def test_schesch_analysis_records_test_execution_failure(monkeypatch, tmp_path):
     configure_java_homes(monkeypatch, tmp_path)
 
     with (
-        patch("evaluation.analysis.schesch_analysis.capture_git", side_effect=successful_git),
-        patch("evaluation.analysis.schesch_analysis.read_head_commit", return_value=("head-sha", None)),
-        patch("evaluation.analysis.schesch_analysis.subprocess.run") as run,
+        patch("common.schesch.capture_git", side_effect=successful_git),
+        patch("common.schesch.read_head_commit", return_value=("head-sha", None)),
+        patch("common.schesch.subprocess.run") as run,
     ):
         run.side_effect = [
             CompletedProcess(args=[], returncode=0, stdout="compiled", stderr=""),
@@ -95,7 +96,7 @@ def test_schesch_analysis_records_test_execution_failure(monkeypatch, tmp_path):
             CompletedProcess(args=[], returncode=1, stdout="tests failed", stderr=""),
         ]
 
-        record = ScheschEvaluationAnalysis(timeout_seconds=900).run_tests_for_ref(
+        record = ScheschResolutionRunner(timeout_seconds=900).run_tests_for_ref(
             repo_path,
             "HEAD",
             "proposed",
@@ -126,7 +127,7 @@ def test_schesch_analysis_records_test_execution_failure(monkeypatch, tmp_path):
     ]
 
 
-def test_schesch_analysis_runs_proposed_then_human_resolution(monkeypatch):
+def test_schesch_analysis_runs_proposed_resolution_only(monkeypatch):
     monkeypatch.setenv("PLAYGROUNDS", "/playgrounds")
     analysis = ScheschEvaluationAnalysis(timeout_seconds=900)
 
@@ -137,7 +138,6 @@ def test_schesch_analysis_runs_proposed_then_human_resolution(monkeypatch):
     ):
         run_tests.side_effect = [
             ScheschResolutionResult(label="proposed", commit_sha="proposed-sha", passed=True),
-            ScheschResolutionResult(label="human", commit_sha="actualsha", passed=True),
         ]
 
         record = analysis.analyse(evaluation_input())
@@ -146,16 +146,8 @@ def test_schesch_analysis_runs_proposed_then_human_resolution(monkeypatch):
     assert record.actual_resolution_sha == "actualsha"
     assert record.proposed is not None
     assert record.proposed.passed
-    assert record.human is not None
-    assert record.human.passed
     assert [call.args for call in run_tests.call_args_list] == [
         (Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"), "HEAD", "proposed", "proposed-sha"),
-        (
-            Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"),
-            "actualsha",
-            "human",
-            "actualsha",
-        ),
     ]
     prepare_worktree.assert_called_once_with(
         Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"),

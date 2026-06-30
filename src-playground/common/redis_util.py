@@ -4,6 +4,7 @@ from redis.commands.search.index_definition import IndexDefinition, IndexType
 
 IDX_INFO_CONFLICT_CORE = "idx:info:conflict:core"
 IDX_INFO_CONFLICT_OCTOPUS = "idx:info:conflict:octopus"
+IDX_INFO_CONFLICT_SCHESCH = "idx:info:conflict:schesch"
 RUNTIME_ACTIVE_PLAYGROUND_PREFIX = "runtime:active_playground:"
 RESOLUTION_CONFLICT_PREFIX = "resolution:conflict:"
 EVALUATION_MERGE_PREFIX = "evaluation:merge:"
@@ -45,6 +46,16 @@ def _ensure_exists_conflicts_info_idx(redis: Redis) -> None:
     octopus_definition = IndexDefinition(prefix=["info:conflict:octopus"], index_type=IndexType.JSON)
 
     _ensure_exists_idx(redis, IDX_INFO_CONFLICT_OCTOPUS, octopus_definition, octopus_schema)
+
+    schesch_schema = [
+        TagField("$.repo", as_name="repo"),
+        TagField("$.merge_commit_oid", as_name="merge_commit_oid"),
+        TagField("$.human.passed", as_name="human_passed"),
+        TagField("$.parents[*].passed", as_name="parent_passed"),
+    ]
+    schesch_definition = IndexDefinition(prefix=["info:conflict:schesch"], index_type=IndexType.JSON)
+
+    _ensure_exists_idx(redis, IDX_INFO_CONFLICT_SCHESCH, schesch_definition, schesch_schema)
 
 def _ensure_exists_idx(redis: Redis, idx_name: str, definition: IndexDefinition, schema: list) -> None:
     index = redis.ft(idx_name)

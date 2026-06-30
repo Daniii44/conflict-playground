@@ -92,7 +92,6 @@ class MergeScheschEvaluation(MergeEvaluationRecord):
     actual_resolution_sha: str | None = None
     timeout_seconds: int
     proposed: ScheschResolutionResult | None = None
-    human: ScheschResolutionResult | None = None
 
 
 class MergeConflictResolutionLogicalConflict(BaseModel):
