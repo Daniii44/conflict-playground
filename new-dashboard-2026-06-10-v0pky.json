@@ -710,7 +710,7 @@
           "description": "",
           "id": 21,
           "links": [],
-          "title": "New panel",
+          "title": "Agent Resolution",
           "vizConfig": {
             "group": "gauge",
             "kind": "VizConfig",
@@ -816,7 +816,7 @@
           "description": "",
           "id": 22,
           "links": [],
-          "title": "New panel",
+          "title": "Agent Resolution",
           "vizConfig": {
             "group": "gauge",
             "kind": "VizConfig",
@@ -1380,6 +1380,112 @@
           }
         }
       },
+      "panel-28": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "with base as (\n    SELECT * FROM \"default\".\"redis_json\"\n    where startsWith(key, 'evaluation:merge:schesch')\n    and (content.human.compilation_failed = true\n    or content.human.test_execution_failed = true\n    or content.human.timed_out = true)\n)\nselect\n    sum(case when content.human.compilation_failed::boolean then 1 else 0 end) as compilation_failures,\n    sum(case when content.human.test_execution_failed::boolean then 1 else 0 end) as test_failures\nfrom base\n--select content.proposed.timed_out, content.human.compilation_failed, content.proposed.compilation_failed, content.human.test_execution_failed, content.proposed.test_execution_failed, content.human.passed, content.proposed.passed from base"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 28,
+          "links": [],
+          "title": "Human  Resolution",
+          "vizConfig": {
+            "group": "gauge",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "fixedColor": "red",
+                    "mode": "fixed"
+                  },
+                  "max": 1,
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  "unit": "none"
+                },
+                "overrides": []
+              },
+              "options": {
+                "barShape": "flat",
+                "barWidthFactor": 0.3,
+                "effects": {
+                  "barGlow": false,
+                  "centerGlow": false,
+                  "gradient": false
+                },
+                "endpointMarker": "point",
+                "minVizHeight": 75,
+                "minVizWidth": 75,
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "segmentCount": 1,
+                "segmentSpacing": 0.3,
+                "shape": "gauge",
+                "showThresholdLabels": false,
+                "showThresholdMarkers": false,
+                "sizing": "auto",
+                "sparkline": false,
+                "textMode": "auto"
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
       "panel-4": {
         "kind": "Panel",
         "spec": {
@@ -1682,7 +1788,12 @@
               "options": {
                 "cellHeight": "sm",
                 "showHeader": true,
-                "sortBy": []
+                "sortBy": [
+                  {
+                    "desc": false,
+                    "displayName": "repo_name"
+                  }
+                ]
               }
             },
             "version": "13.0.2"
@@ -2077,7 +2188,7 @@
                     {
                       "kind": "RowsLayoutRow",
                       "spec": {
-                        "collapse": true,
+                        "collapse": false,
                         "layout": {
                           "kind": "AutoGridLayout",
                           "spec": {
@@ -2098,6 +2209,15 @@
                                   "element": {
                                     "kind": "ElementReference",
                                     "name": "panel-22"
+                                  }
+                                }
+                              },
+                              {
+                                "kind": "AutoGridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-28"
                                   }
                                 }
                               }
