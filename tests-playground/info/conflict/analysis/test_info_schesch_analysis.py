@@ -82,3 +82,7 @@ def test_schesch_info_analysis_collects_parents():
         "merge-sha",
         check=False,
     )
+
+
+def test_schesch_info_analysis_enables_stream_output():
+    assert ScheschInfoAnalysis(stream_output=True).stream_output

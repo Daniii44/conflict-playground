@@ -64,6 +64,12 @@ def parse_args(available_analyses: list[str]) -> argparse.Namespace:
         default=None,
         help="Maximum number of worker threads to use per conflict analysis repo",
     )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Pass verbose logging through to info-conflict-sync",
+    )
     return parser.parse_args()
 
 
@@ -104,6 +110,8 @@ def main() -> int:
         ]
     if args.max_workers is not None:
         analysis_args.extend(["--max-workers", str(args.max_workers)])
+    if args.verbose:
+        analysis_args.append("--verbose")
     analysis_args.extend(["--playbook", args.playbook])
 
     failed_repos = []

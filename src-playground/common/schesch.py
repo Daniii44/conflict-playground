@@ -47,8 +47,9 @@ def read_head_commit(repo_path: str) -> tuple[str | None, str | None]:
 
 
 class ScheschResolutionRunner:
-    def __init__(self, timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS):
+    def __init__(self, timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS, stream_output: bool = False):
         self.timeout_seconds = timeout_seconds
+        self.stream_output = stream_output
 
     def detect_build_commands(self, repo_path: Path) -> BuildCommands | str:
         gradlew = repo_path / "gradlew"
@@ -95,15 +96,17 @@ class ScheschResolutionRunner:
 
         start = time.monotonic()
         try:
-            result = subprocess.run(
-                command,
-                cwd=repo_path,
-                env=env,
-                text=True,
-                capture_output=True,
-                timeout=remaining_seconds,
-                check=False,
-            )
+            run_kwargs = {
+                "cwd": repo_path,
+                "env": env,
+                "text": True,
+                "timeout": remaining_seconds,
+                "check": False,
+            }
+            if not self.stream_output:
+                run_kwargs["capture_output"] = True
+
+            result = subprocess.run(command, **run_kwargs)
         except subprocess.TimeoutExpired as error:
             duration_seconds = time.monotonic() - start
             stdout = command_output_text(error.stdout)
@@ -120,7 +123,7 @@ class ScheschResolutionRunner:
             command=command,
             returncode=result.returncode,
             duration_seconds=duration_seconds,
-            output_tail=output_tail(f"{result.stdout}{result.stderr}"),
+            output_tail=output_tail(f"{command_output_text(result.stdout)}{command_output_text(result.stderr)}"),
         )
 
     def prepare_worktree(self, repo_path: Path, ref: str) -> str | None:

@@ -23,9 +23,14 @@ class InfoConflictSchesch(InfoConflict):
 
 
 class ScheschInfoAnalysis(Analysis, ScheschResolutionRunner):
-    def __init__(self, analysis_name: str = "schesch", timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS):
+    def __init__(
+        self,
+        analysis_name: str = "schesch",
+        timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
+        stream_output: bool = False,
+    ):
         Analysis.__init__(self, analysis_name)
-        ScheschResolutionRunner.__init__(self, timeout_seconds)
+        ScheschResolutionRunner.__init__(self, timeout_seconds, stream_output=stream_output)
 
     def collect_parents(self, analysis_input: AnalysisInput) -> list[str]:
         result = capture_git(

@@ -127,6 +127,28 @@ def test_schesch_analysis_records_test_execution_failure(monkeypatch, tmp_path):
     ]
 
 
+def test_schesch_runner_streams_command_output_when_enabled(monkeypatch, tmp_path):
+    repo_path = tmp_path / "repo"
+    repo_path.mkdir()
+    java_home = tmp_path / "java"
+    (java_home / "bin").mkdir(parents=True)
+
+    with patch("common.schesch.subprocess.run") as run:
+        run.return_value = CompletedProcess(args=[], returncode=0, stdout=None, stderr=None)
+
+        record = ScheschResolutionRunner(stream_output=True).run_command(
+            repo_path,
+            ["mvn", "test"],
+            str(java_home),
+            deadline=10**12,
+        )
+
+    assert record.returncode == 0
+    assert record.output_tail == ""
+    assert run.call_args.args[0] == ["mvn", "test"]
+    assert "capture_output" not in run.call_args.kwargs
+
+
 def test_schesch_analysis_runs_proposed_resolution_only(monkeypatch):
     monkeypatch.setenv("PLAYGROUNDS", "/playgrounds")
     analysis = ScheschEvaluationAnalysis(timeout_seconds=900)

@@ -48,13 +48,15 @@ def already_analysed(analysis: Analysis, git_repo_name:str):
     any_exists = next(redis.scan_iter(match=f"{analysis.get_redis_result_prefix()}:{git_repo_name}*", count=10), False) is not False
     return any_exists
 
-def collect_analyses(analyses: list[str]) -> list[Analysis]:
+def collect_analyses(analyses: list[str], verbose: bool = False) -> list[Analysis]:
     def create_analysis(analysis: str):
         analysisType = AVAILABLE_ANALYSES.get(analysis)
         if analysisType is None:
             logger.error(f"No such analysis: {analysis}")
             logger.error(f"Available analyses: {', '.join(AVAILABLE_ANALYSES)}")
             sys.exit(-1)
+        if analysisType is ScheschInfoAnalysis:
+            return analysisType(analysis, stream_output=verbose)
         return analysisType(analysis)
 
     
@@ -203,11 +205,11 @@ def main():
 
     analyses:list[Analysis]
     if args.all_analysis:
-        analyses = collect_analyses(list(AVAILABLE_ANALYSES))
+        analyses = collect_analyses(list(AVAILABLE_ANALYSES), verbose=args.verbose)
     elif args.analysis:
-        analyses = collect_analyses(args.analysis)
+        analyses = collect_analyses(args.analysis, verbose=args.verbose)
     else:
-        analyses = collect_analyses(['core'])
+        analyses = collect_analyses(['core'], verbose=args.verbose)
 
     if not args.verbose:
         logger.disable("__main__");
