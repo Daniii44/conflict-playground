@@ -33,7 +33,6 @@ class RawPlaybookBuildResult:
     candidates: list[PlaybookCandidate]
     unresolved_parent_pairs: int
     ambiguous_parent_pairs: int
-    non_maven_merges: int
     no_content_conflict_merges: int
     non_content_conflict_merges: int
     sampled_out_merges: int
@@ -66,17 +65,6 @@ def default_playbook_output_path() -> Path:
 def default_raw_playbook_output_path() -> Path:
     final_output = default_playbook_output_path()
     return final_output.with_name("schesch-raw.yaml")
-
-
-def has_top_level_pom(repo: str, merge_sha: str) -> bool:
-    result = capture_git(
-        f"--git-dir={repo_cache_path(repo)}",
-        "cat-file",
-        "-e",
-        f"{merge_sha}^{{tree}}:pom.xml",
-        check=False,
-    )
-    return result.returncode == 0
 
 
 def merge_logical_conflicts(repo: str, left_parent: str, right_parent: str) -> tuple[MergeLogicalConflict, ...]:
@@ -188,7 +176,6 @@ def build_schesch_raw_playbook_result(
     merges_by_repo = group_merge_pairs_by_repo(list(iter_qualifying_merge_pairs(merge_analysis)))
     unresolved_parent_pairs = 0
     ambiguous_parent_pairs = 0
-    non_maven_merges = 0
     no_content_conflict_merges = 0
     non_content_conflict_merges = 0
     skipped_repos: set[str] = set()
@@ -231,10 +218,6 @@ def build_schesch_raw_playbook_result(
                 continue
 
             merge_sha = matches[0]
-            if not has_top_level_pom(repo, merge_sha):
-                non_maven_merges += 1
-                continue
-
             try:
                 logical_conflicts = merge_logical_conflicts(repo, left_parent, right_parent)
             except Exception as error:
@@ -262,7 +245,6 @@ def build_schesch_raw_playbook_result(
         candidates=sorted(candidates),
         unresolved_parent_pairs=unresolved_parent_pairs,
         ambiguous_parent_pairs=ambiguous_parent_pairs,
-        non_maven_merges=non_maven_merges,
         no_content_conflict_merges=no_content_conflict_merges,
         non_content_conflict_merges=non_content_conflict_merges,
         sampled_out_merges=0,
@@ -475,8 +457,6 @@ def main() -> int:
             "Pruned {} parent pairs that resolved to multiple merge commits",
             raw_result.ambiguous_parent_pairs,
         )
-    if raw_result.non_maven_merges:
-        logger.warning("Pruned {} merges without a top-level pom.xml", raw_result.non_maven_merges)
     if raw_result.no_content_conflict_merges:
         logger.warning(
             "Pruned {} merges that did not produce content conflicts",
