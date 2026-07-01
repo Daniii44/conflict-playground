@@ -1,0 +1,2941 @@
+playbook:
+  sources:
+    - repo_url: https://github.com/abel533/echarts.git
+      override_merge_shas:
+        - c6ad45b63a9ee7e20b45c4176695a72efa31606a
+    - repo_url: https://github.com/accla/d4m_api_java.git
+      override_merge_shas:
+        - 3d17b93fcaca70344f20d3adcd3bcb71b71ab097
+    - repo_url: https://github.com/adamd/z.git
+      override_merge_shas:
+        - da778dcb9cf35110cc3b35d9c4c26a66238d3450
+    - repo_url: https://github.com/adangel/pmd.git
+      override_merge_shas:
+        - 312d4c60c0be296f149927296cb2d0fa984ac634
+        - 3485acaa6fda3c2e77aa50c16e2c4e22c0b1419e
+        - a2c344fb54f78c17d684a9b8b2158d23e326a874
+        - e52be1498094e7947e341cbb49c2b537e761d395
+        - f9c6b0b08dac300305daf222438c8b3dd54fc535
+    - repo_url: https://github.com/addthis/stream-lib.git
+      override_merge_shas:
+        - a946396485c9f3cb1aeb11230a19233a0c9c88c0
+        - db2ede74297f31dea9f0fa8e39a6a33be253ee6e
+        - e0a13b01fbf96812dd1ba290045339e5ff85302a
+    - repo_url: https://github.com/adoptopenjdk/mjprof.git
+      override_merge_shas:
+        - 754462e890ac29f2155ef2f60aeba253ad15ce76
+        - fde954818e8ec249a1b9888714b6b3d528e3db62
+    - repo_url: https://github.com/aerospike/aerospike-client-java.git
+      override_merge_shas:
+        - 35cdb2c14bcb7ed4ecbc1cc7036e1554915e58dc
+        - 94db6c183ad87d64bc7a89f731e55f65018ceea0
+        - 955ae938535640e4e76c48a3a2aa1af0b649c18f
+        - d78d73ab7c7c90bb47c59df912a35d53b1c88637
+        - deae846ff30975c39b4f883823e68e10a3849425
+    - repo_url: https://github.com/ahmetaa/zemberek-nlp.git
+      override_merge_shas:
+        - cba3cefdbf185e9a4c21dc668f9600023b260146
+        - e497b43183da07131fc2fa7bd4f05b578b3d70a9
+    - repo_url: https://github.com/aleksandr-m/gitflow-maven-plugin.git
+      override_merge_shas:
+        - 1c97e42bdefdcad7659d10a64fd7e6048c3c58c5
+    - repo_url: https://github.com/alesaudate/kickstart-springjerseyhibernate.git
+      override_merge_shas:
+        - feb36bfc8ee3a9e0d4394ef8e845a97c8c489840
+    - repo_url: https://github.com/alexcojocaru/elasticsearch-maven-plugin.git
+      override_merge_shas:
+        - 80a84ddaaedf4d73d3e2a4a952dea3593b11d4a3
+    - repo_url: https://github.com/alexruiz/fest-util.git
+      override_merge_shas:
+        - 3c3d01351f4149a749f8278423ca5d8112b18102
+        - ec150f8c4420dbd9d177e880e96f09dca7f35f30
+    - repo_url: https://github.com/alibaba/canal.git
+      override_merge_shas:
+        - 676cf4798763d8e65c2e295bf28fc54cced16741
+        - 68d8afae3e9cb4c21c26b3f7c291759f0c9e7426
+        - b1dc5bd59f66fdc6df0dbf449d7b9eec8c58452c
+    - repo_url: https://github.com/alibaba/easyexcel.git
+      override_merge_shas:
+        - 5ccd41cd7ae9c6560002b7d482e391e8697c6845
+        - 77232af45b541b958d811addc73a8bf7ecaebf1d
+        - a1d3b2b86fbb872a8f3ae20d58161b1a13f1f3ea
+        - b3442e700bf7a59a40906b60dc29f39e9db5db50
+    - repo_url: https://github.com/allanbank/mongodb-async-driver.git
+      override_merge_shas:
+        - fad5b54783b500f5cb8039ac62f2504373da2b72
+    - repo_url: https://github.com/andrewphorn/classicube-client.git
+      override_merge_shas:
+        - 022163f0262d8e0fe327261ab7e63d374edf0495
+        - 13382c090c30a301818952d910b8cddbff481f15
+        - e5c8e35fd4479e3ec72de1d6d60cc342e7a6d2e2
+    - repo_url: https://github.com/andygibson/datafactory.git
+      override_merge_shas:
+        - 1d4a47b045ee2c13820416dd60773690f6093e62
+    - repo_url: https://github.com/antlr/grammars-v4.git
+      override_merge_shas:
+        - ffe55a577d771d3379a2e47d2e4705fb5c98a3ce
+    - repo_url: https://github.com/apache/accumulo.git
+      override_merge_shas:
+        - 5bec1c33af6c464ce75f25ade7b4bd4dba0709ea
+    - repo_url: https://github.com/apache/avro.git
+      override_merge_shas:
+        - c299da64ee53de57ea34e589b858d7fe8ada72fd
+    - repo_url: https://github.com/apache/commons-csv.git
+      override_merge_shas:
+        - d482fd289ce446afb73a332cf52802fb16d0ddce
+    - repo_url: https://github.com/apache/commons-imaging.git
+      override_merge_shas:
+        - 593976a269f5e32bd525e3a1d5e0f7ac39bb388e
+        - 5a3f2e508b6b0ab317a8eb85f2cfedbc8dbcf1a7
+        - ea2ea87f298f15b6bf2816a8566466dacaa16057
+    - repo_url: https://github.com/apache/commons-io.git
+      override_merge_shas:
+        - 5f88079956ba7fc4551a5fc51dc28d82e33dc65f
+    - repo_url: https://github.com/apache/commons-jexl.git
+      override_merge_shas:
+        - 247bbdd4815bad2deffcf37089bf90c128dc1f20
+        - 30d19752d75d27ca56ce9e2b936abf32576b4344
+        - 4182a62141e41033c71b24d437c5ba2daf998331
+        - 65cf3e3fb39b4fff6b4248b4fe565739c5679031
+        - ed73a52cbbd255564ed183a6dbbbc00e0691aa6c
+    - repo_url: https://github.com/apache/commons-lang.git
+      override_merge_shas:
+        - ee87df847299c55c97347e6c11e00a283feb189d
+    - repo_url: https://github.com/apache/commons-math.git
+      override_merge_shas:
+        - 9575054ff07b8dbb912e889111f6b3a3be582680
+        - a6804eaa74dd04734bac4081d16fc058030dce13
+    - repo_url: https://github.com/apache/commons-net.git
+      override_merge_shas:
+        - 2e8f67d3b2760a6d0955f7cca812421fb6ccb817
+        - dcb63c3de215cccd34b808f7a4f8fa55be592226
+        - e3013d784b0b6c93a7624a36870f2dd73e6ecc41
+    - repo_url: https://github.com/apache/commons-validator.git
+      override_merge_shas:
+        - 9aeb4661a9391148aa439a12ca71fedb4015c466
+    - repo_url: https://github.com/apache/directory-kerby.git
+      override_merge_shas:
+        - 2daee238dbcf01170a01936f0feddb65e7dd0726
+        - 638e6c1e336651a6e81d3230095a85b0e6342d30
+    - repo_url: https://github.com/apache/metamodel.git
+      override_merge_shas:
+        - 2d682c2bd025776f623a7c4c6cbd0298e2b894fa
+        - c4788a27270110ee630e0337402f4f48b6147ac1
+        - c4acebd5d3911bc208c3fd919a8cf7894b371c00
+        - d5dee995f1191e48c707ef79042e523078a71dbd
+    - repo_url: https://github.com/apache/olingo-odata4.git
+      override_merge_shas:
+        - 1a59a5804b16c714f5c9354ddd5b2c4a93987c1e
+        - 762c924cf6a187f513bafe97d4702d4377bab655
+        - 9f663baf5c3747e105dcbbfad46e0312f28f74ee
+    - repo_url: https://github.com/arcbees/gwtchosen.git
+      override_merge_shas:
+        - 34d5c72a1ab388a2585c40554e785d0700fced3c
+        - 3a485493c2f30e08993762075a1f704f442ea5e8
+        - 4880920540b125601a965c2260aacdd17dc9aeb9
+    - repo_url: https://github.com/arcbees/universal-analytics.git
+      override_merge_shas:
+        - d4259d6249da0e00f06f46da5c68e12a89dc7f80
+    - repo_url: https://github.com/ardesco/selenium-standalone-server-plugin.git
+      override_merge_shas:
+        - 957d978135279c122dcfaf9d72ed5a89f487b0ae
+    - repo_url: https://github.com/arnobroekhof/kafka-http-metrics-reporter.git
+      override_merge_shas:
+        - 2def1e280114d209ed8a7314a8b236051b4c503b
+    - repo_url: https://github.com/arturmkrtchyan/iban4j.git
+      override_merge_shas:
+        - ee807e0a05fc291337dc0b8d5753265f55fed104
+    - repo_url: https://github.com/asciidoctor/asciidoclet.git
+      override_merge_shas:
+        - e31ec7a8acded7cc6ed731a391ddaf86d13329da
+    - repo_url: https://github.com/aseldawy/spatialhadoop2.git
+      override_merge_shas:
+        - 83340231db8f7e94b9972fb90e6dbd379e7937fa
+    - repo_url: https://github.com/astrapi69/jaulp.wicket.git
+      override_merge_shas:
+        - f4a6f0e81a16add0005c7da1bc9ccc3188b974d5
+    - repo_url: https://github.com/atam4j/atam4j.git
+      override_merge_shas:
+        - 71fcecb071270981bc92b14d2cc3b0e56828c011
+    - repo_url: https://github.com/athou/commafeed.git
+      override_merge_shas:
+        - 6133497a29ab62720d03c3a62637410ece53fee5
+    - repo_url: https://github.com/atmosphere/atmosphere-extensions.git
+      override_merge_shas:
+        - 8fd31b3e8717249b185da0e271103a90b760e89b
+        - f57bf3445e3b89d5389a50ea01c32059af88569b
+    - repo_url: https://github.com/augustt198/lumen.git
+      override_merge_shas:
+        - 7d97ea8fcd51dbe8b89640b5aa4df71836c06834
+    - repo_url: https://github.com/avaje-common/avaje-agentloader.git
+      override_merge_shas:
+        - 1406ac7a25bad7155a3ace629e63da4ba6d9c4c0
+    - repo_url: https://github.com/awaisathar/dependensee.git
+      override_merge_shas:
+        - 38b5080a19a4b08f68e6255427afa7d8d57caae4
+    - repo_url: https://github.com/aweber/rabbitmq-flume-plugin.git
+      override_merge_shas:
+        - 710a5fb3b85f30fc1992e135ee8b303591aa6bce
+        - ed70b2c5c33b52017f2528a587894c01be750ed7
+    - repo_url: https://github.com/awslabs/amazon-kinesis-client.git
+      override_merge_shas:
+        - 4ec77b1705f1f089a1c973cd3e61398a6a4a6294
+    - repo_url: https://github.com/awslabs/amazon-sqs-java-messaging-lib.git
+      override_merge_shas:
+        - 016338972c443427e3b9f46c5e00f254a10c7095
+    - repo_url: https://github.com/azuread/azure-activedirectory-library-for-java.git
+      override_merge_shas:
+        - 057d4d22a0573eae38c992b298a29e06215f391d
+        - 0eef3d4e805abdfdc257d474400421e7ef96f665
+        - 48bdc8500618d5452013a4823bc8ba7a85515986
+        - 547837a0347aed4d9fa8f1d631b822ea256421ba
+        - ee1814c0ac36dfd7d0ebce404b446f5e02b76a5d
+    - repo_url: https://github.com/barend/java-iban.git
+      override_merge_shas:
+        - 981e0311705b2f83cabb82c9c9e098952960b248
+    - repo_url: https://github.com/bastillion-io/bastillion.git
+      override_merge_shas:
+        - 974b6c963b42712a5b2d97dbd2b166d239951381
+    - repo_url: https://github.com/bazhenov/load-test-tool.git
+      override_merge_shas:
+        - 6593812db93b89deb415cd4e2728baf690b38487
+    - repo_url: https://github.com/beastmachine/ggplot.git
+      override_merge_shas:
+        - e2841b05bab86e238732649229f3d0a2834badf7
+    - repo_url: https://github.com/benas/projector.git
+      override_merge_shas:
+        - f088b5c59aefe6966218d6af783f02ec7508a6c6
+    - repo_url: https://github.com/benoker/dockingframes.git
+      override_merge_shas:
+        - 00b1bbf6f416fa5bb3df66273b3b3deb44b93ed8
+        - 17a91f4341b551ce21e6b7775291643895b6b939
+        - 1aec33b4fd465a5420913fc12a4ff1d35381a07d
+        - 335dc50b38e24fc16df29f2cdb4a013a85dc4a86
+        - 4969e9d62533a30cb5f36670dcdb2b754c76a3ef
+        - 4a829b05935f1ed1955f3ecefa55d0bcedfbd809
+        - 60f9d065a8adaa9dd6f61f66a069f47a5e8ce764
+        - 6f59a544b682b9366e7f5c6d8e2804fd58609aed
+        - 7792989b18d9aa22f844dd8a0ba8b56c8021d1e5
+        - 7935b028be17625e43af6d7cebd81e42d7ebbd5d
+        - 795fe702b9add018ed1fe28e02f2220e5cf3068a
+        - 806ced2c825f0f6d18d6693954f9a5c1e9995926
+        - 8182eb192695d9b2dc352551b87c58962c4a50b3
+        - 81c5b2911165499c5ab05fe58342858e441132fb
+        - 928dc5c2f90afc62f8a1b8219859401fffd65bca
+        - 9d0aa9b48d2136e329ab9056c022d51872112fb2
+        - a387d1255a8262baa3efed62334290a6be21e96e
+        - c3dfb4ebbfeb49d09b88c8aefaa07183eb0fa06f
+        - d91cd1019a9156d5e4c379a931879adfd3c65047
+        - dc5d7a80d1765a49905bd7e55c62c0595c571380
+        - ee7fa99567bdcb72ebca8df25a6b110b5ac2b93d
+        - f816d4623cb7b607e34f1192cb93a8eaa0e6417b
+    - repo_url: https://github.com/bguerout/jongo.git
+      override_merge_shas:
+        - 00106c72391f5af2826c964dbbbe303bffee5a9f
+        - 697fc67ed565bbaf3b67d4ad5e8a19ca8c09e90c
+        - 6d3c0482f5827269fec259963ed50d35bcabe99f
+        - aa988ff7746f3ea0740acaa9fda47444e3fd7400
+        - ef3b9719963e125da4191c6917e6453edd04c410
+    - repo_url: https://github.com/bitzeche/zencoder-java.git
+      override_merge_shas:
+        - fbdc46df52f91095d127c9df2b2223207aa84dc1
+    - repo_url: https://github.com/blockchain/api-v1-client-java.git
+      override_merge_shas:
+        - abdf54e6ab0b99eb8179d56e0598058243bcea55
+    - repo_url: https://github.com/bluebreezecf/sparkjobserverclient.git
+      override_merge_shas:
+        - b33358fc74b3dc49807f93670a4f96d863839aff
+    - repo_url: https://github.com/bobharner/componentworld.git
+      override_merge_shas:
+        - 1a2ff04097bd33609bd1c4ea9aa833640357f362
+    - repo_url: https://github.com/brettwooldridge/hikarijson.git
+      override_merge_shas:
+        - f1b45352cf9c8510a94fd97c943d4fe526cc94ad
+    - repo_url: https://github.com/brettwooldridge/sansorm.git
+      override_merge_shas:
+        - d8492ff5c2ed8834177f8a7dc9205b220d59df9a
+    - repo_url: https://github.com/brianm/config-magic.git
+      override_merge_shas:
+        - a7953193ae2e296565ecee2809830b5abb3a3bb7
+    - repo_url: https://github.com/broadleafcommerce/broadleafcommerce.git
+      override_merge_shas:
+        - b1f36fd6868b726a6a22b89b4d54fd4593c92d43
+    - repo_url: https://github.com/brooklyncentral/clocker.git
+      override_merge_shas:
+        - 6003d07d05c7e0be358ffc8d74e737abf5f97241
+    - repo_url: https://github.com/brunoribeiro/sql-parser.git
+      override_merge_shas:
+        - 101b5461bd04057ce934915a66975c7f373918af
+        - 21d9d04b08761aacd8cf844096fbe64d8c4b3c57
+        - 27786c78259031fefc81a3a83567f80596af939f
+        - 307d28df56eaaf3913404fbde2b3f0053acd1c6f
+        - 4ecca111d3214fb0d1d66d34fa2559a0dd0b50b0
+        - 500615ba36368e2d307655bbfeab7f59476c7867
+        - 782c9d1a596ef8897e208741b620d783e5f6d549
+        - 996b5128efb1fbdf329bdf417aac4183be68a852
+        - 99bbf93e0dd33479341dbb3b553f1f2514c14a2e
+        - a53978799e131026528a8159f229c7a55de4bb38
+        - b41794d7af49d6c07e339f51eac8209f2a0bb9d1
+    - repo_url: https://github.com/bsblabs/embed-for-vaadin.git
+      override_merge_shas:
+        - e1324f33636a9746384d621cddcea8cedd241318
+    - repo_url: https://github.com/btrplace/scheduler.git
+      override_merge_shas:
+        - 8a939c1deed03406d77b6bcc81aae4dc91b2c9c6
+        - d42500d47b1f8f88aada61e71e4880f680cee32f
+        - e98de3367896653a65052d04949c3d13f171d17d
+    - repo_url: https://github.com/buddycloud/buddycloud-server-java.git
+      override_merge_shas:
+        - 01ff69b404d4e6fdc94a0dacbf50856e50a9a6cd
+        - 16fccb6debca05c76608e846e93b13dd4ff009b5
+        - 48e4675ee2e4f2e1fe3a2603221fb47f0d124a7e
+        - 7414fbaa5f20765f9fdc8b85e3093a234b43d9ee
+        - 80d0becca2d82332ee73da0bf55b44e2cfba532b
+        - a2e19050bf80ac690196226b491b59c99ead5d99
+        - b33db93017dd39c635401a48d88213262daf2461
+        - bc01763824f2ab363ee2be9718c77db9cb5e3755
+        - c0daab08a4d3af4ab7be092cd53a9fba7d51eaf5
+        - e746268967301a644cf186725205f1d823a45a83
+        - ee3043efe741251853534591998abbc2a3823b3a
+    - repo_url: https://github.com/caelum/vraptor-console.git
+      override_merge_shas:
+        - 75017316626095be7d4b6cbb4c1532561e1ff8a1
+    - repo_url: https://github.com/caelum/vraptor-environment.git
+      override_merge_shas:
+        - 57463c6eb5148d0640081dab2ba0099937ba72ed
+    - repo_url: https://github.com/campagnelaboratory/metar.git
+      override_merge_shas:
+        - 525afacc7d4273fa86de1cd512773f54309cd226
+        - 61182b0126310c7d1928e46a272f2e0a45e60627
+        - d17d8d1403f28b9fcadb710d89aec0c5d80128bf
+    - repo_url: https://github.com/camsys/onebusaway-application-modules.git
+      override_merge_shas:
+        - 7f3b9088a19497fb0ff56169ad139ea250e3e096
+        - baf2b7e4f07ee9e1f8da96b842eeff87ac0b8edd
+        - e779e9fce1879efbf6a4241c6a704aec6c2faacf
+    - repo_url: https://github.com/camunda/camunda-archetypes.git
+      override_merge_shas:
+        - a6522ef79660ae912bce81730cb8b8be465c144a
+    - repo_url: https://github.com/cdi-spec/cdi-tck.git
+      override_merge_shas:
+        - d3b387c66f86d5594ff36573b593a928791d01dc
+    - repo_url: https://github.com/chargebee/chargebee-java.git
+      override_merge_shas:
+        - b47838aa7464aabbcb32bd96e45c2e10885ed506
+    - repo_url: https://github.com/chrisvest/stormpot.git
+      override_merge_shas:
+        - 375e8c807ffca5524e6333b5ba602e2ce430300f
+    - repo_url: https://github.com/cinovo/cloudconductor-server.git
+      override_merge_shas:
+        - 55b31adbcbc6413b1b147d6f6259f51de37e0ec0
+        - 5d364913a33784a026527743d51403af2a85044d
+    - repo_url: https://github.com/circuitsoftgroup/slackmc.git
+      override_merge_shas:
+        - 6e2ed14486ced20af34a942ad5955026e20adae7
+    - repo_url: https://github.com/citytechinc/cq-component-maven-plugin.git
+      override_merge_shas:
+        - 16db663469b71596e26c87ce12b67c53668ceda9
+        - 447888f97bfc287ad25a59cea5b892a96e8acba3
+        - 5c6c9e155afc295d410d1cc804d79ceb3d3f0027
+        - a9a1f1a609fc91c040685ff02d0f6765b2133bca
+    - repo_url: https://github.com/clojure/clojure.git
+      override_merge_shas:
+        - 77342d2e354eeb527bcc62d63ae4c42c11d30fff
+        - 87ff4a0ce6c5dd24fe4086ec63987e08b1ff8cc7
+    - repo_url: https://github.com/cloudfoundry/cf-java-client.git
+      override_merge_shas:
+        - 06954336878e4182eeda187689589623367e26e7
+        - 2ab80dd7bd21c4015e0e6270c1d37e8ca3086a7e
+        - 2b7fd54c402278631855fe21e7ab3f3cf0b49965
+        - 38b5a2a415bc2535d60f12f33237f5a17d44e3be
+        - 4cd896d9f4107926c637e3d64177a753802ad745
+        - 94fef99862f20d23d6b11c576e4aef1078769ec6
+        - 959fe97a816ce0e9039d08e43d890b6fd47b1f0b
+        - 9ad9ac0c3a11b7fb0ab081acf01ce35a93c5b687
+        - a21ed38afcebec300902d8d99b5821eacc731a1b
+        - a9d35d542d88727dd302fb7a488891077bf28fb5
+        - b0add1ef2aa13bfc89f12823dda042273b9b0a4d
+        - be097d58609b1a40124d79fe34cb11947357c419
+        - c656f6aa5f42563e62c3f226b05615e9e95c3087
+        - d63d432a4186bacca80f6a9e26919a6646484ec8
+        - fcc8e8fb113e3caadf856f92b566e5fef15ee52c
+    - repo_url: https://github.com/cloudslab/cloudsim.git
+      override_merge_shas:
+        - e0205e647461340fcbdf2de516d1cd0ad9fd1154
+    - repo_url: https://github.com/cloudslang/score.git
+      override_merge_shas:
+        - 11b04ccb3a1b0c4a2546d81508620af021f81c63
+        - 2c0a1364e0de7f1151dd6f0d8f00086ccfde6d48
+        - 364fc021ec48ccdda23d70ebc5f88acaefd470cf
+        - 4f8ad3c2a0d651ccf999d4f65275113de84766b3
+        - 6a58e5f1ac9fa1580867dd4017188d7c3410048b
+        - 81931e79cb404922acf07270cfdbee65f5b4b1c2
+        - 832e8d73da76b1c832cbe4aec12a5762dde7ff5b
+        - 95aa2f61f2de75969cc85f0718245c81203eeef7
+        - 9dc424b83174dfe40de8b738888e2a6eb61c0a6c
+        - d22ef123dbbb1811b1a41e9eb5077141111d98a0
+    - repo_url: https://github.com/codelibs/elasticsearch-reindexing.git
+      override_merge_shas:
+        - 5b0dea22a41d4c5684434fd59b989e7aa048b8a7
+        - 86d6547781fa856053b7c8778c5b072f3e2d13a6
+    - repo_url: https://github.com/comatoes/ftl-profile-editor.git
+      override_merge_shas:
+        - e87fe65818e726d317ec93c036d48205ed914f09
+    - repo_url: https://github.com/comcast/jrugged.git
+      override_merge_shas:
+        - 01f77a72310610356739f066c6babf6bf29940db
+    - repo_url: https://github.com/commons-rdf/commons-rdf.git
+      override_merge_shas:
+        - c3d344324564a68fdf91b0f2bca3574c3cf80951
+    - repo_url: https://github.com/connorlinfoot/cratesplus.git
+      override_merge_shas:
+        - 50dfeb59338bf094290dbcd1bbea1112ec966900
+    - repo_url: https://github.com/corentin59/artnetstack.git
+      override_merge_shas:
+        - 4c05f24b011bfa8d8bd18c6cad1d179708564fd3
+        - f470681d57c8830ab18bf74db45fc67e8baecaf8
+    - repo_url: https://github.com/corfudb/corfudb.git
+      override_merge_shas:
+        - 233e1eb18c40db72da1f101cea0b4935f8c6c880
+    - repo_url: https://github.com/craigwblake/redline.git
+      override_merge_shas:
+        - 93d8982d66c56a3d198aaf792b4c5737295aedbd
+    - repo_url: https://github.com/cribbstechnologies/java-mandrill-wrapper.git
+      override_merge_shas:
+        - 0cf79745f1072e02d4b78a76f3dd4a9d1aa1fe64
+    - repo_url: https://github.com/cternes/openkeepass.git
+      override_merge_shas:
+        - 0691954e63c3576146e86809bff0c0c2b77a0f6f
+        - 6218ade3f2e50f22e5e263714197f176e856c5a2
+        - bb53512ab21078a84c7a941826e5ea2b6137d7b3
+    - repo_url: https://github.com/dabsquared/gitlab-plugin.git
+      override_merge_shas:
+        - 387517997c283739cbe1f4c0de882e6be6dd8b12
+    - repo_url: https://github.com/dakusui/jcunit.git
+      override_merge_shas:
+        - 1894b180ff4208944a66ca25117bdf473634094c
+        - 462dfb4cb47c28e87efb37d8632033bd845ed3d9
+        - 7c8b99f1e932c6dd8cd3f2bb7a3d6c824001f57f
+        - 88eae2b925400637d772e23991bd28e1391bd665
+        - c3ec977b19bb6c1e98479a6dbed682f22b23b2f8
+    - repo_url: https://github.com/danielflower/maven-gitlog-plugin.git
+      override_merge_shas:
+        - 0bce3a1367ac611fc90a265cee3fc6de53c75943
+    - repo_url: https://github.com/danielnorberg/auto-matter.git
+      override_merge_shas:
+        - 3d46ebaf5acd94a25945e6e6c586f174b9c1b41c
+        - 5739d194fb360dde65820538263efddba683785f
+        - a076352517d328fcb10a4cb9d1dd25e823f47e1a
+    - repo_url: https://github.com/darcy-framework/darcy-ui.git
+      override_merge_shas:
+        - 2b85384321014d352afe7bb43e8b0381ceee9585
+        - 5e1d93a56c5c0ba82cfa8adcd706b1fc0214493a
+    - repo_url: https://github.com/datanucleus/datanucleus-core.git
+      override_merge_shas:
+        - 8bff557466f08b633c5e33856b83518ca6ab1a60
+    - repo_url: https://github.com/datanucleus/datanucleus-rdbms.git
+      override_merge_shas:
+        - b4f243ee7357b22c82759725b42e2532be164f33
+    - repo_url: https://github.com/datastax/java-driver.git
+      override_merge_shas:
+        - 013fdc4974bd45b201c34a4d5d1fdcdea7ce6e02
+        - 03d86504797b9b34495733052ea904ace846dc2f
+        - 067df74ad364573ee2bbaa4f7618b62aaf80b86a
+        - 082f9bd185ce1f4d52f59d33dc2c4dad9266c39a
+        - 0c519be12e706398cf84743656e5c7bc99ed3616
+        - 0dd96ea21f85de3a8323926450891971cb36d2e1
+        - 127c2a211dd58cc81b61efa85310396aedf7bcae
+        - 128aaf4cc8f5747aafda64227acc751124e30fbf
+        - 1f25c7e3a0bf10b65765b3b23bdcf9a5de30888a
+        - 32a415ddf1a3cf8983f83a765299d0fda0ffb7df
+        - 340f92891056fec83dc87a2b0d88dcbd4e66c6e9
+        - 3705c952425480778ddd51751be4db54cf75bc81
+        - 3eb34e67852dd8ff746560b6d1cc0f9004f7a65d
+        - 43556c49244cb0afbb8c6d8447ac60e97dbe1076
+        - 47b93a2e13e34dd0ecadc6ba1a4b8a1569bdbfd9
+        - 4dd56310d780ad0d35a6c8010e8569a71b1a83f5
+        - 5902ad493e7abcc96caa58b74c3caabcc91a8dfe
+        - 5966e5b3a56bd0537bbd8ad8b207f2419a3b6729
+        - 5a6a084a6ed84a2742a7c2211c1071193df4c2e7
+        - 5adc660a91ed1be3c88be9154b23e040c7d8b470
+        - 5c8faf0ec42af40df22319239d1bccf098648a77
+        - 5e108acf46ad0d498d814c533b3820c687d92dea
+        - 5e9944c17b1e9abf1b7f3b0d17e110ff2ef75c14
+        - 68fd4f8bcc6ff4390335d86a5ec0c42302550bf2
+        - 69f03b57eecc274842347dd017d23c7abd64eeeb
+        - 6af4247c0b94538f16fbac838eb9d6c0af4098b8
+        - 6f4981596ae9391156cdc4daa61884e2606f9bef
+        - 725b790a7940e02a4b7cd225b25bf2c3b04d7938
+        - 7d90c6d7e552d675793a9724ef5469b330fd4646
+        - 8afce72ea0e3f38f3a7e05ba2f39934251398d34
+        - 8caf53b74e2eff8bd4a76c701a80a4ddf6620551
+        - 92097f197dedd7f9036a0b56123cddca8103a1ec
+        - 93b8615b5d215eed70437a83bbe294e63c6d0e24
+        - 96096cfb1e3d5f137f1cfdad08a55e03b3cbe5fd
+        - a2b498a6d36acff0f0ef16d1bbc0964c44dd6c74
+        - a4b27fe7e1a7125cbb731d6e19266dab0aff125d
+        - aac3baacc4800611549e0e8084adb674b83e8c2a
+        - aae24eed9c7b6577dc5462adc6ceb3621186d7fd
+        - aede0e8d32b985ff839f607714f128c528a91e2f
+        - b1477631523c6f6b4d71dbd1b5c08dfd1dfbe9a4
+        - b4e402d9af85e7a6d36b11b83afd3ed338802955
+        - b76d142a50235e9c73fbdb558fb1e8c7a3f9ed84
+        - c0b835834913884144482924f2b2ce8b79f647b2
+        - c3e27a7fa6af58b71d28b0bac57cd7a11db53941
+        - c822d0b2146018d64a6db306f7280082b2f99fd9
+        - cd5f6315bc048309311d1d1f77b696d9f48cf511
+        - d04ced06ff8bd65a45f37af74be9c288fe2423b4
+        - d5757245ac2c2f1f47435a1ad3ea4e1b26040461
+        - dbe67a0fad24819fa0898e9854e5c98c64942954
+        - dead4d1b9d0d8f2ac73ae1aff25a904132fe34c8
+        - df59bef5a1450c539ffa170f4c02129421dbd68e
+        - e08ae2c0181b4ce6f03eaf258d01394b77e11b4f
+        - e670818d76f0d9a6571ddfe0d8d624398449a930
+        - e88ab47ec6d8ba7a062ae5df04ba533e0c9235ef
+        - f7a4ac1d5b3052a1feb55ba56843c4c0916a56b7
+        - f7f56842952eaf57aafee5455d773389dc2184e3
+        - f9db519e4d495d703296848deb721b963c4d9cba
+    - repo_url: https://github.com/datumbox/datumbox-framework.git
+      override_merge_shas:
+        - 75d43855a05020bda5a864cda7e1603998732742
+    - repo_url: https://github.com/davidmoten/geo.git
+      override_merge_shas:
+        - 7427c57b931e1c9548227a7a0ea10dbead15edef
+        - d280483edeeabc57247e1753ac0c161039f6e604
+    - repo_url: https://github.com/davidmoten/rtree.git
+      override_merge_shas:
+        - dd478c4ea8eeeede9848bc596dda5454a648541d
+    - repo_url: https://github.com/davidmoten/rxjava-file.git
+      override_merge_shas:
+        - c7c2b3aa06bf4f2d022360aa6a0270798ea3590a
+        - cb7c3d9a00024b03b9d23c6d5ad47ba35b3e092e
+    - repo_url: https://github.com/davidmoten/rxjava-slf4j.git
+      override_merge_shas:
+        - fbe2fde40ff49bfd3c7454e4e9a21c33f1929f5f
+    - repo_url: https://github.com/dblock/oshi.git
+      override_merge_shas:
+        - 7de1f90a6aa5317e87e60c690c16565eda7d3b09
+    - repo_url: https://github.com/dcm4che/dcm4che.git
+      override_merge_shas:
+        - 39a46b5bc5f7ae3b1298aad7e0e1befa615f1404
+        - af57bb9f016f2b44ecbb7650d26ad18591158627
+        - c7f5d09264ed359bc451f53dd0c58b9f7ba1bf43
+        - eabc8cb593e0c682dac2f88a3d0c8d3acd0f17ef
+        - f75864c454f5acdc33ba375f7f2c049ec765bd37
+    - repo_url: https://github.com/dennisjzh/gwtmobile-ui.git
+      override_merge_shas:
+        - b1d29b7602f643ed5c7dd04acaa1d63631910a61
+    - repo_url: https://github.com/dgarijo/widoco.git
+      override_merge_shas:
+        - dfa60976ada8bdced21ff043fe763dd86314b7cc
+    - repo_url: https://github.com/dieselpoint/norm.git
+      override_merge_shas:
+        - f8d53daf63a983bf21265165ea8b129400f132ec
+    - repo_url: https://github.com/digidotcom/xbeejavalibrary.git
+      override_merge_shas:
+        - 6279f85f74a80a9f651b3fdd0228fa0ec737060d
+        - 7436990c0ba30d4245bba56cbc344978648ec7f5
+        - b93d1fb5307232991a8db9db216ae99239edf483
+    - repo_url: https://github.com/digital-preservation/droid.git
+      override_merge_shas:
+        - 806b8defec13350fd40018aa550f83f8622a9bad
+    - repo_url: https://github.com/dius/java-faker.git
+      override_merge_shas:
+        - 014cc70488ebf6aae06636e83ee1e6a8b783d617
+        - 0fabf9922b6d2d2d929febfa7aa7948a35978d5c
+        - 102807f3021ae9ba4c822796ef73f8379b6e86fb
+        - 3f9d548891cf8beac59f0cfcd3c8e54a1df0317d
+        - 488048254b56e4f15119caece52a4da1ad60436b
+        - 4af535b9e606a2f34ebe6e7f0250bc8b15ffd63d
+        - 4f961ecd37c6dae9c1b8b6259b4db8f68c2c439f
+        - 5223bd80c634abd260661948b439be6a7dede8e0
+        - 54149209be7428d6580269758b5a0a01d945bd11
+        - a0bca97acea739216f207df5c767a2e57bbbce75
+        - a4cf5b3822f29204fc4e9db192007df0b61e4bb8
+        - a4e1e6c3418607d9f920ba35ac4e919dbbfc6329
+        - aaaf8d9e4783a7e5a2d693f5b870fd2a3756238c
+        - b3d4c3f09771e46cc29c884c28d352615323c735
+        - b51bafda5ae7a5b54379288154df0062a85640f8
+        - be339360debf1e8cca3433437194dff58a4a961c
+        - c07275e4fbf98d920cb95f4382c9384338206539
+        - ca42fcfaf45cae1754c58e02e1d5d2a58ec03561
+        - dea1f0b1b52d7b5f2f2d397545fd947a85a39e2f
+        - eaea01edb6684f0a0dec286d205db88293dc3581
+        - f694c4a84ee5d48d3cd8606c1026c9c4a7f7ac43
+        - fc62ba8c8774049f009ced1a75febfccf756d835
+    - repo_url: https://github.com/dkunzler/esperandro.git
+      override_merge_shas:
+        - a504784178f32a425ca7bd38f97b9a77a2eb6dfa
+    - repo_url: https://github.com/docopt/docopt.java.git
+      override_merge_shas:
+        - 2802ccf5c458dc747b15d3ceaa89889d41a4d0d6
+    - repo_url: https://github.com/doctau/garbagecat.git
+      override_merge_shas:
+        - 4af1d9c4fc71246add443b99af9cc47e5464aa89
+        - 583416b443b6e9679f87705f5b98f0f42e3cd19d
+    - repo_url: https://github.com/dozedoff/similarimage.git
+      override_merge_shas:
+        - 5f69834a3348fc078da6db2a849edd3440126844
+        - 8137e10d6d6882c6461a20848c0699404328c767
+    - repo_url: https://github.com/driesschulten/dozer-model.git
+      override_merge_shas:
+        - 3acca52d1af519bd1e79060fc1bca0d4e040fbc1
+        - b9bf37c27199cb309f63a58a902be3730ba67f07
+        - c7260c73f58d242b6181dfb05d588bbd0b23d5a1
+    - repo_url: https://github.com/dschulten/hydra-java.git
+      override_merge_shas:
+        - 31477c32b5705e46811843bfede533dae9682322
+    - repo_url: https://github.com/dspace/dspace.git
+      override_merge_shas:
+        - 257d22f370491f83fcfda233a08f0b67a9ea4fe8
+        - 33e501086af20ab5d9a77bcd36c46271fe5f76ff
+        - 3404c074d3b875bc826551f51b3fa9cc50d62af6
+        - 3ef96ba30c08b67327c7661a28f5a1cbc8e2ff68
+        - 4b21327a8ed2cc254bdcf87a5907328aa60b1748
+        - 5c52a6926fc065dcef5181c1945295772566f4e8
+        - 7780bf3bd84f89cdfef3537c2f9edaba781d0a87
+        - 78013143efc8aa6609c8303afa0148f25f10d0a8
+        - 79c4a4c8477aa572165e4aa686001342c734a5a4
+        - 949dd0d0d8d36305d9d7085feb561942534bfbc1
+        - bb60c7d200b81f9c3cc39ab1f2acf8393a428bde
+        - c440a9f6b3151e5304466e4db1a441e4407e3392
+        - c6cf19d40c02f9e53a3fa76af819da8d38f850ec
+        - dc5ef4844b9c2a9f4ea6e1ac0dfa3a6b8d09363b
+        - e882ae75b42099fac549dae0930b5e8c5d892010
+        - faa34e4b420209455af862d9a1f16296654ca687
+        - fd388620c086ab7dbfe9a30fc3e6ef4d0cb55ba1
+        - ffaa7ded6f6c51dfd7855d601cabb72789e681bf
+    - repo_url: https://github.com/dtrules/dtrules.git
+      override_merge_shas:
+        - 6f91cbdda5d9d2ff783833d2b7fd43fcefb81f12
+        - d096b2548a64863a658995b9e1f2f863d8fa45c1
+        - d5e924b9f3bb4fcef9236053947288bbd6aa9e6d
+    - repo_url: https://github.com/duesenklipper/wicket-safemodel.git
+      override_merge_shas:
+        - 09940b84110f272a498b0956740d17684d48f1c3
+    - repo_url: https://github.com/dvcama/lodview.git
+      override_merge_shas:
+        - ce117080514feaa63100345095aa4954a9d6d4bc
+        - d96dc6298fb1610182c3f7107f72303392d1df4e
+    - repo_url: https://github.com/dwslab/dwslib.git
+      override_merge_shas:
+        - 83dc42bd1fb663dcb6e293c7d9a951d373248c12
+        - b42af2c0ddfe2c92c1194ed0d7b581525f382ffc
+    - repo_url: https://github.com/e-mzungu/rjc.git
+      override_merge_shas:
+        - 3afc92b5e097f29763b600a8192f557f66752039
+    - repo_url: https://github.com/ebay/xcelite.git
+      override_merge_shas:
+        - 40e1d22a1ff208cd99f014eac25fe2a51f1cc6df
+        - 463d8a2f0df9a4a12c6abebff1c889d897faf158
+        - 84006743928a35e4725ea470f36fd1a3efcc1dcd
+        - e43a4a1bda8dfa082dadd823d9b125c1b97e9378
+    - repo_url: https://github.com/edwardcapriolo/nibiru.git
+      override_merge_shas:
+        - bb6150cffd19a67941797bb3a08739c24879fb3c
+    - repo_url: https://github.com/einsamhauer/disthene-reader.git
+      override_merge_shas:
+        - 8d8c28bd2a9238ebbc6ff483aa18b2632e27806b
+    - repo_url: https://github.com/einsamhauer/disthene.git
+      override_merge_shas:
+        - 8c23ce22f44dfa88b1093a590f68cddbb7856da7
+    - repo_url: https://github.com/eirslett/frontend-maven-plugin.git
+      override_merge_shas:
+        - 374f2be4451a2e49c234736ca7e22067722c1c6e
+        - b8126d032da8c01574726c828ebf070199c43849
+        - d543d86d84b8296cc62f5c5b070d78fb863df5af
+    - repo_url: https://github.com/ekryd/sortpom.git
+      override_merge_shas:
+        - 7de865527033e53fe84739b53aae1f03ea3dbd86
+        - bf7b1ecd4e2b72560fd8c05bcdd5cef33bf45f67
+    - repo_url: https://github.com/ekt/biblio-transformation-engine.git
+      override_merge_shas:
+        - e1a8fcececc66007b4a770ff37f17a5eafe79718
+    - repo_url: https://github.com/elasticjob/elastic-job-lite.git
+      override_merge_shas:
+        - 2495503e688486eb2c9e56c57bbed14bf9821c45
+    - repo_url: https://github.com/electronicchartcentre/java-vector-tile.git
+      override_merge_shas:
+        - 51ae3d6f9532a95ef8ca01c471eaaab0129ed881
+    - repo_url: https://github.com/elunez/eladmin.git
+      override_merge_shas:
+        - 8b7a1ab6277b4228c8561b0033e9fc9122a100f6
+        - ba16a830ace07bc4f5cd27e3c288f7e1d2dce89d
+        - e67300e919771858e4e0d7240b55a6257f261f2a
+    - repo_url: https://github.com/englishtown/vertx-elasticsearch-service.git
+      override_merge_shas:
+        - 93c7adc9b131682ead437c867f95a1fc354d3333
+    - repo_url: https://github.com/entertailion/fling.git
+      override_merge_shas:
+        - e008cc1cee6c339a24627ec7e00cc5be46f916ee
+    - repo_url: https://github.com/erudika/para.git
+      override_merge_shas:
+        - a9e67cc8b39eb9b5112786e5ecb1422afc8fd4d8
+    - repo_url: https://github.com/esapi/esapi-java-legacy.git
+      override_merge_shas:
+        - 09a027f874dd8d9b98378cbedbbc18976c4d632d
+        - 0b0da0ce6155e38a0e4fc469b6911107e399b60c
+    - repo_url: https://github.com/eskatos/asadmin.git
+      override_merge_shas:
+        - 6fb154963dfd021025038412792ef1dcc5399017
+    - repo_url: https://github.com/esotericsoftware/kryo.git
+      override_merge_shas:
+        - 3fdfef395f6b96c57aa1f4f02ce91fb9fb2b3cc8
+        - 418d779d5efd945986ae6f827d24a93aa78a6510
+        - bf687ac542e07549103cf47fd5f5087c118a068e
+        - d0670e20df8662559000c0752202dc0d9f148cbc
+    - repo_url: https://github.com/fasterxml/jackson-annotations.git
+      override_merge_shas:
+        - 2eb50f161c5dbdd1fa1d94cd756f5a49ad945536
+        - 602c0138c69c26dfaadc54fee3f68905b90aaea7
+        - 7751bf6722ef91c8b8083a2700d6290bb1074b9c
+        - 965a3360ef9039ee5791f5cd4cc1ca663894e4c2
+        - a4fb1ae8d14b3aecf38e23486fd273eefbce7f7a
+        - b56e85b33142c376573825de00104d37389e2b34
+        - c76c32eb444463696a0c870d3458e238043ff4de
+        - cec4ba4bcf1cf4c32e1beb5f612aebb9d701c599
+        - cfb345303a68395bd184cc2caca87dc051c9fdc5
+        - ea0e95f247f31092c4593d9604ba55fb7f085e0f
+        - ea746ea4efb59e14f6af514696b63ffc2ddface2
+        - f6a89d55d66792e10133db9e290d9ce158de7a77
+    - repo_url: https://github.com/fasterxml/jackson-core.git
+      override_merge_shas:
+        - 0524e8982c1026098b1d6fe28d0428523f509d8d
+        - 096b045703c72963a74298df9c4401f19db4a0e4
+        - 0bb7a239dfdae2a26b5e21ed18db4c7f1a2820c3
+        - 0e986864c169a29ec868513f28dcd21b26588633
+        - 0fbb52961c5092d7d1f8e8f620b719f9eff48fcd
+        - 1755de36114aad71607db1b42c58714631d470a6
+        - 1da134aba14c80b282d982bc1f3296b1abfe481f
+        - 20c84fb7e625734591f21a23487814ab90fa181d
+        - 26c812f6dadaf27250c4c41fbfec07766f62e2ab
+        - 2c5ba3442e3097b1220edc8f6e2b2608acfabe15
+        - 30f1b8580da5605d7d71e997b2c8874309e99844
+        - 322accee786d188d2ae25d9a5721508784ecf471
+        - 42bec38d9a4bcde590e3a56d74c75b8c1debbbc1
+        - 462218c4115448e22ce0e41938f062961a9715fd
+        - 46fbbd3b605e91f7b6455b1a62e235747215834f
+        - 5e3d980f704ceca91b263ac42efa30bedcf5a76f
+        - 61018b1d20e5ff64690690f7119da65144fc540e
+        - 62af5370d301c243ace8b6028329bce2e10ac8d7
+        - 705123afb6b18502839b1e93b4d942f876b1a410
+        - 73f8e4ccb4693b38ed91070710be528ff33b6936
+        - 88db6b7f32784eb9e9cd5b44312d1d49dd0f9a3a
+        - 8db559f7c0ba108f7b8c4a76b2ba00825e3fe8cb
+        - 908de64cd3739456125e637f9f720d749fcb8095
+        - 9a797fb61017d4f43615959faa180a8bb119eb32
+        - aff4cb2ea8b298667f776090beb824ac954a88ff
+        - bf5c5e12656b029e7b98737b903e82dff1eb4ed3
+        - bff15cebd72a4da7bc56d9bb623bcb309e9c49c2
+        - c082d7c444221a1c28da708d4476939f2eb1e5ca
+        - c67612e1312309b160ff42d092da3af22580a01b
+        - cd12b954a629ec6b9b24aa048044d31c58ab896b
+        - d0172cddcec336b5cc8a55817c1f16cf726a9755
+        - d30eef4185f7ffa7b3be209a85a3fe36167a10db
+        - d708338d421df111ab3d4a36bb90b14900594ec0
+        - ddde15a41e9f427d033891f63ed76fcc8bb1956d
+        - df00f77936879607478725c70cd4dfdce5a87a7b
+        - df37ed361269fb0d9defba5e46b3e714fa908f26
+        - ed19a3431f5f0d23f0d574f5a437576dd5d5f86e
+        - ed79f76bc8682380e02b0c51369968e0decd4392
+        - f54299aeaeb9e244aeffdf1df42af1eadec19d8b
+        - f554808f2285ab7fa68a7b830e33417712ce4a26
+        - fc2a4585ca846c519c47c8628f99a7ad16a62833
+        - fcef9233a200a2b9470873e4ed027cb6751b0ea5
+        - fcf810565b3e7253e2bb9e6ff53158ed3d96f482
+        - fe2e02c3998ab1cfd7db656c8f0792a3d579f74b
+        - ffd16b7e308bc2e6655aea73fe8ea513c1b2afc4
+    - repo_url: https://github.com/fasterxml/jackson-dataformat-cbor.git
+      override_merge_shas:
+        - 17a63ada108ac3c16efd1b17885423cda74a60d5
+        - 322be047e0f277689edc5b67a1bac8f95cb872da
+    - repo_url: https://github.com/fasterxml/jackson-dataformat-xml.git
+      override_merge_shas:
+        - 22a1a66cbf14ecdb99685876980286d9288edc41
+        - a78aec20fa08d6e79d0b3b651ec50ec1595967ed
+        - c2fe9adba4b617f21e16e64527772653749c2425
+        - fc385bcdf62f4f3d6cd64470fad796be36bcd449
+    - repo_url: https://github.com/fasterxml/jackson-datatype-guava.git
+      override_merge_shas:
+        - 3ee74a3b1dfa156c398cf910fda03bd37cc40b59
+        - b08f5a2dad867c4665d7e5d56926d52545ee32ae
+        - d99575655de8749879e2a231027eca2f15996bf4
+    - repo_url: https://github.com/fasterxml/jackson-datatype-hibernate.git
+      override_merge_shas:
+        - 19bf759f45db96683b7e07c370723518318b9a12
+        - ec355d58fef047aba272302f7b8ed876a648c8d2
+    - repo_url: https://github.com/fasterxml/jackson-datatype-joda.git
+      override_merge_shas:
+        - 1545b5fceda7c70bcdda4cfdbb5200e75b6b93ce
+        - f5cad0fe66ab6090c676f778acb305e8dd6e87ec
+    - repo_url: https://github.com/fasterxml/jackson-datatype-jsr310.git
+      override_merge_shas:
+        - dedccf4c3baa8d6d7aed9423504ca1087302483b
+        - e9c6de6bfabbc10ed960b8eba3b1804805431f66
+    - repo_url: https://github.com/fasterxml/jackson-module-jaxb-annotations.git
+      override_merge_shas:
+        - e6d155829ae3829ad4ab08939671bc78aed86db3
+    - repo_url: https://github.com/fasterxml/jackson-module-mrbean.git
+      override_merge_shas:
+        - 98089dd68e02c743964636260303bbe67895c07c
+    - repo_url: https://github.com/fenixedu/fenixedu-academic.git
+      override_merge_shas:
+        - 0ebb833b3f09a28a19b06f2f137a2cbbd6080b78
+    - repo_url: https://github.com/fernandezpablo85/scribe-java.git
+      override_merge_shas:
+        - 665092d619617b44711bf80f0652c19ce0e32a87
+    - repo_url: https://github.com/feroult/yawp.git
+      override_merge_shas:
+        - 4e7f9aceca67381ee802cadd2e2d36d4f28044a7
+        - 918dcec5fbd9a540c7c2cb692da4499f2b4944aa
+        - a7ebc8b53b0db9c6d492b2824cd874688d33e4be
+    - repo_url: https://github.com/feuyeux/jax-rs2-atup.git
+      override_merge_shas:
+        - b05c8c331560c1ab4be5c43c20912dbaa3d93839
+    - repo_url: https://github.com/ffay/lanproxy.git
+      override_merge_shas:
+        - 1e0cfe7542abf06498662d5723d547188e65c673
+        - b398ec123de9c959a731c6d19ba4b4bf8d39a9ea
+    - repo_url: https://github.com/fiji/trackmate.git
+      override_merge_shas:
+        - 31e749c77fd17fb77bb36433506765f44784035d
+        - 5e16de8e9ffcc87470a5817ae5ae92ecbf6ab30b
+        - cd50720acbc96d28db16793b408e57ffb240b1cd
+        - e9fd83ec1cee916c0233327a36de928f90aaec7a
+    - repo_url: https://github.com/fincatto/nfe.git
+      override_merge_shas:
+        - 4ac342c432689950341e05b7e8397f2ff793dbe4
+        - 7219068602d38887a94aaa6f8d725f045c7c33e8
+        - 95976d6464410856fe626458328582f568e74bd3
+        - a4be269d5dc77dafeedaa7986ce331f1dac5bfae
+    - repo_url: https://github.com/finraos/jtaf-xcore.git
+      override_merge_shas:
+        - 9165bd1b60aa447fe40c713040bab897a9b2af1b
+        - 9e7c6643c2bf965761e910898998bddf16bd6106
+    - repo_url: https://github.com/flaxsearch/luwak.git
+      override_merge_shas:
+        - 2805c0447a8d72dfe0986f8edc2ea5ecad2a7770
+        - 3127e7cacfec616e0b6ea7bee472cd3c4b8b829f
+        - 666bdd192e7e1e262d1ba9b71deb1519d626046c
+        - 7956093330d2d223c6702028873cb1545b6ee151
+        - a9360739280ff9153d8de5ff4cb89162499c67d6
+        - cad281c6da899e58fb7963f4e1c4bd46f06b27e9
+    - repo_url: https://github.com/fluentlenium/fluentlenium.git
+      override_merge_shas:
+        - 09e5ea6db13f1cde0bad5fafd787aefc622e20b6
+        - 1a3d0631c5c6fade4d12f339be127cd5b7767e8f
+        - 921ff9226d6e24bc3f696aa6ea380739e94903c8
+        - c2b2f09e1cae3f473d5b7fbcc2fcbf1cf9c41560
+        - d88fff0f59359f2c895197b84bbb415fa7f45c7d
+    - repo_url: https://github.com/flyingsaucerproject/flyingsaucer.git
+      override_merge_shas:
+        - baf00eff9794d8d582f8368c62765e9b8ceba92f
+        - fd481a7b6628dc246a537b748a9aa3c11ce66e13
+    - repo_url: https://github.com/forcedotcom/sitecrawler.git
+      override_merge_shas:
+        - bb56b3dd8e132d8d625dab3ee71ed828754cdde0
+    - repo_url: https://github.com/forcedotcom/wsc.git
+      override_merge_shas:
+        - 40af457377482be5deff1606965b027df9c9a6f1
+    - repo_url: https://github.com/fordfrog/apgdiff.git
+      override_merge_shas:
+        - 6184333a9bab436893e9d501b6cdba86b0c4b0c8
+        - a42c3242b6e78aa612e362f409e373225a9c4a2e
+    - repo_url: https://github.com/frankbille/scoreboard.git
+      override_merge_shas:
+        - 579ea54251bad446fdac546dc20fa813a3525b46
+        - 890ecd0bdb07d80650ee9df19efd535085970431
+    - repo_url: https://github.com/frizbog/gedcom4j.git
+      override_merge_shas:
+        - 11c8b3f6955f298ade7583d2fa0d000b282e597f
+        - dd044dc5d9b0969c4e6b6be853d35c02c10df487
+    - repo_url: https://github.com/fusesource/hawtjni.git
+      override_merge_shas:
+        - 9d38df2f4a25ee55fbb0dc921fb2004b33c59541
+        - c0cfb2558b8e11edd224f08fd7da6daa84876b34
+    - repo_url: https://github.com/fusesource/jansi-native.git
+      override_merge_shas:
+        - f4065227fc55a377db6a889b3fe73daceba5baa9
+    - repo_url: https://github.com/fusesource/jansi.git
+      override_merge_shas:
+        - f4065227fc55a377db6a889b3fe73daceba5baa9
+    - repo_url: https://github.com/gbif/name-parser.git
+      override_merge_shas:
+        - 3c1d815c087b4201c84f5bae97c9760487776e06
+    - repo_url: https://github.com/geisbruch/hadoopcryptocompressor.git
+      override_merge_shas:
+        - f98ce134b844a7864b43803c6e7ffc3f1b7d4e5c
+    - repo_url: https://github.com/geoffreywiseman/moo.git
+      override_merge_shas:
+        - c87b8cb339acf2e0e5d38ed55775bd9b6a3c3d1f
+    - repo_url: https://github.com/gephi/gephi.git
+      override_merge_shas:
+        - 6d122ed8d5aa839543625e58cf7eb7235576d866
+    - repo_url: https://github.com/getbridge/bridge-java.git
+      override_merge_shas:
+        - 35d226d99b31bc824c3a3460ec0611c8572a081c
+    - repo_url: https://github.com/ghillairet/emfjson.git
+      override_merge_shas:
+        - 7aebd6f36990fc52abeb4c10e24f8d987b5be744
+    - repo_url: https://github.com/gini/dropwizard-gelf.git
+      override_merge_shas:
+        - b1cd41cdb5bfe0b33d5db7718beaa984692e83ce
+    - repo_url: https://github.com/gitools/gitools.git
+      override_merge_shas:
+        - 02221bf3d887ec4de4843b076ea81b0a80ac4b8c
+        - 0b5eaca790bcfa8fb61281c4f6fbc18561a7d352
+        - 99d5281d3223e7444a924752674d4ed79892c432
+        - ae8c217d5c1c1382749dfaf6a80bc597515b50ae
+    - repo_url: https://github.com/glamdring/aardwark.git
+      override_merge_shas:
+        - 816b3dcbe225e44aad654576e877b58b79f10df4
+        - 8bab377cc754b72f9b0d1181a98227787b43758a
+    - repo_url: https://github.com/glenkpeterson/fp4java7.git
+      override_merge_shas:
+        - 4ddc1a633e1da26cd56fbd4a20936283cc0ac731
+        - 5e22f4be3ec0b3915db2bfc84fcb1b583ae76f02
+        - 6244c5c7af67fe2de6cd4e29b383bf25ffd623af
+    - repo_url: https://github.com/glenkpeterson/j-cicle.git
+      override_merge_shas:
+        - 4ddc1a633e1da26cd56fbd4a20936283cc0ac731
+        - 5e22f4be3ec0b3915db2bfc84fcb1b583ae76f02
+        - 6244c5c7af67fe2de6cd4e29b383bf25ffd623af
+    - repo_url: https://github.com/glenkpeterson/j-sicle.git
+      override_merge_shas:
+        - 4ddc1a633e1da26cd56fbd4a20936283cc0ac731
+        - 5e22f4be3ec0b3915db2bfc84fcb1b583ae76f02
+        - 6244c5c7af67fe2de6cd4e29b383bf25ffd623af
+    - repo_url: https://github.com/google/compile-testing.git
+      override_merge_shas:
+        - 608e1cb92ab715862a2f545cf3c57e6d35ea8216
+    - repo_url: https://github.com/google/truth.git
+      override_merge_shas:
+        - 8a544c7c00443c950ac9859b3dbb813fd46caf35
+        - 9289ed34ae5c0561c9e33dbb7b7b7c6750e4a410
+        - b4ab31a8f12544571349b61ae401ea9f9854816a
+    - repo_url: https://github.com/graphaware/neo4j-noderank.git
+      override_merge_shas:
+        - 01ca7a83cadb126fcef90405f4a8036ac2a22a02
+    - repo_url: https://github.com/graphity/graphity-client.git
+      override_merge_shas:
+        - 2a8e8c75e97d82b9c1bf5562af018b45f86d3120
+    - repo_url: https://github.com/graylog2/graylog2-alarmcallback-slack.git
+      override_merge_shas:
+        - 63afb94bcd157b7ffe10dcef43743a33946c65ff
+    - repo_url: https://github.com/greese/dasein-cloud-core.git
+      override_merge_shas:
+        - 146b8610ea9ba9a580381f7cff6a8230f04a7a81
+        - 2edeed4c44c68b3f2b39d4f7ff962b24e1330118
+        - 2f9e4b35962b05f0e0c5c68d65a056475088ea37
+        - 36048ee35194ff661013eca3c807736d50205173
+        - 45cf8cc017eb1df85df6fdd18b176a46f716c2fc
+        - 5ba4affca497fbf5056d575cb0737b7071bd4731
+        - 67e0654af8dbca135d795dbc7ebde69ebf1cc8e2
+        - 6c37152e5f57d6520d8d914f5a43fc6da002c6ea
+        - 6ee9cbe23f8704cbb33160d5314dd436908ddf69
+        - 74a489c92f34f73958a6ae8ae1806a4f1f5ba571
+        - 7c30c7433730d86dca8172197333c66ba14d7ce8
+        - 90405540ff1424446c90ed0363c960f982d71551
+        - 92bf7e52cd677bc63a928ee3ad6374f507070269
+        - 9ed17d6c8e1fced7095fbd2cf4e52814a65bcfe2
+        - b664347569531574341cfd6947653716c7a7d93e
+        - b71a3146d0b747ee93fc37857804d663664d0446
+        - b7e64480fedc27c4fcd6f9b499c968413cfe9776
+        - c502bc6b3374bf7df609bf6b30545268b15d28f6
+        - c66ef2d42d9fcce05c3c11e4f17e50a7b764b5e5
+        - ce4322379933212aa1effeb25514994ac2dde719
+        - fd8c461fba5cc84d13fc551019089d506b74334b
+    - repo_url: https://github.com/grove/presto.git
+      override_merge_shas:
+        - a5fd26fc395910e29b06fc2ecd2c1b73e23c5302
+    - repo_url: https://github.com/grundid/nfctools.git
+      override_merge_shas:
+        - 15659385c0127435a9d7ed840ff8f444d3d63053
+        - 2c2a51262a91233576dbe1b94adf94d040103525
+        - 960131e6de49f07e6c35cbd67df91522a05d97c3
+        - fffd5949aeb52ad453125aa10e8fb716e3efe579
+    - repo_url: https://github.com/guhilling/cdi-test.git
+      override_merge_shas:
+        - 04817bb259d3c82197bc7e163c7ccbfb76a5e7f2
+        - 4f10c2209f0564d9ceba04b6be55dcefb7fbf9a6
+        - ae8431e312562025b5ac48084a769b1f4df3db1f
+        - f3f8094c67a74f9c6cb44fa4ec0a8a365a79f40c
+    - repo_url: https://github.com/gwtbootstrap3/gwtbootstrap3.git
+      override_merge_shas:
+        - 6a7ca5ae963c5b6f97592febe9d6665fcfb4af4e
+        - f8f2c0c1c490760083f2416a9f44177ac30a40e1
+    - repo_url: https://github.com/haraldwalker/user-agent-utils.git
+      override_merge_shas:
+        - d431158a5cb37a09e8878abbc423429ba2ee1db1
+    - repo_url: https://github.com/hdiv/hdiv.git
+      override_merge_shas:
+        - 2f9993190a5d9e153c693e8060ef8050f2fe2baa
+        - c620070983d557e4ea74df520f8ebf28d39580e5
+        - c99a61a046a1cc2b7897a9866fb405ce151e1099
+    - repo_url: https://github.com/hdrhistogram/hdrhistogram.git
+      override_merge_shas:
+        - 4faeeb6c175ff46fbb6bf38bd8b91c21d205c866
+    - repo_url: https://github.com/helpscout/helpscout-api-java.git
+      override_merge_shas:
+        - 1d75aac8e8656d8b7dfcff38087209a9c590ae80
+        - 397295ddede909edd6af0276694088841a9d5039
+        - 7dde5bbe5d07ba446e8d8b7b942d378b40f2b5c3
+        - b4963a5777344c814c99822967351c819072fbf5
+    - repo_url: https://github.com/helun/ektorp.git
+      override_merge_shas:
+        - 95fdd42218e668da014b5e0c10957b136246ec8a
+        - e99a4dc4d57b353982c4695ef27e796ceec1278f
+        - ecc17e03e4b4879293d2d8ef55ff5d29e7c11735
+    - repo_url: https://github.com/heroku/heroku-maven-plugin.git
+      override_merge_shas:
+        - a935a91977e0132509028b7d13eb8c2f4e4a0f0e
+    - repo_url: https://github.com/heronarts/lx.git
+      override_merge_shas:
+        - 4fa8fcff072d18fe7c1b3449d3654c0788f3b881
+    - repo_url: https://github.com/hmsonline/storm-cassandra-cql.git
+      override_merge_shas:
+        - 756905cd9e592caaaa963739029bca5d46d20b77
+    - repo_url: https://github.com/hoijui/javaosc.git
+      override_merge_shas:
+        - 922809cde5aeaaa89a94a8aa7b4b3e03b3f993e5
+        - afde7c1c37e7b7694d0faed5aaaef3b0efb7f463
+        - f806396898fdfbf9533f2ff881b05ff5b6df5f6e
+    - repo_url: https://github.com/hoverruan/weiboclient4j.git
+      override_merge_shas:
+        - 62fb9296e8a8a0c3569630db86f72c4431a59af9
+    - repo_url: https://github.com/httpcache4j/httpcache4j.git
+      override_merge_shas:
+        - ccdc581f7f9d3b683b03af7c474160d3a3d1594f
+    - repo_url: https://github.com/huaban/jieba-analysis.git
+      override_merge_shas:
+        - f56461b33c95e386ee28e5b745968b7cdd20292b
+    - repo_url: https://github.com/hudec/sql-processor.git
+      override_merge_shas:
+        - 4e7851a544957454ab1795647f56cee208cdabb5
+        - 698fa6c48c7df343e390675eacd507b886609038
+        - 8968e32ea09be0994799e017dbaf14422ff7afe2
+        - bea67fca06eff381e48a426d7bb23f3e5560167d
+        - e959d1d883ca62621d769bc918107d45c7d62edc
+        - ed303915969a93ac2f220d6ab3042426dda05c89
+        - fbee2a4770ce875e26132c747ce5f30583584483
+    - repo_url: https://github.com/hyphen-ated/djbot.git
+      override_merge_shas:
+        - 13212b187da3dcee9d80fcf3b441aea4888a6240
+    - repo_url: https://github.com/icoloma/tldgen.git
+      override_merge_shas:
+        - a124b6e2241bd4840a91df9a382fb8f702e76464
+    - repo_url: https://github.com/idris-hackers/idris-java-rts.git
+      override_merge_shas:
+        - c35f926f298bc670fa197ec7aee03aa74a1a3e13
+    - repo_url: https://github.com/igniterealtime/tinder.git
+      override_merge_shas:
+        - c99be3f06ec9c816c3416f2c1963d6b19cc412c9
+    - repo_url: https://github.com/imglib/imglib2.git
+      override_merge_shas:
+        - 871b03b9a7cb624f9959679a4009a689ddca8b7b
+        - dd4b342823ffc8756a05e5006dccef4bf47ad066
+    - repo_url: https://github.com/imixs/imixs-workflow.git
+      override_merge_shas:
+        - 23b86de5b49165af8f4ebb9e867e797c1e0efbd4
+        - 3e72e74ecd667e3e23531d180f3b2860fafaab27
+        - 42a68dc5b45393598f51dea55a799d6454f3343a
+        - 8e3418d6054bb89fa1fab51671be63d0145ab4be
+        - c7213a8599927a2e82c9cd0fc28d32554167125e
+        - d51d5beea209a0d26b0fb4d6bd4bc5c341275a4c
+        - f14cc658356312ecdf6111e1745d7d29957f7194
+    - repo_url: https://github.com/immobilienscout24/deadcode4j.git
+      override_merge_shas:
+        - 4a894fe5616a8290f6f5e1458b3e077c0d5e2106
+        - 5aee1194b7e224d667ec4053676fd48f72cd2317
+        - 69518ebbfef40f661ff6ab30ea9ab758a81509c7
+        - 9371e6be648e58efbcd2b581637be4d5b80092c4
+        - aaf214124e33f39bcd2b2b6715014e4a441aa513
+    - repo_url: https://github.com/intcode/sweetie.git
+      override_merge_shas:
+        - a9dd1a794eb1d4b3e7c9e26d4dd716df84189d88
+    - repo_url: https://github.com/irstv/cts.git
+      override_merge_shas:
+        - 237a62d67756b7e6562eb1ef75ae18bd26f4f768
+        - 48c9074ea33c4c5db6417942ef29e1827d97f94e
+        - 79a1b379cbabf06a9869a9b4cf17f1e8e731c06f
+        - 99e5d7dd4375466d8911dd12651d632540656789
+        - a98fe4f82bac767864af1fead47b8d14a77e0a58
+        - aff9d4952b72683a6e6d25914ffa200148375d0c
+        - e5ac2fb4e8ef1b4418f9d55477b664e02193101f
+    - repo_url: https://github.com/iterate-ch/java-openstack-swift.git
+      override_merge_shas:
+        - 8a6b85283157ee0e827e9f4b99848372bb20e770
+    - repo_url: https://github.com/j-easy/easy-rules.git
+      override_merge_shas:
+        - 7f8d311fd6f8fabcc4e6b54a9e3cdcda47bdbb8c
+    - repo_url: https://github.com/jacquesberger/jsonparsingexample.git
+      override_merge_shas:
+        - ac521954c2d20f93d597a8dfbeae1e3f008befda
+    - repo_url: https://github.com/jai-imageio/jai-imageio-jpeg2000.git
+      override_merge_shas:
+        - 96f3e9ffc1450a7b27819ca751a462e1048517d4
+    - repo_url: https://github.com/jasig/java-cas-client.git
+      override_merge_shas:
+        - f98e77686923e7ed87a10a0d9a5462e776aa368c
+    - repo_url: https://github.com/jasig/jspc-maven-plugin.git
+      override_merge_shas:
+        - 634922effc3238357db5ca24c0a5feb8e8f5853c
+        - 6a1f4e7b3fb61c8c2e25b2618b3da025a4d5fee4
+    - repo_url: https://github.com/jasig/webproxyportlet.git
+      override_merge_shas:
+        - 8fa875fa24b9d8743f49b87aeac3701f3c5aeca3
+    - repo_url: https://github.com/javamoney/jsr354-api.git
+      override_merge_shas:
+        - 6d2356a153f08d1e9b7c32737be0c2360fd01ec3
+        - 7422197487f7fb1c43111c98d9859e9c05052566
+        - 75bfd2e554316270cfbd84c551e34e6f07c2b4d5
+        - 86df8837ecf3a584848aa9887f735e7da91ca61d
+    - repo_url: https://github.com/javamoney/jsr354-ri.git
+      override_merge_shas:
+        - bf07022ccddab3171412db1170d03ec24c77c41f
+    - repo_url: https://github.com/javaparser/javaparser.git
+      override_merge_shas:
+        - 01954d4fca18058b2cc9e6534f0b64a70361a02b
+        - 09dde7bda3b9279d4d73c7bf3c8e92b129027ea3
+        - 19d15f4dbed959fe2c837532f0155a3e41ed0456
+        - 25c4bbf796034c987e7517d4d3c596026a0142e3
+        - 2dfcfbf8118865639d2e2cafe1223d592804b470
+        - 31cf9e1365d59cade0bce29bd22eb58d0cf2c113
+        - 5145d35c452e05b49de20fd9d54b6c2dfbeb4718
+        - 5e362a840449a04cede08e30cc211b0495f16260
+        - 6687e7b034b803de2b407bf320e7d107e3b2b3b7
+        - 764600211e14871dfa43e68b6961403a113edb56
+        - 7a6972326c3d4ea8ae1d6ccc5e32ee3183a17728
+        - 7b7b795346618b5cb8943bc19d5db763ab764d52
+        - 7e3a40e9c038976f1412971a0a991dfb3bf6cdfc
+        - 8125a4b1b97f07586693d15fce865f316d294cab
+        - 89c83f2cda338e57d5b0d6339c76acfd159b1a15
+        - 8a4556bc66bd4de395955a636d26d818fb215f40
+        - 8d60e1ec5e18d91c96261f7a04b50e0ea32c3b2a
+        - 90415702d623180f30e52e3d9426d3ef10b98276
+        - 91ebf36c066190d49ef4ddb9b49d281f0763b417
+        - 9e13aaf139747aecce2944c7205cc592aa23d97a
+        - a23c6aa3b83caf62c769a21bb8eaa86da8b48d28
+        - ad8d0f65c32f58e0bd61750ec1eb0fb4f65c81a9
+        - c7ff62ea9c42df698db467543b50dfba1533c011
+        - cd9f929c5b0a9ae549c9845b9e2e6dcb7b182a86
+        - d3ed288950c1cee41f1b879af43663d87c014076
+        - dc6254f1bfec6bb2a657fb618f93cecda23c16d8
+        - e02dec2f2478aa5d1f793ae8ab2d3db41cbf5d1e
+        - e6063bb10d6d41cb2b258540bb47edbd18b4646b
+        - e6f40627657f5019c674263079a75adcc8d18ec1
+    - repo_url: https://github.com/javasoze/clue.git
+      override_merge_shas:
+        - a0e4c4affb26558cd60574073c39681defdcf954
+    - repo_url: https://github.com/javen205/ijpay.git
+      override_merge_shas:
+        - 7c0c75ff0f7feba78cf465dcc3bbe1cf0b23d16e
+    - repo_url: https://github.com/jboss-msc/jboss-msc.git
+      override_merge_shas:
+        - 1d9b8d45ffbf332ad23a5ece15c23becd199dd63
+        - 2109ea6f82b5ab20a1a6b918654f7f0e990a5c06
+        - 5bd8592280f9dfd7bbd060ce00c2d2d216d7855d
+        - a2677c57e41af1279a10809e2016136dc5da6fa8
+    - repo_url: https://github.com/jboss-remoting/jboss-remoting.git
+      override_merge_shas:
+        - 19bebdf410bb94556cffe7af169693c36739f342
+        - dd7f776d66ed721f4e2f6237137d69faa3d1b703
+    - repo_url: https://github.com/jcabi/jcabi-dynamo.git
+      override_merge_shas:
+        - 06bfb00c7a266e151242c512dc82a81be6b92d76
+        - a3e4660c7f264db9a33a64604ecc70a35afabe0e
+    - repo_url: https://github.com/jcabi/jcabi-github.git
+      override_merge_shas:
+        - 0b902daced3e729308516ff7af64d9a08e69be06
+        - 0ee30e0fca501fd57580cfb2470c9eefd5b50969
+        - 2603735cfe4efc6e6a45aa877d7e836cdb46b41c
+        - 26cda5a366cc3d44e4fc4265b18c085d7cf6de2e
+        - 27cc460e3c9160329c0311e4814adcd0de41cf0a
+        - 2f53e6d274f23d3ed4a6beba8411d0e7b466dc68
+        - 3f10b3378f1939d1144bef90dfbad5e3c43071b5
+        - 5604b1696dd843b01ebab7616f853ee1347a6c9b
+        - 6f5eaa399350be04440cf5cc0ba26abd0d83f261
+        - 6fffc8a4eb6c480a1ce771a58df1d54f783beb45
+        - 72ba99f81e38b5ae40eb538bc586a9a61b969823
+        - 76e641cf93eb8ce82e25880586d335289ea04b80
+        - 81dcf177c05dce9200b9305cb1e8300c0224123c
+        - 940182319a08b63c694e69091a189f0330351f03
+        - b13d2596bae4a94eeeeb74241b4449a3ceeea239
+        - b185caea93ab186beb776ff10d21c0a5ae0ecf5b
+        - b753098546c4fce159d88e863277216c3ec2e845
+        - be8582cc1e501b3c61a5aa407b59c9c67c0724c4
+        - c3bac3a3e0c5e8a972bc8f61ffff4e6e719081bf
+        - cfdadda97e7adad8170ed49416adb67467b76313
+        - e18a8ffd16e1e13f2194c766e1bd2ac7869e1347
+        - e4f4503dba611fc5d5361c8027be589ea5f15df8
+        - e85dff6ee1585dd8d763519f3e2dd528229fc825
+        - e90a60d9321e47a39754144b42d7271d4ddfacbf
+        - ea45e9cb7d4ddd6909b735e649963d74490d23f9
+        - fccaac2ed7cdbf3a9dd7a558acaee05140805dcc
+        - fdb154c591dbe1608b9a9f63199fe1e23d89e162
+        - ff16bc5bbf21619b07fec2f2e5b9ee83993ee963
+    - repo_url: https://github.com/jcabi/jcabi-http.git
+      override_merge_shas:
+        - b33d320e5a794ad393369a0c141a3afbc1ff53e4
+    - repo_url: https://github.com/jcabi/jcabi-w3c.git
+      override_merge_shas:
+        - 23fe00a21fa09bd2e74031f21bbe216fcce51734
+    - repo_url: https://github.com/jclawson/hazeltask.git
+      override_merge_shas:
+        - 9f9809f46cd73b80f333774d552565e5ca89f302
+    - repo_url: https://github.com/jdatepicker/jdatepicker.git
+      override_merge_shas:
+        - 8dd2b777baa77ffbb9e1449799726b777d6ac540
+        - 9948a7c3e72fb5eac2ade2e6b3ea11c3dcf9c002
+        - ff57324d1d699b55b89f674a4689f50633a77f9b
+    - repo_url: https://github.com/jdeparser/jdeparser2.git
+      override_merge_shas:
+        - 02fe20fc291fd127546c703cce697ac85dea09a8
+        - 868afefbb4efa5ab31cfdd9130758c2117d44948
+    - repo_url: https://github.com/jdkcn/jabberer.git
+      override_merge_shas:
+        - 5037a3d573c3e162e8de170b15258f76ea7aaca4
+    - repo_url: https://github.com/jdupl/lancoder.git
+      override_merge_shas:
+        - 407742ea19966c62f0eeb9d47dce6afadf9f672b
+    - repo_url: https://github.com/jenkins-infra/ircbot.git
+      override_merge_shas:
+        - d3a41197e86732bd4ce8fb804fc2a19452f22620
+    - repo_url: https://github.com/jenkinsci/configurationslicing-plugin.git
+      override_merge_shas:
+        - 3aa14abb5005dfa0c3ae3ff2c370cd85d07b2865
+    - repo_url: https://github.com/jenkinsci/coverity-plugin.git
+      override_merge_shas:
+        - 06cb2775796d046f3fdbfd82b405e1fe5cc3ed5e
+        - 5846a9f06a151725dff014e3a580a9349a20e8ec
+        - 670fd39c8a7d9abd53be6d4287145b663e8b4e28
+        - 799502f4f6fc9542e5234b6784259b6ce930a11a
+        - 7ce14e1f9746cbd72d358c35c42361a2b5aba884
+        - aa34ba78eb1e1bd9c61cc8311cf3552995c43fa2
+        - ab382ea7f87d69826dd1c5281156f1f250c49b44
+        - b4acff11817b48a5cbb0f96eedcb815eac967ba3
+        - bb03c5a2affcc80a784e96ba4ff3d8826913ec88
+        - fb442d7b548422516cf7173cfbbd7e6e8ea67b7d
+        - fff2609a872dc3f23eeb34e5169e8cbe6eb15e12
+    - repo_url: https://github.com/jenkinsci/credentials-plugin.git
+      override_merge_shas:
+        - 3a61456d43219ecf21f84cbccc40e1ebd9fffc08
+        - b9cb5f9d1b6365fc3cc5641d7a7f6267e84c358a
+        - ccd45a5263d0b9ffb20a66965a9124e15e2b8e03
+        - e9cf377a17f20f6583e48536a525e598207da509
+    - repo_url: https://github.com/jenkinsci/deploy-plugin.git
+      override_merge_shas:
+        - c58791723cc93e49d7430e51478ccd3d5fab8637
+    - repo_url: https://github.com/jenkinsci/email-ext-plugin.git
+      override_merge_shas:
+        - bbf162f5d50c3d37e3ee8940a0f13d3a4ce4ff59
+    - repo_url: https://github.com/jenkinsci/junit-plugin.git
+      override_merge_shas:
+        - cfcac8f0c9b228340fa43da976db9470237659fb
+    - repo_url: https://github.com/jenkinsci/ldap-plugin.git
+      override_merge_shas:
+        - 34053ee9959cbfb7c4f4100305a1a615f46b1d81
+        - 3d9f87b4821809613c96f62dd1b75aec5b0e90d6
+        - 3eee59e25ac9c794d93058ac3043568c4eefb520
+        - eea7336ee4cf2e275c469bea99f549eba74fdc2b
+    - repo_url: https://github.com/jenkinsci/log-parser-plugin.git
+      override_merge_shas:
+        - a4d0e3ca611eef6567b9ac34a8b8453a35fb4fd8
+    - repo_url: https://github.com/jenkinsci/mailer-plugin.git
+      override_merge_shas:
+        - 06a11a1de909d15bacd04459d29807af9e0882d8
+        - d726a1130320076b82e004f675ec97875e9b5fbd
+    - repo_url: https://github.com/jenkinsci/maven-hpi-plugin.git
+      override_merge_shas:
+        - d65f4ba879cf14e39c5e502787d736afa054ea92
+    - repo_url: https://github.com/jenkinsci/promoted-builds-plugin.git
+      override_merge_shas:
+        - 90cff675a1008c2167bd647a27a4c62f3b9a9c6a
+    - repo_url: https://github.com/jenkinsci/testng-plugin-plugin.git
+      override_merge_shas:
+        - 2df4e9dca40488bdb4d10816d04c1f672de4d57c
+    - repo_url: https://github.com/jgralab/jgralab.git
+      override_merge_shas:
+        - 07337134fba547de8a5275744759c83da0e62431
+        - 07f3d40d100dd1732f351a53d077239d42a05151
+        - 108349f5b2512bcfcd60441397a9c3b7e30f3e38
+        - 141d83b74b0c4798cfca554834a0b1645b4dd1b5
+        - 1599d6b3faa82c01a998c961c15a55304d634e59
+        - 37b0ff78b344a9ddaa923df30fafe5f2b0e1d9b6
+        - 38c4420a04fe3eaee476aa33fe789c1d5d849eeb
+        - 417131cf582e8d6eb01103d6614c231a7c391ee0
+        - 486a2987dd78b4212c2cca98a3906528ca131305
+        - 48fecebe2ecf1cedaf1d8593e1b0f09450cdbb4b
+        - 4aec874ec88fb13e499510a38c517beb31eaec51
+        - 518fc01e6bec91cd0a597ff873ef2e91169448b9
+        - 55c5691ba6b104f745af5ca7f98479dba901c8bb
+        - 693df1d429d23b9f14b883047743fb3c1d785f91
+        - 6b4faa42c0de2bdb921de9423bda798251cc7903
+        - 6bbf63215fad598bdf53cca678c43d433b56e95e
+        - 70c7b81959da8e726b6fc1bdaae4fd78c940bc87
+        - 7280e66b283a5941b96f6fbf22e8795bf70b0d47
+        - 7a018e9d43bc940e7e850dfd4c259a57166af59c
+        - 9343c27bc2abfb6c5f48768282d8096ee9d1f680
+        - 9484ebcb89e0ce8320d5aa8d39003409505d340c
+        - 9c4bc6fe4dd7bba19dee25fd12344cb030617b95
+        - 9e10661f5de9a2260cc2cf184d92598a1285679c
+        - a77ecd1f36af3491cff03a94b4f9aa1a2e9321ab
+        - a8bafd4f90fa457bf483902bb3e12777124b605c
+        - b17dcd026d110acec4535978a8ec1376bd62b985
+        - b3798019eb97ccf0d06b7bc6b16fd2f75ae8bddc
+        - b6d787157b7e1b373ae7a864844463b2d964b86a
+        - ba28dc3943bf31e37f3beb96450dac330ebebd47
+        - bdf8f914c3afa6a07c3954f8c99fe21627cf8da7
+        - d1a767cb2d966f651be48494073a2e33ec326db6
+        - d530577887bef4780cb227f3724bee93a2684214
+        - d63120903090afde4ccc8061edd5ccaf7f563059
+        - e25610e65708b7fa3ea77f5b3830f829112cb418
+        - e90286f6a904ea489ea1262631940a63e4c7ddbe
+        - f475191b1bb19e089d61d4d35056c1306db833a9
+        - f5920c83c7ddd5e030eb07bc810646be1169cc2f
+        - fa1bf40ed11a2ef39e7579df4179fa5392f29e1c
+        - fbfa29d18285908f2dab6b5f19894403bf904e35
+    - repo_url: https://github.com/jgrapht/jgrapht.git
+      override_merge_shas:
+        - 09493beacf894be0d9ecc446171ee7963830d048
+        - 10cd805a572acf38bdf1669fee54617ec6493c9c
+        - 1d1ee81e47c5d22b559dadc871138d181fd665d7
+        - 2d71b99ba5e1de41856a1d1a4f6bbbf3409a907d
+        - 3d942aa8341a7b21b0a2aed7fe990a3895f7cc26
+        - 43549f7652923962aa2a5b3f12f5f2ae93c477ff
+        - 59402e1ff4fc7580ed9271a619ec1581628ae705
+        - 611d20098454925fcc0fdfff14425df34abad8d5
+        - 62628bcbc4bd44eed87539b6e804a189db3e299c
+        - 64077a72f87a6d3d81e5e3b45b4357abaebb4321
+        - 7a8954a46a3ac25464fcc550daea170411107f56
+        - 7bd0c78896c58a95fa1c8f6a980e535563ab0fe9
+        - a1fba4484201c369092aec42006ab4edaeb273d3
+        - c27c35b595c2f687c5537fa9663e7ea3fc9f2fe7
+        - d3197d35f77319e3baac6c22349499ce7904277e
+        - d7d129c0f6880a29fc0e593f1f1c10226ef22182
+        - e2d8b14950e79d1653e6cb30a0f0c45a5b895d34
+        - eeb3686eb78c03308977f010b359938ed00d8e52
+        - f1961d7d4809ba4ac3dc8ab59f88d269d1ebdec0
+    - repo_url: https://github.com/jiaqi/jmxterm.git
+      override_merge_shas:
+        - c6a0ae5c6c5b3141e5c0207f44d4757919f94696
+        - eb38f4012dacafe4b4e876004ccf09080bde4e8a
+    - repo_url: https://github.com/jinahya/bit-io.git
+      override_merge_shas:
+        - 52e4b4dd02963b79a432deed359f275db0363c4f
+        - a3ad5c4ce8fe0b5633b4aa90cccc0e73d774247d
+    - repo_url: https://github.com/jline/jline2.git
+      override_merge_shas:
+        - 2a02a3b654e63d30b81a9295155e2121c017f983
+        - 5869eaa93a5099bb1bb4f1929a40d602b3e3624f
+        - 6db1644351479fb82c909d82b0b57b321440a5e6
+        - 96c12d75f09c9a24ffb15d74ec0d2f59215a764b
+        - b072f4844904ef4e8424bc6d46d27164f4e454bb
+    - repo_url: https://github.com/jmacglashan/burlap.git
+      override_merge_shas:
+        - 5284c2d1ece3f22e5182183618daa7253c11edc5
+    - repo_url: https://github.com/jmetal/jmetal.git
+      override_merge_shas:
+        - 0c224cfc205ab6c358148fc8ed0fe0e2a1a591b9
+        - 0e55be4b835992e6e25593412f5064270b7ffae0
+        - 23e052d06afdaabb37f20d2ee659d37d58d6916e
+        - 27bab3a9f6b6d894650d18d43c0300726b7071c7
+        - 31939b2d3174829e8c0a9516aa57be1d1f5eb36a
+        - 3724e879b8763786f4eedb0aff3707d99b6ddccb
+        - 4841ab3bfc32b131bbcde201d06408c4cc4d719a
+        - 603a9332cec32fcec56db88c2c486c419723d77c
+        - 7d9295f890d22a4649907e99dc7f5f133e2f6e35
+        - 7dbc673d548dfbe2fe62cc31f7a207d0431485c7
+        - 8402adb2ef2acf51473409b69ca9de43609d86a6
+        - 8596f23bda5c7e007f549049aca60a58002d5a54
+        - ac4340cb465a0b8cdaedd212982f1923e893d68d
+        - b4630972a8b9aebfc552e9782906bf084249fcf0
+        - c46e79f292c381c39b67e3aff025ed39aa663e3e
+        - c90d14c54d0fc71f08ba2f14aeef7f43af52a61d
+        - dabc5d0f5028171da904ada0013d235a1edfbc80
+        - e07ed5d8d0e73e7661571b5e7d35cc21fc313c94
+        - e4779bb8d29bc4ce6f4e0f0df52062a7992e5423
+        - f2a7247f193d01427b1baa9b7cfd2ce31c083cdc
+    - repo_url: https://github.com/jmeter-maven-plugin/jmeter-maven-plugin.git
+      override_merge_shas:
+        - efc1712ae3cf864ff9e552c855f79ec5617dba34
+    - repo_url: https://github.com/jmrozanec/cron-utils.git
+      override_merge_shas:
+        - 0a5c632471596b0ee2974914106b547220ed6ccf
+        - 158dd6b782778d47182b84bfdef11de82eeff238
+        - 1ca44547bfda1b7f86388df3095bcdc1dfe29d0d
+        - 219633080b459601437e67784e60a42ca6d53e10
+        - 25bab4d6ceed4d6107eeded749a196f8713685af
+        - 2b5dd7d8b481e7159e10af22ea628451c93303bf
+        - 2fa5f3e3ebab07b122d09a972b45f1803dce8b7f
+        - 4aed758c45cbad3882d465ddbd766c7e4676078c
+        - 861a5c0d046f9b635b69cfd15c5de183b766b79a
+        - a77c0476c311f59cdc6373f3297ed0523ba16842
+        - b788888f07da30b9247e17f4167aafc516dba869
+        - bcf4e0c11d739b5dc52f6376197b78af3529bdd9
+    - repo_url: https://github.com/jmxtrans/jmxtrans-agent.git
+      override_merge_shas:
+        - 79a0294ac330946788b98858f0c58692004b33ea
+    - repo_url: https://github.com/jnr/jnr-unixsocket.git
+      override_merge_shas:
+        - 1a75fb81ead63de73cb637dca45353706395fb2f
+        - 467698b6bdcff23f0ce0914b6644fb24e88bb8ab
+    - repo_url: https://github.com/joaoarthurbm/designwizard.git
+      override_merge_shas:
+        - 58fcd555cc6909bb7ca3df27d277600d8c871a81
+        - 662a073a370b6ceeac9ccc052db9ee6d9a64ec1c
+    - repo_url: https://github.com/jodaorg/joda-beans.git
+      override_merge_shas:
+        - 25ca6227b8dc848d9b4c9a6911aafc28c79a3f56
+    - repo_url: https://github.com/joel-costigliola/assertj-assertions-generator.git
+      override_merge_shas:
+        - e9c59be58d0f5f8598375f4031f5f06ac0f1cdcc
+    - repo_url: https://github.com/joel-costigliola/assertj-core.git
+      override_merge_shas:
+        - 0536ebda46c31e95aeb2dfef04496c79ed874dbc
+        - 15cbb306b6a162438dead6e432ff75f52ec03c22
+        - 1b4ad829f36d56eed943c096b96e2f31d632570c
+        - 1c531c0a5a9652826ffb582b603722ab3481b830
+        - 1db6f18ac4582f4a3247c934d767e6ce8d6442e3
+        - 30d3049359fc8a4cbd2932bebc3b238a7338b8ca
+        - 38e8b3974a8ab360ac4084711632778aafd2e4d7
+        - 643af7b61ceccb089e9ec25e23d4d700a6730357
+        - 8f273c4b38c167f6622e01618cf3831f976373b5
+        - a3011e7f9eb627d717e3b5908da703b65efae0bb
+        - a7c0edb3b3015a109764cb2428f3d16ab231b604
+        - b1c7f264042ac6ba15f745f94ef8ada7e50797f3
+        - b36e8eaedb5eff543436358200741fa9ce3d47bd
+        - b5e448af3b363526f25633005608a912ba51bdb2
+        - c85be7b3c81624c9ada99251b31ec677cbd338a6
+        - d3dab0d22cae3028dd4c73a89a5f8bca1fd21a6d
+        - d7469cb5dabe8820a797fbb1fb8f7358aa120ff9
+        - df351133a998388a13ecf8fe6e43916eaa9f13cb
+        - e48c141d6c44ba4ea76f65400de6a8a19a5722cc
+        - fa6ec362fba2e2077edc6d462c166df17bb42d27
+    - repo_url: https://github.com/joelittlejohn/embedmongo-maven-plugin.git
+      override_merge_shas:
+        - e407eb6955fe9325b7b0c2ce4069e7d640c1cf81
+    - repo_url: https://github.com/jooq/jooq.git
+      override_merge_shas:
+        - d96120f327107feb1ebb15e7c090dc38eeff72ca
+    - repo_url: https://github.com/joshlong/spring-birt.git
+      override_merge_shas:
+        - f38e819c4a81bcc9f55b6496c7c9a8728d550694
+    - repo_url: https://github.com/joyent/java-manta.git
+      override_merge_shas:
+        - 5fb0fe7ba2f3107ca1ed1b26c8e6f2d30262db6d
+        - 653d367a15a830e3207a0fb48a3928657dbf64e7
+        - 9b874b910f536955ab70d5adb565a8780c613ab3
+    - repo_url: https://github.com/jparsec/jparsec.git
+      override_merge_shas:
+        - ef02642abd641e654abd504ed36a5eb1571ec40c
+    - repo_url: https://github.com/jpmml/openscoring.git
+      override_merge_shas:
+        - 9aca0c7a8409f3888295b16cc03a74d8def3ed21
+    - repo_url: https://github.com/jprante/elasticsearch-csv.git
+      override_merge_shas:
+        - a9ee7a06511f64b14b8c6dee08fe5f5849907926
+    - repo_url: https://github.com/jqm4gwt/jqm4gwt.git
+      override_merge_shas:
+        - 284907eaffb2061f44cdc7ec3be5cb05209850c9
+        - 5d69eb0c67f1964835f082cfaffec4da5ca60067
+    - repo_url: https://github.com/jqno/equalsverifier.git
+      override_merge_shas:
+        - df016c4c5b205bf4bf04d73a41a0e51adeff84b3
+    - repo_url: https://github.com/jri/deepamehta.git
+      override_merge_shas:
+        - 03658cb2e9aded3ab1b9528306a4d92507f42195
+        - 117efbac7cb9fbc45d046ce708d03439a2f89b3e
+        - 13402e44c98b885e450f0eada839e0efcf18da1b
+        - 1f2cd6a62b0c098ca82f646440d6e998a88cdf5b
+        - 252b4aadd64c0e61f8fc965661cc6b44bf5a67a0
+        - 252dd7d58ffcd2d89fd494cfa4be9dfdfff70839
+        - 37172781f64d355147e6e77761d1423e238480c7
+        - 6a7295cd1ff99f1f7658108bf10b3b1f4e40d639
+        - 8e1c2670375d00738f024274b7273c52ec05c81b
+        - 9153c1871a0357fa74e674ab1eb5cde376fe8030
+        - 94766fe941edd75a81ee48a809b8b61530f3a1e4
+        - 983bdf73600e6100e82edd389af170d82efaebd8
+        - 9882b876e2498661882a44590cde457c8ade1562
+        - b7f72aa63176bd76baf6b656e33d1d8d13e6dd8f
+        - bb8bcadad884e859b6ea52ab74fac664166acf6c
+        - f9030aad4d4de1add68bc4906467ad37765f81da
+    - repo_url: https://github.com/jruby/jruby-parser.git
+      override_merge_shas:
+        - 3496309cb490239165a567c67ea17852b7ea3fdd
+        - e6dae92cd4c87841431cbdfeffa34a4e05f3a2d9
+    - repo_url: https://github.com/jsamoocha/linksalienceclassification.git
+      override_merge_shas:
+        - 7aff5753c70fc8c52cdc949c2a2712dd90bdc30c
+    - repo_url: https://github.com/jsevellec/cassandra-unit.git
+      override_merge_shas:
+        - 4e87b46fe206e0acf5cdbd1e8c396be97410a5e4
+    - repo_url: https://github.com/jsprit/jsprit.git
+      override_merge_shas:
+        - 0b038c6cfc672c73ae4f4c964e907b7bf0c19a75
+        - 0fb7469d1f73bad31a0f0f7f5292fe2d911f13df
+        - 193d4ec85cef5a197851b743f6373aa038812fed
+        - 2503a96237209122a3410850fc3c86334bf3231d
+        - 342ebe93b7de69c99302097efe49a0c6faec32f2
+        - 4c2df190640d3a29f804b8ecfe1c5ff2184d5d5b
+        - 97ff935abba1ddeb8ba877e70a406600ca8efbfb
+        - a6726537e98f934ad52b73ff7175021ac0d35c4c
+        - a9d1e03c5618623bfd3fbf1c1bb59e205f50c775
+        - b5998e1d93fe8512279f60aa3f804ab91e5f9291
+        - b73f291f9ea679c25eb124a9c1bcbf4bdccca0a2
+        - b9c7dc3324d4b655e158dc474e346df309cad89a
+        - bf597eb8ec5d4fe4917d750f18d7339c90890435
+        - c60ab8afd055cab1b8c7826b493fcae8b619e9c4
+        - df2e3e4b7ed331071d7b443f924c1004776d8eda
+        - ef2723d80144101cdabbd944b93eed4ac5067260
+        - f1bb6c7bd0eb9181aab31f2661f497eea2519cd6
+        - f4a7254036cb62ed7896cf9d41467a3b08865542
+    - repo_url: https://github.com/jtablesaw/tablesaw.git
+      override_merge_shas:
+        - 68f967133364244b0238c0ccf7c38f6357e490f1
+        - a0ae2559f57e22d515cba5d7a68ab70689bf2cd0
+    - repo_url: https://github.com/julietkilo/canbabel.git
+      override_merge_shas:
+        - 41057a06b792ee5007209eff19affa91a6c3dce6
+        - a2e8646cdce41a58d12879911e6ea6a836dfe7dd
+    - repo_url: https://github.com/juniper/netconf-java.git
+      override_merge_shas:
+        - 5720d527507c33e5fede2e542dc3d892eb780b5d
+    - repo_url: https://github.com/junit-team/junit.git
+      override_merge_shas:
+        - ab7c961572adab958edf4c5cf1f5371b72117300
+    - repo_url: https://github.com/junit-team/junit4.git
+      override_merge_shas:
+        - ab7c961572adab958edf4c5cf1f5371b72117300
+    - repo_url: https://github.com/jwcarman/wicketopia.git
+      override_merge_shas:
+        - 65dc57a69735d064d0c1c05fa67493b94c05b159
+    - repo_url: https://github.com/jwtk/jjwt.git
+      override_merge_shas:
+        - 257bddc3e2fc97083b85b8808fe3c06c8da4763e
+        - cb5734d8a64949a05604ebf1c2a7065f055bacb9
+        - ff932e9838a9961f4084a51323092559e1a1ad25
+    - repo_url: https://github.com/k3po/k3po.git
+      override_merge_shas:
+        - 084cc0b426e3b6e5c33eb91da884a1b46aa411e7
+        - 0a20ba6d4542a2224374351137a13f58957bcd54
+        - 1b2a7eaed60d376ab87a8130c29b2ec957bca767
+        - 7e948479abb61b96ce4d8290aa36a7f14714b2ad
+        - 808d53cfd9e2f32e8383d4fe75f1d318792e8946
+    - repo_url: https://github.com/kaazing/k3po.git
+      override_merge_shas:
+        - 084cc0b426e3b6e5c33eb91da884a1b46aa411e7
+        - 0a20ba6d4542a2224374351137a13f58957bcd54
+        - 1b2a7eaed60d376ab87a8130c29b2ec957bca767
+        - 7e948479abb61b96ce4d8290aa36a7f14714b2ad
+        - 808d53cfd9e2f32e8383d4fe75f1d318792e8946
+        - de068e970ef9f6f39c9b013654db789c6ac7b090
+    - repo_url: https://github.com/kaazing/robot.git
+      override_merge_shas:
+        - 084cc0b426e3b6e5c33eb91da884a1b46aa411e7
+        - 0a20ba6d4542a2224374351137a13f58957bcd54
+        - 1b2a7eaed60d376ab87a8130c29b2ec957bca767
+        - 7e948479abb61b96ce4d8290aa36a7f14714b2ad
+        - 808d53cfd9e2f32e8383d4fe75f1d318792e8946
+    - repo_url: https://github.com/kbnlresearch/europeananp-ner.git
+      override_merge_shas:
+        - 02058bce7bad895e7b27640e4b1b3a4d68ca1cb2
+        - 693a450ac6f02f809b514bb4544630468f126434
+        - f78e47209b90dc4b322b93e85efb5ea7628f383b
+    - repo_url: https://github.com/keedio/flume-ftp-source.git
+      override_merge_shas:
+        - 2911f84fb00a054b772a0c296274bd9efe2d9b59
+        - 65d75536ef5225314352bb18e8b03abcddab265e
+        - f4c145bec4acce94ef00f97b814a511049b3b372
+    - repo_url: https://github.com/keedio/flume-ng-sql-source.git
+      override_merge_shas:
+        - c4b62bbb5c0c6836fa4eb17bafe43393d7c39707
+    - repo_url: https://github.com/kevin-wayne/algs4.git
+      override_merge_shas:
+        - b66548467b304fa8a6e7b939b7c44cd265c0e1e8
+    - repo_url: https://github.com/khmarbaise/maven-license-verifier-plugin.git
+      override_merge_shas:
+        - 0329bcf4b7d1b8077d22fe8580d37ea103328e79
+    - repo_url: https://github.com/kifj/jboss-syslog.git
+      override_merge_shas:
+        - c7b3272555db107615303e60fb0a158a763deafa
+    - repo_url: https://github.com/killbilling/recurly-java-library.git
+      override_merge_shas:
+        - 08f428502f99854cbe37544d682bdc674b5ebc95
+        - 436ba5710544e1462135096d91524a776e831e2b
+        - 77119f7049533f32febd250c0bdde8d0c3113ebc
+        - c978e4add5640a493a55339972b2cd4363d42957
+    - repo_url: https://github.com/kimshen/sissi.git
+      override_merge_shas:
+        - c00c2e6554f121dc4bbb4fb2549738e1b1ec639f
+    - repo_url: https://github.com/kinow/testlink-java-api.git
+      override_merge_shas:
+        - 192242bb6b260af7a870650706e6f2459a446cc6
+        - 85223b0a9f6798169dcfe409ac99ad5d8a8cd227
+    - repo_url: https://github.com/kohsuke/file-leak-detector.git
+      override_merge_shas:
+        - 768944360be1d5e82dccfe677341b8ca38057f49
+        - 9f7e9962c766a175e5f01616395894000d9bd201
+        - d76ad63466cf23012237a78f23d30f6885072c4e
+    - repo_url: https://github.com/kohsuke/github-api.git
+      override_merge_shas:
+        - 18aa067c44e630e6484c3c91476f80f2a83a0a34
+        - 432585cb755a370eecfda4153184a1085d10923d
+        - 4e56b8bb78003976881789dcdad22b59aa654b2b
+        - e81e228f03c90fe82a3c64eb0e55ed1367ff1faa
+    - repo_url: https://github.com/kohsuke/groovy-sandbox.git
+      override_merge_shas:
+        - 6c8ab911380474724b7b1649c644e02ac55bf599
+    - repo_url: https://github.com/kohsuke/libpam4j.git
+      override_merge_shas:
+        - 43d35c217451951500d0cb1246602c42494f7a28
+    - repo_url: https://github.com/kolorobot/spring-mvc-quickstart-archetype.git
+      override_merge_shas:
+        - 743d56eac95a68af7ffe11e395d5aba05f09aac6
+    - repo_url: https://github.com/komoot/photon.git
+      override_merge_shas:
+        - 44a01f13576016817c3f6f3a2a8f3ad14f5e1450
+    - repo_url: https://github.com/kong/unirest-java.git
+      override_merge_shas:
+        - 121f85b8195b405bbe6370aef5ee42ec0e05f61b
+        - b43fb95f4a8267e124617845ff09da8882be9b44
+        - be953b5e242762aa1dbf4f7f4b9380b551334999
+    - repo_url: https://github.com/kongchen/swagger-maven-plugin.git
+      override_merge_shas:
+        - 10c79c6df179bcfb89b16568227444cc36796cb4
+        - 34fb37258e823222f6743558724ef66ce56738c4
+        - a001cc6bfb666ddb6ae8861f7c1017cfa62f5384
+        - a0f0c8d4d9a98c1d7c9e469f47e215328eb7c3e6
+        - af4fd83eacd9ccbd81e0750e6e74881b6eedd587
+        - b95b07fb1704e624b8aa2a1eb89ff5f540e72b2e
+        - d2e1b0994d1d9cfdfc412842519319406128f268
+        - e825a7fdc6ef688f1253b93d2cb236e710acfc56
+    - repo_url: https://github.com/koraktor/mavanagaiata.git
+      override_merge_shas:
+        - 3db986aced967917053dd5fad68a469976a6b27a
+    - repo_url: https://github.com/koraktor/steam-condenser-java.git
+      override_merge_shas:
+        - 38c728a429397a5e8c647045144da9fd12930c65
+        - 7845353108a43162e5ead8a94fdebc8c21cfa0d4
+        - eabb0f338a3d47c5e52dcf013d2c70c64f271fa8
+    - repo_url: https://github.com/kpelykh/docker-java.git
+      override_merge_shas:
+        - 44aa4b057604562f10220734507928a05a315526
+        - df7030520c8ca278f800a8d200312563da556633
+    - repo_url: https://github.com/krilivye/jocco.git
+      override_merge_shas:
+        - 5994a8ffa7adc1fbe2157b96436ba57f24aa2fa6
+    - repo_url: https://github.com/kroimon/bukkit-alphachest.git
+      override_merge_shas:
+        - 1c06bbbbf3fc168448554fcc274249946e51fd94
+    - repo_url: https://github.com/kshchepanovskyi/zkcopy.git
+      override_merge_shas:
+        - 31218157e3efd720cd9fc792af1027a6e129dabb
+    - repo_url: https://github.com/kungfoo/geohash-java.git
+      override_merge_shas:
+        - 029fd4411871b99cef71407c432752c570fcfaa2
+        - 1e0aa77a02c168f39dc3c26f64257af4baffac6f
+        - 8c29b236e5fe758d3268e885504051f98d6c8ef1
+    - repo_url: https://github.com/kvladislav/ticketmanager.git
+      override_merge_shas:
+        - 2876baf99befd8b453ef6a5c4d51d550ce49f52c
+        - 2a3e487ca01bd50026ae47a9cf014b19804cc386
+        - 51e4817b710e4fb8c5bc72a6b01698de4ee3f0ad
+        - 7e604bf4845cfc20af24cc20cbacff5ea768dbc4
+        - b24deca3fd3d5ab03d96c7cbbf3daa1ab4fe8309
+    - repo_url: https://github.com/laforge49/jactor2.git
+      override_merge_shas:
+        - 191ab09f7d4f34ab1b208159b40ccc2b06557f6a
+        - 3b4eebb16635f02dd3048051e26438d9071c7b92
+        - 820eaa1534e1a211c83c3d3c0f949da64b736903
+    - repo_url: https://github.com/larsga/duke.git
+      override_merge_shas:
+        - 6767497ccc440c9a64ec7526a7feab97a9cce367
+        - bf52872233c2441a808f77c5561e4367bc46699d
+    - repo_url: https://github.com/lazaromedina/flume-ftp-source.git
+      override_merge_shas:
+        - 2911f84fb00a054b772a0c296274bd9efe2d9b59
+        - 65d75536ef5225314352bb18e8b03abcddab265e
+        - f4c145bec4acce94ef00f97b814a511049b3b372
+    - repo_url: https://github.com/lbehnke/hierarchical-clustering-java.git
+      override_merge_shas:
+        - 147fc13e7c56047ffba691a9f7cb157c3b37e835
+    - repo_url: https://github.com/lbroudoux/es-amazon-s3-river.git
+      override_merge_shas:
+        - 2aa45336dcc877155d7df5063071f37a86368271
+    - repo_url: https://github.com/learning-layers/socialsemanticserver.git
+      override_merge_shas:
+        - 085587be1338bb740008afa05913af155f816290
+        - 4ada3cddc3a15f7b2c63f40f83bdc48342e842eb
+        - 6a7dca76f4993e256c13ab95b0e38d9b40847fe1
+    - repo_url: https://github.com/lemire/externalsortinginjava.git
+      override_merge_shas:
+        - 5d3676023c04d823a56b85ca77a8b5fc90f24a5c
+        - f6d54664fa3728e2303749b4e09fbca4d362b339
+    - repo_url: https://github.com/lemire/javaewah.git
+      override_merge_shas:
+        - 0bfa66bebf50c2028a2f0a8bd32e6eb211a87509
+        - 6107a7a096e94d19d8a00bfcb043a62e8a237d4b
+        - 7a7298c69142670c64bf5700f6f67602da2b092f
+        - ea2ca4e44f2b9ca486774ad9dbe6128617f274c4
+        - ec0dc227a3e12ff2c833c560024e888858c13baf
+    - repo_url: https://github.com/leonlee/flume-ng-mongodb-sink.git
+      override_merge_shas:
+        - 6e95fc2cbcb962d885349d74fdc5a51bab767964
+    - repo_url: https://github.com/lettuce-io/lettuce-core.git
+      override_merge_shas:
+        - 165046a32c9a2960d78249e36037952bfcf8d4dd
+        - e144da09a5e5045ae5b45c13a379796d9be9ab3f
+    - repo_url: https://github.com/leveluplunch/levelup-java-examples.git
+      override_merge_shas:
+        - db0acd81d124fd8af863c20728e0afcf3adbbb0e
+    - repo_url: https://github.com/librato/metrics-librato.git
+      override_merge_shas:
+        - 140caf9da468df3c5bedacf427b06903b0933a9e
+    - repo_url: https://github.com/linkedin/camus.git
+      override_merge_shas:
+        - 19ca2505b3c10e89c00bcd08cddf19a4a48385a5
+        - dda4c8ce2560199c305853915a625b74c170d3aa
+    - repo_url: https://github.com/linlinjava/litemall.git
+      override_merge_shas:
+        - ba09316751827e5a007756077d5047d41f7d8729
+        - f16b2f35fc8aa4e77ceb428cabc946c330c7c05e
+    - repo_url: https://github.com/linsolas/casperjs-runner-maven-plugin.git
+      override_merge_shas:
+        - bac08fafd6c851811c8c7e2fd8b393d20d82bbb7
+        - db79e3697d8d54d644dcace723c4a1cf41f7237d
+    - repo_url: https://github.com/lionsoul2014/jcseg.git
+      override_merge_shas:
+        - 3d7efe1902724e0b822dfdb103fb59b181703320
+    - repo_url: https://github.com/logstash/log4j-jsonevent-layout.git
+      override_merge_shas:
+        - ee90110799a7b6f905dbda921690e43cdb8b7b08
+    - repo_url: https://github.com/logstash/logstash-logback-encoder.git
+      override_merge_shas:
+        - 14d6470a52f1fd52e307005bc702d48d70b9b4f9
+        - 17363bf2ff242a6523922947078825b3f33fd27d
+        - 24748ac965f759c160f6d1e172a1d6341590bffa
+        - 31ee1e9abd6543018fd43eec2571f71eeb863b6a
+        - 561db6d638f02f740f186f9b45db5e228dfca7a5
+        - 614d4a54d87a4206da47e0e49f54e757a08c6133
+        - 6c602c169a0e171ffd198408f6449f99cf62beac
+        - 73d63c4b4291dbf394f9f613feaedc542dda24e1
+        - 8e39ea91415c22b7dacd781c858863c3a1c89917
+        - af3c5cc4e65eaaa7b407c431acb5b17f0e3e70e7
+        - b53013cb82c9cf0f61416ec3f3d2ba3ae0d6d5b3
+        - c4fe38c6b5ad13a8a1eb718c11ab98dbc2a00dfd
+        - d0ca2ff424176b80125c1c3a83e5ed9c04798724
+        - ea11a810d43cfed1452773d9154a514bc4f4dfb0
+    - repo_url: https://github.com/lukas-krecan/jsonunit.git
+      override_merge_shas:
+        - 1882811e79e0534dba776e895bd4328602d11cce
+        - 25d68d88b5f96369a021f665ef9a52cd37b558cd
+        - 3cb3260c4b9d6f45b33057991ecbd07523fc67d0
+        - 7a61777fca87b6c906be80940781f2ae80f36d82
+    - repo_url: https://github.com/lukegb/gitdescribe-maven-plugin.git
+      override_merge_shas:
+        - 8537d4687a51ced12400731b2a25204cfaa349ab
+        - ef23ebbbc45456d85db155436a821f99e9bc24f2
+    - repo_url: https://github.com/lusito/gamedevweek.git
+      override_merge_shas:
+        - 0834d16ed9d41814192d2af84d06a4a4a760a591
+        - 23c03d5bcac19f2414bc9f7fef55b8ebbddbf467
+        - 2a840d84b2c90f6a6b13bf2cdc226fa2f97b256b
+        - 53b1af08d519808a86ba7ad391513ca9735fe383
+        - 7fbf7970a8bf6d483087eef7b40e78f7806f062c
+        - b9d0b595eaae93747ce9081072973fa34c8b8764
+        - d60d1e1f9f4b6bbd93fac52529eb2210b68b8634
+        - efa22c88f4dc7641dab4241f077f429f1d603d0f
+    - repo_url: https://github.com/lwhite1/tablesaw.git
+      override_merge_shas:
+        - 68f967133364244b0238c0ccf7c38f6357e490f1
+    - repo_url: https://github.com/lyncode/xoai.git
+      override_merge_shas:
+        - 07a38e4a1e94e5ae8066748d0e09891e569d938a
+    - repo_url: https://github.com/maciejwalkowiak/java-plist-serializer.git
+      override_merge_shas:
+        - 333c0d3cd9cca7b7361c77e6d7cd6f274d3f19a3
+    - repo_url: https://github.com/mahoney/slf4j-test.git
+      override_merge_shas:
+        - 896b4a6a0d490aae9515e449244d1012bfb3d87b
+    - repo_url: https://github.com/mambu-gmbh/mambu-apis-java.git
+      override_merge_shas:
+        - 0cfcfe0d8535a7f495a58fc48fe19f492eb7a7cb
+        - 1da0e26ad55b2f4a1738ef3e7f57ac5ca6ca0ae7
+    - repo_url: https://github.com/marginallyclever/makelangelo.git
+      override_merge_shas:
+        - 0f98650476206385267201e4c248e1e557251b38
+        - 3a475307e2c539d696adb258b4cbc01e7cdd1d81
+        - 599a9a22b47792c37b1e55c1b58e7e1e41d166f9
+        - bcefe3c5ac22e359dc40250dcd7adea844cee434
+        - d6e3211669ba394144ef7ab68373cc63abf5eb46
+        - e0660bddd97f41bf67ace79ef27f394ecee3e457
+        - e2db73b5d195f317757941b4c3860b86825fdd9c
+        - f96ea74ffaf63c820dae4ed5e33941dfd9230a7c
+    - repo_url: https://github.com/mashape/unirest-java.git
+      override_merge_shas:
+        - 121f85b8195b405bbe6370aef5ee42ec0e05f61b
+        - b43fb95f4a8267e124617845ff09da8882be9b44
+        - be953b5e242762aa1dbf4f7f4b9380b551334999
+    - repo_url: https://github.com/masterthought/cucumber-reporting.git
+      override_merge_shas:
+        - 9fa019efbb3e9219643a69303c549bdb7b6515a2
+    - repo_url: https://github.com/matthias247/jawampa.git
+      override_merge_shas:
+        - f956e0584ab3323680744ef58438b1b09f11846a
+    - repo_url: https://github.com/maven-nar/nar-maven-plugin.git
+      override_merge_shas:
+        - 436a5cc07ad6d54972e719e8f23d0265593632e2
+        - 825297386706f44faa2abf757a3998b352bb7ea3
+    - repo_url: https://github.com/maxmind/geoip-api-java.git
+      override_merge_shas:
+        - 49ecb07cc82f13aa1a25857de424be43c88368c1
+    - repo_url: https://github.com/mbknor/dropwizard-activemq-bundle.git
+      override_merge_shas:
+        - 12e472f3dd612c31bfc713248ffd0389e0dd2e8b
+    - repo_url: https://github.com/mbosecke/pebble.git
+      override_merge_shas:
+        - 0d20dd1243c2e96516bafbd29301eed7b9f53e5e
+        - 16c84db836af1ff7b2ec8a7849e951a2b3f5be36
+        - 1d6c48cea436f9c099a0ca56ba3cbad12c5d8db5
+        - 28db22b5b234e4fec68d10286a555399744897c9
+        - 387fcf6257ff93738ac79beb3eae28506ce77f35
+        - 48ab05076e92d1280bc8c3797717a3f020a2eca2
+        - 549bdec272479087af0ff89e129ee8a90ee7bd71
+        - 5e0ae828b608474920471010ea6f02a4ba92ef34
+        - 6ad3cfeac0b4c562d355e5e0842f33a8467ff09a
+        - 7782fd3abe099bf8c22a34159b6b05e66bc13d05
+        - 7c76e0df7ab79cff4b7d39647df5e6cb50f47c86
+        - 894f8b4b76718bd99ed655f6d50b9a4929a58ce7
+        - 8dbd27621c8d8c5db8d229da6ebf18a851c146c6
+        - 9f773c7306182426f6f49ddf5c6763c4af481c14
+        - a0e7bc09e4cfff141e0e05d2e788b07919b78995
+        - a291c149690f05cf4ac46127cbeab7f7495a3a82
+        - aa932204dedbe24bdefeb75593385eb0c091e7f7
+        - bb807558a3f0fc27a485dda2bd5a4b5eed2be84c
+        - c8c30f79bfa1849d04e41ed14402ddc2f2746fe9
+        - c98cba4e0b2d1d354dce79bf3a6ded3e412b612a
+        - cb37f0f568da44fe8d0f9e9a88d96c8b5985b7af
+        - d89f3e2296ff104e9291e17b32ec32a0efc852ec
+        - db486e71ca089ecd959bc8d25d53748f52a5afe2
+        - e1d07bf27732d5ff2bee3b3bb9a38aaeb1637ffb
+        - e35516f690d07a5fecc6a27c7b14b143fba7b5d1
+        - e67cbfb9d394ed2d0dea4891be5af9aac5af1699
+        - edcb7368e0c64c3268f102f7be46f122f067a45c
+        - efa877dcba59b39df1cdceb95c0516bb248e4549
+        - efed20478084e9074d16befee080791fc23d8e2a
+    - repo_url: https://github.com/mboudreau/alternator.git
+      override_merge_shas:
+        - 9adf68eb8af7a41af55b72a8cd6a5b6191b7026c
+        - b57359e276976821428edeef1b981f5420989f88
+        - e98877f87081708e446b278c812eb504565ff5f9
+    - repo_url: https://github.com/mcmmo-dev/mcmmo.git
+      override_merge_shas:
+        - 302b07f2217dc1eb1a89133fa7fcd90a2005e2aa
+        - 68d4a179f189deba1cf7bb887917e425af5a4925
+        - 70383b725060d6c6e2553d4e2c533b39d840a27d
+        - 75ace0cfa07f49df53f1c00944f08d6272a74d35
+        - 81ac48904ce1c187c6177ad5282575a7c2d28907
+        - 8cc4798752d400bb6b420ee62f7b8211e8a9d1ce
+        - c8dedfc980cfece65050f05b00a57d9d0d1e26f1
+        - cbcddbf5283d47a2262889ad07ba4b0531ec91d1
+        - fba6e8a961ff81b510b7893846e52822b7ffac80
+    - repo_url: https://github.com/medcl/elasticsearch-analysis-ik.git
+      override_merge_shas:
+        - ca2bfe57320fbf2bbef20c9ca69b9d78f4912710
+    - repo_url: https://github.com/medcl/elasticsearch-analysis-pinyin.git
+      override_merge_shas:
+        - 840a6261b2223afc097272500f727b79d186e258
+    - repo_url: https://github.com/medcl/elasticsearch-partialupdate.git
+      override_merge_shas:
+        - 2cffb48e7b98f31e05feb82b21bb15e46b28493b
+    - repo_url: https://github.com/mercadopago/sdk-java.git
+      override_merge_shas:
+        - 0633f406688697a6f4446f6351cf2cf748082823
+        - 34ee96bc8793f17a98d6048e2ddb058f4c02de76
+        - 3bd9bea9cddf3ea5a85466f0fc65e8ba616e9543
+        - 540cfa9763897123fcc18d81c512ac9ed7d98a19
+        - 55c7d5fbe6b635db3339aed2f8174e8bb28c542d
+        - 7a2b92316e2cdebbabddde9ddfa91c118e9af329
+        - 9749543afc1793fef87998ee8b306f444e7d3ad6
+        - 9a60e0b0670692444cef0a578af8477fde083789
+        - aa8fa181706c265a2a68ac48b377b0f8201d5f99
+        - addc0f809ffcb32c146c0f1094b4dbc0350fd257
+        - c71a33c366866371a12e0d1c864172f84a555561
+        - f60681aae04e2986541668b836247750833f4147
+        - f86264fd19a10fd46dc8cc6370f727952d54580c
+    - repo_url: https://github.com/mh4j/metaheuristics4java.git
+      override_merge_shas:
+        - 78b481eb40f47dee1a6999abd42abf74ce1bba9e
+    - repo_url: https://github.com/mikera/vectorz.git
+      override_merge_shas:
+        - 2057046cd2a20ae77e2f2be53f08c55e5fd8b01e
+        - 38479c7a71896eeae10016b9816c3adfd10677c7
+        - 889e8999395fb5f60266d32bec790fc2ad3daeb8
+        - e1fd48e86462089ff00266aa866ee93a84b46c34
+        - ec821241988c0a1a298b79977ed82714cd06aa21
+    - repo_url: https://github.com/mixpanel/mixpanel-java.git
+      override_merge_shas:
+        - 7cc869766660614944e59e0f153f3fac91e654af
+        - a318fdd72fad23f101a76f483e9ec1bbdd57ab9d
+        - bcdd1ed28f9b69aa8baa6d7d44e292f4d8e8a236
+    - repo_url: https://github.com/mklemm/jaxb2-rich-contract-plugin.git
+      override_merge_shas:
+        - 36f3d08d0ba88e2eefb377d326ba654b693da269
+        - 9b9fd9587c7bfe1930c693b902fb1ae8e65ed360
+    - repo_url: https://github.com/mmazi/rescu.git
+      override_merge_shas:
+        - aa57149a68d9810ab14bab6f46d0add4f3fdf1d5
+    - repo_url: https://github.com/mmlab/rmlprocessor.git
+      override_merge_shas:
+        - 01b2eeca36996539e46e5842a23d5e30c7e2295f
+        - 23cb6fa36dea674d20821fb799ce3399a98ddef9
+        - 707510e3a9c3a799e38a2933cd54e4688c0ad7aa
+        - af76241328ee4072ccb1c5c9d4f7be49877f1a9c
+        - d46b8c445cac62835aeffc0b74b41f69283fd31d
+    - repo_url: https://github.com/mongobee/mongobee.git
+      override_merge_shas:
+        - abf507930c55a2a4d918d70d5c3ff852fb5cbf5e
+    - repo_url: https://github.com/monitorjbl/excel-streaming-reader.git
+      override_merge_shas:
+        - 04ab309541f3cce3ae00d512edf23eea0077b34a
+        - 7d81ae0fed55b297e0c7ad370ce073981a6fd102
+        - 8698befdf4723828508473c9133fe1afc8290dd7
+        - f80a8d72621dab651e6defecb377f38f2dead38e
+    - repo_url: https://github.com/mooso/azure-tables-hadoop.git
+      override_merge_shas:
+        - f5ae55a8d5024fba05bd9a188ae18116b624a69d
+    - repo_url: https://github.com/morfologik/morfologik-stemming.git
+      override_merge_shas:
+        - 8ed182e2d705bef063eb119b46b60efbad6ee75a
+    - repo_url: https://github.com/moritanosuke/glacieruploader.git
+      override_merge_shas:
+        - cfeacbf6ce259d925301898491500214446bfa79
+    - repo_url: https://github.com/movsim/movsim.git
+      override_merge_shas:
+        - 00d5222b61ca22fd9e3938e391fd92a2f7beab09
+        - 3ed611f45106ff6b4d171e32215da5350e4ab0e1
+        - 57eb9814a01725a0f7e35d5d770e152d33172fc2
+        - 58cdfd9f12a7744b2e6720a9bb4870bd519d9159
+        - 595efcbd3f7b4bc094c0d4ad566a97576e6564d0
+        - 674fa4e887137307576f990ed380d71889bc23d9
+        - 6dae25caf7e3ac3561607f9d73cb8b9d47797285
+        - 8169fc183a6253862b4cbcc7320d3314b1c6f967
+        - 85b1821b4508a6ee489bd2f899caa01c1f3a94d6
+        - 8a3132b9cf6f895b1642e18f6d60198fbbbb5e99
+        - 96b01283ea4f7d2b4e6d0d71ddfc66da0910f815
+        - a06535791e7eea9149a5dd279652391bd0cf4b5c
+        - a1a04271dd9f9c1984db574e638fc0eb890760d3
+        - a5e8105a0b1438d0e5b027c983ff697944cc2533
+        - db952595a57161f5c913d728dfcf23ecda11cc72
+        - dda7cfc15c5dc1102f21327f720973fa36dbc38b
+        - f65dfc825dcaa8a267f5fba4694b112528f3189c
+    - repo_url: https://github.com/mpatric/mp3agic.git
+      override_merge_shas:
+        - 24b003d9bb3c1714d12ef2c476571b00469dcdcc
+    - repo_url: https://github.com/mpusher/mpush.git
+      override_merge_shas:
+        - 07fd8670acc7a57964abb915d5ca5f7ac52fc274
+        - 0d7f9d343a62a0481cbc3ad4b1775bec26181295
+        - 91f53706e07a00c446651504e159dc2e57e41529
+        - 9a647a993c2fc04bf26edad6a5ad1afec939fd43
+        - a3245a12b622f3a2ab1a2f434a3e405e2e6f5a4d
+    - repo_url: https://github.com/mrcookieslime/slimefun-3.0.git
+      override_merge_shas:
+        - 030b7ff5c42f8944e5887c5632fb63ef7bff10be
+        - 65df4d5a9e5647ac2e1a41be02b0b0e49a3eb382
+        - 6a34470b47dc32ca17866b68a4cdc67fe4875e91
+        - 6d141373fb0afeff5ac0bb02698c35f7f904a082
+    - repo_url: https://github.com/msopentech/azure-activedirectory-library-for-java.git
+      override_merge_shas:
+        - 057d4d22a0573eae38c992b298a29e06215f391d
+        - 0eef3d4e805abdfdc257d474400421e7ef96f665
+        - 48bdc8500618d5452013a4823bc8ba7a85515986
+        - ee1814c0ac36dfd7d0ebce404b446f5e02b76a5d
+    - repo_url: https://github.com/mttkay/signpost.git
+      override_merge_shas:
+        - 3db54f4931b3d3afcf7b7400426614c40e58ec4c
+    - repo_url: https://github.com/mwanji/toml4j.git
+      override_merge_shas:
+        - 16915c8edb83ecaa709c267c05e2272c24a8fdd4
+        - a3edb55e9c0c40f0620c3b8c4480864a2f07f46c
+        - f8f55a6f16602fb21f3d44c45744e719ec808e2f
+    - repo_url: https://github.com/mybatis/mybatis-3.git
+      override_merge_shas:
+        - 2da2275185e8bb185d51eb522120ac32e5635225
+        - b165e81780681be5e9da160a1ce46b49b27a4d25
+    - repo_url: https://github.com/mycila/license-maven-plugin.git
+      override_merge_shas:
+        - b28809b59331c6642684694d55fc9c38ac3998a6
+    - repo_url: https://github.com/mypurecloud/elasticsearch-lambda.git
+      override_merge_shas:
+        - 9ad6ef3cc4463ad5e7c71ae057264ad3ba7b2f86
+        - b929d2658531c72608f85151ef3b27a265c5214b
+    - repo_url: https://github.com/nabedge/mixer2.git
+      override_merge_shas:
+        - e8a1930e8dc2367176464e888888ac1645bb9eee
+    - repo_url: https://github.com/named-data/jndn.git
+      override_merge_shas:
+        - bf7cd6ecbe7a15e89baa446a3fe529a12a85880b
+    - repo_url: https://github.com/nanohttpd/nanohttpd.git
+      override_merge_shas:
+        - b1397a17955961e2260172f5abf5ec2f4ba54709
+    - repo_url: https://github.com/nea/vertx-mod-cassandra-persistor.git
+      override_merge_shas:
+        - 5f849c44ac7fa15876145c056ba40871f94afeb1
+    - repo_url: https://github.com/needle4j/needle4j.git
+      override_merge_shas:
+        - 34d705ef5705df4014ecbfbeec2da14694e900ed
+        - 93f886c3493bba1e2bc216c583c83bee71c6c747
+    - repo_url: https://github.com/nerdwin15/stash-jenkins-postreceive-webhook.git
+      override_merge_shas:
+        - 3322436f3e6f3286b568b7f8a2cc22844406b99d
+    - repo_url: https://github.com/nhl/link-etl.git
+      override_merge_shas:
+        - 5809ccc76269b6a862d5670835367f18ad2061ae
+    - repo_url: https://github.com/ning/compress.git
+      override_merge_shas:
+        - aa9cf28d6f6a6c4aa88c4ab77bfb5b9a1a43b16f
+    - repo_url: https://github.com/ninjaframework/ninja.git
+      override_merge_shas:
+        - 00dd4e6ee5fc7692b85b5762050d813f7c5e2890
+        - 21d22a05bbf413a22df265428e36dfbca1a8a429
+        - 25473c298a76042875b81d4e71ffc6c5ea071219
+        - 2797b9cb6cfe64bffe86768e85664afd11670167
+        - 45bb542cb46d2913c3acff883d15690be0a867bb
+        - 4bbabcbc03c02b8b20481b1f47ad180f54f5d4f6
+        - 65ceff1360b40ae9d26dd78e41ee609588353fbb
+        - 721820ed5a4dc9441a925b510318bc8c8daa56a9
+        - 8f95c8237b3021f50607b99fc7408df2e2fb42eb
+        - 9699f7c8b819692c55428dcb48ae2de1fe2065c3
+        - b32af9f3a77f2eba022a788e4bfb0ded86fa8610
+        - efde8984335dfe3ee6e36d9dec05d5299b36ddc0
+        - f0c6b06ba5d0f9c4dca908eb9fa7cb04a0eedaa4
+        - fe1237f21fd065e4a834be262563600e8da2f8b4
+    - repo_url: https://github.com/nlpchina/nlp-lang.git
+      override_merge_shas:
+        - cec0dd677bf90156ba3adaea1ffd6c69f64df9a1
+    - repo_url: https://github.com/nmdp-bioinformatics/ngs.git
+      override_merge_shas:
+        - 4b26663ea1d58a3deaad68a2da6b674b055b291a
+        - 7fa1b1e3b8edff936a25f96f3b1a005eaa0612a4
+    - repo_url: https://github.com/northlander/a.git
+      override_merge_shas:
+        - c3f2865b8889ac613753917944968eed0c104474
+    - repo_url: https://github.com/nuodb/migration-tools.git
+      override_merge_shas:
+        - 2e1f6973c44144fa9b61715b1a4f0b9491d71572
+    - repo_url: https://github.com/nurkiewicz/async-retry.git
+      override_merge_shas:
+        - 27316bb87f8ad572d714cb0907a04ed67cc92d7f
+    - repo_url: https://github.com/nutzam/nutzwx.git
+      override_merge_shas:
+        - 11d3b3744cfea0ce332aa28aa480735956a0a73b
+        - fec5c5fa38c02162bb262432e6a8b72c281cbfff
+    - repo_url: https://github.com/nysenate/openlegislation.git
+      override_merge_shas:
+        - 2438250a01426fe434525552464119c5358a8384
+        - 27042b70398a8b6693a0b8ae9579118ec0dd747e
+        - 915e7059ce4a4a48869de67acbe149eb59894e9f
+        - 949672e5e067887b4ca853fd2c39166e2ab7404b
+        - 9c7cf034c108884d79f5cbe564b06d75fb51b4d5
+        - 9cc1c656afa6aa6ec7e251dec2955385ab748879
+        - b8da5f2051bfe149bfe290bf94efdb751d469e94
+        - c1d65d47181f0889094517abf1905764dda5763b
+        - de816044907e6d82a25cf08d3b2ef5efae55a879
+        - ed229ed5c1e4cda4a868763111ab9c99c01816ca
+    - repo_url: https://github.com/obourgain/elasticsearch-http.git
+      override_merge_shas:
+        - 37df8773d873cc3155de5231165beff1a7564b99
+    - repo_url: https://github.com/okleine/ncoap.git
+      override_merge_shas:
+        - 0fe28d174e89355a76eb698dd4f13327180400a3
+        - 3df696d062b432a0dcddf572837cb5fc2577b9b8
+        - 553a89b66dd92de4f155b99ca36859fc71c70738
+        - 75c39babb6ba9d725f6efa3372406a04931ee74b
+        - 805f73110b467c848fed1ff26471fff425614f01
+        - a823abff038fd7f1526fd6c6ad13c8a7edfab6ca
+    - repo_url: https://github.com/oldhu/suunto2nike.git
+      override_merge_shas:
+        - 171bc13151de4b6d205f809d0be56662b49a4920
+    - repo_url: https://github.com/oltpbenchmark/oltpbench.git
+      override_merge_shas:
+        - 3c6f9eb68e6945dde630a5e8e4ec554114921e67
+    - repo_url: https://github.com/omnifaces/omnifaces.git
+      override_merge_shas:
+        - 05abae8be2b4e35b6c7a849b68ad6af6b07d4310
+        - 9fed2fb24d25502792c9aedec02e4a34d866cc07
+    - repo_url: https://github.com/onebusaway/onebusaway-application-modules.git
+      override_merge_shas:
+        - e779e9fce1879efbf6a4241c6a704aec6c2faacf
+    - repo_url: https://github.com/onebusaway/onebusaway-gtfs-modules.git
+      override_merge_shas:
+        - 0dfc36d5c8bb5baea8656f9c4ea68983a8e0070d
+    - repo_url: https://github.com/onebusaway/onebusaway-gtfs-realtime-api.git
+      override_merge_shas:
+        - 2c511739c7f1597917511dc3484d38de128c51c3
+        - 96a36bebafe864cf710f1c7d4fb59d6b0f6be102
+    - repo_url: https://github.com/onyxbits/raccoon.git
+      override_merge_shas:
+        - ad6961824ce68e2e909617b87fe3f852e6e915d8
+    - repo_url: https://github.com/openapitools/openapi-generator.git
+      override_merge_shas:
+        - 45ed374b622caae23b4a3b72eafab17e289f1565
+        - a08f8d13e015e4656ba4eb3d66e4a4d60de13d8d
+        - a0b429d69050b57653cad214daaa352685e8c449
+        - bc42d941ec8c184829816c05236cf58f5c59a3ff
+        - ff81789b373c856e370cb73ac09d3c8521c2c693
+    - repo_url: https://github.com/opendatalab-de/geojson-jackson.git
+      override_merge_shas:
+        - 1890a5b8c56bcd2b7ca81142840d0619acdd0f9a
+        - 622bc5ffc17df85d7f2cbf587ee6d353862ea626
+        - 894661ba0d4f40c02ea56ed56abab760fb13444b
+    - repo_url: https://github.com/openhft/chronicle-bytes.git
+      override_merge_shas:
+        - 2944fec37487ea4ac84a7407e1449890665af18c
+        - a9e7269a8440dcb1d70818a9d046882ad4cd4bb5
+        - e3ac571d253f5fcf85f24e64833bb488092d58d9
+        - fe2283fa7ded0e29970f0f10aaa251e6cf9fad77
+    - repo_url: https://github.com/openhft/chronicle-network.git
+      override_merge_shas:
+        - 0866a74fd59691c127717ca1d8b1864866486a71
+        - fb39c8ca3b23986ce690c7a1b35dc96657630b0d
+    - repo_url: https://github.com/openhft/chronicle-threads.git
+      override_merge_shas:
+        - 617e51c135fb6943694504203224cb10fdda0f41
+    - repo_url: https://github.com/openmicroscopy/bioformats.git
+      override_merge_shas:
+        - 22ecb415849a21142aa5dd743359cb36200612ac
+        - 6b73e46baf0dbd4692d41b00f2ff78078d5ed29e
+        - 730721a7aaaddf2f0aa3cee652b83aa28689613b
+        - 769fc0abd378fc1a1cf585c056245c7befd485ee
+        - 8c18388b18274195a4692ae2b09e55af668da743
+    - repo_url: https://github.com/openpnp/openpnp.git
+      override_merge_shas:
+        - 14992da6ab44f34a81b4cab67ed34628e22a13e2
+        - 17a744391392e940e02007c0d242455add21f4e7
+        - 1e33925ca869825e32b3683870d39322f7204101
+        - 36f65ec0aa210007f525f3fad494d0f2e8d843cb
+        - 3bce6e43e27344d6140fe166b5322cfa77844280
+        - 4e21141b2b9abf7ab23d068da4a04d3218c57776
+        - 5ceebb763bb4c754816b831b9c91aa1fdf54beb5
+        - 60acea64b80a78827b6fc7d40381503271ff550e
+        - 63afd82f031806ec03686a45844037d16df77c70
+        - 6bb070edac171ead90f952fbce9259b342425310
+        - 6eed8c73474e19637a9a7087d512e6907f66f3ef
+        - 8dd62e41086ca1245d13969ee7e4d0e9a17318ee
+        - 9bc82cac8412a1180d6fe19b42c9262765a4b2e8
+        - a3cca4dababa7940c7cc5a86cfbd89ccf21e6cbf
+        - a9f99068197956007021fea9951f899a66d1865c
+        - acc2e51a629e9bdd8b977faaebc8fc390238d3d5
+        - b62c0ce8269e73c38ef5215d02d264586a1ab399
+        - ce9db9ec99244bf3d7b4dd6668c820683e630e0a
+        - d278e4af5d1c3951596387f7123bcc745470c082
+        - eeadc7dfc0ec4adfb2b44a924c22f485e6b086c6
+        - f1d9c747ac3d7f0376b56e1c81f4da617f396e98
+        - fe97d5eb0739be99b7879275d1b49422b0652be7
+    - repo_url: https://github.com/opentosca/container.git
+      override_merge_shas:
+        - b6f21d5ca49235fa079610760dcb325e6a4266ed
+    - repo_url: https://github.com/ops4j/org.ops4j.pax.swissbox.git
+      override_merge_shas:
+        - 22aec8b7af2d3e207cd3db06e71a7ed130c1ab49
+    - repo_url: https://github.com/orientechnologies/orientdb-etl.git
+      override_merge_shas:
+        - 889e65b57d07559f507bcef0e966f6f0612ae9dd
+    - repo_url: https://github.com/oripa/oripa.git
+      override_merge_shas:
+        - c7a747856cefa97fa45aa389c08f0eabb471efff
+        - f6668ff867e4ff7a28c8e89b6487ad524b11e4cf
+    - repo_url: https://github.com/oskopek/javaanpr.git
+      override_merge_shas:
+        - d8e3efe215d03370603b5f74c2cde7761bda9eec
+    - repo_url: https://github.com/outbrain/ob1k.git
+      override_merge_shas:
+        - 2f4556b9770ad12dbf1ed15974eca509fd9fa1a3
+        - 3f7bdcaadc669ba2d14a424104ee4e09433edf88
+        - 8b2c257efe1aa01d49cc595d4af6f8d386d9b535
+    - repo_url: https://github.com/overturetool/overture.git
+      override_merge_shas:
+        - bffba8bbaba72042e85c88e333720221b2d54250
+    - repo_url: https://github.com/oxo42/stateless4j.git
+      override_merge_shas:
+        - 26ac62ceca4d74ab85952e8fe26a1dcf201eeda7
+        - 4c7880ec0e20cabecb1c31043e95ff6b8a707543
+        - 6ba3bc5f65b7182fa6a45cac78f141c43eda5378
+        - 7024c77da6e879210442dfc38327f1aac8d00916
+        - c3e521ee3857f94babe0ffe5e8e18960dd2ac186
+    - repo_url: https://github.com/pablissimo/sonartsplugin.git
+      override_merge_shas:
+        - 21c5ac9cfd807b5575685ea58ea31f243afeb018
+        - 5985fb7361c4b21cf789a9f5d89276afaa49674a
+        - 6a86fcb79d07ddc933e8adabd1d16a58298c8835
+        - ae74dd0e69af25d822b5f3f2b6d658aff07f6118
+        - b13f15db62a158f207e70f30a244e7bae9a9d8f3
+        - b577ad7ed8578f40bfc37ac8ee3b455f36ca8396
+    - repo_url: https://github.com/pagehelper/mybatis-pagehelper.git
+      override_merge_shas:
+        - 3b8b6d829a1b2747565cd30603f985c7f590f04a
+    - repo_url: https://github.com/paulosuzart/jtornado.git
+      override_merge_shas:
+        - 4ac45f54b6b3545b99c6ef6153d1193c4785b450
+        - 752fdf5c715aa6e96a6cc74d876e2a7b83a91c2d
+        - 867caafa1ae38b42514802a7708dc1ce43fe1872
+        - 9422d8460228615b9a4e005a44ee70d022eab1e4
+    - repo_url: https://github.com/pedrovgs/algorithms.git
+      override_merge_shas:
+        - d7e0b1c03fa7cacf40b32dcfde30871e8947445a
+    - repo_url: https://github.com/peterisp/morphology.git
+      override_merge_shas:
+        - 7e42a617566d2cccfda07dce17d3d836196dbbf4
+        - a6926c1c59e119a57a1b37a5a896bddb02cd5ef9
+    - repo_url: https://github.com/petitparser/java-petitparser.git
+      override_merge_shas:
+        - 7db98cb828534e74d877d7fd92be1dd396f45ae9
+    - repo_url: https://github.com/phaed420/simpleclans.git
+      override_merge_shas:
+        - 2244703564dec7ffa4bb40114daae24341080275
+    - repo_url: https://github.com/phantomydn/wicket-orientdb.git
+      override_merge_shas:
+        - 19e9f8c8ff01f4ef6b39006032470baa83079eff
+    - repo_url: https://github.com/phax/jcodemodel.git
+      override_merge_shas:
+        - 43ecb3931e9fe8fdb33d34de734c4e126285597e
+        - 49b6f3104227385851c1f69782c4ea481618392c
+    - repo_url: https://github.com/pholser/junit-quickcheck.git
+      override_merge_shas:
+        - 522688761ae36a55f4420e247aeb70ef6a7bec1b
+    - repo_url: https://github.com/pires/obd-java-api.git
+      override_merge_shas:
+        - c7a50bed5f74a5fef3eb31e4d84f7961a0a5179b
+    - repo_url: https://github.com/pragmatists/junitparams.git
+      override_merge_shas:
+        - 64099252b8751b407e9802857fcab3fdf97bc5e8
+        - 762ec95b8e26869a888d9125b48be59927d1de81
+        - 7e9214c623fbaa05978f1301fdabb0aed1f35141
+        - 8f6c13ae04b9f525f36e55c1dd881be14a246b59
+        - 90ffa2cd6c1f4c72ccd874079dd2332e575a1c94
+        - ed8cc312d3721cd913ce91ef2de03c7c4fac830c
+    - repo_url: https://github.com/premium-minds/billy.git
+      override_merge_shas:
+        - 9420e73394b22e375a57d57822bad925e7f9572a
+        - bc9db3332320895636598425f8927fab20c59a09
+    - repo_url: https://github.com/premium-minds/pm-wicket-utils.git
+      override_merge_shas:
+        - a73b5bf686d93a29daa3513d0e62422111b3f4b6
+    - repo_url: https://github.com/prism/prism-bukkit.git
+      override_merge_shas:
+        - 74927cacad04dc8d6037f2ccd53c2182e12312b7
+        - c9fd69aac937051cc93bbc7b62a22245e0ea33cd
+    - repo_url: https://github.com/progether/jadventure.git
+      override_merge_shas:
+        - 9ce4a7106cb271c5b47f4d5a7fadf9688989af94
+        - e28401af8516440716e8fe5e70ce6dcf872731ea
+    - repo_url: https://github.com/projectblueshift/blueshiftapi.git
+      override_merge_shas:
+        - 004679e5bb6d1227b91f9e1aeaf79b72c317a397
+        - 289da48fcecb76804930781e37a487e1d4462b1c
+        - 3cb7c26d4f0ac4ec978f8b430a299dc0c48e3f09
+        - 4ae56ee36e43f9f1f1985364c03191e99d489ae1
+        - 589b367cf283a6b348e415d065f59983f884b95c
+        - b53a148ca59225dcbceb1fc65321f98a0c5c13f9
+        - c0a77afe78ec62f2674ece3a732fd3c8643162d6
+        - d81bffbae3569e6f368e4f47eb8be80bf3b8bac4
+    - repo_url: https://github.com/projectdanube/xdi2.git
+      override_merge_shas:
+        - 1c1ae72b5b1c56bd825f97b7769967208035e99b
+        - 41c3558dfc19ea135b2b6d3e8c482e75a5350d10
+        - 8b5a951af2ff940771d87e8c8062e66034d89d78
+        - e9b5fa658b6b5429239c768233df8b2134740542
+    - repo_url: https://github.com/pyknic/codegen.git
+      override_merge_shas:
+        - 3e0d4067f68ebf4163e850c7031571271b4893e0
+        - b718264121f2990b0cd2df982f93714ce9b2fe14
+        - e303235d2e0f90a3ce6a72974a8de27ec144599a
+    - repo_url: https://github.com/qcadoo/mes.git
+      override_merge_shas:
+        - c92e64705cd0b35f732db3a08e7c8ab590143e51
+        - f2bd4f55611e1699ec432c9a59deda4dea07d659
+    - repo_url: https://github.com/quux00/simplecsv.git
+      override_merge_shas:
+        - e0ad6010aa7bdb86ac4b59bbf90337b6929108d9
+    - repo_url: https://github.com/radsz/jacop.git
+      override_merge_shas:
+        - dea313a8840655eb7f180b4bb17e3842917592c8
+    - repo_url: https://github.com/rcarz/jira-client.git
+      override_merge_shas:
+        - d7029e91216bdf42fb9638a846efbdd1550d2941
+    - repo_url: https://github.com/rcongiu/hive-json-serde.git
+      override_merge_shas:
+        - 7e380ab961fad641cc834600fbcd2557c3f5f998
+    - repo_url: https://github.com/rcsb/colorbrewer.git
+      override_merge_shas:
+        - c551ca68b2e9bdc50824f990db085754ffa6dbdb
+    - repo_url: https://github.com/rdfhdt/hdt-java.git
+      override_merge_shas:
+        - 1efef8ecb314ac91d48c168308b3f256d0931fbc
+        - aa41a0398932ea73592367806f74a6d5959a300d
+    - repo_url: https://github.com/recommenders/rival.git
+      override_merge_shas:
+        - 986d8751fe81be8664d345a740ebcbaea011fc63
+        - af4b8add3c7c5e4386961576291d9025dd1ff5b9
+    - repo_url: https://github.com/recruit-tech/redpen.git
+      override_merge_shas:
+        - 1d8f10467a2bd622b0bb19ef22a2cc41860a43ea
+        - 22bf7588fafb4e06e903c4a38945422e07d24623
+        - 6070b11414a006e8f3c05e457543200a9f558809
+        - 810ef27f418203ff234102cf7fe5fa28f2cedb7d
+        - 9af5140829baa1e9dd5094879ad0681606574646
+        - b0bae90319a3edcfcdce388f61c053e017e72748
+        - c096b65ca2103033aecb685065acefe5d3e3b407
+        - ecf22b654b8d945be1bc8426615ddcb7515c40bb
+    - repo_url: https://github.com/redline-smalltalk/redline-smalltalk.git
+      override_merge_shas:
+        - 1130f6577957874e62749c9c1fb06de15a29846f
+        - 3051df27c7e8c7c5ab002198e0f7cb817bc00c89
+        - 3fc6e9059ca0a4b17ee25c4ae85b738872fc5ef0
+    - repo_url: https://github.com/redsolution/otr4j.git
+      override_merge_shas:
+        - 282b34caf770e1c59f2aea66544055f2bac531a0
+        - 554c21799595e39e67f1b9efdb636eb2314df784
+        - fee9c908d0389fa3e5ae469d907f2c872a23ce39
+    - repo_url: https://github.com/reficio/p2-maven-plugin.git
+      override_merge_shas:
+        - 92a12c5bf3624825e5a803ffdd622971b120c846
+    - repo_url: https://github.com/relayrides/pushy.git
+      override_merge_shas:
+        - 21150905f25ebda8cf4dacfc99ada626f5113a8d
+        - 6badde95380e44102891eb0c104b8d8b3f5d5243
+        - d701ff4936babefdcf89464fe6194775195aa241
+        - e7635b0f10606fc9408255ce180cb009271c172b
+        - efd678fbd977b2bb60e2a04954dbdca6143fd077
+    - repo_url: https://github.com/renepickhardt/generalized-language-modeling-toolkit.git
+      override_merge_shas:
+        - 2a4775b0e660f3488de5b6d15f1647436d0a5efb
+        - b2b90c58b5c20fc9e7565e4336c575ab6f27684d
+    - repo_url: https://github.com/renggli/petitparserjava.git
+      override_merge_shas:
+        - 7db98cb828534e74d877d7fd92be1dd396f45ae9
+    - repo_url: https://github.com/resthub/springmvc-router.git
+      override_merge_shas:
+        - 43b5984109507a1956226b3ce4bb4641cf1f4dbf
+        - 71d38b423902b98a187292a1c0e9a6665fe35231
+    - repo_url: https://github.com/resty-gwt/resty-gwt.git
+      override_merge_shas:
+        - 1c190f6c669369e5d7cb4ebb24bba7454c7b2cc7
+        - 7365f191bd3b2c0484708329b7d6e3bfd2646865
+        - 946a7aceaacd793c004e69eb386eb58b15473114
+        - d6c18bc8da762766b8946d212a1f8db96ba3cd10
+    - repo_url: https://github.com/richardwarburton/lambda-behave.git
+      override_merge_shas:
+        - 1122d7779dd0c352baf30f702efe19bd4852b727
+    - repo_url: https://github.com/rjohnsondev/java-libpst.git
+      override_merge_shas:
+        - c4092b6aa4bf8d1d48bf15d72abd7de6fe8a4723
+    - repo_url: https://github.com/rnewson/couchdb-lucene.git
+      override_merge_shas:
+        - 14123029dc4281316d0200eeb64a55049fd21601
+        - 4e2de1bc8af38c12b594469eafc887060d1ae136
+        - 51a152b363bc753cbe4ed6a4353b57bddd26c272
+    - repo_url: https://github.com/robobees/simbeeotic.git
+      override_merge_shas:
+        - d8cc9db915bb7f2fd6a528df8c173d1c08407ec4
+    - repo_url: https://github.com/robotiumtech/robotium.git
+      override_merge_shas:
+        - 4df4cf8c0ded357fc2ac4dc81625fe0f851643f0
+    - repo_url: https://github.com/rometools/rome.git
+      override_merge_shas:
+        - 648a1f04cf5a4c55a13bfff801389cfe93c6976e
+    - repo_url: https://github.com/rschreijer/lutung.git
+      override_merge_shas:
+        - 2f65e975a8878ebcbd78fbb87e3fa878fa46b41b
+        - 747fdbc2ccde5a130386cd425ef70a475af95b27
+    - repo_url: https://github.com/rtyley/android-viewholder-listviews.git
+      override_merge_shas:
+        - b5a40bb804382b21052c99890298fc5afcd4b6b1
+    - repo_url: https://github.com/ru/casanova.git
+      override_merge_shas:
+        - 5e273b685e538556085f1690a49b15613d18c395
+        - d85a6c1de747e9b19350faa17631f0055dfaa6e6
+    - repo_url: https://github.com/rubenlagus/telegrambots.git
+      override_merge_shas:
+        - 08efa94fcd05f62cd4fae784cba6cd2904011546
+        - 15fe637998d55ef567d4e499e948c9d183b99fb4
+        - 1ebbc6848571fe6cc8294a5c63e5c2e97d3b5b66
+        - 7daebe13188848b2d59fae12af6df41667fe7c8a
+    - repo_url: https://github.com/ruedigermoeller/kontraktor.git
+      override_merge_shas:
+        - 54fa3de6899427de183bc5434da2d17bbee13023
+    - repo_url: https://github.com/ryantenney/metrics-spring.git
+      override_merge_shas:
+        - 5244ad0b109cc2814221012c959aee61705efe5b
+    - repo_url: https://github.com/sailthru/sailthru-java-client.git
+      override_merge_shas:
+        - 212469894d8504e03099bac92066de1583c33ed4
+    - repo_url: https://github.com/salyh/elasticsearch-river-imap.git
+      override_merge_shas:
+        - 8827bca9e525e2306ce7d2ff8089317e31092489
+    - repo_url: https://github.com/sammthomson/semafor.git
+      override_merge_shas:
+        - fd9a9e6b8767db77f85e82f0c4ba4a7e1d4126ee
+    - repo_url: https://github.com/sander2798/enderstone.git
+      override_merge_shas:
+        - 054aa857e36cbd1616c2502e6509e953f00d7937
+        - 27f9c43869468a75a469b9d40b3e3e946da5c687
+        - 54c8bca1e4640abc84db7daf009bf67f2168e102
+        - 7e7c2aae079a09a93b1d3811f8a1111a5e60d991
+        - 9d0d7b7ba8d784dc8a7bd684e4a4d2bf37cc44f9
+        - ab585820cb76ad711b09fdfb7612349dd6bd9c11
+        - b515bac1b027442fee058b69e9c56f1d7941d55a
+        - c4d13e39a8b2d2c937be6f97b06a870718e8fd9c
+        - df0826f63b41377eed847f6a44bcf7e474384843
+        - f5b3219d21f871dd861bc15e378098b3ed5f674f
+        - febdb02eb304ada845e62272290b13d31e533cf2
+    - repo_url: https://github.com/sandergielisse/enderstone.git
+      override_merge_shas:
+        - 034f15e22ab550ee0c3fd7b8d7333fd0cb432361
+        - 054aa857e36cbd1616c2502e6509e953f00d7937
+        - 17ed8520dacfc399023efb73188f3fd9c599bf01
+        - 27f9c43869468a75a469b9d40b3e3e946da5c687
+        - 7e7c2aae079a09a93b1d3811f8a1111a5e60d991
+        - 9d0d7b7ba8d784dc8a7bd684e4a4d2bf37cc44f9
+        - ab585820cb76ad711b09fdfb7612349dd6bd9c11
+        - b515bac1b027442fee058b69e9c56f1d7941d55a
+        - c4d13e39a8b2d2c937be6f97b06a870718e8fd9c
+        - df0826f63b41377eed847f6a44bcf7e474384843
+        - f5b3219d21f871dd861bc15e378098b3ed5f674f
+        - febdb02eb304ada845e62272290b13d31e533cf2
+    - repo_url: https://github.com/sbtourist/journal.io.git
+      override_merge_shas:
+        - 99d7e8fb8cf93cf1d0d4537e9feb100112324778
+        - f13d15914f40f49d860acbb2501e31185ed70a41
+    - repo_url: https://github.com/scribble/scribble-java.git
+      override_merge_shas:
+        - 164250d0d03a6cfb879d3ea5c5672bac5b0133ec
+        - 39cd920f8b8bf4a99d9c47a8ec198fba0ba0c29e
+        - e72f7c9c06a3f415440224d97211da97dcbd76f8
+    - repo_url: https://github.com/scribejava/scribejava.git
+      override_merge_shas:
+        - 2f5d9b10ee3604387e16d355cfb95af096d3c51c
+        - 665092d619617b44711bf80f0652c19ce0e32a87
+    - repo_url: https://github.com/sd4324530/fastweixin.git
+      override_merge_shas:
+        - b9c911aea2bd0710b54afc94fb09c55e813ed9b6
+        - f4aa5c9e2a5e5009160e2d1062d540641e668ee1
+    - repo_url: https://github.com/sdllanguagetechnologies/testy.git
+      override_merge_shas:
+        - 35283116d46d5daf14d53f20d03dd14febf9013e
+        - fc0904eb373b9a5c56baa2535c88433536dbd6d2
+    - repo_url: https://github.com/seam/render.git
+      override_merge_shas:
+        - 5371832457e9d1037dba8e7091513b6521e5af80
+    - repo_url: https://github.com/seanchenxi/gwt-storage.git
+      override_merge_shas:
+        - 8ce0dc7d7973f330a05563badf54037c90cd129b
+        - e3b59f05a045d66d1916fdea95aa76ce1cd2e412
+    - repo_url: https://github.com/sebfz1/wicket-jquery-ui.git
+      override_merge_shas:
+        - d26c29217ed316b58ca7daf26f949caf2866b578
+    - repo_url: https://github.com/segmentio/analytics-java.git
+      override_merge_shas:
+        - 0d4a7b4e69e12cd36b44e1cf7392fbde416e2934
+        - b5a96236e473740ea83e5d1ab0548deea21a5656
+        - b911863aa857887e12c7fb9b2bf92fadf20cb8c1
+    - repo_url: https://github.com/semanticvectors/semanticvectors.git
+      override_merge_shas:
+        - 4058d3dc651ac207d14c6c9392b394552daed5e3
+        - 9461e75688f8d1768140ecd58f13adbbc2d4c93f
+    - repo_url: https://github.com/sgoeschl/jmeter-sla-report.git
+      override_merge_shas:
+        - e398d0480f4f1fabbebfdbec5990cdee3303866a
+    - repo_url: https://github.com/shazam/shazamcrest.git
+      override_merge_shas:
+        - 218c417aaaa48a7efc6e836d99eed00a215f2227
+        - 5bb33c89041258a0f9fa7bc50a06026e7ecd0845
+    - repo_url: https://github.com/shhs-coding-club/drugwars.git
+      override_merge_shas:
+        - f07c4b5d24a5a246a9de55940bb80151684c64ea
+    - repo_url: https://github.com/shimikano/spring-jpa-bulk.git
+      override_merge_shas:
+        - 1bec64a7690dee7f6fb602f4d81137e45f9a419a
+    - repo_url: https://github.com/shopizer-ecommerce/shopizer.git
+      override_merge_shas:
+        - 20d079b0bbfeda6399862299109f7d122f8b524e
+        - 46758d35ec27b6bf4e9d907ed025d6950b3f4f11
+        - 47f960c48c69d24ac3bbe2daead14bb90ad522c8
+        - 50ecad795f23f1441823702df26fbe09f8c1add7
+        - bdd5e3ab30278e6f399eba1e3a3365d93e2e9070
+        - d6c9e148840f85d4426ea278fdb832236d757ec9
+    - repo_url: https://github.com/sijpesteijn/mafia-maven-plugin.git
+      override_merge_shas:
+        - 397e23f5f00948ceb35a9ab4cccdd34ff9543f01
+    - repo_url: https://github.com/simasch/qlrm.git
+      override_merge_shas:
+        - e03f1617f3978b3a1906f96e92317514eef243ff
+    - repo_url: https://github.com/simmetrics/simmetrics.git
+      override_merge_shas:
+        - 1b1577d4bb64cde3a360e8024099e98d1b19638c
+        - a0857905c0446c61e7f264aea4138a5cc0d2a2b5
+        - b270ab278669cfe794899a550518de9ebb0863ba
+        - c45a86b27121c9f565f2c4386d0a834f3e299bf7
+        - cdabedae8e4518093e994e091aaa8664172d72e0
+        - d421ef5dc353a364eccf7f28b7bb3d32f323b5a3
+        - e068a678082c18fcaa360b58ba6e340908e9a3c2
+        - f28a7ee5dcf91706f3dfedc07e4723196b4e6c22
+    - repo_url: https://github.com/skyscreamer/jsonassert.git
+      override_merge_shas:
+        - 3ca08b5ddd18efcdf33a0aa98c3324091dc6bede
+        - 64d735f4d939e738babff6749ed8cc59b34b4fdf
+        - 8b2593cd7449b1496c9ff3844db6f0592a049052
+        - 8e5c358ed7df6b99d3757ba3519334dc221a2246
+    - repo_url: https://github.com/skyscreamer/nevado.git
+      override_merge_shas:
+        - cdc23cde46c079ff30c9c1ca4758e54fed153620
+    - repo_url: https://github.com/skyscreamer/yoga.git
+      override_merge_shas:
+        - 0d9855e43e4a1d3fff08df4c688cc9eab58da338
+        - 1f22844c51753edd813e117213a7e336d917d262
+    - repo_url: https://github.com/smartsheet-platform/smartsheet-java-sdk.git
+      override_merge_shas:
+        - 1f165550865167adebef205696294cfd60d94993
+        - 1fe3f6971fbd7a61b7785d8d0082d5622241e047
+        - 7c1c4e0fa2e5d92d14450b8b85897f850d2b7dac
+        - b7c6e70bd810032bd21222480699480b5f0842c2
+    - repo_url: https://github.com/soabase/exhibitor.git
+      override_merge_shas:
+        - 78de708554f75c4e14dc12d8f6ac3f02ed567a26
+    - repo_url: https://github.com/softinstigate/restheart.git
+      override_merge_shas:
+        - 005c80ce2dfbfa214647e64b44c3b3fa075113aa
+        - 0747dae87d95db10cd2f8c43757649542e6c6d62
+        - 0a60605990bdc0aaaf053778fef172fb1dd1170d
+        - 13a166b7e6e32d55615ff38fdda612925db46438
+        - 41317c4e5380c6f1008b1046182f2efeb3bf8a44
+        - 84579997fb358610e45c135c45fd1c5bd8d2b749
+        - 85f0f2f7299a20457cb5f113b00aca8f230c3019
+        - 87cb7e27773355c3cf49181e6c85e857a9887378
+        - 943a7d3d2101512a2ef426240cab3b5fe095f475
+        - 98dda32101d0e98366363d2f331662406af522b9
+        - b196d4fc15bb19a3a3c21b8a39559ad4405acca3
+        - bde60808a89855cdba44195fc46681d4aa88f5c9
+        - c05198d3ef50cb4e96bfede52da7166a48afa0c7
+        - c3d33550b1d2c2b7e3561a9c3c2fc99ad9091fb1
+        - dc14776b0222b57177f126d05bb5a5a9c87a6469
+        - f753e802465960ef6f1d8f84c0f787a730d85d74
+    - repo_url: https://github.com/solita/functional-utils.git
+      override_merge_shas:
+        - 396886272a60f4a5ad21a5277071f7bc9c3247b1
+    - repo_url: https://github.com/sonarcommunity/sonar-build-breaker.git
+      override_merge_shas:
+        - 0a474ef6d91248a199a65c9ca24556e598116fd1
+    - repo_url: https://github.com/sonarcommunity/sonar-php.git
+      override_merge_shas:
+        - 76e939e3841dfc3f0d15b4e61ea893242000a417
+    - repo_url: https://github.com/sonarcommunity/sonar-pmd.git
+      override_merge_shas:
+        - 2301c0627b5ab5276acb103f933e68d2ab6ca3be
+        - 933775819973c32cc8a831ea756e9a6c7a10f113
+    - repo_url: https://github.com/sonarsource/sonar-findbugs.git
+      override_merge_shas:
+        - 185c5314e370b844d643c036c0bebada30bb7de6
+        - 36fe7fdce5bb537ffb0c12869eeaf72f19ed1d6d
+        - 4a8de43c4fe22d8397f9fcaad2f27b202f875a7d
+        - 6ce2a4c07bb6f239f40cec2dc87286a39c606a4b
+        - b2fd8633056d7e5dd1b820601741bf09967da852
+        - bad6dabc5d6f9efdc87e67235050ea501bae51c5
+    - repo_url: https://github.com/splunk/splunk-library-javalogging.git
+      override_merge_shas:
+        - d54c807b85871cf89f4eb6d252111bb671a0bf23
+        - e1c8b58266f1b020779e5a80c78d5589a2565970
+        - f7bf37732d5d097c791341d348ef6e4ec67722ef
+        - f80bc59f417077de739ae23c10be9b1658219bed
+    - repo_url: https://github.com/spotify/apollo.git
+      override_merge_shas:
+        - 1dd3f37f628804743a40b573db6f4baf8017058d
+        - 35d43aac53b274e3d3c5e9553e63baef809c0290
+        - 3d1078e037d594c28b0ac72d7bcf4faa87637725
+    - repo_url: https://github.com/spotify/dockerfile-maven.git
+      override_merge_shas:
+        - 580f84d9277f80882d20aff38d6f065ed7206bf8
+    - repo_url: https://github.com/spoutcraft/legacylauncher.git
+      override_merge_shas:
+        - 177a3b301e00ec3544f4b3ebb9f878a693dff2bf
+        - 46202e847e645a206f4cc3a3b40cad9c959263bf
+        - 52fe591df20eb7bc72c422e6a73e7975c2b3b405
+        - 55ce938914de18c8eae55b0297949d20926778af
+        - 66b1a81e0b1ce7a64454b616e2731b7c27f38ecb
+        - b306613d4d65a6d1f1a6149677dc2f007b305299
+    - repo_url: https://github.com/spullara/java-future-jdk8.git
+      override_merge_shas:
+        - 0e8ce31ebd03ba223dda4339601f61b8ffd53ace
+    - repo_url: https://github.com/square/javapoet.git
+      override_merge_shas:
+        - 2eee6c2c5db8aacdff0100847f6831e1e46db5c4
+        - d019b6f624863b72cbf246b793dbf025d02b219e
+    - repo_url: https://github.com/srt/asterisk-java.git
+      override_merge_shas:
+        - 2131fda1860f47da7d05dd3d494922e7d90b2ab3
+        - a4b27137cc92af086da78fdfb634a441cb07e1d0
+        - d051cefe929eeba446139b2480f4e6006502d896
+    - repo_url: https://github.com/stealthly/xml-avro.git
+      override_merge_shas:
+        - 4459180f2931d596524621a3b388e756cc4a22e9
+    - repo_url: https://github.com/stefanhendriks/dune2themaker4j.git
+      override_merge_shas:
+        - fa32851fce4806699ba6828e72e145fd0107837b
+    - repo_url: https://github.com/stephenc/java-iso-tools.git
+      override_merge_shas:
+        - abb37e3cfda2f2774f128d2a4f8299b4d721b452
+    - repo_url: https://github.com/steveice10/mcprotocollib.git
+      override_merge_shas:
+        - 36e5eafd286fc1d6a554487a0a2e2f18032ece1a
+        - 8a7d7b196b5c9f4b309777d5d411d8a1524d81e3
+        - b767a94417ee3392b2e294548b1cabcefe87acbd
+        - ba0c6af56c6c41581b393514f706e6ccc84cbd76
+    - repo_url: https://github.com/stevespringett/dependency-check-sonar-plugin.git
+      override_merge_shas:
+        - b3cbcd1d5b0a89d5651398bc0afd9bf04b204183
+        - f0032e903f332c22e4beb65b317edcafb7fdf2cf
+    - repo_url: https://github.com/stratehm/stratum-proxy.git
+      override_merge_shas:
+        - 3d9c994eece6a6a6ccf078915a9d6910c45b2f03
+        - 45364d27bd41bec671a6fe0c50bf75f3864fb11e
+    - repo_url: https://github.com/stripesframework/stripes.git
+      override_merge_shas:
+        - 2d7384a930c879ba29b87d3464de2d5807763e4a
+        - aaa8d90b9f05dd3e40aeda2bff79326546f19407
+    - repo_url: https://github.com/structr/structr.git
+      override_merge_shas:
+        - 6fc7c9a53b47fc2815ccf201c3bdcfd41ce40604
+        - 704412613839c01aec47ba01ab82b2dbbdd952ca
+        - 740899f953a0830eeae8397ca1b652455d90e6a1
+        - a8cda24e915512dae80b01d9ea08579533fbb00a
+    - repo_url: https://github.com/sviperll/static-mustache.git
+      override_merge_shas:
+        - 271693c779061cde2069af7507b5721c208da8e4
+    - repo_url: https://github.com/swagger-api/swagger-codegen.git
+      override_merge_shas:
+        - 3638d792912ba73903325d933d887f626f1d6e67
+        - 3930b5b0a109327b94baad0b8d1eaf25f11ee035
+        - 640b16b58a4c9131c18e53f03c204ac1b7fee3c5
+        - 73c338be58306bdc046e4af53709dfb4dabbe7a4
+        - a73ad79b9bfe25141f814d83fe01b69d9f85eedd
+        - feb8b16e0b947782896264e169848d7cd75f9c03
+    - repo_url: https://github.com/swagger-api/swagger-parser.git
+      override_merge_shas:
+        - 00ea24a7c9148727c88dba1a5d73a3fc2017a60e
+        - 2d1c96f61c4cce7a76bca334f56b96d75a6233aa
+        - 41ccee4da3da87fd97a8b80b45ebe5b46da9f87c
+        - 59a85a29da74a1c374af370f0eac64ec04814134
+        - 9c6ec9e5c91fa04147c9e52ad7fabf9bd7caf192
+    - repo_url: https://github.com/syncleus/ferma.git
+      override_merge_shas:
+        - b273f174b303afbba124b948e959de1f0b4ea1d4
+    - repo_url: https://github.com/t0xa/gelfj.git
+      override_merge_shas:
+        - f57a572d8c372b60afde1f1f300fdb93e3d1a194
+    - repo_url: https://github.com/tabulapdf/tabula-java.git
+      override_merge_shas:
+        - 2639edd65dc370068bdc9b438daa70f29cc5bb00
+        - 4aa9568a70b6748d28491648e13598e5cc097c3f
+        - 7e024fc13371c195639b213f6de673be2107b016
+    - repo_url: https://github.com/tacitknowledge/jcr-mock.git
+      override_merge_shas:
+        - c73aee7bfb9d5c3488412b84d8f83961f57abcd2
+    - repo_url: https://github.com/tadglines/socket.io-java.git
+      override_merge_shas:
+        - aee8aa7b44022cfac0a87bd27282cccb1f3b388b
+    - repo_url: https://github.com/taimos/daemon-framework.git
+      override_merge_shas:
+        - f1696c8958a9311d29297b106064211abec721dd
+    - repo_url: https://github.com/takari/maven-profiler.git
+      override_merge_shas:
+        - 2d7f5eba094953230771d27e6d178cfe31373c6d
+    - repo_url: https://github.com/taotaotheripper/sault.git
+      override_merge_shas:
+        - c42a266c8aca381fb541ecf5cabf1ad9594f7026
+    - repo_url: https://github.com/tasermonkey/thumbnailator.git
+      override_merge_shas:
+        - 658ca13b2ea59e424ececd86df21d96abf3faecd
+    - repo_url: https://github.com/tcurdt/jdeb.git
+      override_merge_shas:
+        - 284a4457cf126bf3101c9c8b16e98dda56a68ec3
+        - 6ea8aa24025f263125de78a3fd3b0c586c332328
+        - 7659ef627d8f6658067f3c004438b25002a856da
+        - 9654c1b2d617e7bd98da540388059f490c4be931
+    - repo_url: https://github.com/tdebatty/string-similarity.git
+      override_merge_shas:
+        - 2b2930e1f500efd5f9efbd95891a62ab7da3a818
+    - repo_url: https://github.com/tdunning/log-synth.git
+      override_merge_shas:
+        - 83316ef849229d87b24ce5d0d6d54f1f76764759
+    - repo_url: https://github.com/technophobia/substeps-core.git
+      override_merge_shas:
+        - 005a00496d02f32b568224e01e2a2fed19f9a4bc
+        - 07b94728d642a789e11b45c284432544e6a013a9
+        - 158700c1f3b0f4508a9b2b75fbd43be18f5fae4f
+        - 3b4badff3ac2ea23135ed5b9f3158e5a90bf1345
+        - aa19a3990ae6c09ad62e75712921ac289c92203f
+        - f51e19b36c2a13d3d11fe9744381a0c910d61c6f
+    - repo_url: https://github.com/teknux-org/jetty-bootstrap.git
+      override_merge_shas:
+        - 2852e8553b9363628dc21c1186599e714ee1cdad
+        - 6a9f52a5377a484397eeca4b0511f356f493696f
+    - repo_url: https://github.com/telefonicaid/netphony-network-protocols.git
+      override_merge_shas:
+        - 44919e4a94b5992d04186779c82da587aa5e3bc8
+    - repo_url: https://github.com/termd/termd.git
+      override_merge_shas:
+        - 75f5c20e784c95a7d810d61508d3c6be690661dc
+    - repo_url: https://github.com/texasdigitallibrary/vireo.git
+      override_merge_shas:
+        - 43950c643237887f8f90905e832a68c0f89aa047
+        - 67658ca1de8fffc6354be5e0e8cf96957ac97c6a
+    - repo_url: https://github.com/theholywaffle/teamspeak-3-java-api.git
+      override_merge_shas:
+        - d41446711b7338794a8c348f50c7a53b99a08d4f
+    - repo_url: https://github.com/thelinmichael/spotify-web-api-java.git
+      override_merge_shas:
+        - 675a0d299dc21bd3d1540710ec9b6426b3ad9dd0
+        - 940b05e87a3a43f3eb7cc709e701898be8dc7e3a
+    - repo_url: https://github.com/thenewcircle/spring-hibernate-20120924.git
+      override_merge_shas:
+        - 7ec9c1b4bb69e9fbd58d5bef0bab16a09ca7bf68
+    - repo_url: https://github.com/thepoofy/foursquare_v2_java_adapter.git
+      override_merge_shas:
+        - dacecfc813308901bc17bdf1bc849c3ca820eb01
+    - repo_url: https://github.com/thinkgem/jeesite.git
+      override_merge_shas:
+        - 618aafef63176f57f1b37ce8ed27900defad488d
+    - repo_url: https://github.com/threerings/getdown.git
+      override_merge_shas:
+        - ad32699ca3156b8423fe198b0486c346f18cafbc
+        - f087863098a6bc43551643f94cbe1893348773e6
+    - repo_url: https://github.com/thymeleaf/thymeleafexamples-springmail.git
+      override_merge_shas:
+        - 158fb6406b10311f114054c66f6206dc7e915917
+    - repo_url: https://github.com/tomitribe/crest.git
+      override_merge_shas:
+        - 73469538cdc04b36ea4d09dccedc1cc50780904a
+        - abe0f0401628afe1d21123c90299efa53d5ebe81
+    - repo_url: https://github.com/tpietzsch/bigdataviewer-core.git
+      override_merge_shas:
+        - 30cb8bc274ba5c6332e34fefb3e193415c0d1c6e
+        - 572d4602a6282501870c01d3660fea9b22a817f6
+        - 6a23498e499ca4705744af0848c6a07407b65c71
+        - cfb4e2e4cb94e0b2d53e469f66726803ec608c93
+        - df89915fd4c7e1ddef4ebeb94e3e68fe76e49be0
+    - repo_url: https://github.com/tpietzsch/spimviewer.git
+      override_merge_shas:
+        - 30cb8bc274ba5c6332e34fefb3e193415c0d1c6e
+        - 572d4602a6282501870c01d3660fea9b22a817f6
+        - 6a23498e499ca4705744af0848c6a07407b65c71
+        - cfb4e2e4cb94e0b2d53e469f66726803ec608c93
+        - df89915fd4c7e1ddef4ebeb94e3e68fe76e49be0
+    - repo_url: https://github.com/tracee/tracee.git
+      override_merge_shas:
+        - f75ef3990515f567880ae6045fed482ce05cc02a
+    - repo_url: https://github.com/tridentsdk/tridentsdk.git
+      override_merge_shas:
+        - 004679e5bb6d1227b91f9e1aeaf79b72c317a397
+        - 289da48fcecb76804930781e37a487e1d4462b1c
+        - 3cb7c26d4f0ac4ec978f8b430a299dc0c48e3f09
+        - 4ae56ee36e43f9f1f1985364c03191e99d489ae1
+        - 589b367cf283a6b348e415d065f59983f884b95c
+        - b53a148ca59225dcbceb1fc65321f98a0c5c13f9
+        - c0a77afe78ec62f2674ece3a732fd3c8643162d6
+        - d81bffbae3569e6f368e4f47eb8be80bf3b8bac4
+    - repo_url: https://github.com/trung/inmemoryjavacompiler.git
+      override_merge_shas:
+        - 6460eed46a2343e156dcb3a6f13b286a75f81667
+    - repo_url: https://github.com/tumblr/jumblr.git
+      override_merge_shas:
+        - 24a9051600c96faae367080d1895ee051e41ad67
+        - 7f11b916bf62f92e12c3a6c098ed2df7c36ad9f4
+        - e826df70c8772e95f1327bac233ce0ca9d9fa46e
+        - f6efe42bf1b29e52b72832b8c1754fc93cd3ec4b
+    - repo_url: https://github.com/turini/vraptor-authz.git
+      override_merge_shas:
+        - ff9a0b0405f0d759760b73d8963d788c837bc9d0
+    - repo_url: https://github.com/twilio/starter-java.git
+      override_merge_shas:
+        - 01cc9db061b3d98083e4e49d56aaa052434a1f2a
+    - repo_url: https://github.com/twilio/twilio-java.git
+      override_merge_shas:
+        - 28b1a15ad1146512fab3f83470a23b5603d2cbf1
+        - 5a1cfdd0af7bfe792d29745bd0efe09a0d86c58a
+    - repo_url: https://github.com/ubervu/elasticsearch-river-github.git
+      override_merge_shas:
+        - 261184e89701acd7169b001d0dc58293ec680512
+    - repo_url: https://github.com/uklimaschewski/evalex.git
+      override_merge_shas:
+        - 91a75fc15bc48b2c27f5eba7f00ed1b6260b76ab
+        - b712e336e13c0bc27119d445050721515f71f6d4
+    - repo_url: https://github.com/unitsofmeasurement/unit-api.git
+      override_merge_shas:
+        - 94a6c1870f42d1953348b06105b5091951a3e442
+        - af3a3abfab663d442a692e5d1c503dab05665afe
+        - f16c43f7b6f090819c2530ac4d282e4e87f81307
+    - repo_url: https://github.com/univocity/univocity-parsers.git
+      override_merge_shas:
+        - 4d075a03c743828a5c0e98e8547933f63de3167e
+        - 4fe97f1e8b7a4487e66c4e653065dd39c79ad963
+    - repo_url: https://github.com/unruly/junit-rules.git
+      override_merge_shas:
+        - 9f9e68b409b45bc46b8210c50964508e185dea8f
+    - repo_url: https://github.com/urbanairship/datacube.git
+      override_merge_shas:
+        - 2d5233dbf1f428b640c818f8e61234e24faffbaf
+        - 641b92c0fc573ce4f284ef08917c0c68bb3eecfa
+        - b8bef94f4d640f31341ce32f872e616619b3ed80
+    - repo_url: https://github.com/urbanairship/java-library.git
+      override_merge_shas:
+        - 4be3d18ac5d8d4f21dd63731ba9cf92aeadc16e5
+        - bbe0297a107727f3f58629274f6ca5e42356e146
+    - repo_url: https://github.com/urbancode/terraform.git
+      override_merge_shas:
+        - 0939d94a5048abd3aa00182a104a2c660529e096
+        - 23cda111d2be54f22e8222a29f71f29bb61f3188
+    - repo_url: https://github.com/urish/gwt-titanium.git
+      override_merge_shas:
+        - 8283194660a0d362eab3f08a61e31d400d9a56a9
+    - repo_url: https://github.com/uwolfer/gerrit-rest-java-client.git
+      override_merge_shas:
+        - 63c4c0de93ac1545662f946e7b8b821c6c85da68
+        - 8e688db7026ac124bd5984b8353d7095e994cac3
+    - repo_url: https://github.com/vanduynslagerp/enml4j.git
+      override_merge_shas:
+        - 61e72c5c3568a9dc49d49cc19ef79a19972ccd26
+    - repo_url: https://github.com/vdenotaris/spring-boot-security-saml-sample.git
+      override_merge_shas:
+        - 88d2426c11714615322d84934cc2e1ac72fd08e7
+    - repo_url: https://github.com/verbalexpressions/javaverbalexpressions.git
+      override_merge_shas:
+        - 1739d58c32a1c7b9ef9023e0330504f2126a4535
+        - 663787fc4d17acf0d36e04fc4fd869cb94d8a204
+    - repo_url: https://github.com/versioneye/versioneye_maven_plugin.git
+      override_merge_shas:
+        - fdaaa77a460d09c61bd2b8448f9debc6200e840e
+    - repo_url: https://github.com/vipshop/saturn.git
+      override_merge_shas:
+        - 0cf152ef11238be032c23a774bc84e99dc6fe93e
+        - c580c1cd928219d97bae5c9ed6c8e0752fe965dd
+        - c86fae5de93b0fc6cd9f738bde48d3fcc9b9e513
+        - fe28294ff25fc14bbd6b6d9d3408a21d208e99be
+    - repo_url: https://github.com/vkostyukov/la4j.git
+      override_merge_shas:
+        - 843d8ff9de5396558c41a4fd3012aef47258404b
+        - ab74f88e4f31fd656902b523c1e648f8a1b228bd
+        - b2e8c5c96f8e3ab228c2ef674946e017d8937fc4
+    - repo_url: https://github.com/vojtechhabarta/typescript-generator.git
+      override_merge_shas:
+        - 1c03813f0d5593fbea4d3572a6ef028da3f034bd
+        - d44a704cd00045c731f3d66de3d6a2079567af88
+    - repo_url: https://github.com/w3c/ldp-testsuite.git
+      override_merge_shas:
+        - 72cd466fe14815873ac76b4b567e4db9f0cc8029
+        - 72e5a506c66eb3f3864ce1830a7d6a26e24df6af
+        - 8ebaa9b27acbc6165adaa9c0e3f6a4ab49e40bed
+        - dfa115c56a406470cd38433a006ea48ab74e34ee
+    - repo_url: https://github.com/warmuuh/libsass-maven-plugin.git
+      override_merge_shas:
+        - 3f55235a63376fa8cff15dabc9138d7a97d92832
+        - 5ca7b3f086d9f586184824abd3d00aab62d629cf
+    - repo_url: https://github.com/webbit/webbit.git
+      override_merge_shas:
+        - 151278f43bf97ac71aa4774464e88ecae819d7f5
+        - e53f52cda78fdd30d595645f2c005c3aa39ef94b
+    - repo_url: https://github.com/webjars/webjars-locator.git
+      override_merge_shas:
+        - 15dd8b3a1ab2c18d94d61298070d2cffc27ffe5b
+    - repo_url: https://github.com/whizzosoftware/wzwave.git
+      override_merge_shas:
+        - 957ba2027da2ce9a5bf458ec36101136224e2711
+    - repo_url: https://github.com/winder/universal-g-code-sender.git
+      override_merge_shas:
+        - 84944f80c14e738235076b047d02909c86427b28
+        - 8f1015bceb298de27146fa3b9aa0274fbd49e807
+        - 9f9583488e5c69289c80f3dc53962b7c20858cb9
+        - caab3ac3b99a7a4df0cf8df4da3c17c6205b4298
+        - ec4cd17651ac657e20cdd967337ad04ca8330509
+    - repo_url: https://github.com/wnbittle/dyn4j.git
+      override_merge_shas:
+        - bc4a8d51912dc9956fb3d64324b0323e238bf5cb
+    - repo_url: https://github.com/woder/torchbot.git
+      override_merge_shas:
+        - 6abb7ded348003f1b3c925430650708220cc6b5e
+        - 975c6e38b77419ee259a8f006ef9d342280c90b4
+    - repo_url: https://github.com/wsky/top-push.git
+      override_merge_shas:
+        - 0ac546979c7028031ed0a6185c669e92174f774d
+        - 9867decdcc897cc8538400054ffa3c2fde517cc0
+    - repo_url: https://github.com/wstrange/googleauth.git
+      override_merge_shas:
+        - bb6e4a0c6f4c595a93bcd3b06c05d0c55df8e365
+    - repo_url: https://github.com/wvengen/proguard-maven-plugin.git
+      override_merge_shas:
+        - 65fb4b434c390988653d6eec5ae61a4a60ef3f7a
+    - repo_url: https://github.com/xaverw/msearch.git
+      override_merge_shas:
+        - ab544f9464acace234ed164113e9d6fc42fcc898
+    - repo_url: https://github.com/xceptance/xcmailr.git
+      override_merge_shas:
+        - 176d6a06182af0766e4c01f843a7f0fa70049079
+        - 8df1e9373b3d68b16a4529a868df5fa18303d4a4
+        - c16b4e35fbd3cd28988d58e5451f503fe2e93261
+        - d2595e205ca2e2c05d51c0005d2a0a476346a766
+    - repo_url: https://github.com/xebia/xebium.git
+      override_merge_shas:
+        - 7a07c05240f58cf31d04fe217c59ad78a3b0a728
+        - 817270a3db61546589c3d5a2869c228d58f2a057
+        - a82603c978dd1a1ec2277381ae197a01dc552f90
+        - cbfab438393258e91f8f54b6020f3fd8c8c4cc9f
+    - repo_url: https://github.com/xuxueli/xxl-job.git
+      override_merge_shas:
+        - 35bceaac0b87f9ab7b5fe44c3ea355afd45b52a0
+        - c3c7ded5e057049c4b86f696ff4b0f842751827c
+        - d0f5c1f6ee60a1e11e89c23749ba2611e53f587c
+    - repo_url: https://github.com/yandex-qatools/ashot.git
+      override_merge_shas:
+        - c885c16709720ca016eeaad7056c0a39a9490878
+    - repo_url: https://github.com/yannbrrd/elasticsearch-entity-resolution.git
+      override_merge_shas:
+        - 5bf2597661014520aa35d0746d813bc012422c8c
+        - 8918c24485205f725d3938fd5907aa0720faa326
+    - repo_url: https://github.com/yaphone/itchat4j.git
+      override_merge_shas:
+        - 2bc3e1ad9d4b8db1554dce5b5fe7eeb8f153d283
+        - 9e41a077ee120dfd55bc6ec2d9bf152a40aa2151
+    - repo_url: https://github.com/yfpeng/pengyifan-commons.git
+      override_merge_shas:
+        - b896ec045faaf724ad11e9be56250fead3826ca3
+    - repo_url: https://github.com/yfpeng/pengyifan-leetcode.git
+      override_merge_shas:
+        - bb9b165e9b6f5db5725394be827250f61e87b71a
+    - repo_url: https://github.com/yinwang0/rubysonar.git
+      override_merge_shas:
+        - ba5f907f21493bf5ba964075e0a86118f31eec65
+    - repo_url: https://github.com/ymnk/jsch-agent-proxy.git
+      override_merge_shas:
+        - ea7c6959a2c0acdd8bc10e88adbe25d680351b08
+    - repo_url: https://github.com/yubico/ykneo-openpgp.git
+      override_merge_shas:
+        - b145a6bdbc0b2dcc49cb2955bd7977e949bde7e3
+    - repo_url: https://github.com/zeromq/jeromq.git
+      override_merge_shas:
+        - 15d7299ba8224f96a4874c41398520ed37696631
+        - 9b2438da8f441bb944068f5b31d5d4557b106dc5
+        - b784afe7700633ef09703ee343e796f6f8ddca76
+    - repo_url: https://github.com/zeroturnaround/zt-zip.git
+      override_merge_shas:
+        - ce0ab9ec996a81db498e43e0b8d1c104d5c0f479
+    - repo_url: https://github.com/zhegexiaohuozi/jsoupxpath.git
+      override_merge_shas:
+        - 7bb89fc158257cd01fef2bf643314aaa8f2bf782
+    - repo_url: https://github.com/zhongdj/lifecycle.git
+      override_merge_shas:
+        - 2774133dbdaee5039e7f7f21a96a02d2d56dfa29
+        - 39a2a8f6f0a2ec3438245cb3df6adbcd827aef55
+    - repo_url: https://github.com/zhuowei/raspberryjuice.git
+      override_merge_shas:
+        - b217e89f5d8ef404aff86b5d889027bb386a598c
