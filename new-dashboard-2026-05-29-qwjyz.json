@@ -104,6 +104,7 @@
                 ],
                 "legend": {
                   "displayMode": "table",
+                  "limit": 300,
                   "placement": "right",
                   "showLegend": true,
                   "values": [
