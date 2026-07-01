@@ -126,7 +126,7 @@
                 }
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -247,7 +247,7 @@
                 }
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -345,7 +345,7 @@
                 }
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -396,7 +396,7 @@
           "description": "",
           "id": 4,
           "links": [],
-          "title": "New panel",
+          "title": "Conflict Types",
           "vizConfig": {
             "group": "table",
             "kind": "VizConfig",
@@ -460,7 +460,7 @@
                 "sortBy": []
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -567,7 +567,7 @@
                 "textMode": "auto"
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -674,7 +674,122 @@
                 "textMode": "auto"
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-8": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "with base as (\nSELECT key, arrayElement(splitByChar('.',conflicted_file.path),-1)::text as type FROM \"default\".\"redis_json\"\narray join content.merge_result.conflicted_files::Array(JSON) as conflicted_file\n)\nselect type, count(*) as types from base\ngroup by type\norder by count(*) desc"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 8,
+          "links": [],
+          "title": "Conflicting File Types",
+          "vizConfig": {
+            "group": "table",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "custom": {
+                    "align": "auto",
+                    "cellOptions": {
+                      "type": "auto"
+                    },
+                    "footer": {
+                      "reducers": []
+                    },
+                    "inspect": false
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "subtype"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 244
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "type"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 286
+                      }
+                    ]
+                  }
+                ]
+              },
+              "options": {
+                "cellHeight": "sm",
+                "showHeader": true,
+                "sortBy": []
+              }
+            },
+            "version": "13.0.2"
           }
         }
       }
@@ -755,10 +870,23 @@
                 "kind": "ElementReference",
                 "name": "panel-4"
               },
-              "height": 16,
+              "height": 8,
               "width": 8,
               "x": 16,
               "y": 11
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-8"
+              },
+              "height": 8,
+              "width": 8,
+              "x": 16,
+              "y": 19
             }
           }
         ]
