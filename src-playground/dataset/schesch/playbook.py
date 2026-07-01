@@ -472,7 +472,6 @@ def main() -> int:
             "Skipped {} repositories because their cached bare repository was missing or inaccessible",
             len(raw_result.skipped_repos),
         )
-        return 1
 
     if result is None:
         return 1
