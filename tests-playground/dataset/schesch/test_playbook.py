@@ -60,6 +60,14 @@ def content_conflict() -> MergeLogicalConflict:
     )
 
 
+def content_conflict_in(path: str) -> MergeLogicalConflict:
+    return MergeLogicalConflict(
+        type=ConflictType.CONFLICT_CONTENTS,
+        info=f"CONFLICT (content): Merge conflict in {path}",
+        paths=[path],
+    )
+
+
 def add_add_conflict() -> MergeLogicalConflict:
     return MergeLogicalConflict(
         type=ConflictType.CONFLICT_CONTENTS,
@@ -389,6 +397,58 @@ def test_build_schesch_playbook_filters_by_schesch_info(monkeypatch, tmp_path):
     }
     assert result.missing_schesch_info_merges == 0
     assert result.failed_schesch_info_merges == 2
+
+
+def test_build_schesch_playbook_filters_non_java_conflicts_after_raw(monkeypatch, tmp_path):
+    root = tmp_path / "merge_analysis"
+    write_json(
+        root / "owner" / "repo.json",
+        {
+            "left1_right1": qualifying_merge(),
+            "left2_right2": qualifying_merge(),
+            "left3_right3": qualifying_merge(),
+        },
+    )
+
+    monkeypatch.setattr(
+        "dataset.schesch.playbook.merge_parent_index",
+        lambda _repo: {
+            frozenset(("left1", "right1")): ["java-only"],
+            frozenset(("left2", "right2")): ["mixed-paths"],
+            frozenset(("left3", "right3")): ["text-only"],
+        },
+    )
+    monkeypatch.setattr(
+        "dataset.schesch.playbook.merge_logical_conflicts",
+        lambda _repo, left_parent, _right_parent: {
+            "left1": (content_conflict_in("src/main/java/App.java"),),
+            "left2": (
+                content_conflict_in("src/main/java/App.java"),
+                content_conflict_in("README.md"),
+            ),
+            "left3": (content_conflict_in("README.md"),),
+        }[left_parent],
+    )
+
+    raw_result = build_schesch_raw_playbook_result(root)
+    result = build_schesch_playbook_result(
+        raw_result,
+        redis=FakeRedis(schesch_info_values(raw_result.candidates)),
+    )
+
+    raw_shas = raw_result.playbook["playbook"]["sources"][0]["override_merge_shas"]
+    assert raw_shas == ["java-only", "mixed-paths", "text-only"]
+    assert result.playbook == {
+        "playbook": {
+            "sources": [
+                {
+                    "repo_url": "https://github.com/owner/repo.git",
+                    "override_merge_shas": ["java-only"],
+                },
+            ]
+        }
+    }
+    assert result.non_java_conflict_merges == 2
 
 
 def test_build_schesch_playbook_requires_same_schesch_environment(monkeypatch, tmp_path):

@@ -31,6 +31,7 @@ class PlaybookCandidate:
 class RawPlaybookBuildResult:
     playbook: dict
     candidates: list[PlaybookCandidate]
+    conflicts_by_candidate: dict[PlaybookCandidate, tuple[MergeLogicalConflict, ...]]
     unresolved_parent_pairs: int
     ambiguous_parent_pairs: int
     no_content_conflict_merges: int
@@ -47,6 +48,7 @@ class PlaybookBuildResult:
     missing_schesch_info_merges: int
     failed_schesch_info_merges: int
     inconsistent_schesch_environment_merges: int
+    non_java_conflict_merges: int
     sampled_out_merges: int
 
 
@@ -90,6 +92,14 @@ def is_content_conflict(conflict: MergeLogicalConflict) -> bool:
         conflict.type == ConflictType.CONFLICT_CONTENTS
         and conflict.info.startswith(CONTENT_CONFLICT_INFO_PREFIX)
     )
+
+
+def is_java_conflict(conflict: MergeLogicalConflict) -> bool:
+    return bool(conflict.paths) and all(path.endswith(".java") for path in conflict.paths)
+
+
+def only_java_conflicts(conflicts: tuple[MergeLogicalConflict, ...] | None) -> bool:
+    return bool(conflicts) and all(is_java_conflict(conflict) for conflict in conflicts)
 
 
 def repo_is_cached(repo: str) -> bool:
@@ -180,6 +190,7 @@ def build_schesch_raw_playbook_result(
     non_content_conflict_merges = 0
     skipped_repos: set[str] = set()
     candidates: list[PlaybookCandidate] = []
+    conflicts_by_candidate: dict[PlaybookCandidate, tuple[MergeLogicalConflict, ...]] = {}
 
     for repo in sorted(merges_by_repo):
         if not repo_is_cached(repo):
@@ -238,11 +249,14 @@ def build_schesch_raw_playbook_result(
                 non_content_conflict_merges += 1
                 continue
 
-            candidates.append(PlaybookCandidate(repo=repo, merge_sha=merge_sha))
+            candidate = PlaybookCandidate(repo=repo, merge_sha=merge_sha)
+            candidates.append(candidate)
+            conflicts_by_candidate[candidate] = logical_conflicts
 
     return RawPlaybookBuildResult(
         playbook=build_playbook_from_candidates(candidates),
         candidates=sorted(candidates),
+        conflicts_by_candidate=conflicts_by_candidate,
         unresolved_parent_pairs=unresolved_parent_pairs,
         ambiguous_parent_pairs=ambiguous_parent_pairs,
         no_content_conflict_merges=no_content_conflict_merges,
@@ -255,11 +269,13 @@ def build_schesch_raw_playbook_result(
 def filter_schesch_candidates(
     candidates: list[PlaybookCandidate],
     redis,
-) -> tuple[list[PlaybookCandidate], int, int, int]:
+    conflicts_by_candidate: dict[PlaybookCandidate, tuple[MergeLogicalConflict, ...]],
+) -> tuple[list[PlaybookCandidate], int, int, int, int]:
     selected: list[PlaybookCandidate] = []
     missing_info = 0
     failed_info = 0
     inconsistent_environment = 0
+    non_java_conflicts = 0
 
     for candidate in sorted(candidates):
         data = redis.json().get(schesch_info_key(candidate))
@@ -270,13 +286,16 @@ def filter_schesch_candidates(
 
         allowed, environment_mismatch = schesch_info_allows_candidate(data)
         if allowed:
-            selected.append(candidate)
+            if only_java_conflicts(conflicts_by_candidate.get(candidate)):
+                selected.append(candidate)
+            else:
+                non_java_conflicts += 1
         elif environment_mismatch:
             inconsistent_environment += 1
         else:
             failed_info += 1
 
-    return selected, missing_info, failed_info, inconsistent_environment
+    return selected, missing_info, failed_info, inconsistent_environment, non_java_conflicts
 
 
 def build_schesch_playbook_result(
@@ -287,9 +306,16 @@ def build_schesch_playbook_result(
     redis=None,
 ) -> PlaybookBuildResult:
     redis = redis or setup_redis_connection()
-    filtered_candidates, missing_info, failed_info, inconsistent_environment = filter_schesch_candidates(
+    (
+        filtered_candidates,
+        missing_info,
+        failed_info,
+        inconsistent_environment,
+        non_java_conflicts,
+    ) = filter_schesch_candidates(
         raw_result.candidates,
         redis,
+        raw_result.conflicts_by_candidate,
     )
     selected_candidates = select_random_candidates(filtered_candidates, limit=limit, seed=seed)
 
@@ -300,6 +326,7 @@ def build_schesch_playbook_result(
         missing_schesch_info_merges=missing_info,
         failed_schesch_info_merges=failed_info,
         inconsistent_schesch_environment_merges=inconsistent_environment,
+        non_java_conflict_merges=non_java_conflicts,
         sampled_out_merges=len(filtered_candidates) - len(selected_candidates),
     )
 
@@ -499,6 +526,11 @@ def main() -> int:
         logger.warning(
             "Pruned {} raw candidates because human and parent checks did not use the same build tool and Java home",
             result.inconsistent_schesch_environment_merges,
+        )
+    if result.non_java_conflict_merges:
+        logger.warning(
+            "Pruned {} raw candidates because at least one conflict path was not a Java file",
+            result.non_java_conflict_merges,
         )
     if result.sampled_out_merges:
         logger.info("Random sampling pruned {} otherwise eligible Schesch-passing merges", result.sampled_out_merges)
