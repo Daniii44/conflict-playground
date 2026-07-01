@@ -357,9 +357,6 @@ def generate_schesch_playbooks(
     raw_result = build_schesch_raw_playbook_result(merge_analysis)
     write_playbook(raw_result.playbook, raw_output)
 
-    if raw_result.skipped_repos:
-        return raw_result, None
-
     result = build_schesch_playbook_result(
         raw_result,
         limit=limit,
