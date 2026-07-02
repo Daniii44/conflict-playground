@@ -41,8 +41,8 @@ def successful_diff_tree(*args, **kwargs):
     return CompletedProcess(
         args=[],
         returncode=0,
-        stdout=f"{output_type} {'+'.join(flags) or 'exact'} {refs[0]}..{refs[1]}\n",
-        stderr="",
+        stdout=f"{output_type} {'+'.join(flags) or 'exact'} {refs[0]}..{refs[1]}\n".encode(),
+        stderr=b"",
     )
 
 
@@ -56,9 +56,11 @@ def test_diff_analysis_records_patch_and_raw_diff_tree_outputs(monkeypatch):
     with (
         patch("evaluation.analysis.common.capture_git") as head_capture_git,
         patch("evaluation.analysis.diff_analysis.capture_git") as diff_capture_git,
+        patch("evaluation.analysis.diff_analysis.capture_git_bytes") as diff_capture_git_bytes,
     ):
         head_capture_git.return_value = CompletedProcess(args=[], returncode=0, stdout="proposed-sha\n", stderr="")
         diff_capture_git.side_effect = successful_diff_tree
+        diff_capture_git_bytes.side_effect = successful_diff_tree
 
         record = DiffEvaluationAnalysis().analyse(evaluation_input())
 
@@ -89,7 +91,7 @@ def test_diff_analysis_records_patch_and_raw_diff_tree_outputs(monkeypatch):
     assert "configuration" not in dumped
     assert "hook_result" not in dumped
     assert "git_archive" not in dumped
-    calls = diff_tree_calls(diff_capture_git.call_args_list)
+    calls = diff_tree_calls(diff_capture_git_bytes.call_args_list)
     assert len(calls) == 60
     assert calls[:4] == [
         (
@@ -196,8 +198,8 @@ def test_diff_analysis_records_patch_and_raw_diff_tree_outputs(monkeypatch):
 
 
 def test_diff_analysis_records_exact_match_for_empty_diff(monkeypatch):
-    with patch("evaluation.analysis.diff_analysis.capture_git") as diff_capture_git:
-        diff_capture_git.return_value = CompletedProcess(args=[], returncode=0, stdout="", stderr="")
+    with patch("evaluation.analysis.diff_analysis.capture_git_bytes") as diff_capture_git_bytes:
+        diff_capture_git_bytes.return_value = CompletedProcess(args=[], returncode=0, stdout=b"", stderr=b"")
 
         diffs, error = DiffEvaluationAnalysis().collect_diff_matrix("/playground", "HEAD", "actualsha")
 
@@ -213,9 +215,10 @@ def test_diff_analysis_records_diff_command_failure(monkeypatch):
     with (
         patch("evaluation.analysis.common.capture_git") as head_capture_git,
         patch("evaluation.analysis.diff_analysis.capture_git") as diff_capture_git,
+        patch("evaluation.analysis.diff_analysis.capture_git_bytes") as diff_capture_git_bytes,
     ):
         head_capture_git.return_value = CompletedProcess(args=[], returncode=0, stdout="proposed-sha\n", stderr="")
-        diff_capture_git.return_value = CompletedProcess(args=[], returncode=1, stdout="", stderr="bad diff")
+        diff_capture_git_bytes.return_value = CompletedProcess(args=[], returncode=1, stdout=b"", stderr=b"bad diff")
 
         record = DiffEvaluationAnalysis().analyse(evaluation_input())
 
@@ -235,8 +238,10 @@ def test_diff_analysis_records_conflicted_tree_comparison_failure_with_reference
     with (
         patch("evaluation.analysis.common.capture_git") as head_capture_git,
         patch("evaluation.analysis.diff_analysis.capture_git") as diff_capture_git,
+        patch("evaluation.analysis.diff_analysis.capture_git_bytes") as diff_capture_git_bytes,
     ):
         head_capture_git.return_value = CompletedProcess(args=[], returncode=0, stdout="proposed-sha\n", stderr="")
+
         def clean_merge_diff_tree(*args, **kwargs):
             if args[2] == "show":
                 return CompletedProcess(args=[], returncode=0, stdout="p1 p2\n", stderr="")
@@ -245,15 +250,36 @@ def test_diff_analysis_records_conflicted_tree_comparison_failure_with_reference
             return successful_diff_tree(*args, **kwargs)
 
         diff_capture_git.side_effect = clean_merge_diff_tree
+        diff_capture_git_bytes.side_effect = clean_merge_diff_tree
 
         record = DiffEvaluationAnalysis().analyse(evaluation_input())
 
     assert record.proposed_commit_sha == "proposed-sha"
     assert record.proposed_to_actual_resolution_patch == "patch exact HEAD..actualsha\n"
     assert record.proposed_to_actual_resolution_raw == "raw exact HEAD..actualsha\n"
-    assert len(diff_tree_calls(diff_capture_git.call_args_list)) == 20
+    assert len(diff_tree_calls(diff_capture_git_bytes.call_args_list)) == 20
     assert record.conflicted_tree_oid is None
     assert record.error == "Actual resolution parents merge cleanly"
+
+
+def test_diff_analysis_replaces_invalid_utf8_diff_bytes():
+    with patch("evaluation.analysis.diff_analysis.capture_git_bytes") as diff_capture_git_bytes:
+        diff_capture_git_bytes.return_value = CompletedProcess(
+            args=[],
+            returncode=0,
+            stdout=b"diff --git a/file b/file\n+\x93\n",
+            stderr=b"",
+        )
+
+        diff, error = DiffEvaluationAnalysis().diff_tree(
+            "/playground",
+            "HEAD",
+            "actualsha",
+            patch=True,
+        )
+
+    assert error is None
+    assert diff == "diff --git a/file b/file\n+\ufffd\n"
 
 
 def test_diff_analysis_records_missing_playgrounds(monkeypatch):

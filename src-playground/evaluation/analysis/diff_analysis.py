@@ -1,7 +1,7 @@
 import os
 
 from common.evaluation_models import EvaluationInput, MergeDiffEvaluation, MergeDiffOutput
-from common.git_util import capture_git
+from common.git_util import capture_git, capture_git_bytes
 from evaluation.analysis.common import (
     EvaluationAnalysis,
     actual_resolution_sha_from_playground_name,
@@ -22,6 +22,10 @@ BLANK_LINE_DIFF_MODES: tuple[tuple[str, tuple[str, ...]], ...] = (
 )
 DEFAULT_WHITESPACE_MODE = "exact"
 DEFAULT_BLANK_LINE_MODE = "include_blank_lines"
+
+
+def decode_diff_output(output: bytes) -> str:
+    return output.decode("utf-8", errors="replace")
 
 
 class DiffEvaluationAnalysis(EvaluationAnalysis):
@@ -101,11 +105,11 @@ class DiffEvaluationAnalysis(EvaluationAnalysis):
             command.append("-p")
         command.extend([base_ref, target_ref])
 
-        result = capture_git(*command, check=False)
+        result = capture_git_bytes(*command, check=False)
         if result.returncode == 0:
-            return result.stdout, None
+            return decode_diff_output(result.stdout), None
 
-        error = result.stderr.strip() or result.stdout.strip()
+        error = decode_diff_output(result.stderr).strip() or decode_diff_output(result.stdout).strip()
         return None, error
 
     def collect_diff_matrix(
