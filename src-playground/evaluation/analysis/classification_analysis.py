@@ -9,7 +9,7 @@ from common.evaluation_models import (
     MergeConflictResolutionEvaluation,
     MergeConflictResolutionLogicalConflict,
 )
-from common.git_util import capture_git
+from common.git_util import capture_git, capture_git_bytes
 from common.merge_tree import ConflictType, MergeLogicalConflict, MergeResult, parse_merge_result, prune_auto_merged
 from evaluation.analysis.common import (
     EvaluationAnalysis,
@@ -92,8 +92,8 @@ class ClassificationEvaluationAnalysis(EvaluationAnalysis):
 
         return prune_auto_merged(parse_merge_result(result.stdout.encode())), None
 
-    def read_blob(self, playground_path: str, ref: str, path: str) -> tuple[str | None, str | None]:
-        result = capture_git(
+    def read_blob(self, playground_path: str, ref: str, path: str) -> tuple[bytes | None, str | None]:
+        result = capture_git_bytes(
             "-C",
             playground_path,
             "show",
@@ -103,7 +103,9 @@ class ClassificationEvaluationAnalysis(EvaluationAnalysis):
         if result.returncode == 0:
             return result.stdout, None
 
-        error = result.stderr.strip() or result.stdout.strip()
+        stderr = result.stderr.decode("utf-8", errors="replace").strip()
+        stdout = result.stdout.decode("utf-8", errors="replace").strip()
+        error = stderr or stdout
         return None, f"Could not read {path} at {ref}: {error}"
 
     def analyze_files(self, unmerged_file: Path, merged_file: Path) -> tuple[list[str] | None, str | None]:
@@ -156,8 +158,8 @@ class ClassificationEvaluationAnalysis(EvaluationAnalysis):
             temp_path = Path(temp_dir)
             unmerged_file = temp_path / "unmerged"
             merged_file = temp_path / "merged"
-            unmerged_file.write_text(unmerged_content)
-            merged_file.write_text(merged_content)
+            unmerged_file.write_bytes(unmerged_content)
+            merged_file.write_bytes(merged_content)
             return self.analyze_files(unmerged_file, merged_file)
 
     def classify_logical_conflict(

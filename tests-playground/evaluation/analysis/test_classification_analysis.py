@@ -177,12 +177,12 @@ def test_classify_resolution_writes_unmerged_and_merged_temp_files():
     def read_blob(playground_path, ref, path):
         assert playground_path == "/playground"
         assert path == "src/app.py"
-        return (f"{ref} content\n", None)
+        return (f"{ref} content\n".encode() + b"\x93\n", None)
 
     def analyze_files(unmerged_file, merged_file):
         captured_files.append((unmerged_file, merged_file))
-        assert unmerged_file.read_text() == "conflicted-tree content\n"
-        assert merged_file.read_text() == "HEAD content\n"
+        assert unmerged_file.read_bytes() == b"conflicted-tree content\n\x93\n"
+        assert merged_file.read_bytes() == b"HEAD content\n\x93\n"
         return ["CHUNK_NONCANONICAL"], None
 
     with (
