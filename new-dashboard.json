@@ -121,6 +121,360 @@
             "version": "13.0.2"
           }
         }
+      },
+      "panel-2": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT content.subdataset::text, avg(content.reason_purity::float), FROM \"default\".\"redis_json\"\nwhere key like 'dataset:tilt:%'\ngroup by content.subdataset::text\norder by avg(content.reason_purity::float) desc"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 2,
+          "links": [],
+          "title": "Subset Purity",
+          "vizConfig": {
+            "group": "barchart",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "fillOpacity": 80,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineWidth": 1,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  "unit": "percentunit"
+                },
+                "overrides": []
+              },
+              "options": {
+                "barRadius": 0,
+                "barWidth": 0.97,
+                "fullHighlight": false,
+                "groupWidth": 0.7,
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "right",
+                  "showLegend": false
+                },
+                "orientation": "auto",
+                "showValue": "never",
+                "stacking": "none",
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                },
+                "xTickLabelRotation": 0,
+                "xTickLabelSpacing": 0
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-3": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT content.subdataset::text, avg(content.reason_purity::float), FROM \"default\".\"redis_json\"\nwhere key like 'dataset:tilt:%'\ngroup by content.subdataset::text\norder by avg(content.reason_purity::float) desc"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 3,
+          "links": [],
+          "title": "Subset Purity",
+          "vizConfig": {
+            "group": "barchart",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "fillOpacity": 80,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineWidth": 1,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  "unit": "percentunit"
+                },
+                "overrides": []
+              },
+              "options": {
+                "barRadius": 0,
+                "barWidth": 0.97,
+                "fullHighlight": false,
+                "groupWidth": 0.7,
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "right",
+                  "showLegend": false
+                },
+                "orientation": "auto",
+                "showValue": "never",
+                "stacking": "none",
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                },
+                "xTickLabelRotation": 0,
+                "xTickLabelSpacing": 0
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-4": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT concat(content.subdataset::text, ' | ', content.reason_conflict_type::text) as label, avg(content.reason_purity::float) FROM \"default\".\"redis_json\"\nwhere key like 'dataset:tilt:%'\ngroup by content.subdataset::text, content.reason_conflict_type::text\norder by content.subdataset::text, avg(content.reason_purity::float) desc"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 4,
+          "links": [],
+          "title": "Subset Purity",
+          "vizConfig": {
+            "group": "barchart",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "fillOpacity": 80,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineWidth": 1,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  "unit": "percentunit"
+                },
+                "overrides": []
+              },
+              "options": {
+                "barRadius": 0,
+                "barWidth": 0.97,
+                "fullHighlight": false,
+                "groupWidth": 0.7,
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "right",
+                  "showLegend": false
+                },
+                "orientation": "auto",
+                "showValue": "never",
+                "stacking": "none",
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                },
+                "xTickLabelRotation": 0,
+                "xTickLabelSpacing": 0
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
       }
     },
     "layout": {
@@ -139,11 +493,63 @@
               "x": 0,
               "y": 0
             }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-2"
+              },
+              "height": 8,
+              "width": 12,
+              "x": 0,
+              "y": 8
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-3"
+              },
+              "height": 8,
+              "width": 12,
+              "x": 0,
+              "y": 16
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-4"
+              },
+              "height": 8,
+              "width": 12,
+              "x": 0,
+              "y": 24
+            }
           }
         ]
       }
     },
-    "links": [],
+    "links": [
+      {
+        "asDropdown": false,
+        "icon": "external link",
+        "includeVars": false,
+        "keepTime": false,
+        "tags": [],
+        "targetBlank": true,
+        "title": "Source (GitHub)",
+        "tooltip": "View source file in repository",
+        "type": "link",
+        "url": "https://github.com/Daniii44/conflict-playground/blob/grafana/new-dashboard.json"
+      }
+    ],
     "liveNow": false,
     "preferences": {
       "layout": {
@@ -175,7 +581,7 @@
       "timezone": "browser",
       "to": "now"
     },
-    "title": "New dashboard",
+    "title": "Tilt",
     "variables": []
   }
 }
