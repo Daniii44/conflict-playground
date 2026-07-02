@@ -284,7 +284,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT logical_conflict.type::String, count(*) FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\ngroup by logical_conflict.type::String\norder by count(*) desc"
+                        "rawSql": "with base as (\nSELECT groupArray(distinct logical_conflict.type::String) as types FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\ngroup by key::String\n)\nselect type, count(*) from base\narray join types as type\ngroup by type\norder by count(*) desc"
                       },
                       "version": "v0"
                     },
