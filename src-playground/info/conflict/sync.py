@@ -20,6 +20,7 @@ from info.conflict.analysis.common import Analysis, AnalysisInput
 from info.conflict.analysis.core_analysis import CoreAnalysis
 from info.conflict.analysis.octopus_analysis import OctopusAnalysis
 from info.conflict.analysis.schesch_analysis import ScheschInfoAnalysis
+from info.conflict.analysis.tilt_analysis import TiltAnalysis
 from playbook.playgrounds import playground_from_override, resolve_playground_merge_sha
 
 # Script to collect all dirty merge commits in a bare git repository
@@ -36,6 +37,7 @@ from playbook.playgrounds import playground_from_override, resolve_playground_me
 exiting = False
 AVAILABLE_ANALYSES: dict[str, type[Analysis]] = {
     "core": CoreAnalysis,
+    "tilt": TiltAnalysis,
     "octopus": OctopusAnalysis,
     "schesch": ScheschInfoAnalysis,
 }

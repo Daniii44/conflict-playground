@@ -3,6 +3,7 @@ from redis.commands.search.field import TagField, TextField, NumericField
 from redis.commands.search.index_definition import IndexDefinition, IndexType
 
 IDX_INFO_CONFLICT_CORE = "idx:info:conflict:core"
+IDX_INFO_CONFLICT_TILT = "idx:info:conflict:tilt"
 IDX_INFO_CONFLICT_OCTOPUS = "idx:info:conflict:octopus"
 IDX_INFO_CONFLICT_SCHESCH = "idx:info:conflict:schesch"
 RUNTIME_ACTIVE_PLAYGROUND_PREFIX = "runtime:active_playground:"
@@ -35,6 +36,19 @@ def _ensure_exists_conflicts_info_idx(redis: Redis) -> None:
     core_definition = IndexDefinition(prefix=["info:conflict:core"], index_type=IndexType.JSON)
 
     _ensure_exists_idx(redis, IDX_INFO_CONFLICT_CORE, core_definition, core_schema)
+
+    tilt_schema = [
+        TagField("$.repo", as_name="repo"),
+        TagField("$.merge_commit_oid", as_name="merge_commit_oid"),
+        NumericField("$.logical_conflict_count", as_name="logical_conflict_count"),
+        TagField("$.subdatasets[*].name", as_name="subdataset"),
+        NumericField("$.subdatasets[*].purity", as_name="subdataset_purity"),
+        TagField("$.subdatasets[*].conflict_types[*].type", as_name="type"),
+        NumericField("$.subdatasets[*].conflict_types[*].purity", as_name="type_purity"),
+    ]
+    tilt_definition = IndexDefinition(prefix=["info:conflict:tilt"], index_type=IndexType.JSON)
+
+    _ensure_exists_idx(redis, IDX_INFO_CONFLICT_TILT, tilt_definition, tilt_schema)
 
     octopus_schema = [
         TagField("$.repo", as_name="repo"),
