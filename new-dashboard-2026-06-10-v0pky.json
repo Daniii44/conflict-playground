@@ -2270,7 +2270,7 @@
                               }
                             ],
                             "maxColumnCount": 1,
-                            "rowHeightMode": "tall"
+                            "rowHeightMode": "standard"
                           }
                         },
                         "title": "Evaluation Analysis"
