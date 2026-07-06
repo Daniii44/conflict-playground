@@ -409,7 +409,7 @@
           "description": "",
           "id": 5,
           "links": [],
-          "title": "New panel",
+          "title": "Logical Conflict Count",
           "vizConfig": {
             "group": "histogram",
             "kind": "VizConfig",
