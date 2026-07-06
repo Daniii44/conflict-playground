@@ -1047,6 +1047,81 @@
           }
         }
       },
+      "panel-20": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT now(), attempt.compile_result.output_tail FROM \"default\".\"redis_json\"\narray join content.proposed.attempts::Array(JSON) as attempt\nwhere key like 'evaluation:merge:schesch:${repo_name}-${merge}:${timestamp}%'"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 20,
+          "links": [],
+          "title": "New panel",
+          "vizConfig": {
+            "group": "logs",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {
+                "dedupStrategy": "none",
+                "enableInfiniteScrolling": false,
+                "enableLogDetails": true,
+                "prettifyLogMessage": true,
+                "showControls": false,
+                "showFieldSelector": false,
+                "showLevel": false,
+                "showTime": false,
+                "sortOrder": "Descending",
+                "timestampResolution": "ms",
+                "unwrappedColumns": false,
+                "wrapLogMessage": true
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
       "panel-3": {
         "kind": "Panel",
         "spec": {
@@ -1865,6 +1940,32 @@
                         },
                         "title": "Classification"
                       }
+                    },
+                    {
+                      "kind": "TabsLayoutTab",
+                      "spec": {
+                        "layout": {
+                          "kind": "GridLayout",
+                          "spec": {
+                            "items": [
+                              {
+                                "kind": "GridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-20"
+                                  },
+                                  "height": 12,
+                                  "width": 24,
+                                  "x": 0,
+                                  "y": 0
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "title": "Tests"
+                      }
                     }
                   ]
                 }
@@ -2032,8 +2133,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "ab0oo/javaprslib.git",
-            "value": "ab0oo/javaprslib.git"
+            "text": "pragmatists/junitparams.git",
+            "value": "pragmatists/junitparams.git"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -2051,8 +2152,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "a929486b0e7bf006bd2a192329a16f2b15ab95f1",
-            "value": "a929486b0e7bf006bd2a192329a16f2b15ab95f1"
+            "text": "7e9214c623fbaa05978f1301fdabb0aed1f35141",
+            "value": "7e9214c623fbaa05978f1301fdabb0aed1f35141"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -2070,8 +2171,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "20260617T123800.863390Z",
-            "value": "20260617T123800.863390Z"
+            "text": "20260703T084923.090820Z",
+            "value": "20260703T084923.090820Z"
           },
           "definition": "  WITH base AS (\n  SELECT\n    key,\n    extractGroups (\n      arrayElement(splitByString('resolution:conflict:', key), 2),\n      '(.+)\\.git-([a-f0-9]{40}):(.*)$'\n    ) AS groups\n  FROM\n    \"default\".\"redis_json\"\n  WHERE\n    startsWith(key, 'resolution')\n    AND content.proposed_resolution.error IS NULL\n)\nSELECT\n  groups[3] AS timestamp\nFROM\n  base\nWHERE\n    concat(groups[1], '.git') = '${repo_name}'  -- \u003c-- Replace with your target repo (e.g., 'framework.git')\n  AND groups[2] = '${merge}'    -- \u003c-- Replace with your target merge commit hash\nORDER BY\n  timestamp DESC;",
           "hide": "dontHide",
