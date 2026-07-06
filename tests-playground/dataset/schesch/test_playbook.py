@@ -120,9 +120,29 @@ def schesch_info(
 
 
 def schesch_info_values(candidates: list[PlaybookCandidate]) -> dict:
+    values = {}
+    for candidate in candidates:
+        values[f"info:conflict:schesch:{candidate.repo}:{candidate.merge_sha}"] = schesch_info()
+        values[f"info:conflict:core:{candidate.repo}:{candidate.merge_sha}"] = core_info(["src/main/java/App.java"])
+    return values
+
+
+def core_info(paths: list[str]) -> dict:
     return {
-        f"info:conflict:schesch:{candidate.repo}:{candidate.merge_sha}": schesch_info()
-        for candidate in candidates
+        "repo": "owner/repo.git",
+        "merge_commit_oid": "merge-sha",
+        "merge_result": {
+            "result_tree_oid": "tree",
+            "conflicted_files": [],
+            "logical_conflicts": [
+                {
+                    "type": ConflictType.CONFLICT_CONTENTS,
+                    "info": f"CONFLICT (content): Merge conflict in {path}",
+                    "paths": [path],
+                }
+                for path in paths
+            ],
+        },
     }
 
 
@@ -381,6 +401,7 @@ def test_build_schesch_playbook_filters_by_schesch_info(monkeypatch, tmp_path):
                 "info:conflict:schesch:owner/repo.git:keep": schesch_info(),
                 "info:conflict:schesch:owner/repo.git:human-fails": schesch_info(human_passed=False),
                 "info:conflict:schesch:owner/repo.git:parent-fails": schesch_info(parent_passes=(True, False)),
+                "info:conflict:core:owner/repo.git:keep": core_info(["src/main/java/App.java"]),
             }
         ),
     )
@@ -451,6 +472,66 @@ def test_build_schesch_playbook_filters_non_java_conflicts_after_raw(monkeypatch
     assert result.non_java_conflict_merges == 2
 
 
+def test_build_schesch_playbook_filters_test_source_conflicts_after_raw(monkeypatch, tmp_path):
+    root = tmp_path / "merge_analysis"
+    write_json(
+        root / "owner" / "repo.json",
+        {
+            "left1_right1": qualifying_merge(),
+            "left2_right2": qualifying_merge(),
+            "left3_right3": qualifying_merge(),
+        },
+    )
+
+    monkeypatch.setattr(
+        "dataset.schesch.playbook.merge_parent_index",
+        lambda _repo: {
+            frozenset(("left1", "right1")): ["keep"],
+            frozenset(("left2", "right2")): ["test-source"],
+            frozenset(("left3", "right3")): ["uppercase-test-source"],
+        },
+    )
+    monkeypatch.setattr(
+        "dataset.schesch.playbook.merge_logical_conflicts",
+        lambda _repo, left_parent, _right_parent: {
+            "left1": (content_conflict_in("src/main/java/App.java"),),
+            "left2": (content_conflict_in("src/test/java/AppTest.java"),),
+            "left3": (content_conflict_in("src/Tests/java/App.java"),),
+        }[left_parent],
+    )
+
+    raw_result = build_schesch_raw_playbook_result(root)
+    result = build_schesch_playbook_result(
+        raw_result,
+        redis=FakeRedis(
+            {
+                "info:conflict:schesch:owner/repo.git:keep": schesch_info(),
+                "info:conflict:core:owner/repo.git:keep": core_info(["src/main/java/App.java"]),
+                "info:conflict:schesch:owner/repo.git:test-source": schesch_info(),
+                "info:conflict:core:owner/repo.git:test-source": core_info(["src/test/java/AppTest.java"]),
+                "info:conflict:schesch:owner/repo.git:uppercase-test-source": schesch_info(),
+                "info:conflict:core:owner/repo.git:uppercase-test-source": core_info(
+                    ["src/Tests/java/App.java"]
+                ),
+            }
+        ),
+    )
+
+    raw_shas = raw_result.playbook["playbook"]["sources"][0]["override_merge_shas"]
+    assert raw_shas == ["keep", "test-source", "uppercase-test-source"]
+    assert result.playbook == {
+        "playbook": {
+            "sources": [
+                {
+                    "repo_url": "https://github.com/owner/repo.git",
+                    "override_merge_shas": ["keep"],
+                },
+            ]
+        }
+    }
+    assert result.test_source_conflict_merges == 2
+
+
 def test_build_schesch_playbook_requires_same_schesch_environment(monkeypatch, tmp_path):
     root = tmp_path / "merge_analysis"
     write_json(
@@ -481,6 +562,7 @@ def test_build_schesch_playbook_requires_same_schesch_environment(monkeypatch, t
         redis=FakeRedis(
             {
                 "info:conflict:schesch:owner/repo.git:keep": schesch_info(),
+                "info:conflict:core:owner/repo.git:keep": core_info(["src/main/java/App.java"]),
                 "info:conflict:schesch:owner/repo.git:build-tool-mismatch": schesch_info(
                     parent_build_tools=("gradle", "maven")
                 ),
@@ -520,7 +602,12 @@ def test_build_schesch_playbook_reports_missing_schesch_info(monkeypatch, tmp_pa
     raw_result = build_schesch_raw_playbook_result(root)
     result = build_schesch_playbook_result(
         raw_result,
-        redis=FakeRedis({"info:conflict:schesch:owner/repo.git:keep": schesch_info()}),
+        redis=FakeRedis(
+            {
+                "info:conflict:schesch:owner/repo.git:keep": schesch_info(),
+                "info:conflict:core:owner/repo.git:keep": core_info(["src/main/java/App.java"]),
+            }
+        ),
     )
 
     assert result.missing_schesch_info_merges == 1

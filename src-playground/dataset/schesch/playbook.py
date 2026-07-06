@@ -46,9 +46,11 @@ class PlaybookBuildResult:
     candidates: list[PlaybookCandidate]
     raw_result: RawPlaybookBuildResult
     missing_schesch_info_merges: int
+    missing_core_info_merges: int
     failed_schesch_info_merges: int
     inconsistent_schesch_environment_merges: int
     non_java_conflict_merges: int
+    test_source_conflict_merges: int
     sampled_out_merges: int
 
 
@@ -110,6 +112,10 @@ def schesch_info_key(candidate: PlaybookCandidate) -> str:
     return f"info:conflict:schesch:{candidate.repo}:{candidate.merge_sha}"
 
 
+def core_info_key(candidate: PlaybookCandidate) -> str:
+    return f"info:conflict:core:{candidate.repo}:{candidate.merge_sha}"
+
+
 def passed_schesch_resolution(result: dict | None) -> bool:
     return bool(result and result.get("passed"))
 
@@ -136,6 +142,20 @@ def schesch_info_allows_candidate(info: dict) -> tuple[bool, bool]:
     if not schesch_results_use_same_environment(results):
         return False, True
     return True, False
+
+
+def core_info_conflict_paths(info: dict) -> tuple[str, ...]:
+    conflicts = info.get("merge_result", {}).get("logical_conflicts", [])
+    return tuple(
+        path
+        for conflict in conflicts
+        for path in conflict.get("paths", [])
+        if isinstance(path, str)
+    )
+
+
+def has_test_source_conflict(info: dict) -> bool:
+    return any("test" in path.lower() for path in core_info_conflict_paths(info))
 
 
 def select_random_candidates(
@@ -270,32 +290,53 @@ def filter_schesch_candidates(
     candidates: list[PlaybookCandidate],
     redis,
     conflicts_by_candidate: dict[PlaybookCandidate, tuple[MergeLogicalConflict, ...]],
-) -> tuple[list[PlaybookCandidate], int, int, int, int]:
+) -> tuple[list[PlaybookCandidate], int, int, int, int, int, int]:
     selected: list[PlaybookCandidate] = []
-    missing_info = 0
+    missing_schesch_info = 0
+    missing_core_info = 0
     failed_info = 0
     inconsistent_environment = 0
     non_java_conflicts = 0
+    test_source_conflicts = 0
 
     for candidate in sorted(candidates):
         data = redis.json().get(schesch_info_key(candidate))
         if not data:
-            missing_info += 1
+            missing_schesch_info += 1
             logger.error("{} is missing", schesch_info_key(candidate))
             continue
 
         allowed, environment_mismatch = schesch_info_allows_candidate(data)
         if allowed:
-            if only_java_conflicts(conflicts_by_candidate.get(candidate)):
-                selected.append(candidate)
-            else:
+            if not only_java_conflicts(conflicts_by_candidate.get(candidate)):
                 non_java_conflicts += 1
+                continue
+
+            core_info = redis.json().get(core_info_key(candidate))
+            if not core_info:
+                missing_core_info += 1
+                logger.error("{} is missing", core_info_key(candidate))
+                continue
+
+            if has_test_source_conflict(core_info):
+                test_source_conflicts += 1
+                continue
+
+            selected.append(candidate)
         elif environment_mismatch:
             inconsistent_environment += 1
         else:
             failed_info += 1
 
-    return selected, missing_info, failed_info, inconsistent_environment, non_java_conflicts
+    return (
+        selected,
+        missing_schesch_info,
+        missing_core_info,
+        failed_info,
+        inconsistent_environment,
+        non_java_conflicts,
+        test_source_conflicts,
+    )
 
 
 def build_schesch_playbook_result(
@@ -308,10 +349,12 @@ def build_schesch_playbook_result(
     redis = redis or setup_redis_connection()
     (
         filtered_candidates,
-        missing_info,
+        missing_schesch_info,
+        missing_core_info,
         failed_info,
         inconsistent_environment,
         non_java_conflicts,
+        test_source_conflicts,
     ) = filter_schesch_candidates(
         raw_result.candidates,
         redis,
@@ -323,10 +366,12 @@ def build_schesch_playbook_result(
         playbook=build_playbook_from_candidates(selected_candidates),
         candidates=selected_candidates,
         raw_result=raw_result,
-        missing_schesch_info_merges=missing_info,
+        missing_schesch_info_merges=missing_schesch_info,
+        missing_core_info_merges=missing_core_info,
         failed_schesch_info_merges=failed_info,
         inconsistent_schesch_environment_merges=inconsistent_environment,
         non_java_conflict_merges=non_java_conflicts,
+        test_source_conflict_merges=test_source_conflicts,
         sampled_out_merges=len(filtered_candidates) - len(selected_candidates),
     )
 
@@ -369,6 +414,10 @@ def build_schesch_playbook(
         raise RuntimeError(
             f"Missing info:conflict:schesch data for {result.missing_schesch_info_merges} raw candidates"
         )
+    if result.missing_core_info_merges:
+        raise RuntimeError(
+            f"Missing info:conflict:core data for {result.missing_core_info_merges} raw candidates"
+        )
     return result.playbook
 
 
@@ -390,7 +439,7 @@ def generate_schesch_playbooks(
         seed=seed,
         redis=redis or setup_redis_connection(),
     )
-    if result.missing_schesch_info_merges:
+    if result.missing_schesch_info_merges or result.missing_core_info_merges:
         return raw_result, result
 
     write_playbook(result.playbook, output)
@@ -507,6 +556,13 @@ def main() -> int:
             result.missing_schesch_info_merges,
         )
         return 1
+    if result.missing_core_info_merges:
+        logger.error(
+            "Refusing to write {} because {} raw candidates are missing info:conflict:core records",
+            args.output,
+            result.missing_core_info_merges,
+        )
+        return 1
 
     sources = result.playbook["playbook"]["sources"]
     merge_count = sum(len(source["override_merge_shas"]) for source in sources)
@@ -531,6 +587,11 @@ def main() -> int:
         logger.warning(
             "Pruned {} raw candidates because at least one conflict path was not a Java file",
             result.non_java_conflict_merges,
+        )
+    if result.test_source_conflict_merges:
+        logger.warning(
+            "Pruned {} raw candidates because at least one conflict path contained 'test'",
+            result.test_source_conflict_merges,
         )
     if result.sampled_out_merges:
         logger.info("Random sampling pruned {} otherwise eligible Schesch-passing merges", result.sampled_out_merges)
