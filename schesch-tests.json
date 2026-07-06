@@ -372,7 +372,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT key FROM \"default\".\"redis_json\"\nwhere startsWith(key, 'dataset:schesch:tests') and content.error is null"
+                        "rawSql": "SELECT\n  key,\n  content.duration_seconds::float as generation_duration,\n  length(content.files) as tested_files\nFROM\n  \"default\".\"redis_json\"\nwhere\n  startsWith (key, 'dataset:schesch:tests')\n  and content.error is null"
                       },
                       "version": "v0"
                     },
@@ -423,11 +423,37 @@
                     ]
                   }
                 },
-                "overrides": []
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "key",
+                      "scope": "series"
+                    },
+                    "properties": [
+                      {
+                        "id": "links",
+                        "value": [
+                          {
+                            "targetBlank": true,
+                            "title": "Show Details",
+                            "url": "http://mac-studio.syntevo:3000/d/dafrbr6shw5f5sa/generated-test?var-key=${__data.fields['key']}"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
               },
               "options": {
                 "cellHeight": "sm",
-                "showHeader": true
+                "showHeader": true,
+                "sortBy": [
+                  {
+                    "desc": true,
+                    "displayName": "length(content.files)"
+                  }
+                ]
               }
             },
             "version": "13.0.2"
@@ -503,7 +529,7 @@
                     }
                   ],
                   "maxColumnCount": 3,
-                  "rowHeightMode": "standard"
+                  "rowHeightMode": "tall"
                 }
               },
               "title": "Details"
@@ -557,7 +583,7 @@
       "timezone": "browser",
       "to": "2026-07-01T15:23:48.447Z"
     },
-    "title": "Schesch Tests",
+    "title": "Generated Tests",
     "variables": []
   }
 }
