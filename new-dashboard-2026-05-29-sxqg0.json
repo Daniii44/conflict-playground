@@ -62,7 +62,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "with base as (\nSELECT groupArray(distinct logical_conflict.type::String) as types FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:core') and logical_conflict.type::String like '%submodul%'\ngroup by key::String\n)\nselect type, count(*) from base\narray join types as type\ngroup by type\norder by count(*) desc\n"
+                        "rawSql": "with base as (\nSELECT groupArray(distinct logical_conflict.type::String) as types FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:core') and (logical_conflict.type::String = 'CONFLICT (submodule may have rewinds)' or logical_conflict.type::String = 'CONFLICT (submodule)')\ngroup by key::String\n)\nselect type, count(*) from base\narray join types as type\ngroup by type\norder by count(*) desc\n"
                       },
                       "version": "v0"
                     },
@@ -249,7 +249,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT \n        key,\n        count() AS submodule_conflict_count\n    FROM \"default\".\"redis_json\"\n    -- Explicitly cast the Dynamic column to an Array of JSON objects\n    ARRAY JOIN CAST(content.merge_result.logical_conflicts, 'Array(JSON)') AS logical_conflict\n    WHERE startsWith(key, 'info:conflict:core') \n      AND logical_conflict.type::String LIKE '%submodule%'\n    GROUP BY key, logical_conflict.type::String"
+                        "rawSql": "SELECT \n        key,\n        count() AS submodule_conflict_count\n    FROM \"default\".\"redis_json\"\n    -- Explicitly cast the Dynamic column to an Array of JSON objects\n    ARRAY JOIN CAST(content.merge_result.logical_conflicts, 'Array(JSON)') AS logical_conflict\n    WHERE startsWith(key, 'info:conflict:core') \n      and (logical_conflict.type::String = 'CONFLICT (submodule may have rewinds)' or logical_conflict.type::String = 'CONFLICT (submodule)')\n    GROUP BY key, logical_conflict.type::String"
                       },
                       "version": "v0"
                     },
@@ -425,7 +425,7 @@
                 }
               }
             },
-            "version": "13.0.1+security-01"
+            "version": "13.0.2"
           }
         }
       },
@@ -461,7 +461,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "with base as (\nSELECT groupArray(distinct logical_conflict.type::String) as types FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:core') and logical_conflict.type::String like '%submodul%'\ngroup by key::String\n)\nselect count(*) from base"
+                        "rawSql": "with base as (\nSELECT groupArray(distinct logical_conflict.type::String) as types FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:core') and (logical_conflict.type::String = 'CONFLICT (submodule may have rewinds)' or logical_conflict.type::String = 'CONFLICT (submodule)')\ngroup by key::String\n)\nselect count(*) from base"
                       },
                       "version": "v0"
                     },
@@ -569,7 +569,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "with base as (\nSELECT key::String as key, groupArray(distinct logical_conflict.type::String) as types FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:core') and logical_conflict.type::String like '%submodul%'\ngroup by key\n)\nselect count(*), extract(key, 'info:conflict:core:(.*):') as repo from base\ngroup by repo"
+                        "rawSql": "with base as (\nSELECT key::String as key, groupArray(distinct logical_conflict.type::String) as types FROM \"default\".\"redis_json\"\narray join content.merge_result.logical_conflicts::Array(JSON) as logical_conflict\nwhere startsWith(key, 'info:conflict:core') and (logical_conflict.type::String = 'CONFLICT (submodule may have rewinds)' or logical_conflict.type::String = 'CONFLICT (submodule)')\ngroup by key\n)\nselect count(*), extract(key, 'info:conflict:core:(.*):') as repo from base\ngroup by repo"
                       },
                       "version": "v0"
                     },
