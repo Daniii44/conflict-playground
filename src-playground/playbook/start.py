@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import argparse
+from collections import defaultdict
+from dataclasses import replace
 from datetime import datetime
 import json
 import os
@@ -14,7 +16,7 @@ from pathlib import Path
 from common.active_playground_models import Configuration, ActivePlayground
 from common.git_util import capture_git
 from common.resolution_models import ConflictResolution, ProposedResolution, resolution_record_key
-from common.redis_util import RUNTIME_ACTIVE_PLAYGROUND_PREFIX, setup_redis_connection
+from common.redis_util import RESOLUTION_CONFLICT_PREFIX, RUNTIME_ACTIVE_PLAYGROUND_PREFIX, setup_redis_connection
 from playbook.playgrounds import (
     Playground,
     format_playground_summary_line,
@@ -164,6 +166,64 @@ def validate_playground_setup(playground_name: str) -> None:
         raise RuntimeError(f"playground has uninitialized submodules: {sample}{extra}")
 
 
+def playground_with_resolved_merge_sha(pg: Playground) -> Playground:
+    merge_sha = resolve_playground_merge_sha(pg)
+    if pg.merge_sha == merge_sha:
+        return pg
+
+    return replace(pg, merge_sha=merge_sha, parent_shas=None)
+
+
+def resolution_key_match(repo_name: str, merge_sha: str) -> str:
+    return f"{RESOLUTION_CONFLICT_PREFIX}{repo_name}-{merge_sha}:*"
+
+
+def count_existing_resolutions(redis: Redis, repo_name: str, merge_sha: str) -> int:
+    return sum(
+        1
+        for _ in redis.scan_iter(match=resolution_key_match(repo_name, merge_sha))
+    )
+
+
+def prune_playgrounds_by_repetition_limit(
+    playgrounds: list[Playground],
+    redis: Redis,
+    repetition_limit: int,
+) -> list[Playground]:
+    existing_counts: dict[tuple[str, str], int] = {}
+    selected_counts: dict[tuple[str, str], int] = defaultdict(int)
+    selected_playgrounds = []
+    pruned_playgrounds = []
+
+    for pg in playgrounds:
+        resolved_pg = playground_with_resolved_merge_sha(pg)
+        key = (resolved_pg.repo_name, resolved_pg.merge_sha)
+        if key not in existing_counts:
+            existing_counts[key] = count_existing_resolutions(
+                redis,
+                resolved_pg.repo_name,
+                resolved_pg.merge_sha,
+            )
+
+        if existing_counts[key] + selected_counts[key] >= repetition_limit:
+            pruned_playgrounds.append(resolved_pg)
+            continue
+
+        selected_counts[key] += 1
+        selected_playgrounds.append(resolved_pg)
+
+    if pruned_playgrounds:
+        print(f"\nPruned {len(pruned_playgrounds)} playgrounds at repetition limit {repetition_limit}:")
+        for pg in pruned_playgrounds:
+            existing_count = existing_counts[(pg.repo_name, pg.merge_sha)]
+            print(
+                f"  - {pg.repo_name}: {pg.merge_sha} "
+                f"({existing_count} existing resolution keys)"
+            )
+
+    return selected_playgrounds
+
+
 def process_playground(pg: Playground, redis: Redis, index: int, total: int) -> bool:
     """Process a single playground: setup, dispatch, assess, clean"""
     # Check if shutdown was requested before starting
@@ -234,7 +294,15 @@ def main():
     parser.add_argument("playbook", help="Name of the playbook", nargs='?', default="default")
     parser.add_argument("--skip", type=int, default=0, help="Skip the first N playgrounds")
     parser.add_argument("--pool", type=int, default=3, help="Number of parallel playgrounds")
+    parser.add_argument(
+        "--repetition-limit",
+        type=int,
+        default=3,
+        help="Skip merges that already have this many saved resolution keys",
+    )
     args = parser.parse_args()
+    if args.repetition_limit < 0:
+        parser.error("--repetition-limit must be non-negative")
 
     redis = setup_redis_connection()
 
@@ -253,6 +321,12 @@ def main():
     # Apply skip
     if args.skip > 0:
         playgrounds = playgrounds[args.skip:]
+
+    playgrounds = prune_playgrounds_by_repetition_limit(
+        playgrounds,
+        redis,
+        args.repetition_limit,
+    )
 
     print_playground_summary(playgrounds, load_result.conflict_type_target_ratios)
 

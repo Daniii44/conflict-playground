@@ -1,6 +1,7 @@
 import json
 import subprocess
 from datetime import datetime
+from fnmatch import fnmatch
 from unittest.mock import patch
 
 import pytest
@@ -15,6 +16,7 @@ from playbook.start import (
     format_playground_summary_line,
     load_playbook,
     process_playground,
+    prune_playgrounds_by_repetition_limit,
     save_resolution,
     validate_playground_setup,
 )
@@ -35,12 +37,18 @@ class FakeRedisJson:
 
 
 class FakeRedis:
-    def __init__(self):
+    def __init__(self, keys=None):
         self.json_api = FakeRedisJson()
+        self.keys = keys or []
         self.deleted = []
 
     def json(self):
         return self.json_api
+
+    def scan_iter(self, match):
+        for key in self.keys:
+            if fnmatch(key, match):
+                yield key
 
     def delete(self, key):
         self.deleted.append(key)
@@ -319,6 +327,62 @@ def test_format_playground_summary_line_marks_unknown_conflict_type():
     playground = Playground(repo_name="example/project.git", merge_sha="abc123")
 
     assert format_playground_summary_line(playground) == "  - example/project.git: abc123 [unknown]"
+
+
+def test_prune_playgrounds_by_repetition_limit_removes_merges_at_limit(capsys):
+    redis = FakeRedis(
+        [
+            "resolution:conflict:example/project.git-abc123:20260609T120000.000000Z",
+            "resolution:conflict:example/project.git-abc123:20260609T130000.000000Z",
+            "resolution:conflict:example/project.git-def456:20260609T140000.000000Z",
+        ]
+    )
+
+    playgrounds = [
+        Playground(repo_name="example/project.git", merge_sha="abc123"),
+        Playground(repo_name="example/project.git", merge_sha="def456"),
+    ]
+
+    selected = prune_playgrounds_by_repetition_limit(playgrounds, redis, repetition_limit=2)
+
+    assert selected == [Playground(repo_name="example/project.git", merge_sha="def456")]
+    assert "Pruned 1 playgrounds at repetition limit 2" in capsys.readouterr().out
+
+
+def test_prune_playgrounds_by_repetition_limit_counts_current_execution_duplicates():
+    redis = FakeRedis(
+        [
+            "resolution:conflict:example/project.git-abc123:20260609T120000.000000Z",
+        ]
+    )
+
+    playgrounds = [
+        Playground(repo_name="example/project.git", merge_sha="abc123"),
+        Playground(repo_name="example/project.git", merge_sha="abc123"),
+    ]
+
+    selected = prune_playgrounds_by_repetition_limit(playgrounds, redis, repetition_limit=2)
+
+    assert selected == [Playground(repo_name="example/project.git", merge_sha="abc123")]
+
+
+def test_prune_playgrounds_by_repetition_limit_resolves_parent_pair_overrides():
+    redis = FakeRedis(
+        [
+            "resolution:conflict:example/project.git-merge789:20260609T120000.000000Z",
+        ]
+    )
+    playgrounds = [
+        Playground(
+            repo_name="example/project.git",
+            parent_shas=("left123", "right456"),
+        )
+    ]
+
+    with patch("playbook.playgrounds.resolve_unique_merge_sha_from_parents", return_value="merge789"):
+        selected = prune_playgrounds_by_repetition_limit(playgrounds, redis, repetition_limit=2)
+
+    assert selected == [Playground(repo_name="example/project.git", merge_sha="merge789")]
 
 
 def test_playgrounds_cli_prints_human_readable_summary(monkeypatch, tmp_path, capsys):
