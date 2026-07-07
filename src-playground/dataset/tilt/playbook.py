@@ -6,6 +6,7 @@ import os
 import sys
 from collections import Counter
 from dataclasses import dataclass
+from itertools import permutations
 from pathlib import Path
 
 from loguru import logger
@@ -247,6 +248,148 @@ def log_candidate_collection_summary(
         )
 
 
+def overlap_aware_target_order(
+    targets: tuple[TiltTarget, ...],
+    *,
+    candidates_by_reason: dict[ConflictType, list[TiltCandidate]],
+) -> list[TiltTarget]:
+    target_identities = {
+        target: {
+            candidate.identity
+            for candidate in candidates_by_reason[target.conflict_type]
+        }
+        for target in targets
+    }
+    identity_target_counts = Counter(
+        identity
+        for identities in target_identities.values()
+        for identity in identities
+    )
+
+    def order_key(target: TiltTarget) -> tuple[bool, float, float, float, int, str]:
+        identities = target_identities[target]
+        unique_count = len(identities)
+        exclusive_count = sum(
+            1
+            for identity in identities
+            if identity_target_counts[identity] == 1
+        )
+        shared_count = unique_count - exclusive_count
+
+        return (
+            exclusive_count >= target.count,
+            exclusive_count / target.count,
+            unique_count / target.count,
+            -(shared_count / unique_count) if unique_count else 0.0,
+            unique_count,
+            target.conflict_type.value,
+        )
+
+    return sorted(targets, key=order_key)
+
+
+def simulate_shortfalls_for_order(
+    ordered_targets: tuple[TiltTarget, ...],
+    *,
+    ranked_candidates_by_reason: dict[ConflictType, list[TiltCandidate]],
+) -> dict[ConflictType, int]:
+    used_identities: set[TiltConflictIdentity] = set()
+    shortfalls: dict[ConflictType, int] = {}
+
+    for target in ordered_targets:
+        selected_count = 0
+        for candidate in ranked_candidates_by_reason[target.conflict_type]:
+            if candidate.identity in used_identities:
+                continue
+
+            used_identities.add(candidate.identity)
+            selected_count += 1
+            if selected_count == target.count:
+                break
+
+        if selected_count < target.count:
+            shortfalls[target.conflict_type] = target.count - selected_count
+
+    return shortfalls
+
+
+def order_tilt_targets(
+    targets: tuple[TiltTarget, ...],
+    *,
+    candidates_by_reason: dict[ConflictType, list[TiltCandidate]],
+) -> list[TiltTarget]:
+    base_order = overlap_aware_target_order(
+        targets,
+        candidates_by_reason=candidates_by_reason,
+    )
+    if len(base_order) > 8:
+        return base_order
+
+    base_position = {
+        target: index
+        for index, target in enumerate(base_order)
+    }
+    ranked_candidates_by_reason = {
+        conflict_type: sorted(reason_candidates, key=rank_candidate)
+        for conflict_type, reason_candidates in candidates_by_reason.items()
+    }
+
+    def order_score(ordered_targets: tuple[TiltTarget, ...]) -> tuple[int, int, tuple[int, ...]]:
+        shortfalls = simulate_shortfalls_for_order(
+            ordered_targets,
+            ranked_candidates_by_reason=ranked_candidates_by_reason,
+        )
+        return (
+            sum(shortfalls.values()),
+            len(shortfalls),
+            tuple(base_position[target] for target in ordered_targets),
+        )
+
+    return list(min(permutations(base_order), key=order_score))
+
+
+def log_target_order_diagnostics(
+    ordered_targets: list[TiltTarget],
+    *,
+    candidates_by_reason: dict[ConflictType, list[TiltCandidate]],
+) -> None:
+    target_identities = {
+        target: {
+            candidate.identity
+            for candidate in candidates_by_reason[target.conflict_type]
+        }
+        for target in ordered_targets
+    }
+    identity_target_counts = Counter(
+        identity
+        for identities in target_identities.values()
+        for identity in identities
+    )
+
+    logger.info(
+        "TILT selection order: {}",
+        " -> ".join(target_label(target) for target in ordered_targets),
+    )
+    for target in ordered_targets:
+        identities = target_identities[target]
+        unique_count = len(identities)
+        exclusive_count = sum(
+            1
+            for identity in identities
+            if identity_target_counts[identity] == 1
+        )
+        shared_count = unique_count - exclusive_count
+        logger.info(
+            "Order metrics for {}: target={}, unique_merge_identities={}, exclusive_merge_identities={}, shared_merge_identities={}, exclusive_shortfall={}",
+            target_label(target),
+            target.count,
+            unique_count,
+            exclusive_count,
+            shared_count,
+            max(0, target.count - exclusive_count),
+        )
+
+
 def select_tilt_candidates(
     candidates: list[TiltCandidate],
     *,
@@ -261,13 +404,9 @@ def select_tilt_candidates(
         if candidate.reason_conflict_type in candidates_by_reason:
             candidates_by_reason[candidate.reason_conflict_type].append(candidate)
 
-    ordered_targets = sorted(
+    ordered_targets = order_tilt_targets(
         targets,
-        key=lambda target: (
-            len(candidates_by_reason[target.conflict_type]) / target.count,
-            len(candidates_by_reason[target.conflict_type]),
-            target.conflict_type.value,
-        ),
+        candidates_by_reason=candidates_by_reason,
     )
     used_identities: set[TiltConflictIdentity] = set()
     selected_target_by_identity: dict[TiltConflictIdentity, TiltTarget] = {}
@@ -275,9 +414,9 @@ def select_tilt_candidates(
     shortfalls: dict[ConflictType, int] = {}
 
     if verbose:
-        logger.info(
-            "TILT selection order: {}",
-            " -> ".join(target_label(target) for target in ordered_targets),
+        log_target_order_diagnostics(
+            ordered_targets,
+            candidates_by_reason=candidates_by_reason,
         )
 
     for target in ordered_targets:

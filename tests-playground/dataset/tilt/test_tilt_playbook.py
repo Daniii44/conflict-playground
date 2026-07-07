@@ -1,3 +1,4 @@
+from collections import Counter
 from fnmatch import fnmatch
 
 from common.merge_tree import ConflictType
@@ -140,6 +141,49 @@ def test_build_tilt_playbook_prefers_scarce_bucket_for_multi_qualifying_conflict
     assert selected_by_sha["content-only"].subdataset == "content"
     assert selected_by_sha["content-only"].reason_conflict_type == ConflictType.CONFLICT_CONTENTS
     assert result.shortfalls_by_reason == {}
+
+
+def test_build_tilt_playbook_orders_overlap_scarce_bucket_before_flexible_bucket():
+    targets = (
+        TiltTarget("content", ConflictType.CONFLICT_CONTENTS, 3),
+        TiltTarget("rename", ConflictType.CONFLICT_RENAME_DELETE, 5),
+    )
+    values = {}
+    for index in range(1, 5):
+        merge_sha = f"shared-{index}"
+        values[tilt_key("owner/repo.git", merge_sha)] = tilt_info(
+            merge_sha=merge_sha,
+            logical_conflict_count=2,
+            subdatasets=[
+                subdataset("content", 1.0, [(ConflictType.CONFLICT_CONTENTS, 1.0)]),
+                subdataset("rename", 1.0, [(ConflictType.CONFLICT_RENAME_DELETE, 1.0)]),
+            ],
+        )
+    for index in range(1, 3):
+        merge_sha = f"content-{index}"
+        values[tilt_key("owner/repo.git", merge_sha)] = tilt_info(
+            merge_sha=merge_sha,
+            subdatasets=[
+                subdataset("content", 1.0, [(ConflictType.CONFLICT_CONTENTS, 1.0)]),
+            ],
+        )
+    for index in range(1, 6):
+        merge_sha = f"rename-{index}"
+        values[tilt_key("owner/repo.git", merge_sha)] = tilt_info(
+            merge_sha=merge_sha,
+            subdatasets=[
+                subdataset("rename", 0.1, [(ConflictType.CONFLICT_RENAME_DELETE, 0.1)]),
+            ],
+        )
+    redis = FakeRedis(values)
+
+    result = build_tilt_playbook_result(redis, targets=targets, verbose=True)
+
+    selected_counts = Counter(candidate.reason_conflict_type for candidate in result.selected)
+
+    assert result.shortfalls_by_reason == {}
+    assert selected_counts[ConflictType.CONFLICT_CONTENTS] == 3
+    assert selected_counts[ConflictType.CONFLICT_RENAME_DELETE] == 5
 
 
 def test_build_tilt_playbook_ranks_by_subdataset_purity_before_reason_purity():
