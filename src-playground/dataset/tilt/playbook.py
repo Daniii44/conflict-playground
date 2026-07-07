@@ -55,7 +55,7 @@ class TiltPlaybookBuildResult:
     shortfalls_by_reason: dict[ConflictType, int]
 
 
-DEFAULT_TARGETS: tuple[TiltTarget, ...] = (
+TOP100_TARGETS: tuple[TiltTarget, ...] = (
     TiltTarget("content", ConflictType.CONFLICT_CONTENTS, 100),
     TiltTarget("modify/delete", ConflictType.CONFLICT_MODIFY_DELETE, 125),
     TiltTarget("directory", ConflictType.CONFLICT_DIR_RENAME_SUGGESTED, 75),
@@ -65,17 +65,29 @@ DEFAULT_TARGETS: tuple[TiltTarget, ...] = (
     TiltTarget("directory", ConflictType.CONFLICT_DIR_RENAME_SPLIT, 50),
 )
 
+TARGETS_BY_NAME: dict[str, tuple[TiltTarget, ...]] = {
+    "top100": TOP100_TARGETS,
+}
 
-def default_playbook_output_path() -> Path:
+
+def default_playbook_output_path(target_name: str) -> Path:
     playbooks_env = os.environ.get("PLAYBOOKS")
     if playbooks_env:
-        return Path(playbooks_env) / "tilt.yaml"
+        return Path(playbooks_env) / f"{target_name}.yaml"
 
     local_playbooks = Path.cwd() / "data" / "playbooks"
     if local_playbooks.exists():
-        return local_playbooks / "tilt.yaml"
+        return local_playbooks / f"{target_name}.yaml"
 
-    return Path("/root/playbooks/tilt.yaml")
+    return Path("/root/playbooks") / f"{target_name}.yaml"
+
+
+def targets_for_name(target_name: str) -> tuple[TiltTarget, ...]:
+    try:
+        return TARGETS_BY_NAME[target_name]
+    except KeyError:
+        known_targets = ", ".join(sorted(TARGETS_BY_NAME))
+        raise ValueError(f"Unknown tilt target {target_name!r}; known targets: {known_targets}") from None
 
 
 def target_by_conflict_type(targets: tuple[TiltTarget, ...]) -> dict[ConflictType, TiltTarget]:
@@ -111,7 +123,7 @@ def load_json_value(value):
 def collect_tilt_candidates(
     redis,
     *,
-    targets: tuple[TiltTarget, ...] = DEFAULT_TARGETS,
+    targets: tuple[TiltTarget, ...],
 ) -> list[TiltCandidate]:
     targets_by_type = target_by_conflict_type(targets)
     candidates: list[TiltCandidate] = []
@@ -159,7 +171,7 @@ def rank_candidate(candidate: TiltCandidate) -> tuple[float, float, str, str]:
 def select_tilt_candidates(
     candidates: list[TiltCandidate],
     *,
-    targets: tuple[TiltTarget, ...] = DEFAULT_TARGETS,
+    targets: tuple[TiltTarget, ...],
 ) -> TiltPlaybookBuildResult:
     candidates_by_reason: dict[ConflictType, list[TiltCandidate]] = {
         target.conflict_type: []
@@ -211,7 +223,7 @@ def select_tilt_candidates(
 def build_tilt_playbook_result(
     redis=None,
     *,
-    targets: tuple[TiltTarget, ...] = DEFAULT_TARGETS,
+    targets: tuple[TiltTarget, ...],
 ) -> TiltPlaybookBuildResult:
     redis = redis or setup_redis_connection()
     return select_tilt_candidates(
@@ -265,7 +277,7 @@ def selected_record(candidate: TiltCandidate) -> dict:
 def summary_record(
     result: TiltPlaybookBuildResult,
     *,
-    targets: tuple[TiltTarget, ...] = DEFAULT_TARGETS,
+    targets: tuple[TiltTarget, ...],
 ) -> dict:
     subdataset_counts = Counter(candidate.subdataset for candidate in result.selected)
     reason_counts = Counter(candidate.reason_conflict_type.value for candidate in result.selected)
@@ -305,7 +317,7 @@ def write_dataset_tilt_records(
     redis,
     result: TiltPlaybookBuildResult,
     *,
-    targets: tuple[TiltTarget, ...] = DEFAULT_TARGETS,
+    targets: tuple[TiltTarget, ...],
 ) -> int:
     prune_existing_dataset_tilt_records(redis)
     redis.json().set(DATASET_TILT_KEY, "$", summary_record(result, targets=targets))
@@ -318,7 +330,7 @@ def generate_tilt_playbook(
     output_path: Path,
     *,
     redis=None,
-    targets: tuple[TiltTarget, ...] = DEFAULT_TARGETS,
+    targets: tuple[TiltTarget, ...],
 ) -> TiltPlaybookBuildResult:
     redis = redis or setup_redis_connection()
     result = build_tilt_playbook_result(redis, targets=targets)
@@ -335,14 +347,22 @@ def main() -> int:
         )
     )
     parser.add_argument(
+        "--target",
+        required=True,
+        choices=sorted(TARGETS_BY_NAME),
+        help="Named tilt target to generate.",
+    )
+    parser.add_argument(
         "--output",
         type=Path,
-        default=default_playbook_output_path(),
         help="Output playbook path.",
     )
     args = parser.parse_args()
 
-    result = generate_tilt_playbook(args.output)
+    targets = targets_for_name(args.target)
+    output = args.output or default_playbook_output_path(args.target)
+
+    result = generate_tilt_playbook(output, targets=targets)
 
     if result.shortfalls_by_reason:
         for conflict_type, shortfall in result.shortfalls_by_reason.items():
@@ -357,7 +377,7 @@ def main() -> int:
     logger.info(
         "Wrote tilt playbook with {} conflicts to {}",
         len(result.selected),
-        args.output,
+        output,
     )
     for subdataset, count in sorted(subdataset_counts.items()):
         logger.info("{}: {}", subdataset, count)

@@ -3,10 +3,13 @@ from fnmatch import fnmatch
 from common.merge_tree import ConflictType
 from dataset.tilt.playbook import (
     DATASET_TILT_KEY,
+    TOP100_TARGETS,
     TiltTarget,
     build_tilt_playbook_result,
     dataset_tilt_conflict_key,
+    default_playbook_output_path,
     generate_tilt_playbook,
+    targets_for_name,
 )
 from info.conflict.analysis.tilt_analysis import (
     InfoConflictTilt,
@@ -83,6 +86,16 @@ def subdataset(
 
 def tilt_key(repo: str, merge_sha: str) -> str:
     return f"info:conflict:tilt:{repo}:{merge_sha}"
+
+
+def test_top100_target_resolves_by_name():
+    assert targets_for_name("top100") == TOP100_TARGETS
+
+
+def test_default_playbook_output_path_uses_target_name(monkeypatch, tmp_path):
+    monkeypatch.setenv("PLAYBOOKS", str(tmp_path))
+
+    assert default_playbook_output_path("top100") == tmp_path / "top100.yaml"
 
 
 def test_build_tilt_playbook_prefers_scarce_bucket_for_multi_qualifying_conflict():
