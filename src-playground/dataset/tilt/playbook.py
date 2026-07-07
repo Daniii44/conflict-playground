@@ -56,12 +56,12 @@ class TiltPlaybookBuildResult:
 
 
 TOP100_TARGETS: tuple[TiltTarget, ...] = (
-    TiltTarget("content", ConflictType.CONFLICT_CONTENTS, 100),
-    TiltTarget("modify/delete", ConflictType.CONFLICT_MODIFY_DELETE, 125),
-    TiltTarget("directory", ConflictType.CONFLICT_DIR_RENAME_SUGGESTED, 75),
-    TiltTarget("rename", ConflictType.CONFLICT_RENAME_DELETE, 75),
-    TiltTarget("rename", ConflictType.CONFLICT_RENAME_RENAME, 50),
-    TiltTarget("content", ConflictType.CONFLICT_BINARY, 25),
+    TiltTarget("content", ConflictType.CONFLICT_CONTENTS, 200),
+    TiltTarget("content", ConflictType.CONFLICT_BINARY, 50),
+    TiltTarget("modify/delete", ConflictType.CONFLICT_MODIFY_DELETE, 250),
+    TiltTarget("rename", ConflictType.CONFLICT_RENAME_DELETE, 150),
+    TiltTarget("rename", ConflictType.CONFLICT_RENAME_RENAME, 100),
+    TiltTarget("directory", ConflictType.CONFLICT_DIR_RENAME_SUGGESTED, 200),
     TiltTarget("directory", ConflictType.CONFLICT_DIR_RENAME_SPLIT, 50),
 )
 
