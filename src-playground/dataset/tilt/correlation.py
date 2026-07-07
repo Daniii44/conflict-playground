@@ -53,7 +53,7 @@ def subdataset_counts(tilt_info: InfoConflictTilt) -> Counter[str]:
     for conflict_type, count in tilt_info.conflict_type_counts.items():
         subdataset = CONFLICT_TYPE_SUBDATASETS.get(conflict_type)
         if subdataset in SUBDATASETS:
-            counts[subdataset] += count
+            counts[subdataset] += min(count, 1)  # Count only presence, not frequency
     return counts
 
 
