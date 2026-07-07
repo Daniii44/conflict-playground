@@ -47,10 +47,10 @@ def build_playbook_yaml(repos: list[dict[str, Any]], per_repo_limit: int) -> str
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Generate top100.yaml from stored repo metadata in Redis")
+    parser = argparse.ArgumentParser(description="Generate top100raw.yaml from stored repo metadata in Redis")
     parser.add_argument("--count", type=int, default=100, help="Number of repositories to include")
     parser.add_argument("--limit", type=int, default=10, help="Conflict limit to write for each repository")
-    parser.add_argument("--output", default="top100.yaml", help="Output playbook filename")
+    parser.add_argument("--output", default="top100raw.yaml", help="Output playbook filename")
     args = parser.parse_args()
 
     playbooks_dir = os.environ.get("PLAYBOOKS")
