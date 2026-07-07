@@ -17,12 +17,7 @@ from info.submodule.sync import load_root_repo_urls
 
 
 DEFAULT_OUTPUT = "submoduleraw.yaml"
-DEFAULT_LIMIT = 100
-SUBMODULE_CONFLICT_TYPE_PERCENTAGES = {
-    "CONFLICT (submodule with possible resolution)": 40,
-    "CONFLICT (submodule may have rewinds)": 40,
-    "CONFLICT (submodule)": 20,
-}
+DEFAULT_LIMIT = 10
 
 
 @dataclass(frozen=True)
@@ -134,13 +129,8 @@ def collect_submodule_playbook_sources(
 def build_playbook_yaml(sources: list[SubmodulePlaybookSource], limit: int) -> str:
     lines = [
         "playbook:",
-        "  config:",
-        "    conflict-type-percentages:",
+        "  sources:",
     ]
-    for conflict_type, percentage in SUBMODULE_CONFLICT_TYPE_PERCENTAGES.items():
-        lines.append(f"      {conflict_type}: {percentage}")
-
-    lines.append("  sources:")
     for source in sources:
         lines.extend(
             [

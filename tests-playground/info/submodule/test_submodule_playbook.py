@@ -131,7 +131,7 @@ def test_collect_submodule_playbook_sources_respects_head_only():
     assert sources[0].available_submodule_count == 1
 
 
-def test_build_playbook_yaml_writes_submodule_config_and_limits():
+def test_build_playbook_yaml_writes_sources_and_limits():
     sources = collect_submodule_playbook_sources(
         FakeRedis(
             {
@@ -147,11 +147,6 @@ def test_build_playbook_yaml_writes_submodule_config_and_limits():
 
     assert build_playbook_yaml(sources, 25) == (
         "playbook:\n"
-        "  config:\n"
-        "    conflict-type-percentages:\n"
-        "      CONFLICT (submodule with possible resolution): 40\n"
-        "      CONFLICT (submodule may have rewinds): 40\n"
-        "      CONFLICT (submodule): 20\n"
         "  sources:\n"
         "    - repo_url: https://github.com/owner/root.git\n"
         "      limit: 25\n"
