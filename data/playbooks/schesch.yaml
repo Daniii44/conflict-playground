@@ -11,18 +11,25 @@ playbook:
         - a2c344fb54f78c17d684a9b8b2158d23e326a874
     - repo_url: https://github.com/addthis/stream-lib.git
       override_merge_shas:
+        - a946396485c9f3cb1aeb11230a19233a0c9c88c0
         - db2ede74297f31dea9f0fa8e39a6a33be253ee6e
     - repo_url: https://github.com/adoptopenjdk/mjprof.git
       override_merge_shas:
+        - 754462e890ac29f2155ef2f60aeba253ad15ce76
         - fde954818e8ec249a1b9888714b6b3d528e3db62
     - repo_url: https://github.com/aerospike/aerospike-client-java.git
       override_merge_shas:
         - 35cdb2c14bcb7ed4ecbc1cc7036e1554915e58dc
+        - 94db6c183ad87d64bc7a89f731e55f65018ceea0
         - 955ae938535640e4e76c48a3a2aa1af0b649c18f
         - d78d73ab7c7c90bb47c59df912a35d53b1c88637
         - deae846ff30975c39b4f883823e68e10a3849425
+    - repo_url: https://github.com/ahmetaa/zemberek-nlp.git
+      override_merge_shas:
+        - cba3cefdbf185e9a4c21dc668f9600023b260146
     - repo_url: https://github.com/alexruiz/fest-util.git
       override_merge_shas:
+        - 3c3d01351f4149a749f8278423ca5d8112b18102
         - ec150f8c4420dbd9d177e880e96f09dca7f35f30
     - repo_url: https://github.com/alibaba/canal.git
       override_merge_shas:
@@ -30,6 +37,7 @@ playbook:
         - 68d8afae3e9cb4c21c26b3f7c291759f0c9e7426
     - repo_url: https://github.com/alibaba/easyexcel.git
       override_merge_shas:
+        - 5ccd41cd7ae9c6560002b7d482e391e8697c6845
         - a1d3b2b86fbb872a8f3ae20d58161b1a13f1f3ea
     - repo_url: https://github.com/andrewphorn/classicube-client.git
       override_merge_shas:
@@ -52,6 +60,9 @@ playbook:
     - repo_url: https://github.com/arcbees/universal-analytics.git
       override_merge_shas:
         - d4259d6249da0e00f06f46da5c68e12a89dc7f80
+    - repo_url: https://github.com/ardesco/selenium-standalone-server-plugin.git
+      override_merge_shas:
+        - 957d978135279c122dcfaf9d72ed5a89f487b0ae
     - repo_url: https://github.com/asciidoctor/asciidoclet.git
       override_merge_shas:
         - e31ec7a8acded7cc6ed731a391ddaf86d13329da
@@ -67,6 +78,9 @@ playbook:
     - repo_url: https://github.com/azuread/azure-activedirectory-library-for-java.git
       override_merge_shas:
         - 0eef3d4e805abdfdc257d474400421e7ef96f665
+    - repo_url: https://github.com/bastillion-io/bastillion.git
+      override_merge_shas:
+        - 974b6c963b42712a5b2d97dbd2b166d239951381
     - repo_url: https://github.com/beastmachine/ggplot.git
       override_merge_shas:
         - e2841b05bab86e238732649229f3d0a2834badf7
@@ -79,6 +93,13 @@ playbook:
         - c3dfb4ebbfeb49d09b88c8aefaa07183eb0fa06f
         - d91cd1019a9156d5e4c379a931879adfd3c65047
         - dc5d7a80d1765a49905bd7e55c62c0595c571380
+        - f816d4623cb7b607e34f1192cb93a8eaa0e6417b
+    - repo_url: https://github.com/bitzeche/zencoder-java.git
+      override_merge_shas:
+        - fbdc46df52f91095d127c9df2b2223207aa84dc1
+    - repo_url: https://github.com/bluebreezecf/sparkjobserverclient.git
+      override_merge_shas:
+        - b33358fc74b3dc49807f93670a4f96d863839aff
     - repo_url: https://github.com/brianm/config-magic.git
       override_merge_shas:
         - a7953193ae2e296565ecee2809830b5abb3a3bb7
@@ -87,12 +108,16 @@ playbook:
         - 6003d07d05c7e0be358ffc8d74e737abf5f97241
     - repo_url: https://github.com/brunoribeiro/sql-parser.git
       override_merge_shas:
+        - 101b5461bd04057ce934915a66975c7f373918af
         - 21d9d04b08761aacd8cf844096fbe64d8c4b3c57
         - 27786c78259031fefc81a3a83567f80596af939f
         - 307d28df56eaaf3913404fbde2b3f0053acd1c6f
+        - 4ecca111d3214fb0d1d66d34fa2559a0dd0b50b0
         - 500615ba36368e2d307655bbfeab7f59476c7867
+        - 782c9d1a596ef8897e208741b620d783e5f6d549
         - 996b5128efb1fbdf329bdf417aac4183be68a852
         - 99bbf93e0dd33479341dbb3b553f1f2514c14a2e
+        - b41794d7af49d6c07e339f51eac8209f2a0bb9d1
     - repo_url: https://github.com/buddycloud/buddycloud-server-java.git
       override_merge_shas:
         - 01ff69b404d4e6fdc94a0dacbf50856e50a9a6cd
@@ -100,6 +125,10 @@ playbook:
     - repo_url: https://github.com/caelum/vraptor-console.git
       override_merge_shas:
         - 75017316626095be7d4b6cbb4c1532561e1ff8a1
+    - repo_url: https://github.com/campagnelaboratory/metar.git
+      override_merge_shas:
+        - 525afacc7d4273fa86de1cd512773f54309cd226
+        - 61182b0126310c7d1928e46a272f2e0a45e60627
     - repo_url: https://github.com/cinovo/cloudconductor-server.git
       override_merge_shas:
         - 55b31adbcbc6413b1b147d6f6259f51de37e0ec0
@@ -122,8 +151,13 @@ playbook:
     - repo_url: https://github.com/corentin59/artnetstack.git
       override_merge_shas:
         - 4c05f24b011bfa8d8bd18c6cad1d179708564fd3
+        - f470681d57c8830ab18bf74db45fc67e8baecaf8
+    - repo_url: https://github.com/corfudb/corfudb.git
+      override_merge_shas:
+        - 233e1eb18c40db72da1f101cea0b4935f8c6c880
     - repo_url: https://github.com/cternes/openkeepass.git
       override_merge_shas:
+        - 0691954e63c3576146e86809bff0c0c2b77a0f6f
         - 6218ade3f2e50f22e5e263714197f176e856c5a2
     - repo_url: https://github.com/dakusui/jcunit.git
       override_merge_shas:
@@ -143,9 +177,12 @@ playbook:
         - 0dd96ea21f85de3a8323926450891971cb36d2e1
         - 127c2a211dd58cc81b61efa85310396aedf7bcae
         - 128aaf4cc8f5747aafda64227acc751124e30fbf
+        - 1f25c7e3a0bf10b65765b3b23bdcf9a5de30888a
         - 32a415ddf1a3cf8983f83a765299d0fda0ffb7df
         - 3eb34e67852dd8ff746560b6d1cc0f9004f7a65d
+        - 43556c49244cb0afbb8c6d8447ac60e97dbe1076
         - 4dd56310d780ad0d35a6c8010e8569a71b1a83f5
+        - 69f03b57eecc274842347dd017d23c7abd64eeeb
         - 6f4981596ae9391156cdc4daa61884e2606f9bef
         - 725b790a7940e02a4b7cd225b25bf2c3b04d7938
         - aac3baacc4800611549e0e8084adb674b83e8c2a
@@ -160,6 +197,9 @@ playbook:
     - repo_url: https://github.com/dcm4che/dcm4che.git
       override_merge_shas:
         - eabc8cb593e0c682dac2f88a3d0c8d3acd0f17ef
+    - repo_url: https://github.com/dgarijo/widoco.git
+      override_merge_shas:
+        - dfa60976ada8bdced21ff043fe763dd86314b7cc
     - repo_url: https://github.com/digidotcom/xbeejavalibrary.git
       override_merge_shas:
         - 6279f85f74a80a9f651b3fdd0228fa0ec737060d
@@ -184,6 +224,7 @@ playbook:
         - c7260c73f58d242b6181dfb05d588bbd0b23d5a1
     - repo_url: https://github.com/dtrules/dtrules.git
       override_merge_shas:
+        - 6f91cbdda5d9d2ff783833d2b7fd43fcefb81f12
         - d096b2548a64863a658995b9e1f2f863d8fa45c1
     - repo_url: https://github.com/dvcama/lodview.git
       override_merge_shas:
@@ -191,6 +232,9 @@ playbook:
     - repo_url: https://github.com/e-mzungu/rjc.git
       override_merge_shas:
         - 3afc92b5e097f29763b600a8192f557f66752039
+    - repo_url: https://github.com/ebay/xcelite.git
+      override_merge_shas:
+        - e43a4a1bda8dfa082dadd823d9b125c1b97e9378
     - repo_url: https://github.com/edwardcapriolo/nibiru.git
       override_merge_shas:
         - bb6150cffd19a67941797bb3a08739c24879fb3c
@@ -203,9 +247,15 @@ playbook:
     - repo_url: https://github.com/entertailion/fling.git
       override_merge_shas:
         - e008cc1cee6c339a24627ec7e00cc5be46f916ee
+    - repo_url: https://github.com/erudika/para.git
+      override_merge_shas:
+        - a9e67cc8b39eb9b5112786e5ecb1422afc8fd4d8
     - repo_url: https://github.com/eskatos/asadmin.git
       override_merge_shas:
         - 6fb154963dfd021025038412792ef1dcc5399017
+    - repo_url: https://github.com/esotericsoftware/kryo.git
+      override_merge_shas:
+        - bf687ac542e07549103cf47fd5f5087c118a068e
     - repo_url: https://github.com/fasterxml/jackson-core.git
       override_merge_shas:
         - 9a797fb61017d4f43615959faa180a8bb119eb32
@@ -223,6 +273,8 @@ playbook:
         - 665092d619617b44711bf80f0652c19ce0e32a87
     - repo_url: https://github.com/feroult/yawp.git
       override_merge_shas:
+        - 4e7f9aceca67381ee802cadd2e2d36d4f28044a7
+        - 918dcec5fbd9a540c7c2cb692da4499f2b4944aa
         - a7ebc8b53b0db9c6d492b2824cd874688d33e4be
     - repo_url: https://github.com/ffay/lanproxy.git
       override_merge_shas:
@@ -231,8 +283,11 @@ playbook:
       override_merge_shas:
         - 31e749c77fd17fb77bb36433506765f44784035d
         - 5e16de8e9ffcc87470a5817ae5ae92ecbf6ab30b
+        - cd50720acbc96d28db16793b408e57ffb240b1cd
+        - e9fd83ec1cee916c0233327a36de928f90aaec7a
     - repo_url: https://github.com/fincatto/nfe.git
       override_merge_shas:
+        - 7219068602d38887a94aaa6f8d725f045c7c33e8
         - 95976d6464410856fe626458328582f568e74bd3
         - a4be269d5dc77dafeedaa7986ce331f1dac5bfae
     - repo_url: https://github.com/finraos/jtaf-xcore.git
@@ -240,6 +295,7 @@ playbook:
         - 9e7c6643c2bf965761e910898998bddf16bd6106
     - repo_url: https://github.com/flaxsearch/luwak.git
       override_merge_shas:
+        - 2805c0447a8d72dfe0986f8edc2ea5ecad2a7770
         - 3127e7cacfec616e0b6ea7bee472cd3c4b8b829f
         - cad281c6da899e58fb7963f4e1c4bd46f06b27e9
     - repo_url: https://github.com/flyingsaucerproject/flyingsaucer.git
@@ -248,6 +304,9 @@ playbook:
     - repo_url: https://github.com/fordfrog/apgdiff.git
       override_merge_shas:
         - 6184333a9bab436893e9d501b6cdba86b0c4b0c8
+    - repo_url: https://github.com/frankbille/scoreboard.git
+      override_merge_shas:
+        - 890ecd0bdb07d80650ee9df19efd535085970431
     - repo_url: https://github.com/fusesource/jansi-native.git
       override_merge_shas:
         - f4065227fc55a377db6a889b3fe73daceba5baa9
@@ -260,6 +319,9 @@ playbook:
     - repo_url: https://github.com/getbridge/bridge-java.git
       override_merge_shas:
         - 35d226d99b31bc824c3a3460ec0611c8572a081c
+    - repo_url: https://github.com/ghillairet/emfjson.git
+      override_merge_shas:
+        - 7aebd6f36990fc52abeb4c10e24f8d987b5be744
     - repo_url: https://github.com/gitools/gitools.git
       override_merge_shas:
         - 02221bf3d887ec4de4843b076ea81b0a80ac4b8c
@@ -269,6 +331,7 @@ playbook:
         - 816b3dcbe225e44aad654576e877b58b79f10df4
     - repo_url: https://github.com/google/truth.git
       override_merge_shas:
+        - 8a544c7c00443c950ac9859b3dbb813fd46caf35
         - b4ab31a8f12544571349b61ae401ea9f9854816a
     - repo_url: https://github.com/graphity/graphity-client.git
       override_merge_shas:
@@ -284,8 +347,11 @@ playbook:
         - 67e0654af8dbca135d795dbc7ebde69ebf1cc8e2
         - 74a489c92f34f73958a6ae8ae1806a4f1f5ba571
         - 90405540ff1424446c90ed0363c960f982d71551
+        - 9ed17d6c8e1fced7095fbd2cf4e52814a65bcfe2
         - b7e64480fedc27c4fcd6f9b499c968413cfe9776
+        - c502bc6b3374bf7df609bf6b30545268b15d28f6
         - c66ef2d42d9fcce05c3c11e4f17e50a7b764b5e5
+        - fd8c461fba5cc84d13fc551019089d506b74334b
     - repo_url: https://github.com/grove/presto.git
       override_merge_shas:
         - a5fd26fc395910e29b06fc2ecd2c1b73e23c5302
@@ -298,11 +364,15 @@ playbook:
       override_merge_shas:
         - 6a7ca5ae963c5b6f97592febe9d6665fcfb4af4e
         - f8f2c0c1c490760083f2416a9f44177ac30a40e1
+    - repo_url: https://github.com/haraldwalker/user-agent-utils.git
+      override_merge_shas:
+        - d431158a5cb37a09e8878abbc423429ba2ee1db1
     - repo_url: https://github.com/hdrhistogram/hdrhistogram.git
       override_merge_shas:
         - 4faeeb6c175ff46fbb6bf38bd8b91c21d205c866
     - repo_url: https://github.com/helpscout/helpscout-api-java.git
       override_merge_shas:
+        - 1d75aac8e8656d8b7dfcff38087209a9c590ae80
         - 397295ddede909edd6af0276694088841a9d5039
         - 7dde5bbe5d07ba446e8d8b7b942d378b40f2b5c3
         - b4963a5777344c814c99822967351c819072fbf5
@@ -313,6 +383,12 @@ playbook:
     - repo_url: https://github.com/heronarts/lx.git
       override_merge_shas:
         - 4fa8fcff072d18fe7c1b3449d3654c0788f3b881
+    - repo_url: https://github.com/hmsonline/storm-cassandra-cql.git
+      override_merge_shas:
+        - 756905cd9e592caaaa963739029bca5d46d20b77
+    - repo_url: https://github.com/httpcache4j/httpcache4j.git
+      override_merge_shas:
+        - ccdc581f7f9d3b683b03af7c474160d3a3d1594f
     - repo_url: https://github.com/huaban/jieba-analysis.git
       override_merge_shas:
         - f56461b33c95e386ee28e5b745968b7cdd20292b
@@ -336,6 +412,8 @@ playbook:
     - repo_url: https://github.com/immobilienscout24/deadcode4j.git
       override_merge_shas:
         - 4a894fe5616a8290f6f5e1458b3e077c0d5e2106
+        - 5aee1194b7e224d667ec4053676fd48f72cd2317
+        - 9371e6be648e58efbcd2b581637be4d5b80092c4
         - aaf214124e33f39bcd2b2b6715014e4a441aa513
     - repo_url: https://github.com/irstv/cts.git
       override_merge_shas:
@@ -357,10 +435,15 @@ playbook:
     - repo_url: https://github.com/jasig/jspc-maven-plugin.git
       override_merge_shas:
         - 634922effc3238357db5ca24c0a5feb8e8f5853c
+        - 6a1f4e7b3fb61c8c2e25b2618b3da025a4d5fee4
     - repo_url: https://github.com/javamoney/jsr354-api.git
       override_merge_shas:
         - 7422197487f7fb1c43111c98d9859e9c05052566
         - 75bfd2e554316270cfbd84c551e34e6f07c2b4d5
+        - 86df8837ecf3a584848aa9887f735e7da91ca61d
+    - repo_url: https://github.com/javamoney/jsr354-ri.git
+      override_merge_shas:
+        - bf07022ccddab3171412db1170d03ec24c77c41f
     - repo_url: https://github.com/javaparser/javaparser.git
       override_merge_shas:
         - 6687e7b034b803de2b407bf320e7d107e3b2b3b7
@@ -378,6 +461,7 @@ playbook:
         - a3e4660c7f264db9a33a64604ecc70a35afabe0e
     - repo_url: https://github.com/jcabi/jcabi-github.git
       override_merge_shas:
+        - 2603735cfe4efc6e6a45aa877d7e836cdb46b41c
         - 72ba99f81e38b5ae40eb538bc586a9a61b969823
         - cfdadda97e7adad8170ed49416adb67467b76313
         - e85dff6ee1585dd8d763519f3e2dd528229fc825
@@ -406,8 +490,11 @@ playbook:
       override_merge_shas:
         - 108349f5b2512bcfcd60441397a9c3b7e30f3e38
         - 141d83b74b0c4798cfca554834a0b1645b4dd1b5
+        - 1599d6b3faa82c01a998c961c15a55304d634e59
+        - 38c4420a04fe3eaee476aa33fe789c1d5d849eeb
         - 417131cf582e8d6eb01103d6614c231a7c391ee0
         - 4aec874ec88fb13e499510a38c517beb31eaec51
+        - 55c5691ba6b104f745af5ca7f98479dba901c8bb
         - 693df1d429d23b9f14b883047743fb3c1d785f91
         - 6b4faa42c0de2bdb921de9423bda798251cc7903
         - 6bbf63215fad598bdf53cca678c43d433b56e95e
@@ -421,7 +508,9 @@ playbook:
         - d1a767cb2d966f651be48494073a2e33ec326db6
         - d530577887bef4780cb227f3724bee93a2684214
         - d63120903090afde4ccc8061edd5ccaf7f563059
+        - e25610e65708b7fa3ea77f5b3830f829112cb418
         - f475191b1bb19e089d61d4d35056c1306db833a9
+        - fa1bf40ed11a2ef39e7579df4179fa5392f29e1c
         - fbfa29d18285908f2dab6b5f19894403bf904e35
     - repo_url: https://github.com/jgrapht/jgrapht.git
       override_merge_shas:
@@ -432,22 +521,28 @@ playbook:
         - 5869eaa93a5099bb1bb4f1929a40d602b3e3624f
         - 6db1644351479fb82c909d82b0b57b321440a5e6
         - b072f4844904ef4e8424bc6d46d27164f4e454bb
+    - repo_url: https://github.com/jmacglashan/burlap.git
+      override_merge_shas:
+        - 5284c2d1ece3f22e5182183618daa7253c11edc5
     - repo_url: https://github.com/jmetal/jmetal.git
       override_merge_shas:
         - 0e55be4b835992e6e25593412f5064270b7ffae0
         - 23e052d06afdaabb37f20d2ee659d37d58d6916e
+        - 27bab3a9f6b6d894650d18d43c0300726b7071c7
         - 31939b2d3174829e8c0a9516aa57be1d1f5eb36a
         - 603a9332cec32fcec56db88c2c486c419723d77c
         - 7d9295f890d22a4649907e99dc7f5f133e2f6e35
         - 8596f23bda5c7e007f549049aca60a58002d5a54
         - ac4340cb465a0b8cdaedd212982f1923e893d68d
         - b4630972a8b9aebfc552e9782906bf084249fcf0
+        - c90d14c54d0fc71f08ba2f14aeef7f43af52a61d
         - e07ed5d8d0e73e7661571b5e7d35cc21fc313c94
         - e4779bb8d29bc4ce6f4e0f0df52062a7992e5423
         - f2a7247f193d01427b1baa9b7cfd2ce31c083cdc
     - repo_url: https://github.com/jmrozanec/cron-utils.git
       override_merge_shas:
         - 4aed758c45cbad3882d465ddbd766c7e4676078c
+        - a77c0476c311f59cdc6373f3297ed0523ba16842
     - repo_url: https://github.com/jmxtrans/jmxtrans-agent.git
       override_merge_shas:
         - 79a0294ac330946788b98858f0c58692004b33ea
@@ -460,6 +555,9 @@ playbook:
     - repo_url: https://github.com/joshlong/spring-birt.git
       override_merge_shas:
         - f38e819c4a81bcc9f55b6496c7c9a8728d550694
+    - repo_url: https://github.com/jprante/elasticsearch-csv.git
+      override_merge_shas:
+        - a9ee7a06511f64b14b8c6dee08fe5f5849907926
     - repo_url: https://github.com/jqm4gwt/jqm4gwt.git
       override_merge_shas:
         - 284907eaffb2061f44cdc7ec3be5cb05209850c9
@@ -472,10 +570,15 @@ playbook:
         - 117efbac7cb9fbc45d046ce708d03439a2f89b3e
         - 13402e44c98b885e450f0eada839e0efcf18da1b
         - 1f2cd6a62b0c098ca82f646440d6e998a88cdf5b
+        - 252b4aadd64c0e61f8fc965661cc6b44bf5a67a0
         - 6a7295cd1ff99f1f7658108bf10b3b1f4e40d639
         - 94766fe941edd75a81ee48a809b8b61530f3a1e4
+        - 9882b876e2498661882a44590cde457c8ade1562
         - bb8bcadad884e859b6ea52ab74fac664166acf6c
         - f9030aad4d4de1add68bc4906467ad37765f81da
+    - repo_url: https://github.com/jruby/jruby-parser.git
+      override_merge_shas:
+        - 3496309cb490239165a567c67ea17852b7ea3fdd
     - repo_url: https://github.com/jsprit/jsprit.git
       override_merge_shas:
         - 0fb7469d1f73bad31a0f0f7f5292fe2d911f13df
@@ -484,12 +587,15 @@ playbook:
         - b73f291f9ea679c25eb124a9c1bcbf4bdccca0a2
         - b9c7dc3324d4b655e158dc474e346df309cad89a
         - c60ab8afd055cab1b8c7826b493fcae8b619e9c4
+        - df2e3e4b7ed331071d7b443f924c1004776d8eda
     - repo_url: https://github.com/jtablesaw/tablesaw.git
       override_merge_shas:
         - 68f967133364244b0238c0ccf7c38f6357e490f1
+        - a0ae2559f57e22d515cba5d7a68ab70689bf2cd0
     - repo_url: https://github.com/julietkilo/canbabel.git
       override_merge_shas:
         - 41057a06b792ee5007209eff19affa91a6c3dce6
+        - a2e8646cdce41a58d12879911e6ea6a836dfe7dd
     - repo_url: https://github.com/jwcarman/wicketopia.git
       override_merge_shas:
         - 65dc57a69735d064d0c1c05fa67493b94c05b159
@@ -519,10 +625,20 @@ playbook:
     - repo_url: https://github.com/killbilling/recurly-java-library.git
       override_merge_shas:
         - 436ba5710544e1462135096d91524a776e831e2b
+    - repo_url: https://github.com/kohsuke/file-leak-detector.git
+      override_merge_shas:
+        - 768944360be1d5e82dccfe677341b8ca38057f49
+        - 9f7e9962c766a175e5f01616395894000d9bd201
     - repo_url: https://github.com/kohsuke/github-api.git
       override_merge_shas:
         - 432585cb755a370eecfda4153184a1085d10923d
         - e81e228f03c90fe82a3c64eb0e55ed1367ff1faa
+    - repo_url: https://github.com/kolorobot/spring-mvc-quickstart-archetype.git
+      override_merge_shas:
+        - 743d56eac95a68af7ffe11e395d5aba05f09aac6
+    - repo_url: https://github.com/komoot/photon.git
+      override_merge_shas:
+        - 44a01f13576016817c3f6f3a2a8f3ad14f5e1450
     - repo_url: https://github.com/kongchen/swagger-maven-plugin.git
       override_merge_shas:
         - d2e1b0994d1d9cfdfc412842519319406128f268
@@ -538,6 +654,12 @@ playbook:
     - repo_url: https://github.com/krilivye/jocco.git
       override_merge_shas:
         - 5994a8ffa7adc1fbe2157b96436ba57f24aa2fa6
+    - repo_url: https://github.com/kroimon/bukkit-alphachest.git
+      override_merge_shas:
+        - 1c06bbbbf3fc168448554fcc274249946e51fd94
+    - repo_url: https://github.com/kungfoo/geohash-java.git
+      override_merge_shas:
+        - 029fd4411871b99cef71407c432752c570fcfaa2
     - repo_url: https://github.com/laforge49/jactor2.git
       override_merge_shas:
         - 3b4eebb16635f02dd3048051e26438d9071c7b92
@@ -550,10 +672,14 @@ playbook:
         - 2aa45336dcc877155d7df5063071f37a86368271
     - repo_url: https://github.com/learning-layers/socialsemanticserver.git
       override_merge_shas:
+        - 4ada3cddc3a15f7b2c63f40f83bdc48342e842eb
         - 6a7dca76f4993e256c13ab95b0e38d9b40847fe1
     - repo_url: https://github.com/lemire/externalsortinginjava.git
       override_merge_shas:
         - f6d54664fa3728e2303749b4e09fbca4d362b339
+    - repo_url: https://github.com/lemire/javaewah.git
+      override_merge_shas:
+        - 7a7298c69142670c64bf5700f6f67602da2b092f
     - repo_url: https://github.com/linkedin/camus.git
       override_merge_shas:
         - 19ca2505b3c10e89c00bcd08cddf19a4a48385a5
@@ -573,6 +699,13 @@ playbook:
         - c4fe38c6b5ad13a8a1eb718c11ab98dbc2a00dfd
         - d0ca2ff424176b80125c1c3a83e5ed9c04798724
         - ea11a810d43cfed1452773d9154a514bc4f4dfb0
+    - repo_url: https://github.com/lukas-krecan/jsonunit.git
+      override_merge_shas:
+        - 25d68d88b5f96369a021f665ef9a52cd37b558cd
+        - 3cb3260c4b9d6f45b33057991ecbd07523fc67d0
+    - repo_url: https://github.com/lukegb/gitdescribe-maven-plugin.git
+      override_merge_shas:
+        - 8537d4687a51ced12400731b2a25204cfaa349ab
     - repo_url: https://github.com/lusito/gamedevweek.git
       override_merge_shas:
         - 23c03d5bcac19f2414bc9f7fef55b8ebbddbf467
@@ -587,6 +720,7 @@ playbook:
         - 1da0e26ad55b2f4a1738ef3e7f57ac5ca6ca0ae7
     - repo_url: https://github.com/marginallyclever/makelangelo.git
       override_merge_shas:
+        - 3a475307e2c539d696adb258b4cbc01e7cdd1d81
         - f96ea74ffaf63c820dae4ed5e33941dfd9230a7c
     - repo_url: https://github.com/mashape/unirest-java.git
       override_merge_shas:
@@ -609,6 +743,7 @@ playbook:
         - 7782fd3abe099bf8c22a34159b6b05e66bc13d05
         - 9f773c7306182426f6f49ddf5c6763c4af481c14
         - a0e7bc09e4cfff141e0e05d2e788b07919b78995
+        - a291c149690f05cf4ac46127cbeab7f7495a3a82
         - aa932204dedbe24bdefeb75593385eb0c091e7f7
         - c98cba4e0b2d1d354dce79bf3a6ded3e412b612a
         - e35516f690d07a5fecc6a27c7b14b143fba7b5d1
@@ -630,13 +765,19 @@ playbook:
         - 78b481eb40f47dee1a6999abd42abf74ce1bba9e
     - repo_url: https://github.com/mixpanel/mixpanel-java.git
       override_merge_shas:
+        - 7cc869766660614944e59e0f153f3fac91e654af
         - a318fdd72fad23f101a76f483e9ec1bbdd57ab9d
         - bcdd1ed28f9b69aa8baa6d7d44e292f4d8e8a236
+    - repo_url: https://github.com/mklemm/jaxb2-rich-contract-plugin.git
+      override_merge_shas:
+        - 9b9fd9587c7bfe1930c693b902fb1ae8e65ed360
     - repo_url: https://github.com/mmazi/rescu.git
       override_merge_shas:
         - aa57149a68d9810ab14bab6f46d0add4f3fdf1d5
     - repo_url: https://github.com/mmlab/rmlprocessor.git
       override_merge_shas:
+        - 01b2eeca36996539e46e5842a23d5e30c7e2295f
+        - 23cb6fa36dea674d20821fb799ce3399a98ddef9
         - d46b8c445cac62835aeffc0b74b41f69283fd31d
     - repo_url: https://github.com/mongobee/mongobee.git
       override_merge_shas:
@@ -655,6 +796,9 @@ playbook:
         - 00d5222b61ca22fd9e3938e391fd92a2f7beab09
         - 3ed611f45106ff6b4d171e32215da5350e4ab0e1
         - 57eb9814a01725a0f7e35d5d770e152d33172fc2
+        - 58cdfd9f12a7744b2e6720a9bb4870bd519d9159
+        - 595efcbd3f7b4bc094c0d4ad566a97576e6564d0
+        - 6dae25caf7e3ac3561607f9d73cb8b9d47797285
         - 8169fc183a6253862b4cbcc7320d3314b1c6f967
         - 85b1821b4508a6ee489bd2f899caa01c1f3a94d6
         - 8a3132b9cf6f895b1642e18f6d60198fbbbb5e99
@@ -668,9 +812,15 @@ playbook:
         - 0d7f9d343a62a0481cbc3ad4b1775bec26181295
         - 91f53706e07a00c446651504e159dc2e57e41529
         - 9a647a993c2fc04bf26edad6a5ad1afec939fd43
+    - repo_url: https://github.com/msopentech/azure-activedirectory-library-for-java.git
+      override_merge_shas:
+        - 0eef3d4e805abdfdc257d474400421e7ef96f665
     - repo_url: https://github.com/mybatis/mybatis-3.git
       override_merge_shas:
         - b165e81780681be5e9da160a1ce46b49b27a4d25
+    - repo_url: https://github.com/nabedge/mixer2.git
+      override_merge_shas:
+        - e8a1930e8dc2367176464e888888ac1645bb9eee
     - repo_url: https://github.com/nanohttpd/nanohttpd.git
       override_merge_shas:
         - b1397a17955961e2260172f5abf5ec2f4ba54709
@@ -684,16 +834,23 @@ playbook:
     - repo_url: https://github.com/nlpchina/nlp-lang.git
       override_merge_shas:
         - cec0dd677bf90156ba3adaea1ffd6c69f64df9a1
+    - repo_url: https://github.com/nurkiewicz/async-retry.git
+      override_merge_shas:
+        - 27316bb87f8ad572d714cb0907a04ed67cc92d7f
     - repo_url: https://github.com/nutzam/nutzwx.git
       override_merge_shas:
         - 11d3b3744cfea0ce332aa28aa480735956a0a73b
     - repo_url: https://github.com/nysenate/openlegislation.git
       override_merge_shas:
+        - 2438250a01426fe434525552464119c5358a8384
+        - 27042b70398a8b6693a0b8ae9579118ec0dd747e
+        - 915e7059ce4a4a48869de67acbe149eb59894e9f
         - 9cc1c656afa6aa6ec7e251dec2955385ab748879
         - c1d65d47181f0889094517abf1905764dda5763b
         - de816044907e6d82a25cf08d3b2ef5efae55a879
     - repo_url: https://github.com/okleine/ncoap.git
       override_merge_shas:
+        - 805f73110b467c848fed1ff26471fff425614f01
         - a823abff038fd7f1526fd6c6ad13c8a7edfab6ca
     - repo_url: https://github.com/oltpbenchmark/oltpbench.git
       override_merge_shas:
@@ -714,13 +871,19 @@ playbook:
     - repo_url: https://github.com/openapitools/openapi-generator.git
       override_merge_shas:
         - a0b429d69050b57653cad214daaa352685e8c449
+        - bc42d941ec8c184829816c05236cf58f5c59a3ff
     - repo_url: https://github.com/opendatalab-de/geojson-jackson.git
       override_merge_shas:
         - 1890a5b8c56bcd2b7ca81142840d0619acdd0f9a
         - 894661ba0d4f40c02ea56ed56abab760fb13444b
+    - repo_url: https://github.com/openhft/chronicle-bytes.git
+      override_merge_shas:
+        - a9e7269a8440dcb1d70818a9d046882ad4cd4bb5
     - repo_url: https://github.com/openpnp/openpnp.git
       override_merge_shas:
+        - 17a744391392e940e02007c0d242455add21f4e7
         - 36f65ec0aa210007f525f3fad494d0f2e8d843cb
+        - a9f99068197956007021fea9951f899a66d1865c
     - repo_url: https://github.com/ops4j/org.ops4j.pax.swissbox.git
       override_merge_shas:
         - 22aec8b7af2d3e207cd3db06e71a7ed130c1ab49
@@ -733,6 +896,7 @@ playbook:
         - d8e3efe215d03370603b5f74c2cde7761bda9eec
     - repo_url: https://github.com/outbrain/ob1k.git
       override_merge_shas:
+        - 2f4556b9770ad12dbf1ed15974eca509fd9fa1a3
         - 8b2c257efe1aa01d49cc595d4af6f8d386d9b535
     - repo_url: https://github.com/oxo42/stateless4j.git
       override_merge_shas:
@@ -742,9 +906,13 @@ playbook:
       override_merge_shas:
         - 6a86fcb79d07ddc933e8adabd1d16a58298c8835
         - b577ad7ed8578f40bfc37ac8ee3b455f36ca8396
+    - repo_url: https://github.com/pagehelper/mybatis-pagehelper.git
+      override_merge_shas:
+        - 3b8b6d829a1b2747565cd30603f985c7f590f04a
     - repo_url: https://github.com/paulosuzart/jtornado.git
       override_merge_shas:
         - 4ac45f54b6b3545b99c6ef6153d1193c4785b450
+        - 752fdf5c715aa6e96a6cc74d876e2a7b83a91c2d
         - 867caafa1ae38b42514802a7708dc1ce43fe1872
         - 9422d8460228615b9a4e005a44ee70d022eab1e4
     - repo_url: https://github.com/pedrovgs/algorithms.git
@@ -773,18 +941,22 @@ playbook:
     - repo_url: https://github.com/progether/jadventure.git
       override_merge_shas:
         - 9ce4a7106cb271c5b47f4d5a7fadf9688989af94
+        - e28401af8516440716e8fe5e70ce6dcf872731ea
     - repo_url: https://github.com/projectblueshift/blueshiftapi.git
       override_merge_shas:
         - 289da48fcecb76804930781e37a487e1d4462b1c
         - 3cb7c26d4f0ac4ec978f8b430a299dc0c48e3f09
         - 4ae56ee36e43f9f1f1985364c03191e99d489ae1
         - 589b367cf283a6b348e415d065f59983f884b95c
+        - d81bffbae3569e6f368e4f47eb8be80bf3b8bac4
     - repo_url: https://github.com/projectdanube/xdi2.git
       override_merge_shas:
+        - 41c3558dfc19ea135b2b6d3e8c482e75a5350d10
         - 8b5a951af2ff940771d87e8c8062e66034d89d78
         - e9b5fa658b6b5429239c768233df8b2134740542
     - repo_url: https://github.com/pyknic/codegen.git
       override_merge_shas:
+        - 3e0d4067f68ebf4163e850c7031571271b4893e0
         - b718264121f2990b0cd2df982f93714ce9b2fe14
     - repo_url: https://github.com/qcadoo/mes.git
       override_merge_shas:
@@ -792,11 +964,15 @@ playbook:
     - repo_url: https://github.com/rcarz/jira-client.git
       override_merge_shas:
         - d7029e91216bdf42fb9638a846efbdd1550d2941
+    - repo_url: https://github.com/rcsb/colorbrewer.git
+      override_merge_shas:
+        - c551ca68b2e9bdc50824f990db085754ffa6dbdb
     - repo_url: https://github.com/rdfhdt/hdt-java.git
       override_merge_shas:
         - aa41a0398932ea73592367806f74a6d5959a300d
     - repo_url: https://github.com/recommenders/rival.git
       override_merge_shas:
+        - 986d8751fe81be8664d345a740ebcbaea011fc63
         - af4b8add3c7c5e4386961576291d9025dd1ff5b9
     - repo_url: https://github.com/recruit-tech/redpen.git
       override_merge_shas:
@@ -815,11 +991,18 @@ playbook:
     - repo_url: https://github.com/reficio/p2-maven-plugin.git
       override_merge_shas:
         - 92a12c5bf3624825e5a803ffdd622971b120c846
+    - repo_url: https://github.com/renepickhardt/generalized-language-modeling-toolkit.git
+      override_merge_shas:
+        - b2b90c58b5c20fc9e7565e4336c575ab6f27684d
     - repo_url: https://github.com/renggli/petitparserjava.git
       override_merge_shas:
         - 7db98cb828534e74d877d7fd92be1dd396f45ae9
+    - repo_url: https://github.com/resthub/springmvc-router.git
+      override_merge_shas:
+        - 71d38b423902b98a187292a1c0e9a6665fe35231
     - repo_url: https://github.com/resty-gwt/resty-gwt.git
       override_merge_shas:
+        - 946a7aceaacd793c004e69eb386eb58b15473114
         - d6c18bc8da762766b8946d212a1f8db96ba3cd10
     - repo_url: https://github.com/richardwarburton/lambda-behave.git
       override_merge_shas:
@@ -847,10 +1030,16 @@ playbook:
     - repo_url: https://github.com/rubenlagus/telegrambots.git
       override_merge_shas:
         - 08efa94fcd05f62cd4fae784cba6cd2904011546
+    - repo_url: https://github.com/ruedigermoeller/kontraktor.git
+      override_merge_shas:
+        - 54fa3de6899427de183bc5434da2d17bbee13023
     - repo_url: https://github.com/sander2798/enderstone.git
       override_merge_shas:
+        - 054aa857e36cbd1616c2502e6509e953f00d7937
         - 54c8bca1e4640abc84db7daf009bf67f2168e102
         - 9d0d7b7ba8d784dc8a7bd684e4a4d2bf37cc44f9
+        - ab585820cb76ad711b09fdfb7612349dd6bd9c11
+        - b515bac1b027442fee058b69e9c56f1d7941d55a
         - c4d13e39a8b2d2c937be6f97b06a870718e8fd9c
         - df0826f63b41377eed847f6a44bcf7e474384843
         - febdb02eb304ada845e62272290b13d31e533cf2
@@ -864,8 +1053,12 @@ playbook:
         - c4d13e39a8b2d2c937be6f97b06a870718e8fd9c
         - df0826f63b41377eed847f6a44bcf7e474384843
         - febdb02eb304ada845e62272290b13d31e533cf2
+    - repo_url: https://github.com/sbtourist/journal.io.git
+      override_merge_shas:
+        - 99d7e8fb8cf93cf1d0d4537e9feb100112324778
     - repo_url: https://github.com/scribble/scribble-java.git
       override_merge_shas:
+        - 164250d0d03a6cfb879d3ea5c5672bac5b0133ec
         - 39cd920f8b8bf4a99d9c47a8ec198fba0ba0c29e
         - e72f7c9c06a3f415440224d97211da97dcbd76f8
     - repo_url: https://github.com/scribejava/scribejava.git
@@ -873,6 +1066,7 @@ playbook:
         - 665092d619617b44711bf80f0652c19ce0e32a87
     - repo_url: https://github.com/sd4324530/fastweixin.git
       override_merge_shas:
+        - b9c911aea2bd0710b54afc94fb09c55e813ed9b6
         - f4aa5c9e2a5e5009160e2d1062d540641e668ee1
     - repo_url: https://github.com/seanchenxi/gwt-storage.git
       override_merge_shas:
@@ -883,9 +1077,20 @@ playbook:
     - repo_url: https://github.com/segmentio/analytics-java.git
       override_merge_shas:
         - b911863aa857887e12c7fb9b2bf92fadf20cb8c1
+    - repo_url: https://github.com/semanticvectors/semanticvectors.git
+      override_merge_shas:
+        - 4058d3dc651ac207d14c6c9392b394552daed5e3
+        - 9461e75688f8d1768140ecd58f13adbbc2d4c93f
     - repo_url: https://github.com/sgoeschl/jmeter-sla-report.git
       override_merge_shas:
         - e398d0480f4f1fabbebfdbec5990cdee3303866a
+    - repo_url: https://github.com/shazam/shazamcrest.git
+      override_merge_shas:
+        - 218c417aaaa48a7efc6e836d99eed00a215f2227
+        - 5bb33c89041258a0f9fa7bc50a06026e7ecd0845
+    - repo_url: https://github.com/shhs-coding-club/drugwars.git
+      override_merge_shas:
+        - f07c4b5d24a5a246a9de55940bb80151684c64ea
     - repo_url: https://github.com/simasch/qlrm.git
       override_merge_shas:
         - e03f1617f3978b3a1906f96e92317514eef243ff
@@ -897,6 +1102,7 @@ playbook:
         - cdabedae8e4518093e994e091aaa8664172d72e0
         - d421ef5dc353a364eccf7f28b7bb3d32f323b5a3
         - e068a678082c18fcaa360b58ba6e340908e9a3c2
+        - f28a7ee5dcf91706f3dfedc07e4723196b4e6c22
     - repo_url: https://github.com/skyscreamer/jsonassert.git
       override_merge_shas:
         - 3ca08b5ddd18efcdf33a0aa98c3324091dc6bede
@@ -929,11 +1135,15 @@ playbook:
         - 580f84d9277f80882d20aff38d6f065ed7206bf8
     - repo_url: https://github.com/spoutcraft/legacylauncher.git
       override_merge_shas:
+        - 177a3b301e00ec3544f4b3ebb9f878a693dff2bf
         - 46202e847e645a206f4cc3a3b40cad9c959263bf
         - 52fe591df20eb7bc72c422e6a73e7975c2b3b405
         - 55ce938914de18c8eae55b0297949d20926778af
         - 66b1a81e0b1ce7a64454b616e2731b7c27f38ecb
         - b306613d4d65a6d1f1a6149677dc2f007b305299
+    - repo_url: https://github.com/square/javapoet.git
+      override_merge_shas:
+        - 2eee6c2c5db8aacdff0100847f6831e1e46db5c4
     - repo_url: https://github.com/steveice10/mcprotocollib.git
       override_merge_shas:
         - 36e5eafd286fc1d6a554487a0a2e2f18032ece1a
@@ -942,9 +1152,16 @@ playbook:
     - repo_url: https://github.com/stevespringett/dependency-check-sonar-plugin.git
       override_merge_shas:
         - b3cbcd1d5b0a89d5651398bc0afd9bf04b204183
+    - repo_url: https://github.com/stripesframework/stripes.git
+      override_merge_shas:
+        - 2d7384a930c879ba29b87d3464de2d5807763e4a
+    - repo_url: https://github.com/sviperll/static-mustache.git
+      override_merge_shas:
+        - 271693c779061cde2069af7507b5721c208da8e4
     - repo_url: https://github.com/swagger-api/swagger-codegen.git
       override_merge_shas:
         - 640b16b58a4c9131c18e53f03c204ac1b7fee3c5
+        - a73ad79b9bfe25141f814d83fe01b69d9f85eedd
         - feb8b16e0b947782896264e169848d7cd75f9c03
     - repo_url: https://github.com/tadglines/socket.io-java.git
       override_merge_shas:
@@ -961,6 +1178,11 @@ playbook:
     - repo_url: https://github.com/tdunning/log-synth.git
       override_merge_shas:
         - 83316ef849229d87b24ce5d0d6d54f1f76764759
+    - repo_url: https://github.com/technophobia/substeps-core.git
+      override_merge_shas:
+        - 005a00496d02f32b568224e01e2a2fed19f9a4bc
+        - 3b4badff3ac2ea23135ed5b9f3158e5a90bf1345
+        - aa19a3990ae6c09ad62e75712921ac289c92203f
     - repo_url: https://github.com/teknux-org/jetty-bootstrap.git
       override_merge_shas:
         - 6a9f52a5377a484397eeca4b0511f356f493696f
@@ -973,18 +1195,26 @@ playbook:
     - repo_url: https://github.com/thelinmichael/spotify-web-api-java.git
       override_merge_shas:
         - 940b05e87a3a43f3eb7cc709e701898be8dc7e3a
+    - repo_url: https://github.com/thenewcircle/spring-hibernate-20120924.git
+      override_merge_shas:
+        - 7ec9c1b4bb69e9fbd58d5bef0bab16a09ca7bf68
     - repo_url: https://github.com/thinkgem/jeesite.git
       override_merge_shas:
         - 618aafef63176f57f1b37ce8ed27900defad488d
     - repo_url: https://github.com/threerings/getdown.git
       override_merge_shas:
+        - ad32699ca3156b8423fe198b0486c346f18cafbc
         - f087863098a6bc43551643f94cbe1893348773e6
+    - repo_url: https://github.com/thymeleaf/thymeleafexamples-springmail.git
+      override_merge_shas:
+        - 158fb6406b10311f114054c66f6206dc7e915917
     - repo_url: https://github.com/tomitribe/crest.git
       override_merge_shas:
         - 73469538cdc04b36ea4d09dccedc1cc50780904a
     - repo_url: https://github.com/tpietzsch/bigdataviewer-core.git
       override_merge_shas:
         - 572d4602a6282501870c01d3660fea9b22a817f6
+        - 6a23498e499ca4705744af0848c6a07407b65c71
         - df89915fd4c7e1ddef4ebeb94e3e68fe76e49be0
     - repo_url: https://github.com/tpietzsch/spimviewer.git
       override_merge_shas:
@@ -994,6 +1224,9 @@ playbook:
     - repo_url: https://github.com/tridentsdk/tridentsdk.git
       override_merge_shas:
         - 289da48fcecb76804930781e37a487e1d4462b1c
+        - 3cb7c26d4f0ac4ec978f8b430a299dc0c48e3f09
+        - 4ae56ee36e43f9f1f1985364c03191e99d489ae1
+        - 589b367cf283a6b348e415d065f59983f884b95c
         - d81bffbae3569e6f368e4f47eb8be80bf3b8bac4
     - repo_url: https://github.com/trung/inmemoryjavacompiler.git
       override_merge_shas:
@@ -1004,6 +1237,15 @@ playbook:
     - repo_url: https://github.com/twilio/starter-java.git
       override_merge_shas:
         - 01cc9db061b3d98083e4e49d56aaa052434a1f2a
+    - repo_url: https://github.com/ubervu/elasticsearch-river-github.git
+      override_merge_shas:
+        - 261184e89701acd7169b001d0dc58293ec680512
+    - repo_url: https://github.com/unitsofmeasurement/unit-api.git
+      override_merge_shas:
+        - af3a3abfab663d442a692e5d1c503dab05665afe
+    - repo_url: https://github.com/unruly/junit-rules.git
+      override_merge_shas:
+        - 9f9e68b409b45bc46b8210c50964508e185dea8f
     - repo_url: https://github.com/urbancode/terraform.git
       override_merge_shas:
         - 0939d94a5048abd3aa00182a104a2c660529e096
@@ -1011,6 +1253,9 @@ playbook:
     - repo_url: https://github.com/uwolfer/gerrit-rest-java-client.git
       override_merge_shas:
         - 8e688db7026ac124bd5984b8353d7095e994cac3
+    - repo_url: https://github.com/vanduynslagerp/enml4j.git
+      override_merge_shas:
+        - 61e72c5c3568a9dc49d49cc19ef79a19972ccd26
     - repo_url: https://github.com/vdenotaris/spring-boot-security-saml-sample.git
       override_merge_shas:
         - 88d2426c11714615322d84934cc2e1ac72fd08e7
@@ -1050,7 +1295,9 @@ playbook:
         - 8df1e9373b3d68b16a4529a868df5fa18303d4a4
     - repo_url: https://github.com/xebia/xebium.git
       override_merge_shas:
+        - 7a07c05240f58cf31d04fe217c59ad78a3b0a728
         - 817270a3db61546589c3d5a2869c228d58f2a057
+        - a82603c978dd1a1ec2277381ae197a01dc552f90
         - cbfab438393258e91f8f54b6020f3fd8c8c4cc9f
     - repo_url: https://github.com/xuxueli/xxl-job.git
       override_merge_shas:
@@ -1060,15 +1307,22 @@ playbook:
     - repo_url: https://github.com/yandex-qatools/ashot.git
       override_merge_shas:
         - c885c16709720ca016eeaad7056c0a39a9490878
+    - repo_url: https://github.com/yfpeng/pengyifan-commons.git
+      override_merge_shas:
+        - b896ec045faaf724ad11e9be56250fead3826ca3
     - repo_url: https://github.com/yfpeng/pengyifan-leetcode.git
       override_merge_shas:
         - bb9b165e9b6f5db5725394be827250f61e87b71a
+    - repo_url: https://github.com/yinwang0/rubysonar.git
+      override_merge_shas:
+        - ba5f907f21493bf5ba964075e0a86118f31eec65
     - repo_url: https://github.com/yubico/ykneo-openpgp.git
       override_merge_shas:
         - b145a6bdbc0b2dcc49cb2955bd7977e949bde7e3
     - repo_url: https://github.com/zeromq/jeromq.git
       override_merge_shas:
         - 9b2438da8f441bb944068f5b31d5d4557b106dc5
+        - b784afe7700633ef09703ee343e796f6f8ddca76
     - repo_url: https://github.com/zhuowei/raspberryjuice.git
       override_merge_shas:
         - b217e89f5d8ef404aff86b5d889027bb386a598c
