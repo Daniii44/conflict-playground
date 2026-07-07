@@ -124,18 +124,25 @@ def collect_tilt_candidates(
     redis,
     *,
     targets: tuple[TiltTarget, ...],
+    verbose: bool = False,
 ) -> list[TiltCandidate]:
     targets_by_type = target_by_conflict_type(targets)
     candidates: list[TiltCandidate] = []
+    scanned_records = 0
+    malformed_keys = 0
+    missing_records = 0
 
     for key in sorted(redis.scan_iter(match=f"{INFO_TILT_PREFIX}*")):
+        scanned_records += 1
         identity = parse_tilt_info_key(key)
         if identity is None:
+            malformed_keys += 1
             logger.warning("Skipping malformed tilt info key: {}", key)
             continue
 
         data = redis.json().get(key)
         if data is None:
+            missing_records += 1
             continue
 
         tilt_info = InfoConflictTilt.model_validate(load_json_value(data))
@@ -156,6 +163,15 @@ def collect_tilt_candidates(
                     )
                 )
 
+    if verbose:
+        log_candidate_collection_summary(
+            candidates,
+            targets=targets,
+            scanned_records=scanned_records,
+            malformed_keys=malformed_keys,
+            missing_records=missing_records,
+        )
+
     return candidates
 
 
@@ -168,10 +184,74 @@ def rank_candidate(candidate: TiltCandidate) -> tuple[float, float, str, str]:
     )
 
 
+def target_label(target: TiltTarget) -> str:
+    return f"{target.subdataset} / {target.conflict_type.value}"
+
+
+def format_counter(counter: Counter, *, limit: int = 8) -> str:
+    if not counter:
+        return "none"
+
+    parts = [
+        f"{label}={count}"
+        for label, count in counter.most_common(limit)
+    ]
+    remaining = len(counter) - limit
+    if remaining > 0:
+        parts.append(f"... {remaining} more")
+    return ", ".join(parts)
+
+
+def log_candidate_collection_summary(
+    candidates: list[TiltCandidate],
+    *,
+    targets: tuple[TiltTarget, ...],
+    scanned_records: int,
+    malformed_keys: int,
+    missing_records: int,
+) -> None:
+    unique_identities = {candidate.identity for candidate in candidates}
+    logger.info(
+        "TILT candidate collection: scanned {} info records, collected {} target-matching rows across {} unique merge identities",
+        scanned_records,
+        len(candidates),
+        len(unique_identities),
+    )
+    if malformed_keys or missing_records:
+        logger.info(
+            "TILT candidate collection skipped {} malformed keys and {} missing JSON records",
+            malformed_keys,
+            missing_records,
+        )
+
+    repo_counts = Counter(candidate.identity.repo for candidate in candidates)
+    logger.info("TILT candidate repositories: {}", format_counter(repo_counts))
+
+    for target in targets:
+        target_candidates = [
+            candidate
+            for candidate in candidates
+            if candidate.subdataset == target.subdataset
+            and candidate.reason_conflict_type == target.conflict_type
+        ]
+        target_unique_identities = {candidate.identity for candidate in target_candidates}
+        target_repo_counts = Counter(candidate.identity.repo for candidate in target_candidates)
+        logger.info(
+            "Candidate pool for {}: target={}, rows={}, unique_merge_identities={}, duplicate_rows={}, repos={}",
+            target_label(target),
+            target.count,
+            len(target_candidates),
+            len(target_unique_identities),
+            len(target_candidates) - len(target_unique_identities),
+            format_counter(target_repo_counts),
+        )
+
+
 def select_tilt_candidates(
     candidates: list[TiltCandidate],
     *,
     targets: tuple[TiltTarget, ...],
+    verbose: bool = False,
 ) -> TiltPlaybookBuildResult:
     candidates_by_reason: dict[ConflictType, list[TiltCandidate]] = {
         target.conflict_type: []
@@ -190,24 +270,75 @@ def select_tilt_candidates(
         ),
     )
     used_identities: set[TiltConflictIdentity] = set()
+    selected_target_by_identity: dict[TiltConflictIdentity, TiltTarget] = {}
     selected: list[TiltCandidate] = []
     shortfalls: dict[ConflictType, int] = {}
 
+    if verbose:
+        logger.info(
+            "TILT selection order: {}",
+            " -> ".join(target_label(target) for target in ordered_targets),
+        )
+
     for target in ordered_targets:
+        target_candidates = candidates_by_reason[target.conflict_type]
         available = [
             candidate
-            for candidate in candidates_by_reason[target.conflict_type]
+            for candidate in target_candidates
             if candidate.identity not in used_identities
+        ]
+        blocked = [
+            candidate
+            for candidate in target_candidates
+            if candidate.identity in used_identities
         ]
         available.sort(key=rank_candidate)
         target_selection = available[:target.count]
 
         for candidate in target_selection:
             used_identities.add(candidate.identity)
+            selected_target_by_identity[candidate.identity] = target
             selected.append(candidate)
+
+        if verbose:
+            target_unique_identities = {candidate.identity for candidate in target_candidates}
+            blocked_unique_identities = {candidate.identity for candidate in blocked}
+            available_unique_identities = {candidate.identity for candidate in available}
+            blocked_by_target = Counter(
+                target_label(selected_target_by_identity[candidate.identity])
+                for candidate in blocked
+                if candidate.identity in selected_target_by_identity
+            )
+            logger.info(
+                "Selection for {}: target={}, rows={}, unique_merge_identities={}, blocked_rows={}, blocked_unique_merge_identities={}, available_rows={}, available_unique_merge_identities={}, selected={}",
+                target_label(target),
+                target.count,
+                len(target_candidates),
+                len(target_unique_identities),
+                len(blocked),
+                len(blocked_unique_identities),
+                len(available),
+                len(available_unique_identities),
+                len(target_selection),
+            )
+            if blocked_by_target:
+                logger.info(
+                    "Selection for {} overlaps already selected by: {}",
+                    target_label(target),
+                    format_counter(blocked_by_target),
+                )
 
         if len(target_selection) < target.count:
             shortfalls[target.conflict_type] = target.count - len(target_selection)
+            if verbose:
+                logger.info(
+                    "Shortfall for {}: needed {}, selected {}, short by {}; raw rows before identity de-duplication were {}",
+                    target_label(target),
+                    target.count,
+                    len(target_selection),
+                    target.count - len(target_selection),
+                    len(target_candidates),
+                )
 
     return TiltPlaybookBuildResult(
         selected=sorted(selected, key=lambda candidate: (candidate.identity.repo, candidate.identity.merge_sha)),
@@ -224,11 +355,13 @@ def build_tilt_playbook_result(
     redis=None,
     *,
     targets: tuple[TiltTarget, ...],
+    verbose: bool = False,
 ) -> TiltPlaybookBuildResult:
     redis = redis or setup_redis_connection()
     return select_tilt_candidates(
-        collect_tilt_candidates(redis, targets=targets),
+        collect_tilt_candidates(redis, targets=targets, verbose=verbose),
         targets=targets,
+        verbose=verbose,
     )
 
 
@@ -331,9 +464,10 @@ def generate_tilt_playbook(
     *,
     redis=None,
     targets: tuple[TiltTarget, ...],
+    verbose: bool = False,
 ) -> TiltPlaybookBuildResult:
     redis = redis or setup_redis_connection()
-    result = build_tilt_playbook_result(redis, targets=targets)
+    result = build_tilt_playbook_result(redis, targets=targets, verbose=verbose)
     write_tilt_playbook(result.selected, output_path)
     write_dataset_tilt_records(redis, result, targets=targets)
     return result
@@ -357,12 +491,18 @@ def main() -> int:
         type=Path,
         help="Output playbook path.",
     )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Log candidate composition and target selection diagnostics.",
+    )
     args = parser.parse_args()
 
     targets = targets_for_name(args.target)
     output = args.output or default_playbook_output_path(args.target)
 
-    result = generate_tilt_playbook(output, targets=targets)
+    result = generate_tilt_playbook(output, targets=targets, verbose=args.verbose)
 
     if result.shortfalls_by_reason:
         for conflict_type, shortfall in result.shortfalls_by_reason.items():

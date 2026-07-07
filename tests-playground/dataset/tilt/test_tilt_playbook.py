@@ -128,7 +128,7 @@ def test_build_tilt_playbook_prefers_scarce_bucket_for_multi_qualifying_conflict
         }
     )
 
-    result = build_tilt_playbook_result(redis, targets=targets)
+    result = build_tilt_playbook_result(redis, targets=targets, verbose=True)
 
     selected_by_sha = {
         candidate.identity.merge_sha: candidate
