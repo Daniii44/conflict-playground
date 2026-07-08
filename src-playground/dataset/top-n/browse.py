@@ -8,6 +8,9 @@ from redis.commands.json.path import Path
 from common.redis_util import setup_redis_connection
 
 
+DATASET_TOP_N_REPO_PREFIX = "dataset:top-n:repo:"
+
+
 def _make_headers() -> dict:
     headers = {
         "Accept": "application/vnd.github.v3+json",
@@ -84,13 +87,13 @@ def store_repos(repos: list) -> None:
     logger.info(f"Storing {len(repos)} repositories in Redis")
     redis = setup_redis_connection()
     for repo in repos:
-        key = f"info:repo:{repo['full_name']}"
+        key = f"{DATASET_TOP_N_REPO_PREFIX}{repo['full_name']}"
         redis.json().set(key, Path.root_path(), repo)
         logger.debug(f"Stored repository metadata at {key}")
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Fetch popular GitHub repositories into Redis")
+    parser = argparse.ArgumentParser(description="Fetch top N popular GitHub repositories into Redis")
     parser.add_argument("--count", type=positive_int, default=100, help="Number of repositories to fetch")
     args = parser.parse_args()
 

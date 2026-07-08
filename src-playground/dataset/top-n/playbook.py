@@ -11,14 +11,14 @@ from loguru import logger
 from common.redis_util import setup_redis_connection
 
 
-INFO_REPO_PREFIX = "info:repo:"
+DATASET_TOP_N_REPO_PREFIX = "dataset:top-n:repo:"
 
 
 def load_repos() -> list[dict[str, Any]]:
     redis = setup_redis_connection()
     repos = []
 
-    for key in redis.scan_iter(match=f"{INFO_REPO_PREFIX}*"):
+    for key in redis.scan_iter(match=f"{DATASET_TOP_N_REPO_PREFIX}*"):
         repo = redis.json().get(key)
         if not repo:
             logger.warning(f"Skipping empty repo metadata at {key}")
@@ -47,7 +47,7 @@ def build_playbook_yaml(repos: list[dict[str, Any]], per_repo_limit: int) -> str
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Generate top100raw.yaml from stored repo metadata in Redis")
+    parser = argparse.ArgumentParser(description="Generate a top N repository playbook from Redis metadata")
     parser.add_argument("--count", type=int, default=100, help="Number of repositories to include")
     parser.add_argument("--limit", type=int, default=10, help="Conflict limit to write for each repository")
     parser.add_argument("--output", default="top100raw.yaml", help="Output playbook filename")
