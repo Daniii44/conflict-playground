@@ -1,16 +1,10 @@
 x-templates:
-  volumes: &volumes
+  hook-volumes: &hook-volumes
     volumes:
-      - "caches:/root/caches-named-volume"
-      - "./data/caches:/root/caches-bind-mount"
+      - "caches:/root/caches-named-volume:ro"
+      - "./data/caches:/root/caches-bind-mount:ro"
       - "playgrounds:/root/playgrounds-named-volume"
       - "./data/playgrounds:/root/playgrounds-bind-mount"
-      - "./data/playbooks:/root/playbooks"
-      - "./data/datasets:/root/datasets"
-      - "./data/stores:/root/stores"
-  hook-base:
-    <<: *volumes
-    user: hook
 
 services:
   redis:
@@ -35,7 +29,14 @@ services:
       LOGURU_LEVEL: INFO
     networks:
       - bridge
-    <<: *volumes
+    volumes:
+      - "caches:/root/caches-named-volume"
+      - "./data/caches:/root/caches-bind-mount"
+      - "playgrounds:/root/playgrounds-named-volume"
+      - "./data/playgrounds:/root/playgrounds-bind-mount"
+      - "./data/playbooks:/root/playbooks"
+      - "./data/datasets:/root/datasets"
+      - "./data/stores:/root/stores"
   hook-manual-cli:
     build: 
       context: .
@@ -44,7 +45,7 @@ services:
     container_name: conflict-playground-hook-manual-cli
     networks:
       - bridge
-    <<: *volumes
+    <<: *hook-volumes
   hook-opencode:
     build: 
       context: .
@@ -53,7 +54,7 @@ services:
     container_name: conflict-playground-hook-opencode
     networks:
       - bridge
-    <<: *volumes
+    <<: *hook-volumes
 volumes:
   caches:
   playgrounds:
