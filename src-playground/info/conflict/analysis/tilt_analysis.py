@@ -59,7 +59,7 @@ class TiltAnalysis(Analysis):
         key = self.core_key(analysis_input)
         data = self._redis.json().get(key)
         if data is None:
-            logger.warning("Missing info:core conflict data at {}", key)
+            # In this case the merge didn't produce an actual conflict so this merge is not of any interest.
             return None
 
         return InfoConflictCore.model_validate(data)
