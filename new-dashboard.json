@@ -535,7 +535,7 @@
           "description": "",
           "id": 6,
           "links": [],
-          "title": "New panel",
+          "title": "Purity by Percentile",
           "vizConfig": {
             "group": "xychart",
             "kind": "VizConfig",
