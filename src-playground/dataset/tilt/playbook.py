@@ -62,7 +62,7 @@ TOP200_TARGETS: tuple[TiltTarget, ...] = (
     TiltTarget("modify/delete", ConflictType.CONFLICT_MODIFY_DELETE, 250),
     TiltTarget("rename", ConflictType.CONFLICT_RENAME_DELETE, 150),
     TiltTarget("rename", ConflictType.CONFLICT_RENAME_RENAME, 100),
-    TiltTarget("directory", ConflictType.CONFLICT_DIR_RENAME_SUGGESTED, 150),
+    TiltTarget("directory", ConflictType.CONFLICT_DIR_RENAME_SUGGESTED, 200),
     TiltTarget("directory", ConflictType.CONFLICT_DIR_RENAME_SPLIT, 50),
 )
 
