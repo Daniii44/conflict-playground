@@ -62,7 +62,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "timeseries",
-                        "rawSql": "SELECT content.subdataset::text, avg(content.reason_purity::float), FROM \"default\".\"redis_json\"\nwhere key like 'dataset:tilt:%'\ngroup by content.subdataset::text\norder by avg(content.reason_purity::float) desc"
+                        "rawSql": "SELECT content.subdataset::text, avg(content.subdataset_purity::float), FROM \"default\".\"redis_json\"\nwhere key like 'dataset:tilt:%'\ngroup by content.subdataset::text\norder by avg(content.subdataset_purity::float) desc"
                       },
                       "version": "v0"
                     },
