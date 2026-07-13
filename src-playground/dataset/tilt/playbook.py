@@ -176,11 +176,10 @@ def collect_tilt_candidates(
     return candidates
 
 
-def rank_candidate(candidate: TiltCandidate) -> tuple[float, float, str, str]:
+def rank_candidate(candidate: TiltCandidate) -> tuple[float, float, str]:
     return (
         -candidate.subdataset_purity,
         -candidate.reason_purity,
-        candidate.identity.repo,
         candidate.identity.merge_sha,
     )
 
