@@ -56,7 +56,7 @@ class TiltPlaybookBuildResult:
     shortfalls_by_reason: dict[ConflictType, int]
 
 
-TOP100_TARGETS: tuple[TiltTarget, ...] = (
+TOP200_TARGETS: tuple[TiltTarget, ...] = (
     TiltTarget("content", ConflictType.CONFLICT_CONTENTS, 200),
     TiltTarget("content", ConflictType.CONFLICT_BINARY, 50),
     TiltTarget("modify/delete", ConflictType.CONFLICT_MODIFY_DELETE, 250),
@@ -67,7 +67,7 @@ TOP100_TARGETS: tuple[TiltTarget, ...] = (
 )
 
 TARGETS_BY_NAME: dict[str, tuple[TiltTarget, ...]] = {
-    "top100": TOP100_TARGETS,
+    "top200": TOP200_TARGETS,
 }
 
 
