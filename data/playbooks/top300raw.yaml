@@ -1,0 +1,602 @@
+playbook:
+  sources:
+    - repo_url: https://github.com/codecrafters-io/build-your-own-x.git
+      limit: 10
+    - repo_url: https://github.com/sindresorhus/awesome.git
+      limit: 10
+    - repo_url: https://github.com/freeCodeCamp/freeCodeCamp.git
+      limit: 10
+    - repo_url: https://github.com/public-apis/public-apis.git
+      limit: 10
+    - repo_url: https://github.com/EbookFoundation/free-programming-books.git
+      limit: 10
+    - repo_url: https://github.com/openclaw/openclaw.git
+      limit: 10
+    - repo_url: https://github.com/nilbuild/developer-roadmap.git
+      limit: 10
+    - repo_url: https://github.com/donnemartin/system-design-primer.git
+      limit: 10
+    - repo_url: https://github.com/jwasham/coding-interview-university.git
+      limit: 10
+    - repo_url: https://github.com/vinta/awesome-python.git
+      limit: 10
+    - repo_url: https://github.com/awesome-selfhosted/awesome-selfhosted.git
+      limit: 10
+    - repo_url: https://github.com/996icu/996.ICU.git
+      limit: 10
+    - repo_url: https://github.com/practical-tutorials/project-based-learning.git
+      limit: 10
+    - repo_url: https://github.com/obra/superpowers.git
+      limit: 10
+    - repo_url: https://github.com/react/react.git
+      limit: 10
+    - repo_url: https://github.com/torvalds/linux.git
+      limit: 10
+    - repo_url: https://github.com/trimstray/the-book-of-secret-knowledge.git
+      limit: 10
+    - repo_url: https://github.com/affaan-m/ECC.git
+      limit: 10
+    - repo_url: https://github.com/TheAlgorithms/Python.git
+      limit: 10
+    - repo_url: https://github.com/NousResearch/hermes-agent.git
+      limit: 10
+    - repo_url: https://github.com/vuejs/vue.git
+      limit: 10
+    - repo_url: https://github.com/ossu/computer-science.git
+      limit: 10
+    - repo_url: https://github.com/n8n-io/n8n.git
+      limit: 10
+    - repo_url: https://github.com/tensorflow/tensorflow.git
+      limit: 10
+    - repo_url: https://github.com/trekhleb/javascript-algorithms.git
+      limit: 10
+    - repo_url: https://github.com/ultraworkers/claw-code.git
+      limit: 10
+    - repo_url: https://github.com/multica-ai/andrej-karpathy-skills.git
+      limit: 10
+    - repo_url: https://github.com/ohmyzsh/ohmyzsh.git
+      limit: 10
+    - repo_url: https://github.com/microsoft/vscode.git
+      limit: 10
+    - repo_url: https://github.com/anomalyco/opencode.git
+      limit: 10
+    - repo_url: https://github.com/DigitalPlatDev/FreeDomain.git
+      limit: 10
+    - repo_url: https://github.com/Significant-Gravitas/AutoGPT.git
+      limit: 10
+    - repo_url: https://github.com/CyC2018/CS-Notes.git
+      limit: 10
+    - repo_url: https://github.com/getify/You-Dont-Know-JS.git
+      limit: 10
+    - repo_url: https://github.com/jackfrued/Python-100-Days.git
+      limit: 10
+    - repo_url: https://github.com/massgravel/Microsoft-Activation-Scripts.git
+      limit: 10
+    - repo_url: https://github.com/avelino/awesome-go.git
+      limit: 10
+    - repo_url: https://github.com/yt-dlp/yt-dlp.git
+      limit: 10
+    - repo_url: https://github.com/flutter/flutter.git
+      limit: 10
+    - repo_url: https://github.com/ollama/ollama.git
+      limit: 10
+    - repo_url: https://github.com/github/gitignore.git
+      limit: 10
+    - repo_url: https://github.com/twbs/bootstrap.git
+      limit: 10
+    - repo_url: https://github.com/mattpocock/skills.git
+      limit: 10
+    - repo_url: https://github.com/microsoft/markitdown.git
+      limit: 10
+    - repo_url: https://github.com/f/prompts.chat.git
+      limit: 10
+    - repo_url: https://github.com/521xueweihan/HelloGitHub.git
+      limit: 10
+    - repo_url: https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
+      limit: 10
+    - repo_url: https://github.com/huggingface/transformers.git
+      limit: 10
+    - repo_url: https://github.com/jlevy/the-art-of-command-line.git
+      limit: 10
+    - repo_url: https://github.com/anthropics/skills.git
+      limit: 10
+    - repo_url: https://github.com/Snailclimb/JavaGuide.git
+      limit: 10
+    - repo_url: https://github.com/langflow-ai/langflow.git
+      limit: 10
+    - repo_url: https://github.com/firecrawl/firecrawl.git
+      limit: 10
+    - repo_url: https://github.com/langgenius/dify.git
+      limit: 10
+    - repo_url: https://github.com/airbnb/javascript.git
+      limit: 10
+    - repo_url: https://github.com/Genymobile/scrcpy.git
+      limit: 10
+    - repo_url: https://github.com/open-webui/open-webui.git
+      limit: 10
+    - repo_url: https://github.com/x1xhlol/system-prompts-and-models-of-ai-tools.git
+      limit: 10
+    - repo_url: https://github.com/langchain-ai/langchain.git
+      limit: 10
+    - repo_url: https://github.com/vercel/next.js.git
+      limit: 10
+    - repo_url: https://github.com/yangshun/tech-interview-handbook.git
+      limit: 10
+    - repo_url: https://github.com/ytdl-org/youtube-dl.git
+      limit: 10
+    - repo_url: https://github.com/anthropics/claude-code.git
+      limit: 10
+    - repo_url: https://github.com/microsoft/PowerToys.git
+      limit: 10
+    - repo_url: https://github.com/golang/go.git
+      limit: 10
+    - repo_url: https://github.com/labuladong/fucking-algorithm.git
+      limit: 10
+    - repo_url: https://github.com/iptv-org/iptv.git
+      limit: 10
+    - repo_url: https://github.com/clash-verge-rev/clash-verge-rev.git
+      limit: 10
+    - repo_url: https://github.com/msitarzewski/agency-agents.git
+      limit: 10
+    - repo_url: https://github.com/ripienaar/free-for-dev.git
+      limit: 10
+    - repo_url: https://github.com/krahets/hello-algo.git
+      limit: 10
+    - repo_url: https://github.com/Chalarangelo/30-seconds-of-code.git
+      limit: 10
+    - repo_url: https://github.com/excalidraw/excalidraw.git
+      limit: 10
+    - repo_url: https://github.com/react/react-native.git
+      limit: 10
+    - repo_url: https://github.com/kubernetes/kubernetes.git
+      limit: 10
+    - repo_url: https://github.com/electron/electron.git
+      limit: 10
+    - repo_url: https://github.com/garrytan/gstack.git
+      limit: 10
+    - repo_url: https://github.com/github/spec-kit.git
+      limit: 10
+    - repo_url: https://github.com/Comfy-Org/ComfyUI.git
+      limit: 10
+    - repo_url: https://github.com/Shubhamsaboo/awesome-llm-apps.git
+      limit: 10
+    - repo_url: https://github.com/ggml-org/llama.cpp.git
+      limit: 10
+    - repo_url: https://github.com/shadcn-ui/ui.git
+      limit: 10
+    - repo_url: https://github.com/nodejs/node.git
+      limit: 10
+    - repo_url: https://github.com/rustdesk/rustdesk.git
+      limit: 10
+    - repo_url: https://github.com/justjavac/free-programming-books-zh_CN.git
+      limit: 10
+    - repo_url: https://github.com/farion1231/cc-switch.git
+      limit: 10
+    - repo_url: https://github.com/Hack-with-Github/Awesome-Hacking.git
+      limit: 10
+    - repo_url: https://github.com/rust-lang/rust.git
+      limit: 10
+    - repo_url: https://github.com/godotengine/godot.git
+      limit: 10
+    - repo_url: https://github.com/mrdoob/three.js.git
+      limit: 10
+    - repo_url: https://github.com/d3/d3.git
+      limit: 10
+    - repo_url: https://github.com/microsoft/generative-ai-for-beginners.git
+      limit: 10
+    - repo_url: https://github.com/2dust/v2rayN.git
+      limit: 10
+    - repo_url: https://github.com/microsoft/TypeScript.git
+      limit: 10
+    - repo_url: https://github.com/axios/axios.git
+      limit: 10
+    - repo_url: https://github.com/tauri-apps/tauri.git
+      limit: 10
+    - repo_url: https://github.com/fatedier/frp.git
+      limit: 10
+    - repo_url: https://github.com/papers-we-love/papers-we-love.git
+      limit: 10
+    - repo_url: https://github.com/jaywcjlove/awesome-mac.git
+      limit: 10
+    - repo_url: https://github.com/denoland/deno.git
+      limit: 10
+    - repo_url: https://github.com/immich-app/immich.git
+      limit: 10
+    - repo_url: https://github.com/supabase/supabase.git
+      limit: 10
+    - repo_url: https://github.com/google-gemini/gemini-cli.git
+      limit: 10
+    - repo_url: https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git
+      limit: 10
+    - repo_url: https://github.com/goldbergyoni/nodebestpractices.git
+      limit: 10
+    - repo_url: https://github.com/openai/whisper.git
+      limit: 10
+    - repo_url: https://github.com/browser-use/browser-use.git
+      limit: 10
+    - repo_url: https://github.com/microsoft/terminal.git
+      limit: 10
+    - repo_url: https://github.com/deepseek-ai/DeepSeek-V3.git
+      limit: 10
+    - repo_url: https://github.com/react/create-react-app.git
+      limit: 10
+    - repo_url: https://github.com/pytorch/pytorch.git
+      limit: 10
+    - repo_url: https://github.com/VoltAgent/awesome-design-md.git
+      limit: 10
+    - repo_url: https://github.com/Anduin2017/HowToCook.git
+      limit: 10
+    - repo_url: https://github.com/neovim/neovim.git
+      limit: 10
+    - repo_url: https://github.com/angular/angular.git
+      limit: 10
+    - repo_url: https://github.com/fastapi/fastapi.git
+      limit: 10
+    - repo_url: https://github.com/mtdvio/every-programmer-should-know.git
+      limit: 10
+    - repo_url: https://github.com/rasbt/LLMs-from-scratch.git
+      limit: 10
+    - repo_url: https://github.com/ant-design/ant-design.git
+      limit: 10
+    - repo_url: https://github.com/mui/material-ui.git
+      limit: 10
+    - repo_url: https://github.com/openai/codex.git
+      limit: 10
+    - repo_url: https://github.com/nvbn/thefuck.git
+      limit: 10
+    - repo_url: https://github.com/harry0703/MoneyPrinterTurbo.git
+      limit: 10
+    - repo_url: https://github.com/ruanyf/weekly.git
+      limit: 10
+    - repo_url: https://github.com/microsoft/Web-Dev-For-Beginners.git
+      limit: 10
+    - repo_url: https://github.com/tailwindlabs/tailwindcss.git
+      limit: 10
+    - repo_url: https://github.com/florinpop17/app-ideas.git
+      limit: 10
+    - repo_url: https://github.com/puppeteer/puppeteer.git
+      limit: 10
+    - repo_url: https://github.com/hacksider/Deep-Live-Cam.git
+      limit: 10
+    - repo_url: https://github.com/ryanmcdermott/clean-code-javascript.git
+      limit: 10
+    - repo_url: https://github.com/oven-sh/bun.git
+      limit: 10
+    - repo_url: https://github.com/iluwatar/java-design-patterns.git
+      limit: 10
+    - repo_url: https://github.com/nvm-sh/nvm.git
+      limit: 10
+    - repo_url: https://github.com/TauricResearch/TradingAgents.git
+      limit: 10
+    - repo_url: https://github.com/microsoft/playwright.git
+      limit: 10
+    - repo_url: https://github.com/deepseek-ai/DeepSeek-R1.git
+      limit: 10
+    - repo_url: https://github.com/karpathy/autoresearch.git
+      limit: 10
+    - repo_url: https://github.com/punkpeye/awesome-mcp-servers.git
+      limit: 10
+    - repo_url: https://github.com/storybookjs/storybook.git
+      limit: 10
+    - repo_url: https://github.com/PanJiaChen/vue-element-admin.git
+      limit: 10
+    - repo_url: https://github.com/opencv/opencv.git
+      limit: 10
+    - repo_url: https://github.com/bitcoin/bitcoin.git
+      limit: 10
+    - repo_url: https://github.com/JuliusBrussee/caveman.git
+      limit: 10
+    - repo_url: https://github.com/home-assistant/core.git
+      limit: 10
+    - repo_url: https://github.com/mermaid-js/mermaid.git
+      limit: 10
+    - repo_url: https://github.com/louislam/uptime-kuma.git
+      limit: 10
+    - repo_url: https://github.com/gohugoio/hugo.git
+      limit: 10
+    - repo_url: https://github.com/gin-gonic/gin.git
+      limit: 10
+    - repo_url: https://github.com/3b1b/manim.git
+      limit: 10
+    - repo_url: https://github.com/modelcontextprotocol/servers.git
+      limit: 10
+    - repo_url: https://github.com/ChatGPTNextWeb/NextChat.git
+      limit: 10
+    - repo_url: https://github.com/django/django.git
+      limit: 10
+    - repo_url: https://github.com/microsoft/ML-For-Beginners.git
+      limit: 10
+    - repo_url: https://github.com/sveltejs/svelte.git
+      limit: 10
+    - repo_url: https://github.com/astral-sh/uv.git
+      limit: 10
+    - repo_url: https://github.com/MunGell/awesome-for-beginners.git
+      limit: 10
+    - repo_url: https://github.com/thedotmack/claude-mem.git
+      limit: 10
+    - repo_url: https://github.com/Stirling-Tools/Stirling-PDF.git
+      limit: 10
+    - repo_url: https://github.com/zed-industries/zed.git
+      limit: 10
+    - repo_url: https://github.com/sherlock-project/sherlock.git
+      limit: 10
+    - repo_url: https://github.com/syncthing/syncthing.git
+      limit: 10
+    - repo_url: https://github.com/vllm-project/vllm.git
+      limit: 10
+    - repo_url: https://github.com/Graphify-Labs/graphify.git
+      limit: 10
+    - repo_url: https://github.com/ByteByteGoHq/system-design-101.git
+      limit: 10
+    - repo_url: https://github.com/PaddlePaddle/PaddleOCR.git
+      limit: 10
+    - repo_url: https://github.com/localsend/localsend.git
+      limit: 10
+    - repo_url: https://github.com/infiniflow/ragflow.git
+      limit: 10
+    - repo_url: https://github.com/laravel/laravel.git
+      limit: 10
+    - repo_url: https://github.com/macrozheng/mall.git
+      limit: 10
+    - repo_url: https://github.com/realworld-apps/realworld.git
+      limit: 10
+    - repo_url: https://github.com/DopplerHQ/awesome-interview-questions.git
+      limit: 10
+    - repo_url: https://github.com/bregman-arie/devops-exercises.git
+      limit: 10
+    - repo_url: https://github.com/DietrichGebert/ponytail.git
+      limit: 10
+    - repo_url: https://github.com/pewdiepie-archdaemon/odysseus.git
+      limit: 10
+    - repo_url: https://github.com/animate-css/animate.css.git
+      limit: 10
+    - repo_url: https://github.com/Developer-Y/cs-video-courses.git
+      limit: 10
+    - repo_url: https://github.com/vitejs/vite.git
+      limit: 10
+    - repo_url: https://github.com/tonsky/FiraCode.git
+      limit: 10
+    - repo_url: https://github.com/fighting41love/funNLP.git
+      limit: 10
+    - repo_url: https://github.com/junegunn/fzf.git
+      limit: 10
+    - repo_url: https://github.com/spring-projects/spring-boot.git
+      limit: 10
+    - repo_url: https://github.com/mlabonne/llm-course.git
+      limit: 10
+    - repo_url: https://github.com/OpenHands/OpenHands.git
+      limit: 10
+    - repo_url: https://github.com/ruvnet/RuView.git
+      limit: 10
+    - repo_url: https://github.com/jesseduffield/lazygit.git
+      limit: 10
+    - repo_url: https://github.com/lobehub/lobehub.git
+      limit: 10
+    - repo_url: https://github.com/hoppscotch/hoppscotch.git
+      limit: 10
+    - repo_url: https://github.com/anuraghazra/github-readme-stats.git
+      limit: 10
+    - repo_url: https://github.com/netdata/netdata.git
+      limit: 10
+    - repo_url: https://github.com/swisskyrepo/PayloadsAllTheThings.git
+      limit: 10
+    - repo_url: https://github.com/doocs/advanced-java.git
+      limit: 10
+    - repo_url: https://github.com/d2l-ai/d2l-zh.git
+      limit: 10
+    - repo_url: https://github.com/coder/code-server.git
+      limit: 10
+    - repo_url: https://github.com/Z4nzu/hackingtool.git
+      limit: 10
+    - repo_url: https://github.com/addyosmani/agent-skills.git
+      limit: 10
+    - repo_url: https://github.com/nexu-io/open-design.git
+      limit: 10
+    - repo_url: https://github.com/ventoy/Ventoy.git
+      limit: 10
+    - repo_url: https://github.com/tensorflow/models.git
+      limit: 10
+    - repo_url: https://github.com/elastic/elasticsearch.git
+      limit: 10
+    - repo_url: https://github.com/nomic-ai/gpt4all.git
+      limit: 10
+    - repo_url: https://github.com/awesomedata/awesome-public-datasets.git
+      limit: 10
+    - repo_url: https://github.com/bytedance/deer-flow.git
+      limit: 10
+    - repo_url: https://github.com/FortAwesome/Font-Awesome.git
+      limit: 10
+    - repo_url: https://github.com/MisterBooo/LeetCodeAnimation.git
+      limit: 10
+    - repo_url: https://github.com/dair-ai/Prompt-Engineering-Guide.git
+      limit: 10
+    - repo_url: https://github.com/nestjs/nest.git
+      limit: 10
+    - repo_url: https://github.com/sdmg15/Best-websites-a-programmer-should-visit.git
+      limit: 10
+    - repo_url: https://github.com/typicode/json-server.git
+      limit: 10
+    - repo_url: https://github.com/grafana/grafana.git
+      limit: 10
+    - repo_url: https://github.com/redis/redis.git
+      limit: 10
+    - repo_url: https://github.com/tesseract-ocr/tesseract.git
+      limit: 10
+    - repo_url: https://github.com/openai/openai-cookbook.git
+      limit: 10
+    - repo_url: https://github.com/ocornut/imgui.git
+      limit: 10
+    - repo_url: https://github.com/opendatalab/MinerU.git
+      limit: 10
+    - repo_url: https://github.com/caddyserver/caddy.git
+      limit: 10
+    - repo_url: https://github.com/Egonex-AI/Understand-Anything.git
+      limit: 10
+    - repo_url: https://github.com/enaqx/awesome-react.git
+      limit: 10
+    - repo_url: https://github.com/unionlabs/union.git
+      limit: 10
+    - repo_url: https://github.com/obsproject/obs-studio.git
+      limit: 10
+    - repo_url: https://github.com/apache/superset.git
+      limit: 10
+    - repo_url: https://github.com/python/cpython.git
+      limit: 10
+    - repo_url: https://github.com/AppFlowy-IO/AppFlowy.git
+      limit: 10
+    - repo_url: https://github.com/paperclipai/paperclip.git
+      limit: 10
+    - repo_url: https://github.com/PKUFlyingPig/cs-self-learning.git
+      limit: 10
+    - repo_url: https://github.com/vuejs/awesome-vue.git
+      limit: 10
+    - repo_url: https://github.com/twitter/the-algorithm.git
+      limit: 10
+    - repo_url: https://github.com/josephmisiti/awesome-machine-learning.git
+      limit: 10
+    - repo_url: https://github.com/abi/screenshot-to-code.git
+      limit: 10
+    - repo_url: https://github.com/hiyouga/LlamaFactory.git
+      limit: 10
+    - repo_url: https://github.com/Eugeny/tabby.git
+      limit: 10
+    - repo_url: https://github.com/thedaviddias/Front-End-Checklist.git
+      limit: 10
+    - repo_url: https://github.com/CompVis/stable-diffusion.git
+      limit: 10
+    - repo_url: https://github.com/strapi/strapi.git
+      limit: 10
+    - repo_url: https://github.com/unclecode/crawl4ai.git
+      limit: 10
+    - repo_url: https://github.com/binhnguyennus/awesome-scalability.git
+      limit: 10
+    - repo_url: https://github.com/fffaraz/awesome-cpp.git
+      limit: 10
+    - repo_url: https://github.com/daytonaio/daytona.git
+      limit: 10
+    - repo_url: https://github.com/danielmiessler/SecLists.git
+      limit: 10
+    - repo_url: https://github.com/hakimel/reveal.js.git
+      limit: 10
+    - repo_url: https://github.com/pallets/flask.git
+      limit: 10
+    - repo_url: https://github.com/moby/moby.git
+      limit: 10
+    - repo_url: https://github.com/protocolbuffers/protobuf.git
+      limit: 10
+    - repo_url: https://github.com/binary-husky/gpt_academic.git
+      limit: 10
+    - repo_url: https://github.com/nektos/act.git
+      limit: 10
+    - repo_url: https://github.com/juliangarnier/anime.git
+      limit: 10
+    - repo_url: https://github.com/shareAI-lab/learn-claude-code.git
+      limit: 10
+    - repo_url: https://github.com/rtk-ai/rtk.git
+      limit: 10
+    - repo_url: https://github.com/earendil-works/pi.git
+      limit: 10
+    - repo_url: https://github.com/NationalSecurityAgency/ghidra.git
+      limit: 10
+    - repo_url: https://github.com/OpenBB-finance/OpenBB.git
+      limit: 10
+    - repo_url: https://github.com/toeverything/AFFiNE.git
+      limit: 10
+    - repo_url: https://github.com/swiftlang/swift.git
+      limit: 10
+    - repo_url: https://github.com/prakhar1989/awesome-courses.git
+      limit: 10
+    - repo_url: https://github.com/ansible/ansible.git
+      limit: 10
+    - repo_url: https://github.com/D4Vinci/Scrapling.git
+      limit: 10
+    - repo_url: https://github.com/expressjs/express.git
+      limit: 10
+    - repo_url: https://github.com/FoundationAgents/MetaGPT.git
+      limit: 10
+    - repo_url: https://github.com/microsoft/ai-agents-for-beginners.git
+      limit: 10
+    - repo_url: https://github.com/OpenCut-app/OpenCut.git
+      limit: 10
+    - repo_url: https://github.com/666ghj/MiroFish.git
+      limit: 10
+    - repo_url: https://github.com/base/node.git
+      limit: 10
+    - repo_url: https://github.com/chrislgarry/Apollo-11.git
+      limit: 10
+    - repo_url: https://github.com/unslothai/unsloth.git
+      limit: 10
+    - repo_url: https://github.com/Asabeneh/30-Days-Of-Python.git
+      limit: 10
+    - repo_url: https://github.com/ComposioHQ/awesome-claude-skills.git
+      limit: 10
+    - repo_url: https://github.com/chartjs/Chart.js.git
+      limit: 10
+    - repo_url: https://github.com/labmlai/annotated_deep_learning_paper_implementations.git
+      limit: 10
+    - repo_url: https://github.com/apache/echarts.git
+      limit: 10
+    - repo_url: https://github.com/scikit-learn/scikit-learn.git
+      limit: 10
+    - repo_url: https://github.com/leonardomso/33-js-concepts.git
+      limit: 10
+    - repo_url: https://github.com/xtekky/gpt4free.git
+      limit: 10
+    - repo_url: https://github.com/bradtraversy/design-resources-for-developers.git
+      limit: 10
+    - repo_url: https://github.com/sindresorhus/awesome-nodejs.git
+      limit: 10
+    - repo_url: https://github.com/gorhill/uBlock.git
+      limit: 10
+    - repo_url: https://github.com/datawhalechina/hello-agents.git
+      limit: 10
+    - repo_url: https://github.com/BurntSushi/ripgrep.git
+      limit: 10
+    - repo_url: https://github.com/TheAlgorithms/Java.git
+      limit: 10
+    - repo_url: https://github.com/webpack/webpack.git
+      limit: 10
+    - repo_url: https://github.com/code-yeongyu/oh-my-openagent.git
+      limit: 10
+    - repo_url: https://github.com/facebook/docusaurus.git
+      limit: 10
+    - repo_url: https://github.com/kelseyhightower/nocode.git
+      limit: 10
+    - repo_url: https://github.com/lydiahallie/javascript-questions.git
+      limit: 10
+    - repo_url: https://github.com/prometheus/prometheus.git
+      limit: 10
+    - repo_url: https://github.com/localstack/localstack.git
+      limit: 10
+    - repo_url: https://github.com/kdn251/interviews.git
+      limit: 10
+    - repo_url: https://github.com/openinterpreter/openinterpreter.git
+      limit: 10
+    - repo_url: https://github.com/alacritty/alacritty.git
+      limit: 10
+    - repo_url: https://github.com/gsd-build/get-shit-done.git
+      limit: 10
+    - repo_url: https://github.com/cline/cline.git
+      limit: 10
+    - repo_url: https://github.com/LadybirdBrowser/ladybird.git
+      limit: 10
+    - repo_url: https://github.com/ruvnet/ruflo.git
+      limit: 10
+    - repo_url: https://github.com/keras-team/keras.git
+      limit: 10
+    - repo_url: https://github.com/traefik/traefik.git
+      limit: 10
+    - repo_url: https://github.com/nocodb/nocodb.git
+      limit: 10
+    - repo_url: https://github.com/dani-garcia/vaultwarden.git
+      limit: 10
+    - repo_url: https://github.com/rust-lang/rustlings.git
+      limit: 10
+    - repo_url: https://github.com/Leonxlnx/taste-skill.git
+      limit: 10
+    - repo_url: https://github.com/socketio/socket.io.git
+      limit: 10
+    - repo_url: https://github.com/Mintplex-Labs/anything-llm.git
+      limit: 10
+    - repo_url: https://github.com/warpdotdev/warp.git
+      limit: 10
