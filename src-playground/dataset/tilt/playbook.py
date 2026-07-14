@@ -20,7 +20,7 @@ DATASET_NAME = "tilt"
 DATASET_TILT_KEY = "dataset:tilt"
 DATASET_TILT_PREFIX = "dataset:tilt:"
 INFO_TILT_PREFIX = "info:conflict:tilt:"
-REPO_DIVERSITY_PENALTY = 0.005
+REPO_DIVERSITY_PENALTY = 0.001
 
 
 @dataclass(frozen=True)
