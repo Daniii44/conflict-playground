@@ -685,6 +685,7 @@
                 "reduceOptions": {
                   "calcs": [],
                   "fields": "",
+                  "limit": 1000,
                   "values": true
                 },
                 "sort": "desc",
