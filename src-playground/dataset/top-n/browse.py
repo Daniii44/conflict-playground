@@ -46,6 +46,39 @@ def positive_float(value: str) -> float:
     return parsed
 
 
+def repo_uses_submodules_in_head(
+    full_name: str,
+    *,
+    headers: Optional[dict] = None,
+    default_branch: Optional[str] = None,
+) -> bool:
+    request_headers = headers or _make_headers()
+    params = {"ref": default_branch} if default_branch else None
+
+    try:
+        response = requests.get(
+            f"https://api.github.com/repos/{full_name}/contents/.gitmodules",
+            params=params,
+            headers=request_headers,
+        )
+    except requests.exceptions.RequestException as e:
+        logger.warning(f"Failed to inspect head commit for submodules in {full_name}: {e}")
+        return False
+
+    if response.status_code == 404:
+        logger.debug(f"No .gitmodules found in head commit for {full_name}")
+        return False
+
+    try:
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        logger.warning(f"Failed to inspect head commit for submodules in {full_name}: {e}")
+        return False
+
+    logger.debug(f"Detected .gitmodules in head commit for {full_name}")
+    return True
+
+
 def get_popular_repos(limit: int = 10, max_size_gb: Optional[float] = None) -> list[dict]:
     logger.info(f"Fetching up to {limit} popular GitHub repositories")
     url = "https://api.github.com/search/repositories"
@@ -84,12 +117,19 @@ def get_popular_repos(limit: int = 10, max_size_gb: Optional[float] = None) -> l
                     )
                     continue
 
+                uses_submodules_in_head = repo_uses_submodules_in_head(
+                    repo.get("full_name"),
+                    headers=headers,
+                    default_branch=repo.get("default_branch"),
+                )
                 filtered_repos.append({
                     "full_name": repo.get("full_name"),
                     "star_count": repo.get("stargazers_count"),
                     "clone_url": repo.get("clone_url"),
+                    "default_branch": repo.get("default_branch"),
                     "size_kb": size_kb,
                     "size_mb": round(size_kb / 1024, 2),
+                    "uses_submodules_in_head": uses_submodules_in_head,
                 })
                 if len(filtered_repos) == limit:
                     break
