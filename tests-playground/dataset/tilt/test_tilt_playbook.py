@@ -4,7 +4,7 @@ from fnmatch import fnmatch
 from common.merge_tree import ConflictType
 from dataset.tilt.playbook import (
     DATASET_TILT_KEY,
-    TOP100_TARGETS,
+    TOP200_TARGETS,
     TiltTarget,
     build_tilt_playbook_result,
     dataset_tilt_conflict_key,
@@ -89,14 +89,14 @@ def tilt_key(repo: str, merge_sha: str) -> str:
     return f"info:conflict:tilt:{repo}:{merge_sha}"
 
 
-def test_top100_target_resolves_by_name():
-    assert targets_for_name("top100") == TOP100_TARGETS
+def test_top200_target_resolves_by_name():
+    assert targets_for_name("top200") == TOP200_TARGETS
 
 
 def test_default_playbook_output_path_uses_target_name(monkeypatch, tmp_path):
     monkeypatch.setenv("PLAYBOOKS", str(tmp_path))
 
-    assert default_playbook_output_path("top100") == tmp_path / "top100.yaml"
+    assert default_playbook_output_path("top200") == tmp_path / "top200.yaml"
 
 
 def test_build_tilt_playbook_prefers_scarce_bucket_for_multi_qualifying_conflict():
@@ -211,6 +211,46 @@ def test_build_tilt_playbook_ranks_by_subdataset_purity_before_reason_purity():
     assert [candidate.identity.merge_sha for candidate in result.selected] == [
         "higher-subdataset-purity"
     ]
+
+
+def test_build_tilt_playbook_softly_diversifies_repositories_for_comparable_candidates():
+    targets = (TiltTarget("content", ConflictType.CONFLICT_CONTENTS, 4),)
+    values = {
+        tilt_key("large/repo.git", f"a-{index}"): tilt_info(
+            repo="large/repo.git",
+            merge_sha=f"a-{index}",
+            subdatasets=[
+                subdataset("content", 1.0, [(ConflictType.CONFLICT_CONTENTS, 1.0)]),
+            ],
+        )
+        for index in range(1, 5)
+    }
+    values.update(
+        {
+            tilt_key("medium/repo.git", "z-1"): tilt_info(
+                repo="medium/repo.git",
+                merge_sha="z-1",
+                subdatasets=[
+                    subdataset("content", 1.0, [(ConflictType.CONFLICT_CONTENTS, 1.0)]),
+                ],
+            ),
+            tilt_key("small/repo.git", "z-2"): tilt_info(
+                repo="small/repo.git",
+                merge_sha="z-2",
+                subdatasets=[
+                    subdataset("content", 1.0, [(ConflictType.CONFLICT_CONTENTS, 1.0)]),
+                ],
+            ),
+        }
+    )
+    redis = FakeRedis(values)
+
+    result = build_tilt_playbook_result(redis, targets=targets)
+
+    selected_repo_counts = Counter(candidate.identity.repo for candidate in result.selected)
+    assert selected_repo_counts["large/repo.git"] == 2
+    assert selected_repo_counts["medium/repo.git"] == 1
+    assert selected_repo_counts["small/repo.git"] == 1
 
 
 def test_generate_tilt_playbook_writes_comments_and_dataset_records(tmp_path):

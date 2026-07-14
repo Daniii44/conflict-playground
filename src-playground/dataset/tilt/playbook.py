@@ -20,6 +20,7 @@ DATASET_NAME = "tilt"
 DATASET_TILT_KEY = "dataset:tilt"
 DATASET_TILT_PREFIX = "dataset:tilt:"
 INFO_TILT_PREFIX = "info:conflict:tilt:"
+REPO_DIVERSITY_PENALTY = 0.02
 
 
 @dataclass(frozen=True)
@@ -182,6 +183,42 @@ def rank_candidate(candidate: TiltCandidate) -> tuple[float, float, str]:
         -candidate.reason_purity,
         candidate.identity.merge_sha,
     )
+
+
+def diversified_candidate_rank(
+    candidate: TiltCandidate,
+    selected_repo_counts: Counter[str],
+) -> tuple[float, float, int, str, str]:
+    repo_selected_count = selected_repo_counts[candidate.identity.repo]
+    repo_penalty = repo_selected_count * REPO_DIVERSITY_PENALTY
+    return (
+        -(candidate.subdataset_purity - repo_penalty),
+        -(candidate.reason_purity - repo_penalty),
+        repo_selected_count,
+        candidate.identity.repo,
+        candidate.identity.merge_sha,
+    )
+
+
+def select_diversified_candidates(
+    candidates: list[TiltCandidate],
+    *,
+    count: int,
+    selected_repo_counts: Counter[str],
+) -> list[TiltCandidate]:
+    remaining = list(candidates)
+    selected: list[TiltCandidate] = []
+
+    while remaining and len(selected) < count:
+        candidate = min(
+            remaining,
+            key=lambda item: diversified_candidate_rank(item, selected_repo_counts),
+        )
+        remaining.remove(candidate)
+        selected_repo_counts[candidate.identity.repo] += 1
+        selected.append(candidate)
+
+    return selected
 
 
 def target_label(target: TiltTarget) -> str:
@@ -409,6 +446,7 @@ def select_tilt_candidates(
     )
     used_identities: set[TiltConflictIdentity] = set()
     selected_target_by_identity: dict[TiltConflictIdentity, TiltTarget] = {}
+    selected_repo_counts: Counter[str] = Counter()
     selected: list[TiltCandidate] = []
     shortfalls: dict[ConflictType, int] = {}
 
@@ -430,8 +468,11 @@ def select_tilt_candidates(
             for candidate in target_candidates
             if candidate.identity in used_identities
         ]
-        available.sort(key=rank_candidate)
-        target_selection = available[:target.count]
+        target_selection = select_diversified_candidates(
+            available,
+            count=target.count,
+            selected_repo_counts=selected_repo_counts,
+        )
 
         for candidate in target_selection:
             used_identities.add(candidate.identity)
