@@ -253,6 +253,45 @@ def test_build_tilt_playbook_softly_diversifies_repositories_for_comparable_cand
     assert selected_repo_counts["small/repo.git"] == 1
 
 
+def test_build_tilt_playbook_keeps_purity_ahead_of_repository_diversity():
+    targets = (TiltTarget("content", ConflictType.CONFLICT_CONTENTS, 2),)
+    redis = FakeRedis(
+        {
+            tilt_key("large/repo.git", "a-1"): tilt_info(
+                repo="large/repo.git",
+                merge_sha="a-1",
+                subdatasets=[
+                    subdataset("content", 1.0, [(ConflictType.CONFLICT_CONTENTS, 1.0)]),
+                ],
+            ),
+            tilt_key("large/repo.git", "a-2"): tilt_info(
+                repo="large/repo.git",
+                merge_sha="a-2",
+                subdatasets=[
+                    subdataset("content", 0.99, [(ConflictType.CONFLICT_CONTENTS, 0.99)]),
+                ],
+            ),
+            tilt_key("small/repo.git", "z-1"): tilt_info(
+                repo="small/repo.git",
+                merge_sha="z-1",
+                subdatasets=[
+                    subdataset("content", 0.98, [(ConflictType.CONFLICT_CONTENTS, 0.98)]),
+                ],
+            ),
+        }
+    )
+
+    result = build_tilt_playbook_result(redis, targets=targets)
+
+    assert [
+        (candidate.identity.repo, candidate.identity.merge_sha)
+        for candidate in result.selected
+    ] == [
+        ("large/repo.git", "a-1"),
+        ("large/repo.git", "a-2"),
+    ]
+
+
 def test_generate_tilt_playbook_writes_comments_and_dataset_records(tmp_path):
     targets = (
         TiltTarget("content", ConflictType.CONFLICT_BINARY, 1),
