@@ -816,7 +816,7 @@
                 ]
               },
               "options": {
-                "cellHeight": "sm",
+                "cellHeight": "lg",
                 "showHeader": true
               }
             },
@@ -896,7 +896,7 @@
                           "kind": "ElementReference",
                           "name": "panel-8"
                         },
-                        "height": 10,
+                        "height": 12,
                         "width": 24,
                         "x": 0,
                         "y": 16
