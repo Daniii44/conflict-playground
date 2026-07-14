@@ -12,7 +12,6 @@ from common.redis_util import setup_redis_connection
 from info.conflict.analysis.tilt_analysis import (
     CONFLICT_TYPE_SUBDATASETS,
     CONTENT_SUBDATASET,
-    DIRECTORY_SUBDATASET,
     InfoConflictTilt,
     MODIFY_DELETE_SUBDATASET,
     RENAME_SUBDATASET,
@@ -25,13 +24,11 @@ SUBDATASETS = (
     CONTENT_SUBDATASET,
     MODIFY_DELETE_SUBDATASET,
     RENAME_SUBDATASET,
-    DIRECTORY_SUBDATASET,
 )
 SUBDATASET_LABELS = {
     CONTENT_SUBDATASET: "Content",
     MODIFY_DELETE_SUBDATASET: "Modify/delete",
     RENAME_SUBDATASET: "Rename",
-    DIRECTORY_SUBDATASET: "Directory",
 }
 
 

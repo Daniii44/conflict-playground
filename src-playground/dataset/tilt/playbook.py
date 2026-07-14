@@ -57,13 +57,13 @@ class TiltPlaybookBuildResult:
 
 
 TOP200_TARGETS: tuple[TiltTarget, ...] = (
-    TiltTarget("content", ConflictType.CONFLICT_CONTENTS, 200),
-    TiltTarget("content", ConflictType.CONFLICT_BINARY, 50),
-    TiltTarget("modify/delete", ConflictType.CONFLICT_MODIFY_DELETE, 250),
-    TiltTarget("rename", ConflictType.CONFLICT_RENAME_DELETE, 150),
-    TiltTarget("rename", ConflictType.CONFLICT_RENAME_RENAME, 100),
-    TiltTarget("directory", ConflictType.CONFLICT_DIR_RENAME_SUGGESTED, 200),
-    TiltTarget("directory", ConflictType.CONFLICT_DIR_RENAME_SPLIT, 50),
+    TiltTarget("content", ConflictType.CONFLICT_CONTENTS, 300),
+    TiltTarget("content", ConflictType.CONFLICT_BINARY, 34),
+    TiltTarget("modify/delete", ConflictType.CONFLICT_MODIFY_DELETE, 333),
+    TiltTarget("rename", ConflictType.CONFLICT_RENAME_DELETE, 102),
+    TiltTarget("rename", ConflictType.CONFLICT_RENAME_RENAME, 59),
+    TiltTarget("rename", ConflictType.CONFLICT_DIR_RENAME_SUGGESTED, 151),
+    TiltTarget("rename", ConflictType.CONFLICT_DIR_RENAME_SPLIT, 21),
 )
 
 TARGETS_BY_NAME: dict[str, tuple[TiltTarget, ...]] = {

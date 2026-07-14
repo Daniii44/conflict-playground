@@ -216,7 +216,7 @@ def test_build_tilt_playbook_ranks_by_subdataset_purity_before_reason_purity():
 def test_generate_tilt_playbook_writes_comments_and_dataset_records(tmp_path):
     targets = (
         TiltTarget("content", ConflictType.CONFLICT_BINARY, 1),
-        TiltTarget("directory", ConflictType.CONFLICT_DIR_RENAME_SPLIT, 1),
+        TiltTarget("rename", ConflictType.CONFLICT_DIR_RENAME_SPLIT, 1),
     )
     redis = FakeRedis(
         {
@@ -231,7 +231,7 @@ def test_generate_tilt_playbook_writes_comments_and_dataset_records(tmp_path):
                 merge_sha="split",
                 subdatasets=[
                     subdataset(
-                        "directory",
+                        "rename",
                         1.0,
                         [(ConflictType.CONFLICT_DIR_RENAME_SPLIT, 1.0)],
                     ),
@@ -246,7 +246,7 @@ def test_generate_tilt_playbook_writes_comments_and_dataset_records(tmp_path):
     playbook = output.read_text(encoding="utf-8")
     assert "        - binary # subdataset: content; reason: CONFLICT (binary);" in playbook
     assert (
-        "        - split # subdataset: directory; "
+        "        - split # subdataset: rename; "
         "reason: CONFLICT(directory rename unclear split);"
     ) in playbook
 
@@ -254,7 +254,7 @@ def test_generate_tilt_playbook_writes_comments_and_dataset_records(tmp_path):
     assert redis.json_api.values[DATASET_TILT_KEY]["selected_count"] == 2
     assert redis.json_api.values[DATASET_TILT_KEY]["subdataset_counts"] == {
         "content": 1,
-        "directory": 1,
+        "rename": 1,
     }
 
     binary_record = redis.json_api.values[

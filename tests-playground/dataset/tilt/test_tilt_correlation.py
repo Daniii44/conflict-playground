@@ -3,7 +3,6 @@ from fnmatch import fnmatch
 from common.merge_tree import ConflictType
 from dataset.tilt.correlation import (
     CONTENT_SUBDATASET,
-    DIRECTORY_SUBDATASET,
     MODIFY_DELETE_SUBDATASET,
     RENAME_SUBDATASET,
     build_correlation_table,
@@ -54,8 +53,6 @@ def tilt_info(
         RENAME_SUBDATASET: {
             ConflictType.CONFLICT_RENAME_DELETE: conflict_type_counts.get(ConflictType.CONFLICT_RENAME_DELETE, 0),
             ConflictType.CONFLICT_RENAME_RENAME: conflict_type_counts.get(ConflictType.CONFLICT_RENAME_RENAME, 0),
-        },
-        DIRECTORY_SUBDATASET: {
             ConflictType.CONFLICT_DIR_RENAME_SUGGESTED: conflict_type_counts.get(
                 ConflictType.CONFLICT_DIR_RENAME_SUGGESTED,
                 0,
@@ -107,16 +104,16 @@ def dataset_record(
 
 def test_build_correlation_table_uses_selected_dataset_records():
     content_info_key = "info:conflict:tilt:owner/repo.git:content"
-    directory_info_key = "info:conflict:tilt:owner/repo.git:directory"
+    rename_info_key = "info:conflict:tilt:owner/repo.git:rename"
     redis = FakeRedis(
         {
             "dataset:tilt:owner/repo.git:content": dataset_record(
                 subdataset=CONTENT_SUBDATASET,
                 source_info_key=content_info_key,
             ),
-            "dataset:tilt:owner/repo.git:directory": dataset_record(
-                subdataset=DIRECTORY_SUBDATASET,
-                source_info_key=directory_info_key,
+            "dataset:tilt:owner/repo.git:rename": dataset_record(
+                subdataset=RENAME_SUBDATASET,
+                source_info_key=rename_info_key,
             ),
             content_info_key: tilt_info(
                 merge_sha="content",
@@ -125,8 +122,8 @@ def test_build_correlation_table_uses_selected_dataset_records():
                     ConflictType.CONFLICT_RENAME_DELETE: 1,
                 },
             ),
-            directory_info_key: tilt_info(
-                merge_sha="directory",
+            rename_info_key: tilt_info(
+                merge_sha="rename",
                 conflict_type_counts={
                     ConflictType.CONFLICT_CONTENTS: 1,
                     ConflictType.CONFLICT_DIR_RENAME_SUGGESTED: 2,
@@ -141,10 +138,10 @@ def test_build_correlation_table_uses_selected_dataset_records():
     assert table.counts[CONTENT_SUBDATASET][RENAME_SUBDATASET] == 1
     assert table.normalized[CONTENT_SUBDATASET][CONTENT_SUBDATASET] == 1.0
     assert table.normalized[CONTENT_SUBDATASET][RENAME_SUBDATASET] == 0.5
-    assert table.counts[DIRECTORY_SUBDATASET][CONTENT_SUBDATASET] == 1
-    assert table.counts[DIRECTORY_SUBDATASET][DIRECTORY_SUBDATASET] == 2
-    assert table.normalized[DIRECTORY_SUBDATASET][CONTENT_SUBDATASET] == 0.5
-    assert table.normalized[DIRECTORY_SUBDATASET][DIRECTORY_SUBDATASET] == 1.0
+    assert table.counts[RENAME_SUBDATASET][CONTENT_SUBDATASET] == 1
+    assert table.counts[RENAME_SUBDATASET][RENAME_SUBDATASET] == 2
+    assert table.normalized[RENAME_SUBDATASET][CONTENT_SUBDATASET] == 0.5
+    assert table.normalized[RENAME_SUBDATASET][RENAME_SUBDATASET] == 1.0
 
 
 def test_print_latex_table_outputs_tabular(capsys):
@@ -166,6 +163,6 @@ def test_print_latex_table_outputs_tabular(capsys):
     print_latex_table(build_correlation_table(redis), include_counts=False)
 
     output = capsys.readouterr().out
-    assert "\\begin{tabular}{lrrrr}" in output
-    assert "Content & 1.000 & 0.000 & 0.000 & 0.000 \\\\" in output
+    assert "\\begin{tabular}{lrrr}" in output
+    assert "Content & 1.000 & 0.000 & 0.000 \\\\" in output
     assert "\\end{tabular}" in output

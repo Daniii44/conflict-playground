@@ -11,15 +11,14 @@ from info.conflict.analysis.core_analysis import InfoConflictCore
 
 CONTENT_SUBDATASET = "content"
 MODIFY_DELETE_SUBDATASET = "modify/delete"
-DIRECTORY_SUBDATASET = "directory"
 RENAME_SUBDATASET = "rename"
 
 CONFLICT_TYPE_SUBDATASETS: dict[ConflictType, str] = {
     ConflictType.CONFLICT_CONTENTS: CONTENT_SUBDATASET,
     ConflictType.CONFLICT_BINARY: CONTENT_SUBDATASET,
     ConflictType.CONFLICT_MODIFY_DELETE: MODIFY_DELETE_SUBDATASET,
-    ConflictType.CONFLICT_DIR_RENAME_SUGGESTED: DIRECTORY_SUBDATASET,
-    ConflictType.CONFLICT_DIR_RENAME_SPLIT: DIRECTORY_SUBDATASET,
+    ConflictType.CONFLICT_DIR_RENAME_SUGGESTED: RENAME_SUBDATASET,
+    ConflictType.CONFLICT_DIR_RENAME_SPLIT: RENAME_SUBDATASET,
     ConflictType.CONFLICT_RENAME_DELETE: RENAME_SUBDATASET,
     ConflictType.CONFLICT_RENAME_RENAME: RENAME_SUBDATASET,
 }
@@ -86,7 +85,6 @@ class TiltAnalysis(Analysis):
         for subdataset_name in [
             CONTENT_SUBDATASET,
             MODIFY_DELETE_SUBDATASET,
-            DIRECTORY_SUBDATASET,
             RENAME_SUBDATASET,
         ]:
             counts = subdataset_counts.get(subdataset_name)
