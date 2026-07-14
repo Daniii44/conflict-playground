@@ -5,24 +5,19 @@ playbook:
         - 01b34dd45a51b31348b39783b42392c5ea25849d # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - b0fb00d5977944b0c2ad57c8d296fb7605ee79ea # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - be30064f9a8663bb3583ae83cc93e6cd1a231faf # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - dabca02b18444f68203b11c8ee3885af87ff22b0 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/3b1b/manim.git
       override_merge_shas:
         - 03cb33645f9233e972bb1f66be5de7aa4b694e07 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 048fdb6ca4bb88eec341806eb4b8aa5829bd6e44 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 0970f79d8a9e6f661f5111bcb9acc56d582ca80f # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 2d83cccc0a316bdd0a3211669f2bbe554dcf5acd # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 1.000000; reason_purity: 0.250000
     - repo_url: https://github.com/996icu/996.ICU.git
       override_merge_shas:
         - 01ba8617d7fde32c1013408437e41931960176d7 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 49fc6e3dc63a2eac34a058120a04579bdf54a069 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 7bc99620a238f4ca247538c17702b76de84845b0 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.600000; reason_purity: 0.600000
-        - 8b99201ce3e4f62deb1b6eebd279ad84f16779ea # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
         - a21ec1250605bcabffac7112e3baeeaa60626968 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
       override_merge_shas:
         - 4095150d377a14bf6188992ae98a7bfa8b0edac1 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 53154ba10a2d4bf716046abec3da0eca91bcc001 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
         - 58ae93b9547f9a9e1eae2014e10a5724d39c87bd # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 8207628603c1b4a424d20cfd051c4eac3329136c # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 8a4149acccea57ff31bc902f1f03a55c73fdd488 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -42,26 +37,22 @@ playbook:
     - repo_url: https://github.com/Anduin2017/HowToCook.git
       override_merge_shas:
         - 00133eca8d94fd1a62b7dca9ba15c7ebf6daa0cc # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 1cba1c9b1e1ad5f726b488624f99cc1a4b24eb61 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
-        - a3a3ba43d9343040e269d8e726ea6bf801ce693a # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.500000; reason_purity: 0.500000
-        - d6025fe526cf097065d3e64a89c026435a89152a # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.500000; reason_purity: 0.500000
+        - 00dac84ba4b963d15288397a7147de6de9ee78f5 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 03bc4995037489f6c96dbea00ab2c74a873c234f # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/ChatGPTNextWeb/NextChat.git
       override_merge_shas:
         - 01c9dbc1fd3cb3ad0c840d19d49b3fe2bf3a82e2 # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 1.000000; reason_purity: 0.500000
         - 0a60a87c9feecabf2ecf71bb6c339ca3ec6bac12 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 0cffaf8dc5d83b866c7abbf08ff704f02e1704d7 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 0eccb547b573af4e3783cd843fc23a393403dc26 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/Comfy-Org/ComfyUI.git
       override_merge_shas:
         - 05eeaa2de5c7ccd732396341904a7bd67293b165 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 1ee35fd9097cf25d06ab82bad30fbfd04b1f6b41 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 3d2f60b315c2f55819781a13447dc87f56e4b1db # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 65c432e6eeb7a5353322c691d771ccf2ef89128b # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/CyC2018/CS-Notes.git
       override_merge_shas:
         - 03d6f0bef8dba0c8c6cfc1b8e23c5287e62280c1 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 0c01c75e28508a04b2c5737b50a3422c6e9b0eb9 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 0f05f6bd07055945a745183bad573b36c1550548 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 287b9b838b6b6b212ef538aa537aef76110ee111 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/Developer-Y/cs-video-courses.git
       override_merge_shas:
@@ -71,60 +62,49 @@ playbook:
         - 6eb2b7829cd961cb7396d2bc858fae4c8b38c132 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 731d3193e74dbce3a63343cdfa73d22a55be2e10 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - ac75159e5e0c9499c45eed99e11f6ecab7900e43 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - b4f725f7ce601a51bea7e41276293575f01e8918 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/DopplerHQ/awesome-interview-questions.git
       override_merge_shas:
         - 0852dd123c0508fbf3dc9381559cd0896f372d19 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 6705b89f9fafe43c01960121e1a8176e76380251 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 6dc8e4bf06ed1324b88b052470556c4f41593c94 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - ea756c2805e0c7040163c9de4d602d9b98e687e4 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/EbookFoundation/free-programming-books.git
       override_merge_shas:
         - 050cad286c12e284e1fc33f7b6f8d4dd543d2568 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 0815dc9b27eb9cb428194c548b8f844541bacbe7 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 0be401f4fd38a1fee81df659e8c65e321178ed4c # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - f2062c406567636c479aadf7c6992e500e0e8ec0 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/Genymobile/scrcpy.git
       override_merge_shas:
         - 0415672a75c3ec98e4e7d231a9c380cd74d97067 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 31fa11565566d047c657b99384c9362eb8023e74 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 66d1f81f56d62f6ca625c6d4af6a1fa2e985bb38 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 90926d40adae0b8124bd2ec4e6b8f82fcc2c9f9e # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/Graphify-Labs/graphify.git
       override_merge_shas:
         - 06df2066a81181e9841dce63e4461bded6b4ad83 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 12a706b5954a34452ef4f703b9797bf3e24e5b47 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 24808ef8e625a140d8b4f8c6ab71a12fcf86f468 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 25c1ea92127bfeab64dd675660b6ff97cc17b33a # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/Hack-with-Github/Awesome-Hacking.git
       override_merge_shas:
         - 1a65acd826fc59ae11018a695f8722c4719f748a # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 3ceff283dcf5c9e752fcd1831cb5288a22c4a2c5 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 4ec6a5cf2c9136069f3faa92ce60b4c69d251bf1 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 80f339b0f823bc4c402d777a8d3835190183ae66 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/JuliusBrussee/caveman.git
       override_merge_shas:
         - 14eea5d5eeee4bdee192a9d13457d1010e1f0261 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 205e537103fb37541c1d5046f5fa5a969d10ae27 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 3e8b60e570e68cd54ebed2d92bb6bce21de2b3fd # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 42b3030c699990b20c1f36e5d480b249f1129af6 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/MunGell/awesome-for-beginners.git
       override_merge_shas:
         - 1578c5ad770e650225a799c0e12738bbfc3affb1 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 1845a1c59e686bfee6c67570ce6e88210e37bf36 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 27df2ffe5c25c8c3ab51c71746cc82fcd68e6606 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 29a8e7595bf61e85ded2dbf5d44e8451b8f6c582 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/NousResearch/hermes-agent.git
       override_merge_shas:
         - 01e62c067bf4fa3f420549b2b5f64305c3078d4e # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 0897e4350eb24e62b3443426404f711e6d1b6b9b # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 0a88b133c248005b705d682f3be14d316edb409e # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 1126284c979dc148f02a3952936d2057e82091cd # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/PaddlePaddle/PaddleOCR.git
       override_merge_shas:
-        - 2939554bd8db12d49afdfdc75b09e09ebb847712 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.500000; reason_purity: 0.500000
-        - 406463efb621f9f25aefc65dce00a1fe29d1d957 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.800000; reason_purity: 0.800000
-        - 9be9fe8d42d32527525a77641dc2961773421692 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
+        - 00e67e0bf2eae2988f523a76a95efe673610d59f # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - a55305655e28efa768f35c460c971f40e300c8d1 # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 1.000000; reason_purity: 0.500000
         - cc48e23baaf3cb7f10f48c552babf4c2f97e919c # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/Shubhamsaboo/awesome-llm-apps.git
@@ -132,16 +112,12 @@ playbook:
         - 02c6d1f0ed11b6eb035c7355dde0bca911e556cf # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 3e2479951a173735c17d59f4cdd5cc770a0a8782 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 793e1979d9d4801b386d395a5169c19a39eef06d # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 9f3498027f4efe238c74334cbf39d3abcab811bf # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/Significant-Gravitas/AutoGPT.git
       override_merge_shas:
         - 09f13033ae25e4efdbc519c8b42cb1fa6c4b0fba # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 0a137e4e6302ad8181bd8f557b0ae304a5d72da5 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 1bb056e9c97c946d06228227d87362289d54276c # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 1c12a84ded403f4418c6ba80ac630ebcf280439c # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 2bd05827f97e471af798b8c2f04e8772dad101d3 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
-        - 364e2a4ba18cc0fcb6e90583bbd104a5209ce361 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.500000; reason_purity: 0.500000
-        - 4c7deef9ae47b91add2f9c313c7b365bf5346c2c # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.250000; reason_purity: 0.250000
         - 94845aa0e15609f2ff524ccab1cf8e9eeb4515e0 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 9b256a3dd5fe412ba57ca8499b0d6d259a179b37 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 9cf7227a6776a50e3cd3961d754fa2f354998df2 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -171,7 +147,6 @@ playbook:
         - 005fb0c5a1bc80764d0bcddfac9f1b9da1d54c86 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 1.000000; reason_purity: 0.333333
         - b566055e4b660b75a69577cac9dc1704667d7f3c # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - bb76af39efc1a345799972f67fd59d2733bb9a10 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - c7de76deda5323721c6faa2ab49c269002b6cd1d # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.500000; reason_purity: 0.500000
     - repo_url: https://github.com/Z4nzu/hackingtool.git
       override_merge_shas:
         - 1e649966144035ca3a93a9d5f7c88bf04a97bb56 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -197,15 +172,12 @@ playbook:
         - 5ae74aa881903308ade2018492769f80dd7a1e13 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/ant-design/ant-design.git
       override_merge_shas:
-        - 0d50767aa8e6175b88e1285d0a2257d7097f43d2 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.416667; reason_purity: 0.416667
         - 10946bb94ffaf9e5ad7d046f7466a992b833fe22 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 11283d01a33c905277cd5bdda54bb529ce554c61 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 17f020f0a7d6866fe65fe180211d6917c53e0879 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 2490c4cb7f048a30325d9163598dcd889abfd05e # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 3f9dfb4781d14321b3aaed877a2b655b900cee48 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 85eea4ff062612f590343d458966fd535c09a2ea # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - b0b6faca27b67f5e3de6e73e002822c8f061fb6e # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.714286; reason_purity: 0.714286
-        - b2f3a8085cc43a06ab749ad9441118a7bb7d8cbc # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.250000; reason_purity: 0.250000
         - d4b7fb504fe3583dec8cbf21d9b0dd98cfea62cd # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - d7af23d93adef04464aedd3307ead044fd53c443 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/anthropics/claude-code.git
@@ -241,19 +213,13 @@ playbook:
       override_merge_shas:
         - 20a6babfa9a66f5432ef19c6c433b4357560f853 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.848485; reason_purity: 0.333333
         - 5146599b01114c568f2a8c02e1ddf8846b95d675 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 547a53d13507b3348d216d82353e0d6a9d8fa974 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.600000; reason_purity: 0.600000
         - 5b9f8425a515739e2149bf5bfb2ae6ed60bfbaf2 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.750000; reason_purity: 0.750000
-        - 605d701471c3ee84682b0c149e41142d7cea95e7 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.714286; reason_purity: 0.142857
+        - 605d701471c3ee84682b0c149e41142d7cea95e7 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.714286; reason_purity: 0.428571
         - 613a548648880314e78c3045d0ded12e29a4f036 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.750000; reason_purity: 0.750000
         - 63151521fd06ccddd6d5c4e3f283f26d5b9b024d # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.750000; reason_purity: 0.750000
         - 877b5e3653f12882e12c75aa0bb5be47f847bd09 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 8903a1a0a78a705402123d2a5c465217cb9d791c # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.625000; reason_purity: 0.562500
-        - 915c1fa72c07a1908f7dc18a065230c7c4a64db2 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.538462; reason_purity: 0.461538
-        - 9e5626d2a8ddbbd7640ff53f89f3a7021d747633 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.571429; reason_purity: 0.571429
-        - a143a12d44a592083b3cc1a9a2eb33272186ad0a # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.583333; reason_purity: 0.083333
-        - a5a447a352463c7b75752aa08b6d9cb46aa051ea # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.666667; reason_purity: 0.333333
+        - a5a447a352463c7b75752aa08b6d9cb46aa051ea # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.666667; reason_purity: 0.133333
         - b17be7e14b4a62b7935c75fe7e7645e736fd68d2 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - dff0596fa0e289b2dfec3b4adbe05e0c14c11d79 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.588235; reason_purity: 0.235294
         - e4030ab4f47065c362901109c74ca8e791c2de0a # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.888889; reason_purity: 0.555556
         - ed873a301eeff8c021ba57c78fb702fd2b6f0452 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - fa0cc61b7f79b1844ac0fb3831e606a1ba861c15 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -265,7 +231,6 @@ playbook:
         - 993c1d53715ae521b82de3d05e3d06020d2f046c # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/browser-use/browser-use.git
       override_merge_shas:
-        - 48c90355663789be779f996525299d12df80ab30 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.600000; reason_purity: 0.600000
         - 54c7806143503bab7046fb03be17c1215c4cfa9f # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 91c02012c3627b0ba4d501ad9b34efa3eadf58b7 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 9343371cd7a357e78b7b74f2e5aec81e29d7fdf5 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -284,10 +249,8 @@ playbook:
       override_merge_shas:
         - 07fcf1be7ad69aaf23d0d640a50530b07a9bc4d4 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 0cd3e39492616b638661b4b097f22e2dc423a128 # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 0.946237; reason_purity: 0.005376
-        - 5b51999df71a3c4f726ccabc380b294e9cb352de # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.750000; reason_purity: 0.750000
         - 859de79d979290763637b9c21b8cfec06734213c # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.861789; reason_purity: 0.195122
         - 8fb96b996739ce2cead6433271d32124ee0dd61b # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.933824; reason_purity: 0.272059
-        - d3df963d39e6626f113fc19ed03e2be589c2a415 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.500000; reason_purity: 0.500000
         - eae5d8c8071e2afc334eef15c2b7f3b348d03c8c # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 0.960474; reason_purity: 0.001976
         - ec8894d6c416dc7f32408e9919b3d914af61b726 # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 0.947977; reason_purity: 0.005780
     - repo_url: https://github.com/d2l-ai/d2l-zh.git
@@ -299,10 +262,7 @@ playbook:
       override_merge_shas:
         - 380a2f4eb6b1c69c752efc91c50376e1f7599e3d # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 3fe30782daaea7e38863ab81b3d0b2a45562ff7b # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 522e269663f6ea57eca55750814d0f28df3766d0 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.666667; reason_purity: 0.666667
         - 589b12f768862bb6abe645ccd569a6ce9860a7fc # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 60e8fb5603eab39ad261e8ae3ad621c0e3c874c1 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.666667; reason_purity: 0.666667
-        - 7c461b220523d2b25036f210287036cfd690c057 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.333333; reason_purity: 0.333333
         - a8558d9d40ac8b6dc6a330456f015d1d9e580faf # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.800000; reason_purity: 0.800000
         - ca1451655e23392e4a484ea4698d47126ef5927d # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/deepseek-ai/DeepSeek-R1.git
@@ -379,7 +339,7 @@ playbook:
     - repo_url: https://github.com/firecrawl/firecrawl.git
       override_merge_shas:
         - 010d30c936d00246f66a04dd29ffd994332f1071 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 08a9cb8db4601d9c7124f2d135e70f25b3b22b79 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.666667; reason_purity: 0.666667
+        - 04a0bef0fb03db5338b9012cdc1e51da24c5987b # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 55bed9526e99b0393067a05d4768262f09b0380a # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 1.000000; reason_purity: 0.500000
     - repo_url: https://github.com/florinpop17/app-ideas.git
       override_merge_shas:
@@ -395,14 +355,11 @@ playbook:
     - repo_url: https://github.com/freeCodeCamp/freeCodeCamp.git
       override_merge_shas:
         - 36ba68781f619b83038be1c75a0a964154b5376c # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 43f347bae0bee68e7aeaf56adf2a860b73fe4bc3 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.250000; reason_purity: 0.250000
         - 4a7d9fa947d9ef873c0fb9f8339a9bd55cce2b57 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 690369f76ad9b7617c884579276d459df0bfd81f # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 9ff8440d1d6b5044fce14166c8c7e2b4f94f9677 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - b6fc2551d9b322032e92af9bc6f00107666c05d0 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.400000; reason_purity: 0.200000
         - d77d78a3b2962972106dbc0c286d55c18f24ff8f # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - e7c6e626e070459660a3a5003dd1270a2a09b533 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - f6596d265455391e7435f07c5b36685e3b220b87 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.571429; reason_purity: 0.571429
     - repo_url: https://github.com/garrytan/gstack.git
       override_merge_shas:
         - 3d750d89af3acaeb6dd58c2ec5373827960cd478 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -414,8 +371,8 @@ playbook:
     - repo_url: https://github.com/gin-gonic/gin.git
       override_merge_shas:
         - 07fe0d9944e8848b4d369157e5a001041f49e9ec # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 8b262645748a605bcde25192cbdba880e0e6d53c # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.600000; reason_purity: 0.600000
-        - a4eadceb4537fde09f943ef0006cc0a3060bec4d # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
+        - 0f80d5ddea481736904bc4bbf5e874379fc89ead # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 171efe228da3a1f529bb8e436c0c5db39cf8e15b # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/github/gitignore.git
       override_merge_shas:
         - 02de0de43f8d888b6d80abe1f728b7a8cfbbcbb3 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -435,57 +392,70 @@ playbook:
       override_merge_shas:
         - 06e5633400b37bec2ebb6e4a9ea4603a0afcd010 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 0934983529824d819ceaf98df33b30abee7659bc # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.992701; reason_purity: 0.383212
-        - 0c453420e6fceccf36d06cea0a9e53ac6b8401ba # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 0.818182; reason_purity: 0.181818
+        - 0c453420e6fceccf36d06cea0a9e53ac6b8401ba # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.818182; reason_purity: 0.181818
         - 14786c4d8f460cde22740d4842821f8fd5e7af9e # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 158e1151cdfbdebd2e4a527e828d8a0b17933787 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.863636; reason_purity: 0.181818
+        - 15ff0765724c58827be6efa96f06b03b9f1c8cb4 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.800000; reason_purity: 0.800000
         - 16c9127663951ace1a3901cf669c49cc72780ced # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 1c18f3fc49051fe75604b804e514be7e15712526 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.944444; reason_purity: 0.444444
         - 1e5eb8679ece0ce8dab3aca6c3267d6a206b790d # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.968254; reason_purity: 0.634921
+        - 245212a5b792ad33604904556c1f5b95630d3782 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.785714; reason_purity: 0.142857
         - 304a7e5e7439a8a45449623057cad790c6053e4d # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.994083; reason_purity: 0.522189
+        - 30a20122b744bc83589e7f514920a8ec6a887dbf # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.890909; reason_purity: 0.218182
+        - 4560261b58bae36316c525a43fee1e027705e92b # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.777778; reason_purity: 0.555556
         - 474bad34ca9d3fcb15130530569983ef3ef1a284 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 4852a3765343c5df5c147b54b8e7ab45d1d9ed33 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 1.000000; reason_purity: 0.800000
         - 4c220c4ac2302b6c0a535c1099f2d393d57049c6 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.942029; reason_purity: 0.451346
         - 558825cc201da2264be2e82d24fbf0d1105a0c2e # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 57637d89ec437395e3785ea97d20f093bbdc0a8e # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 5997b71db6dc87af01926a8512f58b4e82e67651 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.875000; reason_purity: 0.312500
+        - 59ebc83d72b09d28d62d8600517c73a4ffe70c66 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.923077; reason_purity: 0.076923
         - 5c31e0c3415a6e2b308a3953bc0056a55c15c333 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 604cfffc5b3903bc4596bf541bf4b970ea478525 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 6183184b966dafda6e4863dc30de450a8bb1bacd # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.957447; reason_purity: 0.950355
-        - 61a286595e9a333fef95db1e9a086ef9367b3d87 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 0.486842
+        - 61a286595e9a333fef95db1e9a086ef9367b3d87 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 0.513158
+        - 626b16e0240f9f106ba89af58bfd15b48e4e644f # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.777778; reason_purity: 0.555556
         - 653f1c1d462332bccf303a5040e5cd99c89a4378 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.978495; reason_purity: 0.279570
         - 673e622fa9000c535397fba2b210273cc7d60705 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 6b61f2a5bbd3f7371775b94ae539d82896e686c9 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.875000; reason_purity: 0.625000
         - 6c841a691ed567acdddffec84642326decf311ce # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 1.000000; reason_purity: 0.944444
         - 70ce2446b593a67f8871ce78cf250a95062af9e0 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.950000; reason_purity: 0.425000
         - 7d0a261981d5832c21cc77f04331647e451a881f # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 7e539cb398d8fa3cb17eba7b8ab4ba88b8e9c2ef # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.777778; reason_purity: 0.666667
         - 873f8805cbfaee2d300f3264413b45b85399b767 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 876e5f67b14a3707b757fd008bbcc7792057c69d # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 914cc85e22af2e6c28f24a5fc70de94e4b9f1b1b # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.997059; reason_purity: 0.017647
+        - 932ae52709543c35b5ecfb99d7b6dbd2dae5a6dd # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.800000; reason_purity: 0.400000
         - 95d62004a07d8bb6d2b94a56112fd419db7eeb65 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.969231; reason_purity: 0.338462
         - a0009e070ae179356b741bcb991a2c77b6b28cda # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - a3ea9cd18fc79fbae9f1ce0fc5242268d122e5f7 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.937500; reason_purity: 0.875000
         - b17a61a6056a516949dd9aa11034c39c9ad8e37e # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.974490; reason_purity: 0.357143
         - b1d438ea282b75a6625a3b7a29b45346bcaa6d2f # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - b570a5f1184fe275ad6fc04b82050ad8fce95651 # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 0.750000; reason_purity: 0.250000
         - b5cb8866e9797efa28072e4eac68abd8a1b9c5d3 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.948718; reason_purity: 0.358974
+        - b95e15694006a16eee41024be88615bda62041cf # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.895833; reason_purity: 0.750000
         - bc57f5c36e8d93efd741541daa518581f77aa3d9 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - c0370e0ee3f12efe5f82b219f56b5c71f04f2329 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.777778; reason_purity: 0.777778
         - c707b71cdf343b8e19b8682a67aa90fee1d21c3f # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - d19ed4d4e69f51873135f05a51831d25ecc2071e # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.954955; reason_purity: 0.220721
         - d7497b28c17fe2f402accde45c75642ed7f09d08 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - db45dbbee8ad59c9f585db2828dcf9284220b62f # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.979757; reason_purity: 0.967611
         - df56682a105ec5452b8ab2efeb6058d4b83f764c # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - e0e81b280ffaf487f28929b0c65092e01158e5b3 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - e2dd4cd05fa96a08d49b3b198edf0ccf9a94970e # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.988131; reason_purity: 0.172107
         - e4621446ce8b9f677d00ed208154e7f106bc9980 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 1.000000; reason_purity: 0.909091
         - e4f6b9eef8ef3c2c68c45466d31ba4e5bc039db6 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.944444; reason_purity: 0.666667
+        - e6dd54943fd1d6129d73ecf7fc9bc6df26b75117 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.857143; reason_purity: 0.785714
         - e8988c31412249897a2e6805b61c37ed5c82a10c # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 1.000000; reason_purity: 0.864865
         - e99eba39e7f9f9fed454a7671635052600685cea # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.952381; reason_purity: 0.095238
-        - ef053faa6a947407e2af2002ce28459f97380981 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 0.500000
+        - ec5962278f394654fd17df35bbfceb19702553dd # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - ef053faa6a947407e2af2002ce28459f97380981 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 0.500000
+        - ff3ae62933896c5892159566de1998e80973b5c8 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.913043; reason_purity: 0.478261
     - repo_url: https://github.com/golang/go.git
       override_merge_shas:
-        - 067e8dfd82163ddcbde248dbe5a1187a417e5d36 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.666667; reason_purity: 0.666667
-        - 0fcf54b3d2bc42a947c65e9a520d078b671f8432 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.800000; reason_purity: 0.800000
         - 2bd616b1a7d2544e05d55141b6575f17a9b17263 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 3187b05b87e39231202bf2a9bf89905649472b6c # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 6bf51c340666b2552b9c73c34ff1e1757d8d8489 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.878049; reason_purity: 0.878049
         - 7c4fbb650c3448a19dfcfe39ac46f8a25e0d2314 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 829b286f2c5dc450394c526cd91ba8c8bea9bac8 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 86f53c2a3c08c416fe62e83db1d1a666b3da5f21 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.857143; reason_purity: 0.857143
         - cda3c6f91d7c3cdd370cbc4c34f34fd597d028bd # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - d1fd9a8863df6e8dc24dd1756550d341a26ed76c # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - e4994e71fb1809d8ce7df89e471586e05797e171 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -508,7 +478,6 @@ playbook:
     - repo_url: https://github.com/home-assistant/core.git
       override_merge_shas:
         - 36cda8c6b25e5f9484b8af0aa32ee3de57ac2043 # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 1.000000; reason_purity: 0.357143
-        - 37098403278f599845e6ba9e41550d963d7ed78a # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.500000; reason_purity: 0.500000
         - 3db766e2ecaf024449ea1706c5f5286a4d8616cf # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 71157dbec99efd908a8b1fbf78da657ef68d0d36 # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 1.000000; reason_purity: 0.300000
         - ba58c080e31a56b665b5171a5203b6056a5c175b # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -522,18 +491,18 @@ playbook:
     - repo_url: https://github.com/huggingface/transformers.git
       override_merge_shas:
         - 00c4e395819880ec1c2f8324ceccf79ca85842de # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 3cd6289758db098e17bdc823dc70a841ff443ace # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.666667; reason_purity: 0.666667
+        - 0558c9cb9b62771d3e3955dc15d34475c2c86995 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 407093b3fa32b3c35ca9add5be1ce1152d74ff4f # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/iluwatar/java-design-patterns.git
       override_merge_shas:
         - 072a885ec835fdb436ddb214235a9edd06f7bc45 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 081d789749acf1e1016488f8db01ae7510f9fac3 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - bdf2145b3f3fa209709ff06f28beb274744e2c8e # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
+        - 09fb79099fa6eeb9927d18462835f0039b5cdf34 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/immich-app/immich.git
       override_merge_shas:
         - 4f2c08525f1bd1f9f8cadafe9b2cc07d97135d14 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 6fb439b580f7af970c5cda841f65428a2e1a250a # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - e38166837d4db5f2f7fe97da5adcd09addd0040a # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.750000; reason_purity: 0.750000
+        - e608c61ba5e54bb4a2b1bcaed9cbb974d5abb639 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/iptv-org/iptv.git
       override_merge_shas:
         - 00b04df31a7e631f0c3a3e6f14500a0dbf2b43f7 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -541,7 +510,6 @@ playbook:
         - 30bcbff50958e0047acb2057f2759c9d694742be # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 48b6794abf7d274b225213104387f6e8e64cdeac # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 58738594b42446b6fabfccb09d5adf09a3713db1 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 652ea63d0bde623b74260e3f754ea7b9d4cfe6fd # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
         - 7c37ee32381591aedca3b653682fb6939edbcd46 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 8916c66b6edf5f33345e966ffd278d71708a1e68 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 8dfc849e9efc2c0c94d43cd2066861594ad2c34e # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -583,7 +551,7 @@ playbook:
       override_merge_shas:
         - 0d66237dfb65ec74cb3afef3a2367e762132bb4e # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 13adc65c998997a1e162b4e033f580c9a3b39c80 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 75fa7996ae5c378c7bca167ab9729a3ebdde0646 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.500000; reason_purity: 0.500000
+        - 20633a7881dfa62ad5c87d18ee12104adce57d50 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/krahets/hello-algo.git
       override_merge_shas:
         - 2899f453fbe17bc632927eef4c4d28af3c24a099 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -592,7 +560,6 @@ playbook:
     - repo_url: https://github.com/kubernetes/kubernetes.git
       override_merge_shas:
         - 742b92a034fa505c982959f13aff368fcd016b20 # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 1.000000; reason_purity: 0.333333
-        - 87a03488404db2c79aac873864d612939e48e00a # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
         - 954a86d701a53276881c86ee85275a406d0dea99 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - df8bbc611fe75abae3eab43e248d9176f14a9a01 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - f45e918b8b5c9f181aa8a6cb9f4e56fcbb844814 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -611,14 +578,11 @@ playbook:
         - 02ca9739a02c1a15576761fe06e08e5586271699 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 162036cbc75761057ccbac5e4397a72d1c8f78e3 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 226e3a131ebdfc5fa61e62d3f1e1114614e01816 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 4af08d99fc12a9d35cb43ce4bee1ec5d42e3aea2 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.666667; reason_purity: 0.666667
         - 7669b1447b4443227a02dd975262fbd5c6a12acc # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 809e4c53067bf75909bbfb716e83938fb0ace3be # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 95f5c4421fafb4390819a56ebd0360ea50f91848 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.428571; reason_purity: 0.285714
         - daf9214513ff0e9532635b39b45708791a05a634 # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 1.000000; reason_purity: 0.300000
     - repo_url: https://github.com/laravel/laravel.git
       override_merge_shas:
-        - 075e5e93f094f47685260f2d2b270b609816df6b # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.960526; reason_purity: 0.960526
         - 0e6859fb45878a2247b180d102bae5aa9b0bb05e # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 0fd3815f81d181038ed731c50b60bd3e61b8d34c # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 11dfcf6d1a72532f288945c9ebbfef6eb5981adb # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -646,7 +610,6 @@ playbook:
         - 7866d1ec12de9d5ba92b47c41f5b49a542908eb5 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/massgravel/Microsoft-Activation-Scripts.git
       override_merge_shas:
-        - 652092e9854bf3e5103cba2c17fbb97b5be47270 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
         - 69452365901e7686bc003cdf135af5fd8afee5ea # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - be7d101df5bf99d959b1f2d16557b88614ac7920 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/mattpocock/skills.git
@@ -663,7 +626,6 @@ playbook:
         - 3b2d55efec12ad3bb895b1ddb5bd71095844013b # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 449dfe8b8ef41909eeef65f2adbd8a0411b36396 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 455839c0b950dc9e61bca3463f0fa788127b37f3 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 539ee4959477ebb727b8b2316ee02eeaa534a47f # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.125000; reason_purity: 0.125000
         - 6b3892baf16b7952a9d3d721f314552f9d6d4df1 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 7156cf4c71bd2d4909a83b8cf8735936eeb64564 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 8345134d2a1b821f6963fc81016339598b4a811b # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -676,7 +638,6 @@ playbook:
         - bf18f25c820fb9264fe70ce5113a85f676cfd306 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - c85e479f889978e62bd01e1658cd1c450cdfed04 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - ea58bb3359e1b29d987f1f24f013e62aa08e0842 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - f60c7fff65458f39f17cbba30127dacd21a982ac # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.200000; reason_purity: 0.200000
     - repo_url: https://github.com/microsoft/ML-For-Beginners.git
       override_merge_shas:
         - 0029367c4b201e5d2080b21b428b4a2d42437119 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -684,7 +645,7 @@ playbook:
         - 936a732d4e55fd75a74338246a9d871c8e1c5c92 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/microsoft/PowerToys.git
       override_merge_shas:
-        - 16531653ab3ed6492f42e1040bed3506e433928e # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.500000; reason_purity: 0.500000
+        - 06b9d68eb7ae46e7f0b0709453c9185c033f9d53 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 511c0dd17c136a04e9b28ffbec8d268e735d5cd9 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - d149df2a6eb9f636e3d00e3a7582a39c64ac2afa # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/microsoft/TypeScript.git
@@ -714,9 +675,9 @@ playbook:
         - ef61ca00d80bfabd14ad0d3320f3c8d829d15318 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/microsoft/generative-ai-for-beginners.git
       override_merge_shas:
-        - 3cb1628250774a281b72ace84bea46a8b69d2ef4 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.533333; reason_purity: 0.533333
+        - 02f94d818c470a0f3b19b63298888adf027b11b2 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 06fb9bf051d10f916b58fb944d425b9a770c93d1 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 8196b876be7546723a8620eb969f1249d9f2a7f5 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - a235f77e09e56338adbd60c23439ee6da643d21f # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
     - repo_url: https://github.com/microsoft/markitdown.git
       override_merge_shas:
         - 1aa4abe90f9f473e6baff1d68416a44e461502d3 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -730,8 +691,6 @@ playbook:
     - repo_url: https://github.com/microsoft/vscode.git
       override_merge_shas:
         - 0497890ec7d39f5e3fc62cb21621c6473d583d86 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 08dbc340d4acca4aa7fe1f4d5c470ad48454f38c # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.500000; reason_purity: 0.500000
-        - 12c8145a6d838e14a96ff773326864b7632dd3e2 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.666667; reason_purity: 0.666667
         - 35c891566bb63e34b058bb48956549385841739b # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 39ea7877ca5ea85c889368020c6afd03072eff09 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 44488bc348ee194b15c7af86b8e16ef557902e53 # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 1.000000; reason_purity: 0.500000
@@ -740,10 +699,8 @@ playbook:
         - 556635aa32fd14af5ff553d85950074010de9146 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 5f8aa181041dec06eeee1c6476541aee03b75092 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 621ca2633f993300dea89a54aca841b247cda4d1 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 62c37eea68f74b23feccc32738ce51b0c199fbc1 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
         - 63a755e411fcf3d75d220c7847df4930635e6f29 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 650eaa262dcb1ab7898e304e833d3befbca2d407 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 68dc47e695b1ba1e1326203e885a42e5456e3a3e # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.500000; reason_purity: 0.500000
         - 730e1e37efeda6ae5a71c3f2c8654909ebf35433 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 7ba794d2ed3a609277eaf55c4d67ea8a056d6109 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 7c79e3d0c103e795ce7f6915a79ffbc50722dd0e # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -753,8 +710,14 @@ playbook:
         - 92f76db8cc815958dd35285bb01aece43901c6cb # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 9dbb3167e3bda872acd4b153089b4de42db9b3a9 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - a29498c1b64420b61ecc2454290b3ebfdf752730 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - b08e733365f48978d218ec58117a3962a4e4094f # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - bb4fefc959249a8bcd9362b908610626e828b0c9 # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 1.000000; reason_purity: 0.333333
+        - c97bba99034b8445428cc4b3b4ce7c1af4281877 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - db4e5560b55aa47b19def92eb5f160d1758138d1 # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 1.000000; reason_purity: 0.333333
         - f569d7e709f77050fc5e216aea61271a04dead73 # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 1.000000; reason_purity: 0.500000
+        - f6ebc0c2b8b8bde7b510e51c924e9ee1e597078d # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - f8e1706349c5d152c571e6f18acc21cbc3eae2e3 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - f98585bdef052ca10f8902bff6e190ce01ec0201 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/mlabonne/llm-course.git
       override_merge_shas:
         - fae0ad268121e35412bb3e49bc5bbc9c83cfdbb5 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -768,8 +731,6 @@ playbook:
         - 1310deadf64ada0a40aee2b6cb0ae638e83854b1 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 25060edd370111624c9f5fc0f2f05c949ad10928 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 30d4cbbb4306e490c51be6b480f85d40435e6c70 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 368d1fd018c8e7f70189a2e424a37b0b7d5100aa # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.500000; reason_purity: 0.500000
-        - 56a1e4fca1551d8dfab9dfc015f067ca78973ad4 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.500000; reason_purity: 0.500000
         - 6714a0802f0fe0ac9c1b2453ff55c63f90e0dde8 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 7d4ea159013e3d2227a1a76f5baf8a51dfb055c3 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 99dd3a411b7901b9e01e4a4e3d594d2cc002c980 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -789,14 +750,14 @@ playbook:
         - 42e1a54cb11562588331a3915e26f2d6e63153e7 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/mui/material-ui.git
       override_merge_shas:
+        - 070ed725484c66e915750beba63b56fef62a374f # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 2ba3f9f11cd4e09ca639d5c738fabe18ddbc6d0d # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 9b3ee8180bd6b5cfa2d049cb993dbe4da8a18e5f # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - c85b2e84a3b260857a475669e2be97f49959523f # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
     - repo_url: https://github.com/n8n-io/n8n.git
       override_merge_shas:
         - 00ac9751644d4bfa752807230da56711fd5f1323 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 096f42a2e55999007ce45d6c803edfa849d84e01 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - c1edcc9e56a027a0f330505c6d51676c5e11ff67 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.333333; reason_purity: 0.333333
+        - 098b05e370bc096f157bdfe2d2f5302ed290c585 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/neovim/neovim.git
       override_merge_shas:
         - 00ba300d3941d5e9d59ffffcb760eb0f9d1079ef # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -815,7 +776,7 @@ playbook:
       override_merge_shas:
         - 0c84020e967af5cd7d5c46d5560012475604befa # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 15157139463b0d2597b94d52664393aa6b3034be # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - e27ce1874e252a68e8e03ab1e0f5532c9209519d # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
+        - 63458de408fb8b8a00e46bbecf3e7c37f58e5e43 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/nodejs/node.git
       override_merge_shas:
         - 6b4f72b7ac95bf3ec100bb70e7f6552e9aa18d7e # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -855,7 +816,7 @@ playbook:
       override_merge_shas:
         - 00eacfcacc6eaf44e4c1d7f6fff204f63239f10a # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 06657034018213d785b45066f4996ec634510168 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 46f2f0fbdbfa990a7cbedff5a9995d721dabd89c # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
+        - 08a35417f2b9ca9ee70ea5c5d85b5a75f907a093 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/openclaw/openclaw.git
       override_merge_shas:
         - 009abd306a37e40563ce43ac7a83dfd8b2a6baec # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -865,7 +826,6 @@ playbook:
       override_merge_shas:
         - 073c2d9964dcd3bd6316f55571f04e7d00070d37 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 0b496803399d2235b5f397c7bd9928934758d069 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 199ddff13b73071529a42cff97ee8286cfc15d02 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.333333
         - 1d8b30bf4f6b3ef2f42eecb0b6576e017477b533 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 262fc929aa9c31ee6dc88913279693acc1487ec0 # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 1.000000; reason_purity: 0.125000
         - 2cef1003037354295f64d764ded55dfd0459c2f7 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -876,18 +836,20 @@ playbook:
         - 39783a658418b1296a72a5cb90e1bcd9b1f8ddd5 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 4b82c8a22b45f1c40d3ea16891ac39bf7e04ab79 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 6211f156e6dca9f0549b63cbb2e0ed0cb9f7fa7c # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 69020da607026ac9431f5c8e4e0af3a19ad18420 # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 0.984663; reason_purity: 0.018405
         - 756a98a395b903b1a215513d8acddb17bff12814 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 93a36b0df15d195a69ab081081bef12cae4ef396 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
         - a8b0db4e5dd7606fa0da3094088d1656e6fdf1c0 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - b6a0acb8f6c76d29184bb9cf8d8d5098d793bb4a # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
         - b6a58818bb6b30a1f9d982b3f3f53228ea5a13c1 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - bbc35d609d5613c73c9597502f13ceeb97dc769b # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.619048; reason_purity: 0.095238
         - c05ac8729e6b1993f1ea966d22b86125911c2a7a # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
         - c88e6b344baa9807922571ee2981afabb9bdc8be # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
         - ca9756f6a1ea25a232d83d768f833b4fa3ee4cf4 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - ce7a2f7edc024d18b02e51e639542b4d6f01765f # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - d92bee821d618c698dacedc6e4d74a8feb2c1242 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
+        - dada5a422d432fab8385141d26d2c9b753000a38 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - db85c35e696f223bf2e37c5e85be66c7e5a09700 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - e33759b358a113ad97dd89779cd3c2bed7e29465 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - e45fd939c25b29a1c3e8c28b724cce5b5e3727d8 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - f414c16c13ffb8f9f2173873f838fc61da7123c9 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - fbde57dba838e65bcfced90710035c700f671f9b # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/ossu/computer-science.git
       override_merge_shas:
@@ -907,7 +869,7 @@ playbook:
       override_merge_shas:
         - 06a04efc59e60dc57b897b8b63f643d08df569d9 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 3706d756f3305f4717464b34d249f59b69996b6c # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - c0d8c4de3e016e5b7f8fcfc984fb6c08b4403cb5 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
+        - 39eabbb27a26ab01cffdefc89daa909be36e675c # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/practical-tutorials/project-based-learning.git
       override_merge_shas:
         - 0717840141cb674c6af82b99fbdda16952ca9c47 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -990,52 +952,109 @@ playbook:
         - eb202d8306cce3e42095a8d4f4b8f9d34ce87bc3 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/rust-lang/rust.git
       override_merge_shas:
+        - 022af828278f568cc2a92c845836d2632d7a69e5 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.833333; reason_purity: 0.833333
+        - 0650c4078c81211fbe112df90f019a96073e42ef # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.866667; reason_purity: 0.266667
+        - 06e705f13dade399d629dd422e3fc84bddc58db0 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.923077; reason_purity: 0.884615
         - 09eb0b1b32410819f178f24b34f8f8d02a6f0ebd # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 0a1fa795f7c18f9f536b16a89590d71c91aaabfb # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.909091; reason_purity: 0.393939
+        - 0e8e621b6ae880296550dacb4d0c0a80f47bd54d # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.774194; reason_purity: 0.064516
+        - 102a06b36b8c53d228bb10481f2103e189ce5fb3 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.818182; reason_purity: 0.045455
+        - 1bfe3bcfece0e4db3d748aba0ae9ec8def5c2644 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.775000; reason_purity: 0.150000
+        - 21758bf1fbeb0993fe39daf073b4bf883d36e779 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.767442; reason_purity: 0.046512
         - 22a6bc4da0ce15606e3a7fb01c5cc6ff175f79af # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 1.000000; reason_purity: 0.666667
+        - 29bd9b3a5f392a2ee814de29631afe326620cfcc # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.833333; reason_purity: 0.500000
         - 2ab9ebfd987275c813b8ce3b625db3853f6059b1 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 2ed6ed41beebb2aa2ffc91ab0da4c5f70c40366b # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.862069; reason_purity: 0.137931
         - 30a370678603ce8cdc47c91a09f335533119d4dd # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 30fb1246b40b729462c39736bfab995204a487b6 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.857143; reason_purity: 0.095238
+        - 333a06af42b62b942aeddc23e359072272fe8785 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.807692; reason_purity: 0.769231
         - 3365e9a120fcce6994a95ecc324a6c911b2a1403 # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 1.000000; reason_purity: 0.055556
         - 37751893cce65bc707bdc017b81e40bd241ed2d1 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 39a1fdd6b88d1fd1e7203e692579eadb683feb29 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.800000; reason_purity: 0.560000
         - 407da0a8a2f56629220bf9421763345d992c2a79 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 419df99e1824a5b65eb0c6d67850dfe014b019fa # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 0.936508; reason_purity: 0.015873
+        - 41c845efd9c241be1bc506a433b25f5357e5beb5 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.891892; reason_purity: 0.054054
+        - 46c714f64134ef403272d98667d5b8c38d8ff37b # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.901961; reason_purity: 0.078431
+        - 496384531ea92e2efec8802e2d3b45b6ffff9bd8 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.810345; reason_purity: 0.017241
+        - 4beb0a4bdf4c9547b00db232deab74406873d305 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.800000; reason_purity: 0.600000
         - 4d6c2cce0adbb5deeeffe7eac6a27aedcfe03437 # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 0.951220; reason_purity: 0.024390
-        - 4dc83a74fda1b94345c704f9dba1e8a137edaab8 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.927273; reason_purity: 0.036364
+        - 4dc83a74fda1b94345c704f9dba1e8a137edaab8 # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 0.927273; reason_purity: 0.018182
         - 4de99e187c0e389449d96db847d5d9ad68259954 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 50561837de46e3678f34ff0c0c577e3bd5e826c1 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.789474; reason_purity: 0.631579
+        - 515e2a2cda88e0213ab24dc97e75794eac42ebfe # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.771429; reason_purity: 0.028571
+        - 520761afa55cab0f59229ecb11a9377864275427 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.812500; reason_purity: 0.125000
+        - 521fdcbe4ddaa717be2acbeb30f8978d6378fea1 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 0.333333
+        - 56493e4cbd6262adae03e73aefb8a9e618a9fc2d # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.789474; reason_purity: 0.157895
         - 56ab392f028b1d5dab1c2eb2e4af37136915882c # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 1.000000; reason_purity: 0.045455
         - 58b00b088ed88a6c6ca6f80599f6abdd84c373a5 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 591b0563763955b6e666a3b010dc379e3ec3afe9 # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 0.969697; reason_purity: 0.575758
         - 5c896555de2787eb58c882cf18877aa2cc2123c8 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 626bd33e1eff9e69422cb2fd45fe093874cf97ee # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.818182; reason_purity: 0.818182
         - 62b406d4b185f28828df3e0df6b1aa1f560145df # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 6697186f5913f484dd16f893ad06b6692bebe7c2 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 6a944187fb917393c9c6c39825dec3c1de29787c # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 6b37cd3d4f21a63afd91d0705414ceea3c1e6960 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.847458; reason_purity: 0.033898
+        - 6c3f43d5cc292a396a5dbb8400c07452e0fd026f # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.863636; reason_purity: 0.181818
         - 6cf75ca05aba0874ad78b62d6ead6f20f00d5d9f # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 714e904969b6ac7c8da446122952e154fd2e8ea7 # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 0.945055; reason_purity: 0.010989
         - 721d53a54f73ebb023624625fe5f357478636694 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.930556; reason_purity: 0.152778
+        - 72d655b5b688ef1aec3507c6622f59dc53e7dd81 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.761905; reason_purity: 0.333333
+        - 7650a7542cf5a88f9d4ae6e7683b4978f444d2fe # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 0.916667; reason_purity: 0.016667
         - 77da566cc6fcc2e9debf5bc0edfa34b0f296df69 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.925926; reason_purity: 0.037037
         - 78ae132d5b87c9f7e1ea51d1585646da1958257f # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 0.935484; reason_purity: 0.032258
+        - 81af3468fef3a0394bd5250cba58272d9814cdc6 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.820513; reason_purity: 0.384615
+        - 825a62af518b785215039a98e7ba5922a7a20440 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.868421; reason_purity: 0.578947
+        - 827fc6e1aca32d57033d7eca79d6021ab7f5c849 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.861111; reason_purity: 0.277778
+        - 830b387e17ef310ec3451d70abc717ea54f131f3 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.807692; reason_purity: 0.038462
         - 8e1e67dbaada3f14f32a2066dbf785b262769ed6 # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 0.966667; reason_purity: 0.016667
+        - 9323443bdde517a86d5eef7cabdabb4baefe7cff # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.833333; reason_purity: 0.041667
         - 9482caf29fbe6b38f96689043b11329b80ca24bd # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 0.958333; reason_purity: 0.020833
+        - 964e769ffd5df865780e098380a9a4a99360e50b # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.823529; reason_purity: 0.176471
         - 9a677674b3364cab71fd49793aa5cc90b9dc5322 # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 0.987654; reason_purity: 0.012346
+        - 9af8e378b9c95b8d21987c414862682eb3c5451c # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.793103; reason_purity: 0.758621
+        - 9dd5b2d97e83aa8a39e1ef8529217a08db65d59b # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.888889; reason_purity: 0.777778
         - a06da98f2187d0b71317492b635cd2f43a2fc64b # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.944444; reason_purity: 0.777778
         - a08ced3856e297b9576a2ec697c5bcb8983a24c4 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - a0c1ed3b93072a373b2fef3172e1a000aca2ffc1 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.900000; reason_purity: 0.566667
         - a14404a028943f9d59c881a32b09dd5cae909498 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 1.000000; reason_purity: 0.400000
+        - a4e02d70376d4440dd0a9d78cb558ce328c85868 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.777778; reason_purity: 0.222222
+        - ad76883ff99ef28fc650419640bdc91f7d521eae # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.882353; reason_purity: 0.137255
+        - b05d7e5bfa2b28ab950f5eb8099aa5892bb6cdbe # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.823529; reason_purity: 0.235294
+        - b10966be750994a5c5664f7e02aa3f4a52e723d2 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.875000; reason_purity: 0.750000
+        - b18db7a13e52f71e94bdf221a7a013fd9ace4c7f # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.869565; reason_purity: 0.130435
+        - b270543f8f5d04359bdc8e2e968217219149af0d # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.826087; reason_purity: 0.739130
+        - b72ae2c9ea7781ce34fe8f8af706d0431e51adc3 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.862069; reason_purity: 0.034483
         - b8a7d439db0cfd765ed4bfedd2bbaeeee58b05a5 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.939394; reason_purity: 0.191919
+        - ba66384447430159e32bba613cd389b7773a453e # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.780488; reason_purity: 0.170732
+        - beb0e731de1c13ee0ee341965718b6350a48b34d # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.816092; reason_purity: 0.241379
+        - c4a2f065854f85fcee397d0b9e8e535e6770e1da # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.840000; reason_purity: 0.560000
+        - cb271d055e6134c23b7cca5351353a7feb46458b # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
         - cd7cbe818e4a66d46fe2df993d1b8518eba8a5cd # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - cfe1942a3f1a98ea733b544559bd4845e41d5797 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - d0588007a997da288abde34a7c861c0acb0aefbd # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - d186b4946059e9e9b69740ce03fcb4abe3c99b10 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - d2e2f64ef7bd98c8ce2c9ce77db27ea1617892ea # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.862069; reason_purity: 0.724138
+        - d35f6c6c11a01ee0ffb7cf762c6d20e910a7bf0e # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.842105; reason_purity: 0.210526
+        - d3eb49baa9bf836997dccaf3c9aae41dd0a55e8e # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.885246; reason_purity: 0.573770
         - d4af90e0f93f92d2e04d7a4d8798e6b7af81b238 # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 1.000000; reason_purity: 0.166667
         - d55c373ddd1ec4f9bee281801f85283ac44140a7 # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 0.952381; reason_purity: 0.011905
         - d5c38ded260e3a8e0bc60cd837bc08a47d841d65 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - da9755b6ba108b04eb9dfc771d0a6dd2f86f911b # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.923077; reason_purity: 0.092308
         - ddf055ad07b93d27c826e737b674b65ab760e901 # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 0.953523; reason_purity: 0.001499
+        - dfac9be0827e7b3a6cea641926e217d2497236d7 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.833333; reason_purity: 0.738095
+        - e7bc41176e19930e4c3de355ae53bb915306f299 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.875000; reason_purity: 0.041667
         - e8629011ae742d74c1216c6d69efb02df02c64c6 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.967742; reason_purity: 0.064516
         - e9cf384a91575f2e0b8f001ee365118c3135be8d # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.906250; reason_purity: 0.008929
         - ecddc26b0ec4fcf23e066f2f892c40c1beb2f5ad # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 0.972222; reason_purity: 0.013889
+        - f004a1b3fda522694f9857a4ae95eb9ef7baa0c4 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.821918; reason_purity: 0.109589
+        - f0108b9d5e63283fb9c0555f47bbc97c1f8b13a8 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.842105; reason_purity: 0.105263
+        - f1f1e0ba8ea1895eb2568e9d19378bbe43a17bcb # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.852941; reason_purity: 0.058824
         - f45e6953d76d886bb649ffd80f1e19ce2e1bfeda # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - f6ade7ca36ba326216ea58bc87b42d84711ad6de # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 0.968750; reason_purity: 0.031250
+        - f6c025013945cbd00ec4ac24b7ef1ac20db0b43a # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
         - fb1f57e0e5a78a803f1356813c8b70c5bc465efa # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - fb311e14d51384fdb6ef02b488e0420d82ee2442 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.869565; reason_purity: 0.028986
+        - fc2cca942f4a7312ad944955b1de9206a143fc7b # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.873016; reason_purity: 0.857143
     - repo_url: https://github.com/rustdesk/rustdesk.git
       override_merge_shas:
         - 0085a19f1c2030f3c58d90a3cef39a03d3c25db1 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -1055,7 +1074,7 @@ playbook:
       override_merge_shas:
         - 06e74fce7895084b9f6dc7b780a2990f7b08f40c # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 1a10b4671ae63d7a15478c4b6a468e93095a4c14 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 3d8837bddb0e503cb06390212f28fbdaf9a46d14 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.524752; reason_purity: 0.524752
+        - 33ffb0419c51368231efe4e517c273a16d1773ca # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/sherlock-project/sherlock.git
       override_merge_shas:
         - 00c593dd3fb8155670e75a68819e90d833a7a08b # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -1066,20 +1085,21 @@ playbook:
         - 12195e4fb0c94062a71e8440f6e4a3cf45bd18e8 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 134812faf9584ade6bec6a775815c3af7027e223 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 0.500000
         - 14444669fe47c22dcc529f6ebb371116ab99df90 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 16c808fd2f35bb940586b28e41a66655a609e17d # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
         - 174cc2bc4eb81868fa3f2dd43a6854af8538dd7c # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 1.000000; reason_purity: 0.500000
         - 263e157ef04e5abfd9300dbf75fdf63342e9e8be # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 2d3291fb836a4c45606dca4a59ea5490c5cf3868 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 2f9bc79fff72fa6ffa861604027cdfbf08c003c7 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.714286; reason_purity: 0.285714
+        - 2f9bc79fff72fa6ffa861604027cdfbf08c003c7 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.714286; reason_purity: 0.428571
         - 323b09762300ed16f89d2c73457564f086338ada # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.894737; reason_purity: 0.052632
-        - 3cf8e81a8b0ce3440cb21194fb55dd20b290693f # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
         - 44ff29c4d495cbb705462c4644be017cd795b7a1 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 46440bf2d5ecc4b1e301b3350fef3f4b2e690278 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.750000; reason_purity: 0.750000
         - 46839404239fae7b06785cb4f7a08e7ee4cdfad1 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 481b972fad8c1e7234dd55e96b7ec28004514935 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 485025310e10c57a69159fb8305e60601606130a # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 4c72ce69dae52876e32b06a470c60fe12eb91328 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 4c7cedb738849f7dc04b290aae595240b38dc8f1 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 0.500000
         - 4e734669fee9f770d6cc30cabfbf6931847a1dab # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 1.000000; reason_purity: 0.200000
+        - 4f47202910868c260dfc338c214d03e179dade51 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.800000; reason_purity: 0.800000
+        - 63c7099e84bfef615d31c8a9c4f792242403f806 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.851852; reason_purity: 0.851852
         - 864a6b3e9128bdbfd98abb9b431877a65f8135b9 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 87bccb96f17e15bd5257120e7325279749daa23b # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 886b39293c17d04167108af59f935261ff44aa5d # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -1102,49 +1122,48 @@ playbook:
         - d9d7499ae6ca45ead00ec4c125a05b8c960af413 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - e1ab62668f18589d6ae23c21b6e53bdd6ddfe825 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - f0875cea681a64f076ff4a6dc6f22ab61ef017c7 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - f10b80cf6fa607b59c682d7e7c720a07ca0419b5 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.833333; reason_purity: 0.416667
     - repo_url: https://github.com/storybookjs/storybook.git
       override_merge_shas:
         - 01f4143a4ff5d60992e6c62cd606e3f25960d74d # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 0a82cae04988ff2af81bfd4e4a597323c6b1c5d5 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 11e3cabea64a16ad58ad7d500039bb4a12cc138b # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 17a3e2c6fd1ba936e2b1a4894755670a1d01f9eb # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
         - 17cbc66b72b8c0fe528a1bdaac3aabf6ac29a95e # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 1d54bdee43468ff21a2318dfa24a4a2d4036fd98 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 1e6e89fe3fbea1f483e687fef74044222c2941b4 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 21cc0490a9eb4093284755eae9884e8fe055e44d # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 240429ed2e0ba375cfada242cdd97ea5d3898064 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 2488ec10aab5f71a00c5c264949f0a5f8cb36c50 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 24a2a849f946033508f67df03b03be0758aebe23 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 258f9ee6736fbac268049fe7e98e38df1055c4c4 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 27e5be589192bc79491a15c48c16df3abff89ca4 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 288b79105a7f0e4bd8200c2fd3a6efd0066961c3 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 29234eb2744632aefa4440ee0ad614120c077cbe # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 2f9ce07dbebe139f0179bed1fb91711f963c7441 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 31fbe89079a1917f9f4dc0e15b3ca6a3d529530f # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.777778; reason_purity: 0.777778
+        - 3481c12f48efdb2ba5b49504b37f9324203a7e2e # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 34fa6eeabc7282d083940fcdeca0be83796561c4 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 3502a0324ce40d1616f5f6c8bdceb02c80542317 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 35d23fa64052c67744c4f4c7070f5550ed664507 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 59d4cc2b154ec4d25dd292b09b7bd4300acbc5f5 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 60178493762f0eac2d6cf7af238608a5eeb522a5 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.571429; reason_purity: 0.571429
-        - 61a77f56a5c6f9d73351afa21385a37559432b42 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.454545; reason_purity: 0.363636
-        - 67f0aafe7409d7bdd74cbfa6c862d4741e1ce8e6 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
-        - 6a200047d2b62cfad663f58499cc8e00881c9d0e # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.615385; reason_purity: 0.461538
         - 74b97643e1c441ea15a530d4eef6fd4d0010a662 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 84afa441e7077b74bed32c58e439ac64644ce06a # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 0.500000
-        - 90b39777cb7297a25553d3c6e42bf9a650b9146b # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
         - 9f3c1fac411620ea76fa7b653c630196038ac6b5 # subdataset: rename; reason: CONFLICT(directory rename unclear split); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - a337c757b2e4acc6cd24193e33a8144d7cba02dc # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.464286; reason_purity: 0.071429
         - c54d4e8f7d2d0d5c895924c092e0685654902622 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - c72473b6c1bdc73dd76b156aebaaa5fa1fc18645 # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 1.000000; reason_purity: 0.500000
-        - d061feaed5cc21ea66d6b3fb32cab2a7a543864f # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.666667; reason_purity: 0.666667
-        - d45b798def635eb84cd8319c4ddf3f66c06d9fe9 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.600000; reason_purity: 0.600000
-        - e3115fd152ccf81a8044caae5dc611d9243047f9 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.666667; reason_purity: 0.666667
         - e7cac49c85f391e855e76d545b10f27fe1da2bb2 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/supabase/supabase.git
       override_merge_shas:
         - 081b4585b920d1ae85a931776e9bf5454234518c # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 099f102c1e97628942ae43326c144697ff814ec9 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 0b3f96d6e247c36944b2f8376d1baf1970307b80 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.500000; reason_purity: 0.500000
         - 0db52e02bd847cff9492afe27c259f7f6427bf2b # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 0dc047316bfcfd2e4be2bbf5332a472302111f59 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 101f6e272e44e7084abf65ec0f1f3b79b27101f3 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.500000; reason_purity: 0.500000
         - 1bd93377b0eb8e1a9709ffc55654b76bd53c0596 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 23fa5a20922507591a83ea19408d3559169b601f # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 246d97d8755dd0802f5df3a1fe3dc29f3afe52ab # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 2c7c712a4141b8497c11c7c5576cf9ef9783a989 # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 1.000000; reason_purity: 0.375000
         - 49150f104cf8be44301cf67d599a088adcf239bd # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 4bdef60e09ba8df7a3eb8f8be7e25df14abb1277 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 4d93f5e1d6897eef398d2a61af8025d11c6b8781 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.375000; reason_purity: 0.125000
         - 58219b0aed5b849f5a24afe90a7ad46b61c71df4 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 5c59068cce41a93f7a50178a7a6b037fd2c87c4c # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 5fc43f43fff3cde300c2c987829c9424fd082c07 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -1158,17 +1177,15 @@ playbook:
         - bdda1e970ee6c8c2e3961191ca909f77ab8aec5b # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - e62b5ad6eafe292a67ae1892db24a74a84ab61cb # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - e7a0bd7a91f220c10bf7af9386b57d5d75c5c24a # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - ebf00c9c5fb7fc549a0c3c6d96c48493b9fd4044 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - f1992ceec2296ffac4ea51643493a1493d00d2d0 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - f2c33bf1a7d2556f961b79e992cb4172712bc524 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/sveltejs/svelte.git
       override_merge_shas:
         - 12f4f6c457f017d2d7c64be82e406f425e6cc92d # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 3b7092099112bcce5e9249f424ae5119bd64a091 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 62bef809b2ed0fe55f2ebacf7944d454f7fb493b # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 769e03296f4bb076d5f04e88fa6119a34927b0f1 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.833333; reason_purity: 0.833333
-        - 8642ef17a407c5723f88fe6d0b722ffe6724b3f2 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.833333; reason_purity: 0.833333
-        - a856128d804fca335ca2624892f1a9244620f041 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.400000; reason_purity: 0.200000
-        - ad949c54900627f909dfe7aed8d8df81edd01e39 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.666667; reason_purity: 0.666667
         - d1403493a864f2b968ada5bf210b725970f9bc50 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - d8139430ffe4c05fca486780c067406f0813c2d9 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.333333; reason_purity: 0.166667
     - repo_url: https://github.com/swisskyrepo/PayloadsAllTheThings.git
       override_merge_shas:
         - 27768783ff2b1e87788b5d008ea9cbdf6227a450 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -1178,29 +1195,22 @@ playbook:
       override_merge_shas:
         - 046bbdfbd43eb042dc0ce8ff4444ab7d68eedbd3 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 05642a3e178dafdb07a77109efca7c22de417b7b # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - bb91f53641f258be6331813ad4c12182179d8d51 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
+        - 1dbdd6b720cdec8b34cf13a528ea47f943bcd866 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/tailwindlabs/tailwindcss.git
       override_merge_shas:
         - 290bafd2d2426caaac1385344e7b05cb5340f53b # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 756ad233b85fd6f16828b8a69ae62499da2233cf # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.666667; reason_purity: 0.666667
         - 7e7b6d9166459978f5b5390fc5c14177fc7ab484 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - cc968d179115d13f862c36a92a997b6ddf205f15 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.963636; reason_purity: 0.963636
         - cf77601bcfb733dace932bcc35a5d7aacc1984e9 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - de6110f25801f369acfc0fc7b2918620147269ef # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - f36559fea133e24ba0da2287a118cf2c34238f37 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
         - f69e02cf2fd240a6e4f3e7a7dcdee3dc4399e0a3 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/tauri-apps/tauri.git
       override_merge_shas:
         - 4c9c64c42950e79bf5af53b752c21a4fc892b285 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 88cd6baa9dca565fea665a37f7ccc6fb1c135a49 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.111111; reason_purity: 0.010101
         - e550db5637e66fe82956ec515cf2280cf6cf0872 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/tensorflow/models.git
       override_merge_shas:
         - 2022f5a78effabf59fa0b2a0ed799708323826c3 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 5329de233373f2760b0c2e6e1c4dfc4316113ab5 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.807692; reason_purity: 0.807692
-        - 5798262bc1be122cd23d7728ebb60baa7be33584 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.500000; reason_purity: 0.500000
         - 657dcda5da43fc953944681154de1dad642361d3 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - f47f76822affc994355806dc2b192cfbf0757440 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
     - repo_url: https://github.com/tensorflow/tensorflow.git
       override_merge_shas:
         - 091f0bd0b82ba0b6b4da1b4fead6627d38436666 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -1211,12 +1221,9 @@ playbook:
         - 4215831207e35adebe0400e3e87ff13a05c754ba # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 54c829b94cd51fc97c565e846fe49682aaf502e8 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 5a32c7df985159e51a20cd3e635e66cc604d044c # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 5a532a183b952b59c4f4f2b93e5fba05c6359333 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.232558; reason_purity: 0.036545
         - 6a6716140af5847a6be3a649286010368e4c2114 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 8337bcd922ba3d49c7db947c766a7de71f5d0701 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 87c2146857ea652e51106c3d6d4348e88da955d7 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.333333; reason_purity: 0.333333
         - 94a3a182af8751fb68df82e4f784363822e7b301 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - be81e74bb1f21b52c71fab645d189486225480f5 # subdataset: rename; reason: CONFLICT (rename/rename); subdataset_purity: 0.250000; reason_purity: 0.250000
         - cba5a0336f658d67a5e23f4d9fbbada7eccdae56 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - da41c02d285c2328ca81eea2ca4d12c892fc33dc # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - e7acbbd8ec2f8e87336e346adcd1798b008cb05e # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -1225,7 +1232,6 @@ playbook:
         - ffe7315012e8ece459aacf07611820452d7478fe # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/thedotmack/claude-mem.git
       override_merge_shas:
-        - 108c5c65a11efb65be400075d401d04ef3520314 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 306f636534de5abca0e5703980858c9b3ada8d7e # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 1.000000; reason_purity: 0.111111
         - 426fbdd38dcde46da073f44121d10e186a612058 # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 1.000000; reason_purity: 0.111111
     - repo_url: https://github.com/torvalds/linux.git
@@ -1243,7 +1249,11 @@ playbook:
         - 0daba17de771388a004148a357f7c63d648b0b3b # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 13150742b09e720fdf021de14cd2b98b37415a89 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 13b2eda64d14d0a0c15c092664c7351ea58ea851 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 2144381da478cc4aa3a29ee29b0c5e6ddaaced14 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
+        - 141d3b1daacd11bdbd6fa74c2b163093e10d17ee # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 142f2101a86ade2d6c9dfbedf82e1b5b31c8fce6 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 1459143386c5d868c87903b8d433a52cffcf3e66 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 16314874b12b451bd5a1df86bcb69745eb487502 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
+        - 16477cdfefdb494235a675cc80563d736991d833 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 3f6eec9969d24f91a3909d51e86e007ca5efd4c4 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 6aeadf7896bff4ca230702daba8788455e6b866e # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 707df298cbde200b939c70be2577b20775fe3345 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -1252,10 +1262,7 @@ playbook:
         - 7e3d2c8210e67ebff472a0b371bb0efb4236ef52 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 880bcd4a8363f24375027f9ded4670960dcfa70a # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 8b35ad6232c462b02e397e87ce702bcddd4ba543 # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - aa486552a110fd6e625bb66b7edf0e0df7389a1a # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
         - e3d2f927f788adcdabc42f8a1616f6cc56c53bbe # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - e758936e02700ff88a0b08b722a3847b95283ef2 # subdataset: rename; reason: CONFLICT (rename/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
-        - f19693a17c6705e197eb24d4618060eaac1b535c # subdataset: rename; reason: CONFLICT (directory rename suggested); subdataset_purity: 0.500000; reason_purity: 0.500000
     - repo_url: https://github.com/trimstray/the-book-of-secret-knowledge.git
       override_merge_shas:
         - 3951433d8e5e0167aa241c994d9fcb273a21687c # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -1265,7 +1272,6 @@ playbook:
         - 1a781a707e0785a1abd079a9c29628b0d8d1867d # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 1.000000; reason_purity: 0.500000
         - 1e6d386b8df2d7235b23a96ddd0489c1ab2650dc # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 1.000000; reason_purity: 0.500000
         - 22963d73467a604b845dbebc03c9b8fa16ba2e23 # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 1.000000; reason_purity: 0.500000
-        - 2fd192968dadc0f8d1d22a6f48c208aacd79e71f # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.916667; reason_purity: 0.916667
         - 31c1eba51bf3f5a988e7bef9da88372e673c30c2 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 3285f4c3062f4a56eaed2461a3128a2e6a3ba9cc # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 3db1b902c8a5905a382a572c7b54776b10ca2e6b # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
@@ -1284,7 +1290,6 @@ playbook:
       override_merge_shas:
         - 0d89231caa3f4a34a7c79e9e0a012fa6f2de50df # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 0f8dc4b5c24fb09a4bf545b271fc04890700d39a # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 164bd518a1c05bfc5c255501e8c9783c23c1c4c1 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/ventoy/Ventoy.git
       override_merge_shas:
         - 260a3269b71db3e026ddbbcfddc884fbc3104d70 # subdataset: content; reason: CONFLICT (binary); subdataset_purity: 1.000000; reason_purity: 0.500000
@@ -1293,21 +1298,17 @@ playbook:
       override_merge_shas:
         - 060480f21230823d812a9bfe963e2cb418815420 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 13a51e0a750353ed3d33fe5089135bdb1206d2bd # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 18f8ab392ae2a93140df2545f537c544c1b88241 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/vinta/awesome-python.git
       override_merge_shas:
         - 01aabaad1717f11b14992766b2127dc75bab12f5 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 0b812de3182310a543605094aae3cbf4320d6e7e # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 156082a0c80b368fdc4ac2d6247f320ecc370c4b # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/vitejs/vite.git
       override_merge_shas:
         - 0ae0c16545e5f158d49baad7e9d41892be62d033 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 0e4553b03b555f1ab628656c7018919c74b17224 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 0f90088df1719261c222d7342707da264fdb1643 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/vuejs/vue.git
       override_merge_shas:
         - 0fd43c9653b38bdd8fa81752ec4ce421bfc38c3f # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - 270b0ac021ee5bfff6b2ed1eacaf91a09f2a9d5e # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.500000; reason_purity: 0.500000
         - 6fe07ebf5ab3fea1860c59fe7cdd2ec1b760f9b0 # subdataset: content; reason: CONFLICT (contents); subdataset_purity: 1.000000; reason_purity: 1.000000
     - repo_url: https://github.com/x1xhlol/system-prompts-and-models-of-ai-tools.git
       override_merge_shas:
@@ -1338,5 +1339,4 @@ playbook:
       override_merge_shas:
         - 4c2f8406c7aaffc54a620679e0410aea69562c01 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
         - 5491398a64c70d04fb89fa5b791af0d9f93c0d15 # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
-        - b9fdfd60f09813fbf0732b7db453e0dd69e68ecc # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 0.666667; reason_purity: 0.666667
         - d8dbbf1c053d42d5eab3b3002417d915a4ce0d4b # subdataset: modify/delete; reason: CONFLICT (modify/delete); subdataset_purity: 1.000000; reason_purity: 1.000000
