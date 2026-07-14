@@ -698,6 +698,131 @@
             "version": "13.0.2"
           }
         }
+      },
+      "panel-8": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "WITH prepared_data AS (\n    -- 1. Gather distinct conflict types per key\n    SELECT \n        key, \n        logical_conflict.type::String AS conflict_type\n    FROM \"default\".\"redis_json\"\n    ARRAY JOIN content.merge_result.logical_conflicts::Array(JSON) AS logical_conflict\n    WHERE key LIKE 'info:conflict:%' \n      AND conflict_type IN (\n          'CONFLICT (contents)',\n          'CONFLICT (binary)',\n          'CONFLICT (modify/delete)',\n          'CONFLICT (directory rename suggested)',\n          'CONFLICT (rename/delete)',\n          'CONFLICT (rename/rename)',\n          'CONFLICT(directory rename unclear split)'\n      )\n    GROUP BY key, conflict_type\n),\nmatrix_counts AS (\n    -- 2. Count overlapping occurrences between type pairs\n    SELECT \n        a.conflict_type AS type_x,\n        b.conflict_type AS type_y,\n        count(DISTINCT a.key) AS common_keys_count\n    FROM prepared_data AS a\n    INNER JOIN prepared_data AS b ON a.key = b.key\n    GROUP BY type_x, type_y\n),\nmatrix_with_baselines AS (\n    -- 3. Find the centerline value (where x == y) for each row 'type_x'\n    SELECT \n        type_x,\n        type_y,\n        common_keys_count,\n        maxIf(common_keys_count, type_x = type_y) OVER (PARTITION BY type_x) AS centerline_cases\n    FROM matrix_counts\n)\n-- 4. Pivot into a perfectly ordered visual percentage matrix\nSELECT \n    type_x,\n    \n    -- X-AXIS columns in your exact specified order\n    round((sumIf(common_keys_count, type_y = 'CONFLICT (contents)') / centerline_cases) * 100, 2) AS `contents_%`,\n    round((sumIf(common_keys_count, type_y = 'CONFLICT (binary)') / centerline_cases) * 100, 2) AS `binary_%`,\n    round((sumIf(common_keys_count, type_y = 'CONFLICT (modify/delete)') / centerline_cases) * 100, 2) AS `modify_delete_%`,\n    round((sumIf(common_keys_count, type_y = 'CONFLICT (directory rename suggested)') / centerline_cases) * 100, 2) AS `dir_rename_suggested_%`,\n    round((sumIf(common_keys_count, type_y = 'CONFLICT (rename/delete)') / centerline_cases) * 100, 2) AS `rename_delete_%`,\n    round((sumIf(common_keys_count, type_y = 'CONFLICT (rename/rename)') / centerline_cases) * 100, 2) AS `rename_rename_%`,\n    round((sumIf(common_keys_count, type_y = 'CONFLICT(directory rename unclear split)') / centerline_cases) * 100, 2) AS `dir_rename_unclear_%`\nFROM matrix_with_baselines\nGROUP BY type_x, centerline_cases\n-- Y-AXIS ordered identically using indexOf\nORDER BY indexOf([\n    'CONFLICT (contents)',\n    'CONFLICT (binary)',\n    'CONFLICT (modify/delete)',\n    'CONFLICT (directory rename suggested)',\n    'CONFLICT (rename/delete)',\n    'CONFLICT (rename/rename)',\n    'CONFLICT(directory rename unclear split)'\n], type_x) ASC"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": [
+                {
+                  "group": "partitionByValues",
+                  "kind": "Transformation",
+                  "spec": {
+                    "options": {
+                      "fields": [
+                        "label"
+                      ],
+                      "keepFields": false,
+                      "naming": {
+                        "asLabels": true
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "description": "",
+          "id": 8,
+          "links": [],
+          "title": "Purity by Percentile",
+          "vizConfig": {
+            "group": "table",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "continuous-magma"
+                  },
+                  "custom": {
+                    "align": "auto",
+                    "cellOptions": {
+                      "mode": "basic",
+                      "type": "color-background"
+                    },
+                    "footer": {
+                      "reducers": []
+                    },
+                    "inspect": false
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "type_x",
+                      "scope": "series"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.cellOptions",
+                        "value": {
+                          "type": "auto"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "options": {
+                "cellHeight": "sm",
+                "showHeader": true
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
       }
     },
     "layout": {
@@ -762,6 +887,19 @@
                         "width": 12,
                         "x": 12,
                         "y": 8
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-8"
+                        },
+                        "height": 10,
+                        "width": 24,
+                        "x": 0,
+                        "y": 16
                       }
                     }
                   ]
