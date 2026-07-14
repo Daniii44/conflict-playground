@@ -679,7 +679,11 @@
                 "legend": {
                   "displayMode": "table",
                   "placement": "right",
-                  "showLegend": true
+                  "showLegend": true,
+                  "values": [
+                    "percent",
+                    "value"
+                  ]
                 },
                 "pieType": "pie",
                 "reduceOptions": {
