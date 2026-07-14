@@ -3,6 +3,7 @@
 import argparse
 import os
 import requests
+from typing import Optional
 from loguru import logger
 from redis.commands.json.path import Path
 from common.redis_util import setup_redis_connection
@@ -35,13 +36,26 @@ def positive_int(value: str) -> int:
     return parsed
 
 
-def get_popular_repos(limit: int = 10) -> list[dict]:
+def positive_float(value: str) -> float:
+    try:
+        parsed = float(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("size must be a number") from exc
+    if parsed <= 0:
+        raise argparse.ArgumentTypeError("size must be greater than 0")
+    return parsed
+
+
+def get_popular_repos(limit: int = 10, max_size_gb: Optional[float] = None) -> list[dict]:
     logger.info(f"Fetching up to {limit} popular GitHub repositories")
     url = "https://api.github.com/search/repositories"
     headers = _make_headers()
     filtered_repos = []
     page = 1
     per_page = min(limit, 100)  # GitHub caps per_page at 100
+    max_size_kb = round(max_size_gb * 1024 * 1024) if max_size_gb is not None else None
+    if max_size_kb is not None:
+        logger.info(f"Skipping repositories larger than {max_size_gb:g} GB")
 
     try:
         while len(filtered_repos) < limit:
@@ -63,6 +77,13 @@ def get_popular_repos(limit: int = 10) -> list[dict]:
 
             for repo in items:
                 size_kb = repo.get("size", 0)
+                if max_size_kb is not None and size_kb > max_size_kb:
+                    logger.debug(
+                        f"Skipping {repo.get('full_name')} because size is {size_kb} KB "
+                        f"and maximum is {max_size_kb} KB"
+                    )
+                    continue
+
                 filtered_repos.append({
                     "full_name": repo.get("full_name"),
                     "star_count": repo.get("stargazers_count"),
@@ -95,9 +116,14 @@ def store_repos(repos: list) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Fetch top N popular GitHub repositories into Redis")
     parser.add_argument("--count", type=positive_int, default=100, help="Number of repositories to fetch")
+    parser.add_argument(
+        "--max-size-gb",
+        type=positive_float,
+        help="Skip repositories larger than this size in GB",
+    )
     args = parser.parse_args()
 
-    repos = get_popular_repos(limit=args.count)
+    repos = get_popular_repos(limit=args.count, max_size_gb=args.max_size_gb)
     store_repos(repos)
 
     for idx, repo in enumerate(repos, 1):
