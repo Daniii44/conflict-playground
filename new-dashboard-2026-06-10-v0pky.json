@@ -1834,6 +1834,112 @@
           }
         }
       },
+      "panel-31": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "with tilt_allocation as (\n    SELECT \n        content.subdataset::text as subdataset,\n        replaceRegexpOne(content.conflict_identifier::text, ':([^:]*)$', '-\\\\1') as conflict_identifier\n    FROM \"default\".\"redis_json\"\n    where key like 'dataset:tilt:%'\n), resolutions as (\n    select * from \"default\".\"redis_json\"\n    where startsWith(key, 'resolution')\n)\nselect count(*), subdataset from resolutions resolution\njoin tilt_allocation as tilt_allocation on resolution.key like concat('%',tilt_allocation.conflict_identifier,'%')\ngroup by subdataset"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 31,
+          "links": [],
+          "title": "New panel",
+          "vizConfig": {
+            "group": "gauge",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "fieldMinMax": true,
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              },
+              "options": {
+                "barShape": "flat",
+                "barWidthFactor": 0.5,
+                "effects": {
+                  "barGlow": false,
+                  "centerGlow": false,
+                  "gradient": true
+                },
+                "endpointMarker": "point",
+                "minVizHeight": 75,
+                "minVizWidth": 75,
+                "orientation": "auto",
+                "reduceOptions": {
+                  "calcs": [],
+                  "fields": "",
+                  "values": true
+                },
+                "segmentCount": 1,
+                "segmentSpacing": 0.3,
+                "shape": "gauge",
+                "showThresholdLabels": false,
+                "showThresholdMarkers": false,
+                "sizing": "auto",
+                "sparkline": false,
+                "textMode": "auto"
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
       "panel-4": {
         "kind": "Panel",
         "spec": {
@@ -2136,12 +2242,7 @@
               "options": {
                 "cellHeight": "sm",
                 "showHeader": true,
-                "sortBy": [
-                  {
-                    "desc": false,
-                    "displayName": "repo_name"
-                  }
-                ]
+                "sortBy": []
               }
             },
             "version": "13.0.2"
@@ -2406,6 +2507,15 @@
                                     "name": "panel-7"
                                   }
                                 }
+                              },
+                              {
+                                "kind": "AutoGridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-31"
+                                  }
+                                }
                               }
                             ],
                             "maxColumnCount": 4,
@@ -2502,7 +2612,7 @@
                     {
                       "kind": "RowsLayoutRow",
                       "spec": {
-                        "collapse": false,
+                        "collapse": true,
                         "layout": {
                           "kind": "AutoGridLayout",
                           "spec": {
@@ -2554,7 +2664,7 @@
                     {
                       "kind": "RowsLayoutRow",
                       "spec": {
-                        "collapse": false,
+                        "collapse": true,
                         "layout": {
                           "kind": "AutoGridLayout",
                           "spec": {
