@@ -22,10 +22,22 @@ BLANK_LINE_DIFF_MODES: tuple[tuple[str, tuple[str, ...]], ...] = (
 )
 DEFAULT_WHITESPACE_MODE = "exact"
 DEFAULT_BLANK_LINE_MODE = "include_blank_lines"
+MAX_DIFF_OUTPUT_CHARS = 100_000
+TRUNCATED_DIFF_SUFFIX = "\n... diff truncated for storage ...\n"
 
 
 def decode_diff_output(output: bytes) -> str:
     return output.decode("utf-8", errors="replace")
+
+
+def truncate_diff_output(output: str, max_chars: int = MAX_DIFF_OUTPUT_CHARS) -> str:
+    if len(output) <= max_chars:
+        return output
+
+    if max_chars <= len(TRUNCATED_DIFF_SUFFIX):
+        return TRUNCATED_DIFF_SUFFIX[:max_chars]
+
+    return output[: max_chars - len(TRUNCATED_DIFF_SUFFIX)] + TRUNCATED_DIFF_SUFFIX
 
 
 class DiffEvaluationAnalysis(EvaluationAnalysis):
@@ -107,7 +119,7 @@ class DiffEvaluationAnalysis(EvaluationAnalysis):
 
         result = capture_git_bytes(*command, check=False)
         if result.returncode == 0:
-            return decode_diff_output(result.stdout), None
+            return truncate_diff_output(decode_diff_output(result.stdout)), None
 
         error = decode_diff_output(result.stderr).strip() or decode_diff_output(result.stdout).strip()
         return None, error

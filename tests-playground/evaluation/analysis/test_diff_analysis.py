@@ -282,6 +282,29 @@ def test_diff_analysis_replaces_invalid_utf8_diff_bytes():
     assert diff == "diff --git a/file b/file\n+\ufffd\n"
 
 
+def test_diff_analysis_truncates_large_diff_output(monkeypatch):
+    with patch("evaluation.analysis.diff_analysis.capture_git_bytes") as diff_capture_git_bytes:
+        monkeypatch.setattr("evaluation.analysis.diff_analysis.MAX_DIFF_OUTPUT_CHARS", 48)
+        diff_capture_git_bytes.return_value = CompletedProcess(
+            args=[],
+            returncode=0,
+            stdout=b"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+            stderr=b"",
+        )
+
+        diff, error = DiffEvaluationAnalysis().diff_tree(
+            "/playground",
+            "HEAD",
+            "actualsha",
+            patch=True,
+        )
+
+    assert error is None
+    assert diff.startswith("0123456789abc")
+    assert diff.endswith("\n... diff truncated for storage ...\n")
+    assert len(diff) == 48
+
+
 def test_diff_analysis_records_missing_playgrounds(monkeypatch):
     monkeypatch.delenv("PLAYGROUNDS", raising=False)
 
