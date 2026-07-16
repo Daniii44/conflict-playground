@@ -12,6 +12,13 @@ from hooks_common import HookWorker, HookTask
 
 OPENCODE_ERROR_EXCERPT_LIMIT = 4000
 OPENCODE_RUN_TIMEOUT_SECONDS = 15 * 60
+DEFAULT_OPENCODE_MODEL = "ollama/qwen3-coder-next:latest"
+SUPPORTED_OPENCODE_MODELS = {
+    "qwen3-coder-next:latest": "ollama/qwen3-coder-next:latest",
+    "ollama/qwen3-coder-next:latest": "ollama/qwen3-coder-next:latest",
+    "qwen3.6:35b-mlx": "ollama/qwen3.6:35b-mlx",
+    "ollama/qwen3.6:35b-mlx": "ollama/qwen3.6:35b-mlx",
+}
 
 
 def command_error_excerpt(result: subprocess.CompletedProcess[str]) -> str:
@@ -85,6 +92,19 @@ class OpenCodeWorker(HookWorker):
             "commit",
             "--no-edit",
         )
+
+    def selected_model(self) -> str:
+        configured_model = os.environ.get("OPENCODE_MODEL", "").strip()
+        if not configured_model:
+            return DEFAULT_OPENCODE_MODEL
+
+        selected_model = SUPPORTED_OPENCODE_MODELS.get(configured_model)
+        if selected_model is None:
+            supported_models = ", ".join(sorted({model for model in SUPPORTED_OPENCODE_MODELS if not model.startswith("ollama/")}))
+            raise ValueError(
+                f"Unsupported OPENCODE_MODEL {configured_model!r}. Supported models: {supported_models}"
+            )
+        return selected_model
 
     def run_opencode_json(self, playground_path: Path, *args: str) -> tuple[Any | None, str | None]:
         with tempfile.NamedTemporaryFile(mode='w+') as tf:
@@ -179,10 +199,17 @@ class OpenCodeWorker(HookWorker):
             return self.result(f"Error: Playground '{task.playground}' is not in a git merge state")
 
         try:
+            selected_model = self.selected_model()
+        except ValueError as error:
+            return self.result(f"Error: {error}")
+
+        try:
             opencode_result = subprocess.run(
                 [
                     self.opencode_executable,
                     "run",
+                    "--model",
+                    selected_model,
                     "--command",
                     "resolve-conflicts",
                     "--dir",

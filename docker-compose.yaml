@@ -52,6 +52,8 @@ services:
       dockerfile: src-hooks/opencode/Dockerfile
     image: conflict-playground-hook:opencode
     container_name: conflict-playground-hook-opencode
+    environment:
+      OPENCODE_MODEL: ${OPENCODE_MODEL:-}
     networks:
       - bridge
     <<: *hook-volumes

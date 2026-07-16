@@ -10,6 +10,13 @@ volume_type: bind-mount
 #   - manual-cli: Manual resolution using CLI tools
 hook_type: manual-cli
 
+# Ollama model used by the opencode hook.
+# Supported values:
+#   - qwen3-coder-next:latest
+#   - qwen3.6:35b-mlx
+# The hook also accepts these values with an explicit ollama/ prefix.
+opencode_model: qwen3-coder-next:latest
+
 # Path to SmartGit binary
 #smartgit_binary: "/Applications/SmartGit.app/Contents/MacOS/smartgit"
 #smartgit_binary: /mnt/c/Program Files/SmartGit/bin/smartgit.exe

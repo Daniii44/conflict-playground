@@ -23,6 +23,7 @@ load_runtime_config() {
 
     VOLUME_TYPE=$(config_value "volume_type" | tr -d ' ')
     HOOK_TYPE=$(config_value "hook_type" | tr -d ' ')
+    OPENCODE_MODEL=$(strip_quotes "$(config_value "opencode_model")")
     SMARTGIT_BINARY=$(strip_quotes "$(config_value "smartgit_binary")")
     GH_GRAPHQL_TOKEN=$(strip_quotes "$(config_value "gh_graphql_token")")
     EVALUATION_SUMMARY_OLLAMA_MODEL=$(strip_quotes "$(config_value "evaluation_summary_ollama_model")")
@@ -45,8 +46,19 @@ load_runtime_config() {
         exit 1
     fi
 
+    case "${OPENCODE_MODEL:-}" in
+        ""|"qwen3-coder-next:latest"|"ollama/qwen3-coder-next:latest"|"qwen3.6:35b-mlx"|"ollama/qwen3.6:35b-mlx")
+            ;;
+        *)
+            echo "Error: Invalid opencode model '$OPENCODE_MODEL'"
+            echo "Supported opencode models: qwen3-coder-next:latest, qwen3.6:35b-mlx"
+            exit 1
+            ;;
+    esac
+
     export VOLUME_TYPE
     export HOOK_TYPE
+    export OPENCODE_MODEL
     export SMARTGIT_BINARY
     export GH_GRAPHQL_TOKEN
     export EVALUATION_SUMMARY_OLLAMA_MODEL
