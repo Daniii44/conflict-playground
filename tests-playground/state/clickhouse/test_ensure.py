@@ -46,3 +46,9 @@ def test_overview_queries_reference_base_view():
 
     assert "FROM default.redis_json_overview_base" in chart_query
     assert "FROM default.redis_json_overview_base" in table_query
+
+
+def test_overview_queries_are_loaded_from_assets():
+    assert clickhouse_schema.load_sql_asset("overview-base.sql") == clickhouse_schema.overview_base_view_query()
+    assert clickhouse_schema.load_sql_asset("overview-chart.sql") == clickhouse_schema.overview_chart_view_query()
+    assert clickhouse_schema.load_sql_asset("overview-table.sql") == clickhouse_schema.overview_table_view_query()

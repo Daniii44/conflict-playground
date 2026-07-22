@@ -1,3 +1,41 @@
+CREATE VIEW IF NOT EXISTS default.redis_json_overview_table AS
 SELECT
-    *
-FROM "default"."redis_json_overview_table"
+    repo,
+    merge_hash,
+    latest_conflict_timestamp AS conflict_timestamp,
+    subdataset,
+    llm,
+    group_label AS label,
+    total_resolutions,
+    total_evaluations,
+    'Show Details' AS details,
+    proof_is_exact_match,
+    proof_is_exact_match_normalized,
+    contradiction_agent_error,
+    contradiction_agent_timeout,
+    contradiction_is_incomplete_merge,
+    contradiction_proposed_compilation_failed,
+    contradiction_proposed_test_failed,
+    contradiction_canonical_resolution_differs,
+    contradiction_semicanonical_contradiction,
+    contradiction_semicanonical_dilution,
+    contradiction_ghost_resolution,
+    contradiction_noncanonical_fallback,
+    resolution_status
+FROM default.redis_json_overview_base
+ORDER BY
+    proof_is_exact_match DESC,
+    proof_is_exact_match_normalized DESC,
+    contradiction_agent_error DESC,
+    contradiction_agent_timeout DESC,
+    contradiction_is_incomplete_merge DESC,
+    contradiction_proposed_compilation_failed DESC,
+    contradiction_proposed_test_failed DESC,
+    contradiction_canonical_resolution_differs DESC,
+    contradiction_semicanonical_contradiction DESC,
+    contradiction_semicanonical_dilution DESC,
+    contradiction_ghost_resolution DESC,
+    contradiction_noncanonical_fallback DESC,
+    repo,
+    merge_hash,
+    label
