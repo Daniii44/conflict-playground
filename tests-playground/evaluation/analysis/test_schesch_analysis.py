@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from common.active_playground_models import Configuration
 from common.evaluation_models import EvaluationInput, ScheschResolutionResult
-from common.schesch import ScheschResolutionRunner
+from common.schesch import ScheschResolutionRunner, reset_playground
 from common.resolution_models import ConflictResolution, ProposedResolution
 from evaluation.analysis.schesch_analysis import ScheschEvaluationAnalysis
 
@@ -149,6 +149,26 @@ def test_schesch_runner_streams_command_output_when_enabled(monkeypatch, tmp_pat
     assert "capture_output" not in run.call_args.kwargs
 
 
+def test_reset_playground_resets_in_place_to_target_ref(tmp_path):
+    repo_path = tmp_path / "repo"
+    calls = []
+
+    def fake_capture_git(*args, **kwargs):
+        calls.append((args, kwargs))
+        return CompletedProcess(args=list(args), returncode=0, stdout="", stderr="")
+
+    with patch("common.schesch.capture_git", side_effect=fake_capture_git):
+        assert reset_playground(repo_path, "target-sha") is None
+
+    assert calls == [
+        (("-C", str(repo_path), "reset", "--hard"), {"check": False}),
+        (("-C", str(repo_path), "clean", "-fdx"), {"check": False}),
+        (("-C", str(repo_path), "checkout", "--detach", "--force", "target-sha"), {"check": False}),
+        (("-C", str(repo_path), "reset", "--hard", "target-sha"), {"check": False}),
+        (("-C", str(repo_path), "clean", "-fdx"), {"check": False}),
+    ]
+
+
 def test_schesch_analysis_runs_proposed_resolution_only(monkeypatch):
     monkeypatch.setenv("PLAYGROUNDS", "/playgrounds")
     analysis = ScheschEvaluationAnalysis(timeout_seconds=900)
@@ -156,7 +176,7 @@ def test_schesch_analysis_runs_proposed_resolution_only(monkeypatch):
     with (
         patch("evaluation.analysis.schesch_analysis.read_head_commit", return_value=("proposed-sha", None)),
         patch.object(analysis, "run_tests_for_ref") as run_tests,
-        patch.object(analysis, "prepare_worktree", return_value=None) as prepare_worktree,
+        patch("evaluation.analysis.schesch_analysis.reset_playground", return_value=None) as reset_playground,
     ):
         run_tests.side_effect = [
             ScheschResolutionResult(label="proposed", commit_sha="proposed-sha", passed=True),
@@ -171,7 +191,7 @@ def test_schesch_analysis_runs_proposed_resolution_only(monkeypatch):
     assert [call.args for call in run_tests.call_args_list] == [
         (Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"), "HEAD", "proposed", "proposed-sha"),
     ]
-    prepare_worktree.assert_called_once_with(
+    reset_playground.assert_called_once_with(
         Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"),
         "proposed-sha",
     )

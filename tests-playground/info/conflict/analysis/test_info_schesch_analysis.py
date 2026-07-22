@@ -16,7 +16,7 @@ def analysis_input() -> AnalysisInput:
 
 def test_schesch_info_analysis_runs_human_and_parent_refs(monkeypatch, tmp_path):
     analysis = ScheschInfoAnalysis(timeout_seconds=900)
-    worktree_path = tmp_path / "owner" / "repo.git-merge-sha"
+    playground_path = tmp_path / "owner" / "repo.git-merge-sha"
     run_calls = []
     monkeypatch.setenv("PLAYGROUNDS", str(tmp_path))
 
@@ -43,12 +43,12 @@ def test_schesch_info_analysis_runs_human_and_parent_refs(monkeypatch, tmp_path)
     assert conflict.human.label == "human"
     assert [parent.label for parent in conflict.parents] == ["parent-1", "parent-2"]
     assert run_calls == [
-        (worktree_path, "merge-sha", "human", "merge-sha"),
-        (worktree_path, "left-sha", "parent-1", "left-sha"),
-        (worktree_path, "right-sha", "parent-2", "right-sha"),
+        (playground_path, "merge-sha", "human", "merge-sha"),
+        (playground_path, "left-sha", "parent-1", "left-sha"),
+        (playground_path, "right-sha", "parent-2", "right-sha"),
     ]
     setup_playground.assert_called_once_with("owner/repo.git", "merge-sha")
-    rmtree.assert_called_once_with(worktree_path, ignore_errors=True)
+    rmtree.assert_called_once_with(playground_path, ignore_errors=True)
 
 
 def test_schesch_info_analysis_records_parent_count_error():

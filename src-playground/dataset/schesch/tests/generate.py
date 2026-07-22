@@ -17,6 +17,7 @@ from pydantic import BaseModel, Field
 from common.git_util import capture_git, git_env
 from common.merge_tree import ConflictType
 from common.redis_util import setup_redis_connection
+from common.schesch import reset_playground
 from dataset.schesch.merge_lookup import resolve_unique_merge_sha_from_parents
 from info.conflict.analysis.core_analysis import InfoConflictCore
 from playground.setup import setup_playground
@@ -97,7 +98,7 @@ def prompt_for_file(conflict_info: InfoConflictCore, file_path: str) -> str:
         f"- Repository: {conflict_info.repo}\n"
         f"- Merge commit containing the human sample solution: {conflict_info.merge_commit_oid}\n"
         f"- Conflicting file to focus on: {file_path}\n"
-        "- The worktree is checked out at the human sample solution. Treat the current contents "
+        "- The playground is reset to the human sample solution. Treat the current contents "
         "of the target file as the reference behavior.\n"
         "- Only generate or update tests needed to exercise that resolved behavior. Do not edit "
         "production source files unless a test framework requires a minimal fixture/configuration change.\n"
@@ -106,18 +107,6 @@ def prompt_for_file(conflict_info: InfoConflictCore, file_path: str) -> str:
         "Conflict metadata for this file:\n"
         f"{conflict_json}\n"
     )
-
-
-def prepare_human_solution_worktree(playground_path: Path, merge_sha: str) -> None:
-    commands = (
-        ("reset", "--hard"),
-        ("clean", "-fdx"),
-        ("checkout", "--force", "-B", "schesch-test-generation", merge_sha),
-        ("reset", "--hard"),
-        ("clean", "-fdx"),
-    )
-    for command in commands:
-        capture_git("-C", str(playground_path), *command)
 
 
 def run_opencode_for_file(
@@ -266,9 +255,11 @@ def generate_tests(
         playgrounds = Path(os.environ.get("PLAYGROUNDS", str(Path.home() / "playgrounds")))
         playground_path = playgrounds / playground_name
         logger.info("Created playground {} at {}", playground_name, playground_path)
-        logger.info("Checking out human sample solution {}", merge_sha)
-        prepare_human_solution_worktree(playground_path, merge_sha)
-        logger.info("Prepared human sample solution worktree")
+        logger.info("Resetting playground to human sample solution {}", merge_sha)
+        reset_error = reset_playground(playground_path, merge_sha)
+        if reset_error is not None:
+            raise RuntimeError(f"Could not reset playground to {merge_sha}: {reset_error}")
+        logger.info("Prepared playground at human sample solution")
 
         for index, file_path in enumerate(paths, start=1):
             logger.info("Running opencode for file {}/{}: {}", index, len(paths), file_path)

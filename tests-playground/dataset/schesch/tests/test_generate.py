@@ -119,7 +119,7 @@ def test_generate_tests_stores_error_record_when_opencode_fails(monkeypatch, tmp
         "dataset.schesch.tests.generate.setup_playground",
         lambda repo, merge: "owner/repo.git-merge-sha",
     )
-    monkeypatch.setattr("dataset.schesch.tests.generate.prepare_human_solution_worktree", lambda path, merge: None)
+    monkeypatch.setattr("dataset.schesch.tests.generate.reset_playground", lambda path, merge: None)
     monkeypatch.setattr(
         "dataset.schesch.tests.generate.run_opencode_for_file",
         lambda path, executable, prompt, timeout: (1, "bad output", "opencode exited with code 1", 0.5),

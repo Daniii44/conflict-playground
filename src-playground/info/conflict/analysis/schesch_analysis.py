@@ -81,18 +81,18 @@ class ScheschInfoAnalysis(Analysis, ScheschResolutionRunner):
                 f"Expected exactly 2 parents, found {len(parent_shas)}",
             )
 
-        worktree_path = self.playground_path(analysis_input)
+        playground_path = self.playground_path(analysis_input)
         try:
             setup_playground(analysis_input.git_repo_name, analysis_input.merge_commit_oid)
 
             human = self.run_tests_for_ref(
-                worktree_path,
+                playground_path,
                 analysis_input.merge_commit_oid,
                 "human",
                 analysis_input.merge_commit_oid,
             )
             parent_results = [
-                self.run_tests_for_ref(worktree_path, parent_sha, f"parent-{index}", parent_sha)
+                self.run_tests_for_ref(playground_path, parent_sha, f"parent-{index}", parent_sha)
                 for index, parent_sha in enumerate(parent_shas, start=1)
             ]
 
@@ -111,4 +111,4 @@ class ScheschInfoAnalysis(Analysis, ScheschResolutionRunner):
         except (RuntimeError, subprocess.CalledProcessError) as error:
             return self.failed(analysis_input, parent_shas, f"Could not setup analysis playground: {error}")
         finally:
-            shutil.rmtree(worktree_path, ignore_errors=True)
+            shutil.rmtree(playground_path, ignore_errors=True)

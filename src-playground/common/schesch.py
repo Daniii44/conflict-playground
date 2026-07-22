@@ -37,8 +37,8 @@ def command_output_text(output: str | bytes | None) -> str:
     return output
 
 
-def read_head_commit(repo_path: str) -> tuple[str | None, str | None]:
-    head_result = capture_git("-C", repo_path, "rev-parse", "HEAD", check=False)
+def read_head_commit(playground_path: str) -> tuple[str | None, str | None]:
+    head_result = capture_git("-C", playground_path, "rev-parse", "HEAD", check=False)
     if head_result.returncode == 0:
         return head_result.stdout.strip(), None
 
@@ -46,15 +46,29 @@ def read_head_commit(repo_path: str) -> tuple[str | None, str | None]:
     return None, f"Could not read resolved HEAD: {error}"
 
 
+def reset_playground(playground_path: Path, ref: str) -> str | None:
+    for command in (
+        ("reset", "--hard"),
+        ("clean", "-fdx"),
+        ("checkout", "--detach", "--force", ref),
+        ("reset", "--hard", ref),
+        ("clean", "-fdx"),
+    ):
+        result = capture_git("-C", str(playground_path), *command, check=False)
+        if result.returncode != 0:
+            return result.stderr.strip() or result.stdout.strip()
+    return None
+
+
 class ScheschResolutionRunner:
     def __init__(self, timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS, stream_output: bool = False):
         self.timeout_seconds = timeout_seconds
         self.stream_output = stream_output
 
-    def detect_build_commands(self, repo_path: Path) -> BuildCommands | str:
-        gradlew = repo_path / "gradlew"
-        pom = repo_path / "pom.xml"
-        mvnw = repo_path / "mvnw"
+    def detect_build_commands(self, playground_path: Path) -> BuildCommands | str:
+        gradlew = playground_path / "gradlew"
+        pom = playground_path / "pom.xml"
+        mvnw = playground_path / "mvnw"
 
         if gradlew.is_file():
             return BuildCommands("gradle", ["./gradlew", "clean", "testClasses"], ["./gradlew", "clean", "test"])
@@ -76,7 +90,7 @@ class ScheschResolutionRunner:
 
     def run_command(
         self,
-        repo_path: Path,
+        playground_path: Path,
         command: list[str],
         java_home: str,
         deadline: float,
@@ -97,7 +111,7 @@ class ScheschResolutionRunner:
         start = time.monotonic()
         try:
             run_kwargs = {
-                "cwd": repo_path,
+                "cwd": playground_path,
                 "env": env,
                 "text": True,
                 "timeout": remaining_seconds,
@@ -126,39 +140,26 @@ class ScheschResolutionRunner:
             output_tail=output_tail(f"{command_output_text(result.stdout)}{command_output_text(result.stderr)}"),
         )
 
-    def prepare_worktree(self, repo_path: Path, ref: str) -> str | None:
-        for command in (
-            ("reset", "--hard"),
-            ("clean", "-fdx"),
-            ("checkout", "--force", ref),
-            ("reset", "--hard"),
-            ("clean", "-fdx"),
-        ):
-            result = capture_git("-C", str(repo_path), *command, check=False)
-            if result.returncode != 0:
-                return result.stderr.strip() or result.stdout.strip()
-        return None
-
     def run_tests_for_ref(
         self,
-        repo_path: Path,
+        playground_path: Path,
         ref: str,
         label: str,
         commit_sha: str | None = None,
     ) -> ScheschResolutionResult:
-        checkout_error = self.prepare_worktree(repo_path, ref)
+        checkout_error = reset_playground(playground_path, ref)
         record = ScheschResolutionResult(label=label, commit_sha=commit_sha)
         if checkout_error is not None:
             record.error = f"Could not checkout {label} resolution: {checkout_error}"
             return record
 
-        head_sha, head_error = read_head_commit(str(repo_path))
+        head_sha, head_error = read_head_commit(str(playground_path))
         record.commit_sha = commit_sha or head_sha
         if head_error is not None:
             record.error = head_error
             return record
 
-        build_commands = self.detect_build_commands(repo_path)
+        build_commands = self.detect_build_commands(playground_path)
         if isinstance(build_commands, str):
             record.error = build_commands
             record.compilation_failed = True
@@ -179,7 +180,7 @@ class ScheschResolutionRunner:
             record.attempts.append(attempt)
 
             attempt.compile_result = self.run_command(
-                repo_path,
+                playground_path,
                 build_commands.compile_command,
                 java_home,
                 deadline,
@@ -192,7 +193,7 @@ class ScheschResolutionRunner:
 
             saw_successful_compilation = True
             attempt.test_result = self.run_command(
-                repo_path,
+                playground_path,
                 build_commands.test_command,
                 java_home,
                 deadline,

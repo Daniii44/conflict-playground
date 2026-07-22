@@ -5,7 +5,7 @@ from common.evaluation_models import (
     EvaluationInput,
     MergeScheschEvaluation,
 )
-from common.schesch import DEFAULT_TIMEOUT_SECONDS, ScheschResolutionRunner
+from common.schesch import DEFAULT_TIMEOUT_SECONDS, ScheschResolutionRunner, reset_playground
 from evaluation.analysis.common import (
     EvaluationAnalysis,
     actual_resolution_sha_from_playground_name,
@@ -66,7 +66,7 @@ class ScheschEvaluationAnalysis(EvaluationAnalysis, ScheschResolutionRunner):
 
         restore_error = None
         if proposed_commit_sha is not None:
-            restore_error = self.prepare_worktree(playground_path, proposed_commit_sha)
+            restore_error = reset_playground(playground_path, proposed_commit_sha)
 
         error = head_error
         if restore_error is not None:
