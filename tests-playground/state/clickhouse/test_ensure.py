@@ -66,3 +66,27 @@ def test_sql_loader_prefers_container_path(tmp_path, monkeypatch):
     monkeypatch.setattr(clickhouse_schema, "ASSETS_SQL_DIR", workspace_dir)
 
     assert clickhouse_schema.load_sql_asset("overview-base.sql") == "container"
+
+
+def test_run_query_posts_sql_in_body(monkeypatch):
+    captured = {}
+
+    class FakeResponse:
+        def raise_for_status(self):
+            return None
+
+    def fake_post(url, *, data, auth, headers):
+        captured["url"] = url
+        captured["data"] = data
+        captured["auth"] = auth
+        captured["headers"] = headers
+        return FakeResponse()
+
+    monkeypatch.setattr(clickhouse_schema.requests, "post", fake_post)
+
+    clickhouse_schema.run_query("SELECT 1")
+
+    assert captured["url"] == "http://clickhouse:8123"
+    assert captured["data"] == b"SELECT 1"
+    assert captured["auth"] == ("default", "dev-dynha9-fenvYc-daqmeh")
+    assert captured["headers"]["Content-Type"] == "text/plain; charset=utf-8"

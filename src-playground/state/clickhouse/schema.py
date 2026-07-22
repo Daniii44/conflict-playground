@@ -25,8 +25,10 @@ CONTAINER_SQL_DIR = Path("/root/sql")
 
 def run_query(query: str) -> requests.Response:
     response = requests.post(
-        f"{CLICKHOUSE_URL}/?query={query}",
+        CLICKHOUSE_URL,
+        data=query.encode("utf-8"),
         auth=(CLICKHOUSE_USER, CLICKHOUSE_PASSWORD),
+        headers={"Content-Type": "text/plain; charset=utf-8"},
     )
     response.raise_for_status()
     return response
