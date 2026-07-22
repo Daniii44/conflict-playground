@@ -52,3 +52,17 @@ def test_overview_queries_are_loaded_from_assets():
     assert clickhouse_schema.load_sql_asset("overview-base.sql") == clickhouse_schema.overview_base_view_query()
     assert clickhouse_schema.load_sql_asset("overview-chart.sql") == clickhouse_schema.overview_chart_view_query()
     assert clickhouse_schema.load_sql_asset("overview-table.sql") == clickhouse_schema.overview_table_view_query()
+
+
+def test_sql_loader_prefers_container_path(tmp_path, monkeypatch):
+    container_dir = tmp_path / "root-sql"
+    workspace_dir = tmp_path / "workspace-sql"
+    container_dir.mkdir()
+    workspace_dir.mkdir()
+    (container_dir / "overview-base.sql").write_text("container", encoding="utf-8")
+    (workspace_dir / "overview-base.sql").write_text("workspace", encoding="utf-8")
+
+    monkeypatch.setattr(clickhouse_schema, "CONTAINER_SQL_DIR", container_dir)
+    monkeypatch.setattr(clickhouse_schema, "ASSETS_SQL_DIR", workspace_dir)
+
+    assert clickhouse_schema.load_sql_asset("overview-base.sql") == "container"

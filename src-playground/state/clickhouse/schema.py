@@ -20,6 +20,7 @@ ASSETS_SQL_DIR = (
     / "playground"
     / "sql"
 )
+CONTAINER_SQL_DIR = Path("/root/sql")
 
 
 def run_query(query: str) -> requests.Response:
@@ -32,7 +33,13 @@ def run_query(query: str) -> requests.Response:
 
 
 def load_sql_asset(filename: str) -> str:
-    return (ASSETS_SQL_DIR / filename).read_text(encoding="utf-8")
+    for base_dir in (CONTAINER_SQL_DIR, ASSETS_SQL_DIR):
+        path = base_dir / filename
+        if path.is_file():
+            return path.read_text(encoding="utf-8")
+    raise FileNotFoundError(
+        f"Could not find SQL asset {filename!r} in {CONTAINER_SQL_DIR} or {ASSETS_SQL_DIR}"
+    )
 
 
 def create_table_query() -> str:
