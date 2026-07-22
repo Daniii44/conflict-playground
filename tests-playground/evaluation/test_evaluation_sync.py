@@ -7,9 +7,9 @@ from common.resolution_models import ConflictResolution, ProposedResolution
 from evaluation.sync import (
     analysis_result_exists,
     evaluate_resolution,
+    iter_resolution_keys,
     restored_playground_name_from_resolution_key,
     selected_analysis_names,
-    iter_resolution_keys,
     sync_evaluations,
 )
 from evaluation.analysis.common import evaluation_record_key
@@ -108,7 +108,7 @@ def test_iter_resolution_keys_scans_all_resolution_records():
     ]
 
 
-def test_sync_evaluations_logs_failed_evaluation_as_error():
+def test_sync_evaluations_skips_unsuccessful_resolution():
     resolution_key = "resolution:conflict:owner/repo.git-abc:20260609T120000.000000Z"
     resolution = ConflictResolution(
         configuration=Configuration(
@@ -128,12 +128,10 @@ def test_sync_evaluations_logs_failed_evaluation_as_error():
     ):
         synced = sync_evaluations(analyses=["summary"])
 
-    assert synced == 1
-    logger.error.assert_called_once_with(
-        "Stored failed evaluation at {}: {}",
-        "evaluation:merge:summary:owner/repo.git-abc:20260609T120000.000000Z",
-        "hook failed",
-    )
+    assert synced == 0
+    assert redis.json_api.set_calls == []
+    logger.info.assert_any_call("Skipping unsuccessful resolution {}", resolution_key)
+    logger.error.assert_not_called()
 
 
 class FakeAnalysis:

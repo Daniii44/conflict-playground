@@ -100,6 +100,11 @@ def evaluation_input_for_resolution(
     )
 
 
+def resolution_has_error(resolution: ConflictResolution) -> bool:
+    proposed_resolution = resolution.proposed_resolution
+    return proposed_resolution is not None and proposed_resolution.error is not None
+
+
 def restore_resolution_for_analysis(evaluation_input: EvaluationInput) -> tuple[str | None, bool]:
     proposed_resolution = evaluation_input.resolution.proposed_resolution
     if proposed_resolution is None:
@@ -195,6 +200,10 @@ def sync_evaluations(
             continue
 
         resolution = ConflictResolution.model_validate(resolution_data)
+        if resolution_has_error(resolution):
+            logger.info("Skipping unsuccessful resolution {}", resolution_key)
+            continue
+
         for evaluation_key, evaluation in evaluate_resolution(resolution_key, resolution, pending_analyses):
             store_evaluation(redis, evaluation_key, evaluation)
             evaluation_error = getattr(evaluation, "error", None)
