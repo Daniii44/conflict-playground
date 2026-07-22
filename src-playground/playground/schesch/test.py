@@ -25,8 +25,19 @@ def resolve_playground_root() -> Path:
     return Path(result.stdout.strip())
 
 
+def playground_identifier(playground_path: Path) -> str:
+    playgrounds = os.environ.get("PLAYGROUNDS")
+    if not playgrounds:
+        raise RuntimeError("PLAYGROUNDS environment variable is not set")
+
+    try:
+        return str(playground_path.relative_to(Path(playgrounds)))
+    except ValueError as error:
+        raise RuntimeError(f"Playground path is not located under PLAYGROUNDS: {playground_path}") from error
+
+
 def expected_java_home_for_playground(redis, playground_path: Path) -> tuple[str, str, str]:
-    repo_name, merge_sha = parse_schesch_playground_name(playground_path.name)
+    repo_name, merge_sha = parse_schesch_playground_name(playground_identifier(playground_path))
     key = schesch_info_key(repo_name, merge_sha)
     payload = redis.json().get(key)
     if not payload:

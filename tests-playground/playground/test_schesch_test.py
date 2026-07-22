@@ -31,6 +31,43 @@ class FakeRedis:
 
 
 def test_expected_java_home_for_playground_uses_schesch_info_record():
+    with patch.dict(playground_schesch_test.os.environ, {"PLAYGROUNDS": "/playgrounds"}):
+        redis = FakeRedis(
+            {
+                "info:conflict:schesch:owner/repo.git:merge-sha": {
+                    "human": {"passed": True, "successful_java_home": "/java-17"},
+                    "parents": [
+                        {"passed": True, "successful_java_home": "/java-17"},
+                        {"passed": True, "successful_java_home": "/java-17"},
+                    ],
+                }
+            }
+        )
+
+        assert playground_schesch_test.expected_java_home_for_playground(
+            redis,
+            Path("/playgrounds/owner/repo.git-merge-sha"),
+        ) == ("owner/repo.git", "merge-sha", "/java-17")
+
+
+def test_playground_identifier_preserves_owner_directory():
+    with patch.dict(playground_schesch_test.os.environ, {"PLAYGROUNDS": "/playgrounds"}):
+        assert playground_schesch_test.playground_identifier(
+            Path("/playgrounds/accla/d4m_api_java.git-3d17b93fcaca70344f20d3adcd3bcb71b71ab097")
+        ) == "accla/d4m_api_java.git-3d17b93fcaca70344f20d3adcd3bcb71b71ab097"
+
+
+def test_playground_identifier_rejects_paths_outside_playgrounds():
+    with patch.dict(playground_schesch_test.os.environ, {"PLAYGROUNDS": "/playgrounds"}):
+        try:
+            playground_schesch_test.playground_identifier(Path("/elsewhere/owner/repo.git-merge"))
+        except RuntimeError as error:
+            assert "not located under PLAYGROUNDS" in str(error)
+        else:
+            raise AssertionError("Expected PLAYGROUNDS containment error")
+
+
+def test_run_playground_schesch_test_uses_expected_java_home(monkeypatch):
     redis = FakeRedis(
         {
             "info:conflict:schesch:owner/repo.git:merge-sha": {
@@ -43,14 +80,8 @@ def test_expected_java_home_for_playground_uses_schesch_info_record():
         }
     )
 
-    assert playground_schesch_test.expected_java_home_for_playground(
-        redis,
-        Path("/playgrounds/owner/repo.git-merge-sha"),
-    ) == ("owner/repo.git", "merge-sha", "/java-17")
-
-
-def test_run_playground_schesch_test_uses_expected_java_home(monkeypatch):
     monkeypatch.setenv("JAVA17_HOME", "/java-17")
+    monkeypatch.setenv("PLAYGROUNDS", "/playgrounds")
     with (
         patch.object(
             playground_schesch_test,
