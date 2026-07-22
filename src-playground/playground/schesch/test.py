@@ -30,8 +30,10 @@ def playground_identifier(playground_path: Path) -> str:
     if not playgrounds:
         raise RuntimeError("PLAYGROUNDS environment variable is not set")
 
+    playground_root = Path(playgrounds).resolve(strict=False)
+    resolved_playground_path = playground_path.resolve(strict=False)
     try:
-        return str(playground_path.relative_to(Path(playgrounds)))
+        return str(resolved_playground_path.relative_to(playground_root))
     except ValueError as error:
         raise RuntimeError(f"Playground path is not located under PLAYGROUNDS: {playground_path}") from error
 

@@ -57,6 +57,20 @@ def test_playground_identifier_preserves_owner_directory():
         ) == "accla/d4m_api_java.git-3d17b93fcaca70344f20d3adcd3bcb71b71ab097"
 
 
+def test_playground_identifier_follows_playgrounds_symlink(tmp_path):
+    real_root = tmp_path / "playgrounds-named-volume"
+    real_root.mkdir()
+    symlink_root = tmp_path / "playgrounds"
+    symlink_root.symlink_to(real_root, target_is_directory=True)
+    playground_path = real_root / "accla" / "d4m_api_java.git-3d17b93fcaca70344f20d3adcd3bcb71b71ab097"
+    playground_path.mkdir(parents=True)
+
+    with patch.dict(playground_schesch_test.os.environ, {"PLAYGROUNDS": str(symlink_root)}):
+        assert playground_schesch_test.playground_identifier(playground_path) == (
+            "accla/d4m_api_java.git-3d17b93fcaca70344f20d3adcd3bcb71b71ab097"
+        )
+
+
 def test_playground_identifier_rejects_paths_outside_playgrounds():
     with patch.dict(playground_schesch_test.os.environ, {"PLAYGROUNDS": "/playgrounds"}):
         try:
