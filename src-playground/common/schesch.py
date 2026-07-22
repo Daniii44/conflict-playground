@@ -1,6 +1,7 @@
 import os
 import subprocess
 import time
+from datetime import datetime
 from pathlib import Path
 
 from common.evaluation_models import (
@@ -14,6 +15,7 @@ from common.git_util import capture_git
 DEFAULT_TIMEOUT_SECONDS = 15 * 60
 OUTPUT_TAIL_CHARS = 12000
 JAVA_HOME_ENV_VARS = ("JAVA8_HOME", "JAVA11_HOME", "JAVA17_HOME")
+RESTORED_PLAYGROUND_TIMESTAMP_FORMAT = "%Y%m%dT%H%M%S.%fZ"
 
 
 class BuildCommands:
@@ -57,6 +59,56 @@ def reset_playground(playground_path: Path, ref: str) -> str | None:
         result = capture_git("-C", str(playground_path), *command, check=False)
         if result.returncode != 0:
             return result.stderr.strip() or result.stdout.strip()
+    return None
+
+
+def parse_schesch_playground_name(playground_name: str) -> tuple[str, str]:
+    if "-" not in playground_name:
+        raise RuntimeError(f"Could not extract merge SHA from playground name: {playground_name}")
+
+    prefix, merge_sha = playground_name.rsplit("-", 1)
+    repo_name = prefix
+    if "-" in prefix:
+        maybe_repo_name, maybe_timestamp = prefix.rsplit("-", 1)
+        try:
+            datetime.strptime(maybe_timestamp, RESTORED_PLAYGROUND_TIMESTAMP_FORMAT)
+        except ValueError:
+            pass
+        else:
+            repo_name = maybe_repo_name
+
+    return repo_name, merge_sha
+
+
+def schesch_info_key(repo_name: str, merge_sha: str) -> str:
+    return f"info:conflict:schesch:{repo_name}:{merge_sha}"
+
+
+def determine_expected_java_home(schesch_info: dict) -> tuple[str | None, str | None]:
+    human = schesch_info.get("human")
+    parents = schesch_info.get("parents") or []
+    results = [human, *parents]
+    if human is None or len(parents) != 2:
+        return None, "Schesch info record does not contain one human result and two parent results"
+
+    if not all(result and result.get("passed") for result in results):
+        return None, "Schesch info record does not show all tested resolutions passing"
+
+    java_homes = {result.get("successful_java_home") for result in results}
+    if None in java_homes or len(java_homes) != 1:
+        return None, "Schesch info record does not resolve to one successful Java home"
+
+    return next(iter(java_homes)), None
+
+
+def java_home_env_var(java_home: str) -> str | None:
+    expected = Path(java_home).resolve(strict=False)
+    for env_var in JAVA_HOME_ENV_VARS:
+        value = os.environ.get(env_var)
+        if not value:
+            continue
+        if Path(value).resolve(strict=False) == expected:
+            return env_var
     return None
 
 
@@ -140,19 +192,14 @@ class ScheschResolutionRunner:
             output_tail=output_tail(f"{command_output_text(result.stdout)}{command_output_text(result.stderr)}"),
         )
 
-    def run_tests_for_ref(
+    def run_tests_in_current_state(
         self,
         playground_path: Path,
-        ref: str,
         label: str,
         commit_sha: str | None = None,
+        java_homes: list[str] | None = None,
     ) -> ScheschResolutionResult:
-        checkout_error = reset_playground(playground_path, ref)
         record = ScheschResolutionResult(label=label, commit_sha=commit_sha)
-        if checkout_error is not None:
-            record.error = f"Could not checkout {label} resolution: {checkout_error}"
-            return record
-
         head_sha, head_error = read_head_commit(str(playground_path))
         record.commit_sha = commit_sha or head_sha
         if head_error is not None:
@@ -166,16 +213,18 @@ class ScheschResolutionRunner:
             return record
         record.build_tool = build_commands.build_tool
 
-        java_homes, java_error = self.java_homes()
-        if java_error is not None:
-            record.error = java_error
-            return record
+        selected_java_homes = java_homes
+        if selected_java_homes is None:
+            selected_java_homes, java_error = self.java_homes()
+            if java_error is not None:
+                record.error = java_error
+                return record
 
         deadline = time.monotonic() + self.timeout_seconds
         saw_successful_compilation = False
         saw_test_failure = False
 
-        for java_home in java_homes:
+        for java_home in selected_java_homes:
             attempt = ScheschJavaAttempt(java_home=java_home)
             record.attempts.append(attempt)
 
@@ -212,3 +261,17 @@ class ScheschResolutionRunner:
         if record.timed_out:
             record.error = f"Timed out after {self.timeout_seconds} seconds"
         return record
+
+    def run_tests_for_ref(
+        self,
+        playground_path: Path,
+        ref: str,
+        label: str,
+        commit_sha: str | None = None,
+    ) -> ScheschResolutionResult:
+        checkout_error = reset_playground(playground_path, ref)
+        if checkout_error is not None:
+            record = ScheschResolutionResult(label=label, commit_sha=commit_sha)
+            record.error = f"Could not checkout {label} resolution: {checkout_error}"
+            return record
+        return self.run_tests_in_current_state(playground_path, label, commit_sha)

@@ -5,7 +5,12 @@ from unittest.mock import patch
 
 from common.active_playground_models import Configuration
 from common.evaluation_models import EvaluationInput, ScheschResolutionResult
-from common.schesch import ScheschResolutionRunner, reset_playground
+from common.schesch import (
+    ScheschResolutionRunner,
+    determine_expected_java_home,
+    parse_schesch_playground_name,
+    reset_playground,
+)
 from common.resolution_models import ConflictResolution, ProposedResolution
 from evaluation.analysis.schesch_analysis import ScheschEvaluationAnalysis
 
@@ -167,6 +172,43 @@ def test_reset_playground_resets_in_place_to_target_ref(tmp_path):
         (("-C", str(repo_path), "reset", "--hard", "target-sha"), {"check": False}),
         (("-C", str(repo_path), "clean", "-fdx"), {"check": False}),
     ]
+
+
+def test_parse_schesch_playground_name_supports_setup_and_restored_names():
+    assert parse_schesch_playground_name("owner/repo-with-hyphen.git-merge-sha") == (
+        "owner/repo-with-hyphen.git",
+        "merge-sha",
+    )
+    assert parse_schesch_playground_name("owner/repo-with-hyphen.git-20260602T120000.000000Z-merge-sha") == (
+        "owner/repo-with-hyphen.git",
+        "merge-sha",
+    )
+
+
+def test_determine_expected_java_home_requires_one_passing_environment():
+    java_home, error = determine_expected_java_home(
+        {
+            "human": {"passed": True, "successful_java_home": "/java-17", "build_tool": "maven"},
+            "parents": [
+                {"passed": True, "successful_java_home": "/java-17", "build_tool": "maven"},
+                {"passed": True, "successful_java_home": "/java-17", "build_tool": "maven"},
+            ],
+        }
+    )
+    assert java_home == "/java-17"
+    assert error is None
+
+    java_home, error = determine_expected_java_home(
+        {
+            "human": {"passed": True, "successful_java_home": "/java-17"},
+            "parents": [
+                {"passed": True, "successful_java_home": "/java-17"},
+                {"passed": True, "successful_java_home": "/java-11"},
+            ],
+        }
+    )
+    assert java_home is None
+    assert error == "Schesch info record does not resolve to one successful Java home"
 
 
 def test_schesch_analysis_runs_proposed_resolution_only(monkeypatch):
