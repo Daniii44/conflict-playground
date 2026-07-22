@@ -1,4 +1,4 @@
 #!/bin/bash
 
-state-clickhouse-clean --all
+state-clickhouse-ensure
 state-clickhouse-export
