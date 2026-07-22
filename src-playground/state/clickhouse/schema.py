@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import sys
 
 import requests
 
@@ -30,6 +31,10 @@ def run_query(query: str) -> requests.Response:
         auth=(CLICKHOUSE_USER, CLICKHOUSE_PASSWORD),
         headers={"Content-Type": "text/plain; charset=utf-8"},
     )
+    if not response.ok:
+        body = response.text.strip()
+        if body:
+            print(body, file=sys.stderr)
     response.raise_for_status()
     return response
 

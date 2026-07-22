@@ -72,8 +72,14 @@ def test_run_query_posts_sql_in_body(monkeypatch):
     captured = {}
 
     class FakeResponse:
+        ok = True
+
         def raise_for_status(self):
             return None
+
+        @property
+        def text(self):
+            return ""
 
     def fake_post(url, *, data, auth, headers):
         captured["url"] = url
@@ -90,3 +96,35 @@ def test_run_query_posts_sql_in_body(monkeypatch):
     assert captured["data"] == b"SELECT 1"
     assert captured["auth"] == ("default", "dev-dynha9-fenvYc-daqmeh")
     assert captured["headers"]["Content-Type"] == "text/plain; charset=utf-8"
+
+
+def test_run_query_prints_error_body_before_raise(monkeypatch, capsys):
+    class FakeResponse:
+        ok = False
+
+        @property
+        def text(self):
+            return "Code: 47. DB::Exception: broken query"
+
+        def raise_for_status(self):
+            raise clickhouse_schema.requests.HTTPError("boom")
+
+    monkeypatch.setattr(clickhouse_schema.requests, "post", lambda *args, **kwargs: FakeResponse())
+
+    try:
+        clickhouse_schema.run_query("SELECT 1")
+    except clickhouse_schema.requests.HTTPError:
+        pass
+    else:
+        raise AssertionError("Expected HTTPError")
+
+    captured = capsys.readouterr()
+    assert "Code: 47. DB::Exception: broken query" in captured.err
+
+
+def test_overview_base_view_aliases_metric_dimensions():
+    query = clickhouse_schema.overview_base_view_query()
+
+    assert "rd.repo AS repo" in query
+    assert "rd.merge_hash AS merge_hash" in query
+    assert "class_source.repo AS repo" in query

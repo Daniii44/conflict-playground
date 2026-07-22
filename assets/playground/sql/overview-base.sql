@@ -82,11 +82,11 @@ base_merges AS (
 ),
 core_metrics AS (
     SELECT
-        rd.repo,
-        rd.merge_hash,
-        rd.subdataset,
-        rd.llm,
-        rd.group_label,
+        rd.repo AS repo,
+        rd.merge_hash AS merge_hash,
+        rd.subdataset AS subdataset,
+        rd.llm AS llm,
+        rd.group_label AS group_label,
         countDistinct(e.key) AS total_evaluations,
         min(CASE WHEN e.key != '' AND e.content.incomplete_merge = 1 THEN 1 ELSE 0 END)
             AS contradiction_is_incomplete_merge,
@@ -105,11 +105,11 @@ core_metrics AS (
 ),
 diff_metrics AS (
     SELECT
-        rd.repo,
-        rd.merge_hash,
-        rd.subdataset,
-        rd.llm,
-        rd.group_label,
+        rd.repo AS repo,
+        rd.merge_hash AS merge_hash,
+        rd.subdataset AS subdataset,
+        rd.llm AS llm,
+        rd.group_label AS group_label,
         min(
             CASE
                 WHEN e.content.proposed_to_actual_resolution_diffs.ignore_all_space.ignore_blank_lines.exact_match::boolean
@@ -130,11 +130,11 @@ diff_metrics AS (
 ),
 schesch_metrics AS (
     SELECT
-        rd.repo,
-        rd.merge_hash,
-        rd.subdataset,
-        rd.llm,
-        rd.group_label,
+        rd.repo AS repo,
+        rd.merge_hash AS merge_hash,
+        rd.subdataset AS subdataset,
+        rd.llm AS llm,
+        rd.group_label AS group_label,
         max(
             CASE
                 WHEN e.content.proposed.timed_out = false
@@ -165,11 +165,11 @@ schesch_metrics AS (
 ),
 classification_metrics AS (
     SELECT
-        class_source.repo,
-        class_source.merge_hash,
-        class_source.subdataset,
-        class_source.llm,
-        class_source.group_label,
+        class_source.repo AS repo,
+        class_source.merge_hash AS merge_hash,
+        class_source.subdataset AS subdataset,
+        class_source.llm AS llm,
+        class_source.group_label AS group_label,
         max(
             class_source.agent_classification NOT LIKE '%CONTEXT_CHANGED%'
             AND class_source.human_classification NOT LIKE '%CONTEXT_CHANGED%'
