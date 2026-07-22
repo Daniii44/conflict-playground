@@ -2,8 +2,10 @@
 
 """Common functionality for hook workers - Redis communication and shared models."""
 
+from datetime import datetime
 from redis.client import PubSub
 from redis import Redis
+import traceback
 from uuid import UUID
 from pydantic import BaseModel
 from typing import Any, Callable, Optional
@@ -29,6 +31,10 @@ class HookWorker:
         self.redis_port = redis_port
         self._redis: Optional[Redis] = None
         self._pubsub: Optional[PubSub] = None
+
+    def log(self, message: str) -> None:
+        timestamp = datetime.now().isoformat(timespec="seconds")
+        print(f"{timestamp} [hook] {message}", flush=True)
 
     @property
     def redis(self) -> Redis:
@@ -57,32 +63,46 @@ class HookWorker:
             handler: Optional callback function that takes a HookTask and returns a result payload.
                     If not provided, subclasses should override handle_task().
         """
+        self.log(f"subscribing to Redis channel {channel!r} on {self.redis_host}:{self.redis_port}")
         self.pubsub.subscribe(channel)
 
         for message in self.pubsub.listen():
-            if message['type'] == 'message':
-                print(f"Hook Base: Conflict Resolution Playground Set Up")
-                task = HookTask.model_validate_json(message['data'])
+            message_type = message.get('type')
+            if message_type != 'message':
+                self.log(f"received Redis pubsub event type={message_type!r}")
+                continue
 
-                try:
-                    # Get result from handler or subclass method
-                    if handler:
-                        result_msg = handler(task)
-                    else:
-                        result_msg = self.handle_task(task)
-                except Exception as error:
-                    result_msg = {
-                        "message": f"Error: hook worker failed: {error}",
-                        "error_type": type(error).__name__,
-                    }
+            self.log("received hook task payload from Redis")
+            task = HookTask.model_validate_json(message['data'])
+            self.log(f"starting task id={task.id} playground={task.playground}")
 
-                if isinstance(result_msg, str):
-                    result_msg = {"message": result_msg}
+            try:
+                if handler:
+                    result_msg = handler(task)
+                else:
+                    result_msg = self.handle_task(task)
+            except Exception as error:
+                self.log(
+                    f"task id={task.id} playground={task.playground} raised "
+                    f"{type(error).__name__}: {error}"
+                )
+                traceback.print_exc()
+                result_msg = {
+                    "message": f"Error: hook worker failed: {error}",
+                    "error_type": type(error).__name__,
+                }
 
-                result = HookResult(id=task.id, result=result_msg)
-                self.redis.publish('to_playground', result.model_dump_json())
-                print(f"Hook Base: Conflict Resolution Playground Completed")
-                print()
+            if isinstance(result_msg, str):
+                result_msg = {"message": result_msg}
+
+            result = HookResult(id=task.id, result=result_msg)
+            self.log(
+                f"publishing result for task id={task.id} playground={task.playground} "
+                f"keys={sorted(result_msg.keys())}"
+            )
+            self.redis.publish('to_playground', result.model_dump_json())
+            self.log(f"completed task id={task.id} playground={task.playground}")
+            print(flush=True)
 
     def handle_task(self, task: HookTask) -> str | dict[str, Any]:
         """

@@ -36,9 +36,14 @@ setup_lock = threading.Lock()
 shutdown_requested = threading.Event()
 
 
+def log(message: str) -> None:
+    timestamp = datetime.now().isoformat(timespec="seconds")
+    print(f"{timestamp} [playbook-start] {message}", flush=True)
+
+
 def signal_handler(signum, frame):
     """Handle Ctrl+C to gracefully shutdown"""
-    print("\nInterrupt received, shutting down...")
+    log("interrupt received, shutting down")
     shutdown_requested.set()
 
 
@@ -228,37 +233,43 @@ def process_playground(pg: Playground, redis: Redis, index: int, total: int) -> 
     """Process a single playground: setup, dispatch, assess, clean"""
     # Check if shutdown was requested before starting
     if shutdown_requested.is_set():
-        print(f"[{index}/{total}] Skipping {pg.repo_name} - shutdown requested")
+        log(f"[{index}/{total}] skipping {pg.repo_name} - shutdown requested")
         return False
-    
+
+    started_at = datetime.now()
+    playground_name: str | None = None
     try:
         with setup_lock:
             # Check again after acquiring lock
             if shutdown_requested.is_set():
-                print(f"[{index}/{total}] Skipping {pg.repo_name} - shutdown requested")
+                log(f"[{index}/{total}] skipping {pg.repo_name} - shutdown requested after setup lock")
                 return False
-                
+
             merge_sha = resolve_playground_merge_sha(pg)
-            print(f"[{index}/{total}] Setting up playground for {pg.repo_name} ({merge_sha})")
+            log(f"[{index}/{total}] setting up playground for repo={pg.repo_name} merge={merge_sha}")
             result = subprocess.run(
                 ["playground-setup", pg.repo_name, merge_sha],
-                check=True, 
-                capture_output=True, 
+                check=True,
+                capture_output=True,
                 text=True
             )
             playground_name = result.stdout.strip()
             if not playground_name:
                 raise RuntimeError("playground-setup did not report a playground name")
+            log(
+                f"[{index}/{total}] playground-setup returned playground={playground_name} "
+                f"stderr_chars={len(result.stderr)}"
+            )
             validate_playground_setup(playground_name)
-            print(f"[{index}/{total}] Created Playground: {playground_name}")
+            log(f"[{index}/{total}] validated playground={playground_name}")
 
         # Hook dispatch must be synchronous (only one at a time)
         with hook_lock:
             # Check shutdown before hook dispatch
             if shutdown_requested.is_set():
-                print(f"[{index}/{total}] Stopping {pg.repo_name} - shutdown requested")
+                log(f"[{index}/{total}] stopping {pg.repo_name} - shutdown requested before hook dispatch")
                 return False
-                
+
             activePlayground = ActivePlayground(
                 playground_name=playground_name,
                 configuration=Configuration(
@@ -271,21 +282,40 @@ def process_playground(pg: Playground, redis: Redis, index: int, total: int) -> 
 
             redis_active_playground_key = f"{RUNTIME_ACTIVE_PLAYGROUND_PREFIX}{playground_name}"
             redis.json().set(redis_active_playground_key, "$", json.loads(activePlayground.model_dump_json()))
+            log(
+                f"[{index}/{total}] stored active playground metadata at key={redis_active_playground_key} "
+                f"hook_type={activePlayground.configuration.hook_type}"
+            )
 
-            print(f"[{index}/{total}] Dispatching task to hook")
+            log(f"[{index}/{total}] dispatching hook task for playground={playground_name}")
             subprocess.run(["hook-dispatch-task", playground_name], check=True)
+            active_playground_data = redis.json().get(redis_active_playground_key) or {}
+            hook_result = active_playground_data.get("hook_result")
+            hook_message = hook_result.get("message") if isinstance(hook_result, dict) else None
+            log(
+                f"[{index}/{total}] hook dispatch returned for playground={playground_name} "
+                f"hook_message={hook_message!r}"
+            )
 
-            print(f"[{index}/{total}] Saving resolution")
+            log(f"[{index}/{total}] saving resolution for playground={playground_name}")
             resolution_key = save_resolution(redis, playground_name, redis_active_playground_key)
-            print(f"[{index}/{total}] Stored resolution at {resolution_key}")
-            
-            print(f"[{index}/{total}] Cleaning up playground for {pg.repo_name}...")
+            log(f"[{index}/{total}] stored resolution at key={resolution_key}")
+
+            log(f"[{index}/{total}] cleaning up playground={playground_name} repo={pg.repo_name}")
             subprocess.run(["playground-rm", playground_name], check=True)
             redis.delete(redis_active_playground_key)
-            
+            log(f"[{index}/{total}] removed playground={playground_name} and deleted key={redis_active_playground_key}")
+
+        log(
+            f"[{index}/{total}] completed repo={pg.repo_name} merge={merge_sha} "
+            f"in {(datetime.now() - started_at).total_seconds():.2f}s"
+        )
         return True
     except (RuntimeError, subprocess.CalledProcessError) as e:
-        print(f"[{index}/{total}] Error processing {pg.repo_name}: {e}")
+        log(
+            f"[{index}/{total}] error processing repo={pg.repo_name} playground={playground_name} "
+            f"after {(datetime.now() - started_at).total_seconds():.2f}s: {type(e).__name__}: {e}"
+        )
         return False
 
 

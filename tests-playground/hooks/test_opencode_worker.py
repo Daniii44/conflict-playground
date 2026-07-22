@@ -1,7 +1,9 @@
 import importlib.util
+import io
 import subprocess
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 
 def load_opencode_module():
@@ -54,17 +56,21 @@ def test_handle_task_returns_invalid_config_error(monkeypatch, tmp_path):
     monkeypatch.setattr(worker, "has_unmerged_changes", lambda path: True)
     monkeypatch.setattr(worker, "export_latest_session", lambda path: {"error": "No session"})
 
-    def fake_run(args, **kwargs):
-        assert kwargs["capture_output"] is True
-        assert kwargs["text"] is True
+    def fake_stream(command, **kwargs):
+        assert command[:4] == [
+            worker.opencode_executable,
+            "run",
+            "--model",
+            module.DEFAULT_OPENCODE_MODEL,
+        ]
         return subprocess.CompletedProcess(
-            args,
+            command,
             1,
             stdout="",
             stderr="Configuration is invalid at .opencode/opencode.json\n",
         )
 
-    monkeypatch.setattr(module.subprocess, "run", fake_run)
+    monkeypatch.setattr(worker, "stream_command_to_stdout", fake_stream)
 
     result = worker.handle_task(module.HookTask(id="00000000-0000-0000-0000-000000000001", playground="example-project-abc123"))
 
@@ -84,11 +90,11 @@ def test_handle_task_returns_timeout_as_normal_error(monkeypatch, tmp_path):
     monkeypatch.setattr(worker, "is_merging", lambda path: True)
     monkeypatch.setattr(worker, "export_latest_session", lambda path: {"error": "No session"})
 
-    def fake_run(args, **kwargs):
+    def fake_stream(command, **kwargs):
         assert kwargs["timeout"] == module.OPENCODE_RUN_TIMEOUT_SECONDS
-        raise subprocess.TimeoutExpired(args, kwargs["timeout"], output="still running\n", stderr="")
+        raise subprocess.TimeoutExpired(command, kwargs["timeout"], output="still running\n", stderr="")
 
-    monkeypatch.setattr(module.subprocess, "run", fake_run)
+    monkeypatch.setattr(worker, "stream_command_to_stdout", fake_stream)
 
     result = worker.handle_task(module.HookTask(id="00000000-0000-0000-0000-000000000001", playground="example-project-abc123"))
 
@@ -138,21 +144,21 @@ def test_handle_task_passes_selected_model_to_opencode(monkeypatch, tmp_path):
     monkeypatch.setattr(worker, "is_merging", lambda path: next(merge_states))
     monkeypatch.setattr(worker, "export_latest_session", lambda path: {"id": "session-1", "data": {}})
 
-    def fake_run(args, **kwargs):
-        assert args[:4] == [
+    def fake_stream(command, **kwargs):
+        assert command[:4] == [
             worker.opencode_executable,
             "run",
             "--model",
             "ollama/qwen3.6:35b-mlx",
         ]
         return subprocess.CompletedProcess(
-            args,
+            command,
             0,
             stdout="",
             stderr="",
         )
 
-    monkeypatch.setattr(module.subprocess, "run", fake_run)
+    monkeypatch.setattr(worker, "stream_command_to_stdout", fake_stream)
 
     result = worker.handle_task(
         module.HookTask(id="00000000-0000-0000-0000-000000000001", playground="example-project-abc123")
@@ -160,3 +166,28 @@ def test_handle_task_passes_selected_model_to_opencode(monkeypatch, tmp_path):
 
     assert result["message"] == "opencode completed conflict resolution"
     assert result["opencode_exit_code"] == 0
+
+
+def test_stream_command_to_stdout_prints_and_captures_child_output(monkeypatch, tmp_path):
+    module = load_opencode_module()
+    worker = module.OpenCodeWorker()
+    stdout = io.StringIO()
+
+    with patch.object(sys, "stdout", stdout):
+        result = worker.stream_command_to_stdout(
+            [
+                "python3",
+                "-c",
+                "import sys; print('hello'); print('oops', file=sys.stderr)",
+            ],
+            cwd=tmp_path,
+            timeout=5,
+            label="test command",
+        )
+
+    assert result.returncode == 0
+    assert result.stdout == "hello\n"
+    assert result.stderr == "oops\n"
+    output = stdout.getvalue()
+    assert "[opencode/stdout] hello" in output
+    assert "[opencode/stderr] oops" in output
