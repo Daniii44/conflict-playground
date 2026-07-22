@@ -7,18 +7,12 @@ from common.resolution_models import ConflictResolution, ProposedResolution
 from evaluation.sync import (
     analysis_result_exists,
     evaluate_resolution,
-    selected_analysis_names,
-    playground_name_from_resolution_key,
     restored_playground_name_from_resolution_key,
+    selected_analysis_names,
+    iter_resolution_keys,
     sync_evaluations,
 )
 from evaluation.analysis.common import evaluation_record_key
-
-
-def test_resolution_key_parsing_preserves_original_playground_name():
-    key = "resolution:conflict:owner/repo-with-hyphen.git-abc123:20260609T120000.000000Z"
-
-    assert playground_name_from_resolution_key(key) == "owner/repo-with-hyphen.git-abc123"
 
 
 def test_restored_playground_name_includes_timestamp_before_merge_sha():
@@ -73,6 +67,7 @@ def test_all_analysis_includes_summary():
         "summary",
     ]
 
+
 class FakeRedisJson:
     def __init__(self, values=None):
         self.values = values or {}
@@ -96,6 +91,21 @@ class SyncFakeRedis(FakeRedis):
 
     def json(self):
         return self.json_api
+
+
+def test_iter_resolution_keys_scans_all_resolution_records():
+    redis = SyncFakeRedis(
+        [
+            "resolution:conflict:owner/repo.git-def:20260609T130000.000000Z",
+            "resolution:conflict:owner/repo.git-abc:20260609T120000.000000Z",
+            "evaluation:merge:core:owner/repo.git-abc:20260609T120000.000000Z",
+        ]
+    )
+
+    assert iter_resolution_keys(redis) == [
+        "resolution:conflict:owner/repo.git-abc:20260609T120000.000000Z",
+        "resolution:conflict:owner/repo.git-def:20260609T130000.000000Z",
+    ]
 
 
 def test_sync_evaluations_logs_failed_evaluation_as_error():

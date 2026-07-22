@@ -37,23 +37,14 @@ def normalize_key(key) -> str:
     return key.decode() if isinstance(key, bytes) else key
 
 
-def playground_name_from_resolution_key(resolution_key: str) -> str:
-    return resolution_key_parts(resolution_key)[0]
-
-
 def restored_playground_name_from_resolution_key(resolution_key: str) -> str:
     playground_name, resolution_timestamp = resolution_key_parts(resolution_key)
     repo_name, merge_sha = playground_name.rsplit("-", 1)
     return f"{repo_name}-{resolution_timestamp}-{merge_sha}"
 
 
-def iter_resolution_keys(redis, playground_name: str | None = None) -> list[str]:
-    if playground_name is None:
-        match = f"{RESOLUTION_CONFLICT_PREFIX}*"
-    else:
-        match = f"{RESOLUTION_CONFLICT_PREFIX}{playground_name}:*"
-
-    return sorted(normalize_key(key) for key in redis.scan_iter(match=match))
+def iter_resolution_keys(redis) -> list[str]:
+    return sorted(normalize_key(key) for key in redis.scan_iter(match=f"{RESOLUTION_CONFLICT_PREFIX}*"))
 
 
 def collect_analyses(analyses: list[str]) -> list[EvaluationAnalysis]:
@@ -181,13 +172,12 @@ def evaluate_resolution_key(
 
 
 def sync_evaluations(
-    playground_name: str | None = None,
     force: bool = False,
     analyses: list[str] | None = None,
 ) -> int:
     redis = setup_redis_connection()
     selected_analyses = collect_analyses(analyses or ["core"])
-    resolution_keys = iter_resolution_keys(redis, playground_name)
+    resolution_keys = iter_resolution_keys(redis)
     synced = 0
 
     for resolution_key in resolution_keys:
@@ -228,7 +218,6 @@ def selected_analysis_names(args) -> list[str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Create evaluation records from saved conflict resolutions")
-    parser.add_argument("playground_name", nargs="?", help="Only evaluate resolutions for this playground")
     parser.add_argument("--force", action="store_true", help="Overwrite existing evaluation records for selected analyses")
     parser.add_argument(
         "-a",
@@ -255,7 +244,6 @@ def main() -> int:
 
     try:
         sync_evaluations(
-            args.playground_name,
             force=args.force,
             analyses=selected_analysis_names(args),
         )
