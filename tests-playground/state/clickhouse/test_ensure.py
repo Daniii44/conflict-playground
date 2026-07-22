@@ -1,3 +1,6 @@
+import base64
+from urllib import error
+
 from state.clickhouse import schema as clickhouse_schema
 from state.clickhouse import ensure as clickhouse_ensure
 
@@ -72,48 +75,56 @@ def test_run_query_posts_sql_in_body(monkeypatch):
     captured = {}
 
     class FakeResponse:
-        ok = True
+        def __enter__(self):
+            return self
 
-        def raise_for_status(self):
-            return None
+        def __exit__(self, exc_type, exc, tb):
+            return False
 
-        @property
-        def text(self):
-            return ""
+        def read(self):
+            return b""
 
-    def fake_post(url, *, data, auth, headers):
-        captured["url"] = url
-        captured["data"] = data
-        captured["auth"] = auth
-        captured["headers"] = headers
+    def fake_urlopen(query_request):
+        captured["url"] = query_request.full_url
+        captured["data"] = query_request.data
+        captured["method"] = query_request.get_method()
+        captured["headers"] = dict(query_request.header_items())
         return FakeResponse()
 
-    monkeypatch.setattr(clickhouse_schema.requests, "post", fake_post)
+    monkeypatch.setattr(clickhouse_schema.request, "urlopen", fake_urlopen)
 
     clickhouse_schema.run_query("SELECT 1")
 
     assert captured["url"] == "http://clickhouse:8123"
     assert captured["data"] == b"SELECT 1"
-    assert captured["auth"] == ("default", "dev-dynha9-fenvYc-daqmeh")
-    assert captured["headers"]["Content-Type"] == "text/plain; charset=utf-8"
+    assert captured["method"] == "POST"
+    assert captured["headers"]["Content-type"] == "text/plain; charset=utf-8"
+    assert captured["headers"]["Authorization"] == (
+        "Basic "
+        + base64.b64encode(b"default:dev-dynha9-fenvYc-daqmeh").decode("ascii")
+    )
 
 
 def test_run_query_prints_error_body_before_raise(monkeypatch, capsys):
-    class FakeResponse:
-        ok = False
+    def fake_urlopen(_query_request):
+        raise error.HTTPError(
+            url="http://clickhouse:8123",
+            code=400,
+            msg="boom",
+            hdrs=None,
+            fp=None,
+        )
 
-        @property
-        def text(self):
-            return "Code: 47. DB::Exception: broken query"
-
-        def raise_for_status(self):
-            raise clickhouse_schema.requests.HTTPError("boom")
-
-    monkeypatch.setattr(clickhouse_schema.requests, "post", lambda *args, **kwargs: FakeResponse())
+    monkeypatch.setattr(clickhouse_schema.request, "urlopen", fake_urlopen)
+    monkeypatch.setattr(
+        error.HTTPError,
+        "read",
+        lambda self: b"Code: 47. DB::Exception: broken query",
+    )
 
     try:
         clickhouse_schema.run_query("SELECT 1")
-    except clickhouse_schema.requests.HTTPError:
+    except error.HTTPError:
         pass
     else:
         raise AssertionError("Expected HTTPError")
@@ -122,9 +133,40 @@ def test_run_query_prints_error_body_before_raise(monkeypatch, capsys):
     assert "Code: 47. DB::Exception: broken query" in captured.err
 
 
+def test_clickhouse_settings_can_be_overridden_by_environment(monkeypatch):
+    monkeypatch.setenv("CLICKHOUSE_URL", "http://127.0.0.1:18123")
+    monkeypatch.setenv("CLICKHOUSE_DB", "custom_db")
+    monkeypatch.setenv("CLICKHOUSE_USER", "custom_user")
+    monkeypatch.setenv("CLICKHOUSE_PASSWORD", "custom_password")
+    monkeypatch.setenv("CLICKHOUSE_TABLE", "custom_table")
+
+    monkeypatch.setattr(clickhouse_schema, "CLICKHOUSE_URL", "http://127.0.0.1:18123")
+    monkeypatch.setattr(clickhouse_schema, "CLICKHOUSE_DB", "custom_db")
+    monkeypatch.setattr(clickhouse_schema, "CLICKHOUSE_USER", "custom_user")
+    monkeypatch.setattr(clickhouse_schema, "CLICKHOUSE_PASSWORD", "custom_password")
+    monkeypatch.setattr(clickhouse_schema, "CLICKHOUSE_TABLE", "custom_table")
+
+    assert clickhouse_schema.CLICKHOUSE_URL == "http://127.0.0.1:18123"
+    assert clickhouse_schema.CLICKHOUSE_DB == "custom_db"
+    assert clickhouse_schema.CLICKHOUSE_USER == "custom_user"
+    assert clickhouse_schema.CLICKHOUSE_PASSWORD == "custom_password"
+    assert clickhouse_schema.CLICKHOUSE_TABLE == "custom_table"
+
+
 def test_overview_base_view_aliases_metric_dimensions():
     query = clickhouse_schema.overview_base_view_query()
 
     assert "rd.repo AS repo" in query
     assert "rd.merge_hash AS merge_hash" in query
     assert "class_source.repo AS repo" in query
+    assert "rd.repo AS repo,\n            rd.merge_hash AS merge_hash" in query
+
+
+def test_overview_base_view_aliases_base_dimensions():
+    query = clickhouse_schema.overview_base_view_query()
+
+    assert "base_merges AS (" in query
+    assert "rd.repo AS repo" in query
+    assert "rd.merge_hash AS merge_hash" in query
+    assert "rd.group_label AS group_label" in query
+    assert "b.group_label AS group_label" in query

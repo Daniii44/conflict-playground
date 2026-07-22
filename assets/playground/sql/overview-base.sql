@@ -57,11 +57,11 @@ resolution_dimensions AS (
 ),
 base_merges AS (
     SELECT
-        rd.repo,
-        rd.merge_hash,
-        rd.subdataset,
-        rd.llm,
-        rd.group_label,
+        rd.repo AS repo,
+        rd.merge_hash AS merge_hash,
+        rd.subdataset AS subdataset,
+        rd.llm AS llm,
+        rd.group_label AS group_label,
         count() AS total_resolutions,
         max(rd.conflict_timestamp) AS latest_conflict_timestamp,
         max(CASE WHEN r.content.proposed_resolution.error LIKE 'Error: opencode timed out%' THEN 1 ELSE 0 END)
@@ -197,11 +197,11 @@ classification_metrics AS (
         ) AS contradiction_noncanonical_fallback
     FROM (
         SELECT
-            rd.repo,
-            rd.merge_hash,
-            rd.subdataset,
-            rd.llm,
-            rd.group_label,
+            rd.repo AS repo,
+            rd.merge_hash AS merge_hash,
+            rd.subdataset AS subdataset,
+            rd.llm AS llm,
+            rd.group_label AS group_label,
             arrayStringConcat(logical_conflict.agent_classifications, '\n') AS agent_classification,
             arrayStringConcat(logical_conflict.human_classifications, '\n') AS human_classification,
             CAST(
@@ -268,13 +268,13 @@ classification_metrics AS (
         class_source.group_label
 )
 SELECT
-    b.repo,
-    b.merge_hash,
-    b.subdataset,
-    b.llm,
-    b.group_label,
-    b.latest_conflict_timestamp,
-    b.total_resolutions,
+    b.repo AS repo,
+    b.merge_hash AS merge_hash,
+    b.subdataset AS subdataset,
+    b.llm AS llm,
+    b.group_label AS group_label,
+    b.latest_conflict_timestamp AS latest_conflict_timestamp,
+    b.total_resolutions AS total_resolutions,
     coalesce(m.total_evaluations, 0) AS total_evaluations,
     coalesce(m.proof_is_exact_match, 0) AS proof_is_exact_match,
     coalesce(d.proof_is_exact_match_normalized, 0) AS proof_is_exact_match_normalized,

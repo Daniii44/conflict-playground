@@ -1,19 +1,29 @@
 from __future__ import annotations
 
+import base64
+import os
 from pathlib import Path
 import sys
+from urllib import error, request
 
-import requests
 
-
-CLICKHOUSE_URL = "http://clickhouse:8123"
-CLICKHOUSE_DB = "default"
-CLICKHOUSE_USER = "default"
-CLICKHOUSE_PASSWORD = "dev-dynha9-fenvYc-daqmeh"
-CLICKHOUSE_TABLE = "redis_json"
-CLICKHOUSE_OVERVIEW_BASE_VIEW = "redis_json_overview_base"
-CLICKHOUSE_OVERVIEW_CHART_VIEW = "redis_json_overview_chart"
-CLICKHOUSE_OVERVIEW_TABLE_VIEW = "redis_json_overview_table"
+CLICKHOUSE_URL = os.environ.get("CLICKHOUSE_URL", "http://clickhouse:8123")
+CLICKHOUSE_DB = os.environ.get("CLICKHOUSE_DB", "default")
+CLICKHOUSE_USER = os.environ.get("CLICKHOUSE_USER", "default")
+CLICKHOUSE_PASSWORD = os.environ.get("CLICKHOUSE_PASSWORD", "dev-dynha9-fenvYc-daqmeh")
+CLICKHOUSE_TABLE = os.environ.get("CLICKHOUSE_TABLE", "redis_json")
+CLICKHOUSE_OVERVIEW_BASE_VIEW = os.environ.get(
+    "CLICKHOUSE_OVERVIEW_BASE_VIEW",
+    "redis_json_overview_base",
+)
+CLICKHOUSE_OVERVIEW_CHART_VIEW = os.environ.get(
+    "CLICKHOUSE_OVERVIEW_CHART_VIEW",
+    "redis_json_overview_chart",
+)
+CLICKHOUSE_OVERVIEW_TABLE_VIEW = os.environ.get(
+    "CLICKHOUSE_OVERVIEW_TABLE_VIEW",
+    "redis_json_overview_table",
+)
 
 ASSETS_SQL_DIR = (
     Path(__file__).resolve().parents[3]
@@ -24,19 +34,26 @@ ASSETS_SQL_DIR = (
 CONTAINER_SQL_DIR = Path("/root/sql")
 
 
-def run_query(query: str) -> requests.Response:
-    response = requests.post(
+def run_query(query: str) -> str:
+    credentials = f"{CLICKHOUSE_USER}:{CLICKHOUSE_PASSWORD}".encode("utf-8")
+    encoded_credentials = base64.b64encode(credentials).decode("ascii")
+    query_request = request.Request(
         CLICKHOUSE_URL,
         data=query.encode("utf-8"),
-        auth=(CLICKHOUSE_USER, CLICKHOUSE_PASSWORD),
-        headers={"Content-Type": "text/plain; charset=utf-8"},
+        headers={
+            "Authorization": f"Basic {encoded_credentials}",
+            "Content-Type": "text/plain; charset=utf-8",
+        },
+        method="POST",
     )
-    if not response.ok:
-        body = response.text.strip()
+    try:
+        with request.urlopen(query_request) as response:
+            return response.read().decode("utf-8")
+    except error.HTTPError as exc:
+        body = exc.read().decode("utf-8", errors="replace").strip()
         if body:
             print(body, file=sys.stderr)
-    response.raise_for_status()
-    return response
+        raise
 
 
 def load_sql_asset(filename: str) -> str:
