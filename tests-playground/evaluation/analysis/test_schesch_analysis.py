@@ -6,16 +6,20 @@ from unittest.mock import patch
 from common.active_playground_models import Configuration
 from common.evaluation_models import EvaluationInput, ScheschResolutionResult
 from common.schesch import (
-    ScheschResolutionRunner,
+    BuildCommands,
     determine_expected_java_home,
     filtered_test_command,
-    BuildCommands,
     normalize_test_selector,
     parse_schesch_playground_name,
     reset_playground,
+    ScheschResolutionRunner,
+    test_selectors_from_patch,
 )
 from common.resolution_models import ConflictResolution, ProposedResolution
-from evaluation.analysis.schesch_analysis import ScheschEvaluationAnalysis
+from evaluation.analysis.schesch_analysis import (
+    ScheschGeneratedEvaluationAnalysis,
+    ScheschOriginalEvaluationAnalysis,
+)
 
 
 def evaluation_input():
@@ -244,9 +248,22 @@ def test_filtered_test_command_supports_gradle_and_maven():
     ]
 
 
-def test_schesch_analysis_runs_proposed_resolution_only(monkeypatch):
+def test_test_selectors_from_patch_collects_only_changed_java_tests():
+    patch = (
+        "diff --git a/src/test/java/pkg/OneTest.java b/src/test/java/pkg/OneTest.java\n"
+        "+++ b/src/test/java/pkg/OneTest.java\n"
+        "diff --git a/src/main/java/pkg/App.java b/src/main/java/pkg/App.java\n"
+        "+++ b/src/main/java/pkg/App.java\n"
+        "diff --git a/src/integration-test/java/pkg/TwoIT.java b/src/integration-test/java/pkg/TwoIT.java\n"
+        "+++ b/src/integration-test/java/pkg/TwoIT.java\n"
+    )
+
+    assert test_selectors_from_patch(patch) == ["OneTest", "TwoIT"]
+
+
+def test_schesch_original_analysis_runs_proposed_resolution_only(monkeypatch):
     monkeypatch.setenv("PLAYGROUNDS", "/playgrounds")
-    analysis = ScheschEvaluationAnalysis(timeout_seconds=900)
+    analysis = ScheschOriginalEvaluationAnalysis(timeout_seconds=900)
 
     with (
         patch("evaluation.analysis.schesch_analysis.read_head_commit", return_value=("proposed-sha", None)),
@@ -266,6 +283,67 @@ def test_schesch_analysis_runs_proposed_resolution_only(monkeypatch):
     assert [call.args for call in run_tests.call_args_list] == [
         (Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"), "HEAD", "proposed", "proposed-sha"),
     ]
+    reset_playground.assert_called_once_with(
+        Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"),
+        "proposed-sha",
+    )
+
+
+def test_schesch_generated_analysis_applies_generated_tests_and_runs_filtered_selectors(monkeypatch):
+    monkeypatch.setenv("PLAYGROUNDS", "/playgrounds")
+    analysis = ScheschGeneratedEvaluationAnalysis(timeout_seconds=900)
+    redis = object()
+    generated_patch = (
+        "diff --git a/src/test/java/pkg/OneTest.java b/src/test/java/pkg/OneTest.java\n"
+        "+++ b/src/test/java/pkg/OneTest.java\n"
+        "@@\n"
+        "diff --git a/src/test/java/pkg/TwoTest.java b/src/test/java/pkg/TwoTest.java\n"
+        "+++ b/src/test/java/pkg/TwoTest.java\n"
+    )
+
+    with (
+        patch("evaluation.analysis.schesch_analysis.read_head_commit", return_value=("proposed-sha", None)),
+        patch("evaluation.analysis.schesch_analysis.setup_redis_connection", return_value=redis),
+        patch(
+            "evaluation.analysis.schesch_analysis.load_generated_tests",
+            return_value=type("Record", (), {"patch": generated_patch})(),
+        ) as load_generated_tests,
+        patch(
+            "evaluation.analysis.schesch_analysis.apply_patch_to_current_head",
+            return_value="patched-sha",
+        ) as apply_patch,
+        patch.object(
+            analysis,
+            "detect_build_commands",
+            return_value=BuildCommands("maven", ["mvn", "clean", "test-compile"], ["mvn", "clean", "test"]),
+        ) as detect_build_commands,
+        patch.object(analysis, "run_tests_in_current_state") as run_tests,
+        patch("evaluation.analysis.schesch_analysis.reset_playground", return_value=None) as reset_playground,
+    ):
+        run_tests.return_value = ScheschResolutionResult(label="proposed", commit_sha="patched-sha", passed=True)
+        record = analysis.analyse(evaluation_input())
+
+    assert record.proposed_commit_sha == "proposed-sha"
+    assert record.actual_resolution_sha == "actualsha"
+    assert record.proposed is not None
+    assert record.proposed.passed
+    load_generated_tests.assert_called_once_with(
+        redis,
+        "dataset:schesch:tests:owner/repo.git:actualsha",
+    )
+    apply_patch.assert_called_once_with(
+        Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"),
+        generated_patch,
+    )
+    detect_build_commands.assert_called_once_with(
+        Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha")
+    )
+    run_tests.assert_called_once_with(
+        Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"),
+        "proposed",
+        commit_sha="patched-sha",
+        test_command=["mvn", "clean", "test", "-Dtest=OneTest,TwoTest"],
+    )
     reset_playground.assert_called_once_with(
         Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"),
         "proposed-sha",

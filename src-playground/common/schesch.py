@@ -3,6 +3,7 @@ import subprocess
 import time
 from datetime import datetime
 from pathlib import Path
+from pathlib import PurePosixPath
 
 from common.evaluation_models import (
     ScheschCommandResult,
@@ -46,6 +47,30 @@ def filtered_test_command(build_commands: BuildCommands, test_selectors: list[st
     if build_commands.build_tool == "maven":
         return [*build_commands.test_command, f"-Dtest={','.join(normalized)}"]
     raise RuntimeError(f"Unsupported build tool for filtered tests: {build_commands.build_tool}")
+
+
+def is_java_test_path(path: str) -> bool:
+    posix_path = PurePosixPath(path)
+    return path.endswith(".java") and any("test" in part.lower() for part in posix_path.parts)
+
+
+def test_selectors_from_patch(patch: str) -> list[str]:
+    selectors: list[str] = []
+    seen: set[str] = set()
+    for line in patch.splitlines():
+        if not line.startswith("+++ "):
+            continue
+        path = line.removeprefix("+++ ").strip()
+        if path == "/dev/null" or not path.startswith("b/"):
+            continue
+        file_path = path.removeprefix("b/")
+        if not is_java_test_path(file_path):
+            continue
+        selector = normalize_test_selector(file_path)
+        if selector not in seen:
+            selectors.append(selector)
+            seen.add(selector)
+    return selectors
 
 
 def output_tail(output: str, limit: int = OUTPUT_TAIL_CHARS) -> str:
