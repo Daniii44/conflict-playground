@@ -81,6 +81,9 @@ def test_prompt_for_file_scopes_generation_to_single_conflicting_file():
     assert "src/Main.java" in prompt
     assert "human sample solution" in prompt
     assert "Do not edit production source files" in prompt
+    assert "playground-schesch-test" in prompt
+    assert "-t <GeneratedTestClass.java>" in prompt
+    assert "Do not run a broader test suite" in prompt
     assert "CONFLICT (contents)" in prompt
     assert "CONFLICT (modify/delete)" not in prompt
 
