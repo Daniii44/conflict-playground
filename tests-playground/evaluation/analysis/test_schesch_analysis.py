@@ -16,10 +16,8 @@ from common.schesch import (
     test_selectors_from_patch,
 )
 from common.resolution_models import ConflictResolution, ProposedResolution
-from evaluation.analysis.schesch_analysis import (
-    ScheschGeneratedEvaluationAnalysis,
-    ScheschOriginalEvaluationAnalysis,
-)
+from evaluation.analysis.schesch_generated_analysis import ScheschGeneratedEvaluationAnalysis
+from evaluation.analysis.schesch_original_analysis import ScheschOriginalEvaluationAnalysis
 
 
 def evaluation_input():
@@ -266,9 +264,9 @@ def test_schesch_original_analysis_runs_proposed_resolution_only(monkeypatch):
     analysis = ScheschOriginalEvaluationAnalysis(timeout_seconds=900)
 
     with (
-        patch("evaluation.analysis.schesch_analysis.read_head_commit", return_value=("proposed-sha", None)),
+        patch("evaluation.analysis.schesch_original_analysis.read_head_commit", return_value=("proposed-sha", None)),
         patch.object(analysis, "run_tests_for_ref") as run_tests,
-        patch("evaluation.analysis.schesch_analysis.reset_playground", return_value=None) as reset_playground,
+        patch("evaluation.analysis.schesch_original_analysis.reset_playground", return_value=None) as reset_playground,
     ):
         run_tests.side_effect = [
             ScheschResolutionResult(label="proposed", commit_sha="proposed-sha", passed=True),
@@ -302,14 +300,14 @@ def test_schesch_generated_analysis_applies_generated_tests_and_runs_filtered_se
     )
 
     with (
-        patch("evaluation.analysis.schesch_analysis.read_head_commit", return_value=("proposed-sha", None)),
-        patch("evaluation.analysis.schesch_analysis.setup_redis_connection", return_value=redis),
+        patch("evaluation.analysis.schesch_generated_analysis.read_head_commit", return_value=("proposed-sha", None)),
+        patch("evaluation.analysis.schesch_generated_analysis.setup_redis_connection", return_value=redis),
         patch(
-            "evaluation.analysis.schesch_analysis.load_generated_tests",
+            "evaluation.analysis.schesch_generated_analysis.load_generated_tests",
             return_value=type("Record", (), {"patch": generated_patch})(),
         ) as load_generated_tests,
         patch(
-            "evaluation.analysis.schesch_analysis.apply_patch_to_current_head",
+            "evaluation.analysis.schesch_generated_analysis.apply_patch_to_current_head",
             return_value="patched-sha",
         ) as apply_patch,
         patch.object(
@@ -318,7 +316,7 @@ def test_schesch_generated_analysis_applies_generated_tests_and_runs_filtered_se
             return_value=BuildCommands("maven", ["mvn", "clean", "test-compile"], ["mvn", "clean", "test"]),
         ) as detect_build_commands,
         patch.object(analysis, "run_tests_in_current_state") as run_tests,
-        patch("evaluation.analysis.schesch_analysis.reset_playground", return_value=None) as reset_playground,
+        patch("evaluation.analysis.schesch_generated_analysis.reset_playground", return_value=None) as reset_playground,
     ):
         run_tests.return_value = ScheschResolutionResult(label="proposed", commit_sha="patched-sha", passed=True)
         record = analysis.analyse(evaluation_input())

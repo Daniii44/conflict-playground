@@ -18,10 +18,8 @@ from evaluation.analysis.common import (
 from evaluation.analysis.classification_analysis import ClassificationEvaluationAnalysis
 from evaluation.analysis.core_analysis import CoreEvaluationAnalysis
 from evaluation.analysis.diff_analysis import DiffEvaluationAnalysis
-from evaluation.analysis.schesch_analysis import (
-    ScheschGeneratedEvaluationAnalysis,
-    ScheschOriginalEvaluationAnalysis,
-)
+from evaluation.analysis.schesch_generated_analysis import ScheschGeneratedEvaluationAnalysis
+from evaluation.analysis.schesch_original_analysis import ScheschOriginalEvaluationAnalysis
 from evaluation.analysis.summary_analysis import SummaryEvaluationAnalysis
 
 
