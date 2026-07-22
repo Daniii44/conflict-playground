@@ -4,7 +4,7 @@ from subprocess import CompletedProcess
 from unittest.mock import patch
 
 from common.active_playground_models import Configuration
-from common.evaluation_models import EvaluationInput, ScheschResolutionResult
+from common.evaluation_models import EvaluationInput, ScheschCommandResult, ScheschJavaAttempt, ScheschResolutionResult
 from common.schesch import (
     BuildCommands,
     determine_expected_java_home,
@@ -258,6 +258,56 @@ def test_test_selectors_from_patch_collects_only_changed_java_tests():
     )
 
     assert test_selectors_from_patch(patch) == ["OneTest", "TwoIT"]
+
+
+def test_schesch_analysis_logs_build_system_output_tails():
+    analysis = ScheschOriginalEvaluationAnalysis(timeout_seconds=900)
+    result = ScheschResolutionResult(
+        label="proposed",
+        commit_sha="proposed-sha",
+        passed=False,
+        compilation_failed=False,
+        test_execution_failed=True,
+        attempts=[
+            ScheschJavaAttempt(
+                java_home="/java-17",
+                compile_result=ScheschCommandResult(
+                    command=["mvn", "clean", "test-compile"],
+                    returncode=0,
+                    duration_seconds=1.25,
+                    output_tail="compile ok",
+                ),
+                test_result=ScheschCommandResult(
+                    command=["mvn", "clean", "test"],
+                    returncode=1,
+                    duration_seconds=2.5,
+                    output_tail="tests failed",
+                ),
+            )
+        ],
+    )
+
+    with patch.object(schesch_analysis, "logger") as logger:
+        analysis.log_resolution_result(evaluation_input(), result)
+
+    logger.info.assert_any_call(
+        "{} evaluation {} output for attempt {} on {} in {}:\n{}",
+        "schesch-original",
+        "compile",
+        1,
+        "resolution:conflict:owner/repo.git-actualsha:20260602T120000.000000Z",
+        "owner/repo.git-20260602T120000.000000Z-actualsha",
+        "compile ok",
+    )
+    logger.warning.assert_any_call(
+        "{} evaluation {} output for attempt {} on {} in {}:\n{}",
+        "schesch-original",
+        "test",
+        1,
+        "resolution:conflict:owner/repo.git-actualsha:20260602T120000.000000Z",
+        "owner/repo.git-20260602T120000.000000Z-actualsha",
+        "tests failed",
+    )
 
 
 def test_schesch_original_analysis_runs_proposed_resolution_only(monkeypatch):

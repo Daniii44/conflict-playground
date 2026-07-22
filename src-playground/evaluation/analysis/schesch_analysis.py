@@ -6,6 +6,8 @@ from loguru import logger
 from common.evaluation_models import (
     EvaluationInput,
     MergeScheschEvaluation,
+    ScheschCommandResult,
+    ScheschJavaAttempt,
     ScheschResolutionResult,
 )
 from common.schesch import DEFAULT_TIMEOUT_SECONDS, ScheschResolutionRunner
@@ -48,6 +50,61 @@ class BaseScheschEvaluationAnalysis(EvaluationAnalysis, ScheschResolutionRunner)
             result.test_execution_failed,
             result.timed_out,
             len(result.attempts),
+        )
+        for attempt_index, attempt in enumerate(result.attempts, start=1):
+            self.log_java_attempt(evaluation_input, attempt_index, attempt)
+
+    def log_java_attempt(
+        self,
+        evaluation_input: EvaluationInput,
+        attempt_index: int,
+        attempt: ScheschJavaAttempt,
+    ) -> None:
+        logger.info(
+            "{} evaluation Java attempt {} for {} in {} used {}",
+            self.get_analysis_name(),
+            attempt_index,
+            evaluation_input.resolution_key,
+            evaluation_input.restored_playground_name,
+            attempt.java_home,
+        )
+        self.log_command_result(evaluation_input, attempt_index, "compile", attempt.compile_result)
+        self.log_command_result(evaluation_input, attempt_index, "test", attempt.test_result)
+
+    def log_command_result(
+        self,
+        evaluation_input: EvaluationInput,
+        attempt_index: int,
+        phase: str,
+        command_result: ScheschCommandResult | None,
+    ) -> None:
+        if command_result is None:
+            return
+
+        logger.info(
+            "{} evaluation {} attempt {} for {} in {}: command={}, returncode={}, timed_out={}, duration_seconds={}",
+            self.get_analysis_name(),
+            phase,
+            attempt_index,
+            evaluation_input.resolution_key,
+            evaluation_input.restored_playground_name,
+            command_result.command,
+            command_result.returncode,
+            command_result.timed_out,
+            command_result.duration_seconds,
+        )
+        if not command_result.output_tail:
+            return
+
+        log_output = logger.warning if command_result.timed_out or command_result.returncode not in (None, 0) else logger.info
+        log_output(
+            "{} evaluation {} output for attempt {} on {} in {}:\n{}",
+            self.get_analysis_name(),
+            phase,
+            attempt_index,
+            evaluation_input.resolution_key,
+            evaluation_input.restored_playground_name,
+            command_result.output_tail,
         )
 
     def failed(self, evaluation_input: EvaluationInput, error: str) -> MergeScheschEvaluation:
