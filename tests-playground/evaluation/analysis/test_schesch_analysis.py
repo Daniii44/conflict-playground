@@ -8,6 +8,9 @@ from common.evaluation_models import EvaluationInput, ScheschResolutionResult
 from common.schesch import (
     ScheschResolutionRunner,
     determine_expected_java_home,
+    filtered_test_command,
+    BuildCommands,
+    normalize_test_selector,
     parse_schesch_playground_name,
     reset_playground,
 )
@@ -209,6 +212,36 @@ def test_determine_expected_java_home_requires_one_passing_environment():
     )
     assert java_home is None
     assert error == "Schesch info record does not resolve to one successful Java home"
+
+
+def test_normalize_test_selector_strips_path_and_java_suffix():
+    assert normalize_test_selector("D4mDbQueryAccumuloInterfaceTest.java") == "D4mDbQueryAccumuloInterfaceTest"
+    assert normalize_test_selector("src/test/java/pkg/D4mDbQueryAccumuloInterfaceTest.java") == (
+        "D4mDbQueryAccumuloInterfaceTest"
+    )
+    assert normalize_test_selector("pkg\\D4mDbQueryAccumuloInterfaceTest.java") == "D4mDbQueryAccumuloInterfaceTest"
+    assert normalize_test_selector("AlreadyNormalizedTest") == "AlreadyNormalizedTest"
+
+
+def test_filtered_test_command_supports_gradle_and_maven():
+    gradle = BuildCommands("gradle", ["./gradlew", "clean", "testClasses"], ["./gradlew", "clean", "test"])
+    maven = BuildCommands("maven", ["mvn", "clean", "test-compile"], ["mvn", "clean", "test"])
+
+    assert filtered_test_command(gradle, ["OneTest.java", "pkg/TwoTest.java"]) == [
+        "./gradlew",
+        "clean",
+        "test",
+        "--tests",
+        "OneTest",
+        "--tests",
+        "TwoTest",
+    ]
+    assert filtered_test_command(maven, ["OneTest.java", "pkg/TwoTest.java"]) == [
+        "mvn",
+        "clean",
+        "test",
+        "-Dtest=OneTest,TwoTest",
+    ]
 
 
 def test_schesch_analysis_runs_proposed_resolution_only(monkeypatch):

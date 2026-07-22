@@ -25,6 +25,29 @@ class BuildCommands:
         self.test_command = test_command
 
 
+def normalize_test_selector(selector: str) -> str:
+    stripped = selector.strip()
+    if not stripped:
+        raise RuntimeError("Test selector must not be empty")
+
+    basename = Path(stripped.replace("\\", "/")).name
+    if basename.endswith(".java"):
+        return basename.removesuffix(".java")
+    return basename
+
+
+def filtered_test_command(build_commands: BuildCommands, test_selectors: list[str]) -> list[str]:
+    normalized = [normalize_test_selector(selector) for selector in test_selectors]
+    if build_commands.build_tool == "gradle":
+        command = list(build_commands.test_command)
+        for selector in normalized:
+            command.extend(["--tests", selector])
+        return command
+    if build_commands.build_tool == "maven":
+        return [*build_commands.test_command, f"-Dtest={','.join(normalized)}"]
+    raise RuntimeError(f"Unsupported build tool for filtered tests: {build_commands.build_tool}")
+
+
 def output_tail(output: str, limit: int = OUTPUT_TAIL_CHARS) -> str:
     if len(output) <= limit:
         return output
@@ -198,6 +221,7 @@ class ScheschResolutionRunner:
         label: str,
         commit_sha: str | None = None,
         java_homes: list[str] | None = None,
+        test_command: list[str] | None = None,
     ) -> ScheschResolutionResult:
         record = ScheschResolutionResult(label=label, commit_sha=commit_sha)
         head_sha, head_error = read_head_commit(str(playground_path))
@@ -212,6 +236,7 @@ class ScheschResolutionRunner:
             record.compilation_failed = True
             return record
         record.build_tool = build_commands.build_tool
+        selected_test_command = test_command or build_commands.test_command
 
         selected_java_homes = java_homes
         if selected_java_homes is None:
@@ -243,7 +268,7 @@ class ScheschResolutionRunner:
             saw_successful_compilation = True
             attempt.test_result = self.run_command(
                 playground_path,
-                build_commands.test_command,
+                selected_test_command,
                 java_home,
                 deadline,
             )
