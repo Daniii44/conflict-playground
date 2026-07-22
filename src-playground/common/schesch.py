@@ -318,10 +318,18 @@ class ScheschResolutionRunner:
         ref: str,
         label: str,
         commit_sha: str | None = None,
+        java_homes: list[str] | None = None,
+        test_command: list[str] | None = None,
     ) -> ScheschResolutionResult:
         checkout_error = reset_playground(playground_path, ref)
         if checkout_error is not None:
             record = ScheschResolutionResult(label=label, commit_sha=commit_sha)
             record.error = f"Could not checkout {label} resolution: {checkout_error}"
             return record
-        return self.run_tests_in_current_state(playground_path, label, commit_sha)
+        return self.run_tests_in_current_state(
+            playground_path,
+            label,
+            commit_sha,
+            java_homes=java_homes,
+            test_command=test_command,
+        )

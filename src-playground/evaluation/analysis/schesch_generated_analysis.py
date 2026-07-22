@@ -94,6 +94,14 @@ class ScheschGeneratedEvaluationAnalysis(BaseScheschEvaluationAnalysis):
             actual_resolution_sha,
         )
 
+        redis = setup_redis_connection()
+        expected_java_home, expected_java_home_error = self.expected_java_home(evaluation_input, redis)
+        if expected_java_home_error is not None or expected_java_home is None:
+            return self.failed(
+                evaluation_input,
+                expected_java_home_error or "Could not determine expected Java home",
+            )
+
         generated_key, generated_key_error = self.generated_tests_key(evaluation_input)
         if generated_key_error is not None or generated_key is None:
             return self.failed(evaluation_input, generated_key_error or "Could not derive generated test key")
@@ -107,7 +115,7 @@ class ScheschGeneratedEvaluationAnalysis(BaseScheschEvaluationAnalysis):
         generated_tests_error = None
         if head_error is None:
             try:
-                generated_tests = load_generated_tests(setup_redis_connection(), generated_key)
+                generated_tests = load_generated_tests(redis, generated_key)
                 patch_text = generated_tests.patch or ""
                 logger.info(
                     "{} evaluation loaded generated Schesch patch from {} ({} characters)",
@@ -164,6 +172,7 @@ class ScheschGeneratedEvaluationAnalysis(BaseScheschEvaluationAnalysis):
                         playground_path,
                         "proposed",
                         commit_sha=applied_commit_sha,
+                        java_homes=[expected_java_home],
                         test_command=test_command,
                     )
                     self.log_resolution_result(evaluation_input, proposed)

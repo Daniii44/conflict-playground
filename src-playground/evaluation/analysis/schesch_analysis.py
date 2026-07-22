@@ -10,7 +10,14 @@ from common.evaluation_models import (
     ScheschJavaAttempt,
     ScheschResolutionResult,
 )
-from common.schesch import DEFAULT_TIMEOUT_SECONDS, ScheschResolutionRunner
+from common.redis_util import setup_redis_connection
+from common.schesch import (
+    DEFAULT_TIMEOUT_SECONDS,
+    ScheschResolutionRunner,
+    determine_expected_java_home,
+    parse_schesch_playground_name,
+    schesch_info_key,
+)
 from evaluation.analysis.common import (
     EvaluationAnalysis,
     actual_resolution_sha_from_playground_name,
@@ -123,6 +130,30 @@ class BaseScheschEvaluationAnalysis(EvaluationAnalysis, ScheschResolutionRunner)
             timeout_seconds=self.timeout_seconds,
             error=error,
         )
+
+    def expected_java_home(self, evaluation_input: EvaluationInput, redis=None) -> tuple[str | None, str | None]:
+        try:
+            repo_name, merge_sha = parse_schesch_playground_name(evaluation_input.restored_playground_name)
+        except RuntimeError as error:
+            return None, str(error)
+
+        redis = redis or setup_redis_connection()
+        key = schesch_info_key(repo_name, merge_sha)
+        payload = redis.json().get(key)
+        if not payload:
+            return None, f"No Schesch info record found at {key}"
+
+        java_home, error = determine_expected_java_home(payload)
+        if error is not None or java_home is None:
+            return None, f"Could not determine expected Java home from {key}: {error}"
+
+        logger.info(
+            "{} evaluation will reuse Java home {} from {}",
+            self.get_analysis_name(),
+            java_home,
+            key,
+        )
+        return java_home, None
 
     def playground_path(self, evaluation_input: EvaluationInput) -> tuple[Path | None, str | None]:
         playgrounds = os.environ.get("PLAYGROUNDS")

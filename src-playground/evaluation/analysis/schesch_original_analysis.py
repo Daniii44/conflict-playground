@@ -1,6 +1,7 @@
 from loguru import logger
 
 from common.evaluation_models import EvaluationInput, MergeScheschEvaluation
+from common.redis_util import setup_redis_connection
 from common.schesch import DEFAULT_TIMEOUT_SECONDS, reset_playground
 from evaluation.analysis.common import actual_resolution_sha_from_playground_name, read_head_commit
 from evaluation.analysis.schesch_analysis import BaseScheschEvaluationAnalysis
@@ -43,18 +44,28 @@ class ScheschOriginalEvaluationAnalysis(BaseScheschEvaluationAnalysis):
             actual_resolution_sha,
         )
 
+        redis = setup_redis_connection()
+        expected_java_home, expected_java_home_error = self.expected_java_home(evaluation_input, redis)
+        if expected_java_home_error is not None or expected_java_home is None:
+            return self.failed(
+                evaluation_input,
+                expected_java_home_error or "Could not determine expected Java home",
+            )
+
         proposed = None
         if head_error is None:
             logger.info(
-                "{} evaluation is running Schesch tests for proposed HEAD {}",
+                "{} evaluation is running Schesch tests for proposed HEAD {} with {}",
                 self.get_analysis_name(),
                 proposed_commit_sha,
+                expected_java_home,
             )
             proposed = self.run_tests_for_ref(
                 playground_path,
                 "HEAD",
                 "proposed",
                 proposed_commit_sha,
+                java_homes=[expected_java_home],
             )
             self.log_resolution_result(evaluation_input, proposed)
         else:

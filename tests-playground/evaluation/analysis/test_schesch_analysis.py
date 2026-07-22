@@ -310,14 +310,45 @@ def test_schesch_analysis_logs_build_system_output_tails():
     )
 
 
+def test_schesch_analysis_reads_expected_java_home_from_info_record():
+    analysis = ScheschOriginalEvaluationAnalysis(timeout_seconds=900)
+    redis = type(
+        "Redis",
+        (),
+        {
+            "json": lambda self: type(
+                "JsonApi",
+                (),
+                {
+                    "get": lambda self, key: {
+                        "human": {"passed": True, "successful_java_home": "/java-17"},
+                        "parents": [
+                            {"passed": True, "successful_java_home": "/java-17"},
+                            {"passed": True, "successful_java_home": "/java-17"},
+                        ],
+                    }
+                },
+            )()
+        },
+    )()
+
+    java_home, error = analysis.expected_java_home(evaluation_input(), redis)
+
+    assert java_home == "/java-17"
+    assert error is None
+
+
 def test_schesch_original_analysis_runs_proposed_resolution_only(monkeypatch):
     monkeypatch.setenv("PLAYGROUNDS", "/playgrounds")
     analysis = ScheschOriginalEvaluationAnalysis(timeout_seconds=900)
+    redis = object()
 
     with (
         patch.object(schesch_analysis, "logger") as shared_logger,
         patch.object(schesch_original_analysis, "logger") as logger,
+        patch("evaluation.analysis.schesch_original_analysis.setup_redis_connection", return_value=redis),
         patch("evaluation.analysis.schesch_original_analysis.read_head_commit", return_value=("proposed-sha", None)),
+        patch.object(analysis, "expected_java_home", return_value=("/java-17", None)) as expected_java_home,
         patch.object(analysis, "run_tests_for_ref") as run_tests,
         patch("evaluation.analysis.schesch_original_analysis.reset_playground", return_value=None) as reset_playground,
     ):
@@ -334,6 +365,8 @@ def test_schesch_original_analysis_runs_proposed_resolution_only(monkeypatch):
     assert [call.args for call in run_tests.call_args_list] == [
         (Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"), "HEAD", "proposed", "proposed-sha"),
     ]
+    assert run_tests.call_args.kwargs == {"java_homes": ["/java-17"]}
+    expected_java_home.assert_called_once_with(evaluation_input(), redis)
     reset_playground.assert_called_once_with(
         Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"),
         "proposed-sha",
@@ -385,6 +418,7 @@ def test_schesch_generated_analysis_applies_generated_tests_and_runs_filtered_se
         patch.object(schesch_generated_analysis, "logger") as logger,
         patch("evaluation.analysis.schesch_generated_analysis.read_head_commit", return_value=("proposed-sha", None)),
         patch("evaluation.analysis.schesch_generated_analysis.setup_redis_connection", return_value=redis),
+        patch.object(analysis, "expected_java_home", return_value=("/java-17", None)) as expected_java_home,
         patch(
             "evaluation.analysis.schesch_generated_analysis.load_generated_tests",
             return_value=type("Record", (), {"patch": generated_patch})(),
@@ -412,6 +446,7 @@ def test_schesch_generated_analysis_applies_generated_tests_and_runs_filtered_se
         redis,
         "dataset:schesch:tests:owner/repo.git:actualsha",
     )
+    expected_java_home.assert_called_once_with(evaluation_input(), redis)
     apply_patch.assert_called_once_with(
         Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"),
         generated_patch,
@@ -423,6 +458,7 @@ def test_schesch_generated_analysis_applies_generated_tests_and_runs_filtered_se
         Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"),
         "proposed",
         commit_sha="patched-sha",
+        java_homes=["/java-17"],
         test_command=["mvn", "clean", "test", "-Dtest=OneTest,TwoTest"],
     )
     reset_playground.assert_called_once_with(
