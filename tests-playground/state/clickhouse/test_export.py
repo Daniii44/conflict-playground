@@ -3,6 +3,18 @@ import json
 from state.clickhouse import export as clickhouse_export
 
 
+def test_extract_conflict_columns_from_resolution_key():
+    assert clickhouse_export.extract_conflict_columns(
+        "resolution:conflict:owner/repo.git-merge123:20260609T120000.000000Z",
+        {},
+    ) == clickhouse_export.ConflictColumns(
+        conflict_identifier="owner/repo.git-merge123:20260609T120000.000000Z",
+        repo="owner/repo",
+        merge_hash="merge123",
+        conflict_timestamp="20260609T120000.000000Z",
+    )
+
+
 def test_extract_conflict_identifier_from_resolution_key():
     assert clickhouse_export.extract_conflict_identifier(
         "resolution:conflict:owner/repo.git-merge123:20260609T120000.000000Z",
@@ -25,14 +37,19 @@ def test_extract_conflict_identifier_from_info_key_omits_timestamp():
 
 
 def test_extract_conflict_identifier_from_runtime_key_uses_payload_timestamp():
-    assert clickhouse_export.extract_conflict_identifier(
+    assert clickhouse_export.extract_conflict_columns(
         "runtime:active_playground:owner/repo.git-merge123",
         {
             "configuration": {
                 "resolution_start": "2026-06-09T12:00:00Z",
             }
         },
-    ) == "owner/repo.git-merge123:20260609T120000.000000Z"
+    ) == clickhouse_export.ConflictColumns(
+        conflict_identifier="owner/repo.git-merge123:20260609T120000.000000Z",
+        repo="owner/repo",
+        merge_hash="merge123",
+        conflict_timestamp="20260609T120000.000000Z",
+    )
 
 
 def test_extract_conflict_identifier_from_dataset_key():
@@ -43,13 +60,18 @@ def test_extract_conflict_identifier_from_dataset_key():
 
 
 def test_extract_conflict_identifier_falls_back_to_payload_fields():
-    assert clickhouse_export.extract_conflict_identifier(
+    assert clickhouse_export.extract_conflict_columns(
         "custom:key",
         {
             "repo": "owner/repo.git",
             "merge_commit_oid": "merge123",
         },
-    ) == "owner/repo.git-merge123"
+    ) == clickhouse_export.ConflictColumns(
+        conflict_identifier="owner/repo.git-merge123",
+        repo="owner/repo",
+        merge_hash="merge123",
+        conflict_timestamp="",
+    )
 
 
 def test_insert_clickhouse_sends_conflict_identifier(monkeypatch):
@@ -83,5 +105,8 @@ def test_insert_clickhouse_sends_conflict_identifier(monkeypatch):
     assert json.loads(captured["data"]) == {
         "key": "evaluation:merge:core:owner/repo.git-merge123:20260609T120000.000000Z",
         "conflict_identifier": "owner/repo.git-merge123:20260609T120000.000000Z",
+        "repo": "owner/repo",
+        "merge_hash": "merge123",
+        "conflict_timestamp": "20260609T120000.000000Z",
         "content": {"value": 1},
     }

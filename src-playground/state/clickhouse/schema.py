@@ -23,11 +23,18 @@ def create_table_query() -> str:
     return f"""
     CREATE TABLE IF NOT EXISTS {CLICKHOUSE_DB}.{CLICKHOUSE_TABLE} (
         key String,
-        conflict_identifier Nullable(String),
-        content JSON
+        conflict_identifier String,
+        repo String,
+        merge_hash String,
+        conflict_timestamp String,
+        content JSON,
+        INDEX idx_conflict_identifier conflict_identifier TYPE bloom_filter GRANULARITY 1,
+        INDEX idx_repo repo TYPE bloom_filter GRANULARITY 1,
+        INDEX idx_merge_hash merge_hash TYPE bloom_filter GRANULARITY 1,
+        INDEX idx_conflict_timestamp conflict_timestamp TYPE bloom_filter GRANULARITY 1
     )
     ENGINE = ReplacingMergeTree
-    ORDER BY (ifNull(conflict_identifier, ''), key)
+    ORDER BY (repo, merge_hash, conflict_timestamp, key)
     """
 
 
