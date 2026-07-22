@@ -16,6 +16,7 @@ from common.schesch import (
     test_selectors_from_patch,
 )
 from common.resolution_models import ConflictResolution, ProposedResolution
+from evaluation.analysis import schesch_analysis, schesch_generated_analysis, schesch_original_analysis
 from evaluation.analysis.schesch_generated_analysis import ScheschGeneratedEvaluationAnalysis
 from evaluation.analysis.schesch_original_analysis import ScheschOriginalEvaluationAnalysis
 
@@ -264,6 +265,8 @@ def test_schesch_original_analysis_runs_proposed_resolution_only(monkeypatch):
     analysis = ScheschOriginalEvaluationAnalysis(timeout_seconds=900)
 
     with (
+        patch.object(schesch_analysis, "logger") as shared_logger,
+        patch.object(schesch_original_analysis, "logger") as logger,
         patch("evaluation.analysis.schesch_original_analysis.read_head_commit", return_value=("proposed-sha", None)),
         patch.object(analysis, "run_tests_for_ref") as run_tests,
         patch("evaluation.analysis.schesch_original_analysis.reset_playground", return_value=None) as reset_playground,
@@ -285,6 +288,34 @@ def test_schesch_original_analysis_runs_proposed_resolution_only(monkeypatch):
         Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"),
         "proposed-sha",
     )
+    shared_logger.info.assert_any_call(
+        "Starting {} evaluation for {} in restored playground {}",
+        "schesch-original",
+        "resolution:conflict:owner/repo.git-actualsha:20260602T120000.000000Z",
+        "owner/repo.git-20260602T120000.000000Z-actualsha",
+    )
+    logger.info.assert_any_call(
+        "{} evaluation resolved proposed HEAD {} and actual resolution {}",
+        "schesch-original",
+        "proposed-sha",
+        "actualsha",
+    )
+    shared_logger.info.assert_any_call(
+        (
+            "{} evaluation finished for {} in {}: label={}, commit_sha={}, passed={}, "
+            "compilation_failed={}, test_execution_failed={}, timed_out={}, attempts={}"
+        ),
+        "schesch-original",
+        "resolution:conflict:owner/repo.git-actualsha:20260602T120000.000000Z",
+        "owner/repo.git-20260602T120000.000000Z-actualsha",
+        "proposed",
+        "proposed-sha",
+        True,
+        False,
+        False,
+        False,
+        0,
+    )
 
 
 def test_schesch_generated_analysis_applies_generated_tests_and_runs_filtered_selectors(monkeypatch):
@@ -300,6 +331,8 @@ def test_schesch_generated_analysis_applies_generated_tests_and_runs_filtered_se
     )
 
     with (
+        patch.object(schesch_analysis, "logger") as shared_logger,
+        patch.object(schesch_generated_analysis, "logger") as logger,
         patch("evaluation.analysis.schesch_generated_analysis.read_head_commit", return_value=("proposed-sha", None)),
         patch("evaluation.analysis.schesch_generated_analysis.setup_redis_connection", return_value=redis),
         patch(
@@ -345,4 +378,28 @@ def test_schesch_generated_analysis_applies_generated_tests_and_runs_filtered_se
     reset_playground.assert_called_once_with(
         Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"),
         "proposed-sha",
+    )
+    shared_logger.info.assert_any_call(
+        "Starting {} evaluation for {} in restored playground {}",
+        "schesch-generated",
+        "resolution:conflict:owner/repo.git-actualsha:20260602T120000.000000Z",
+        "owner/repo.git-20260602T120000.000000Z-actualsha",
+    )
+    logger.info.assert_any_call(
+        "{} evaluation will load generated Schesch tests from {}",
+        "schesch-generated",
+        "dataset:schesch:tests:owner/repo.git:actualsha",
+    )
+    logger.info.assert_any_call(
+        "{} evaluation derived {} generated Schesch test selector(s) for {}: {}",
+        "schesch-generated",
+        2,
+        Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"),
+        "OneTest, TwoTest",
+    )
+    logger.info.assert_any_call(
+        "{} evaluation will run generated Schesch tests with {} command {}",
+        "schesch-generated",
+        "maven",
+        ["mvn", "clean", "test", "-Dtest=OneTest,TwoTest"],
     )
