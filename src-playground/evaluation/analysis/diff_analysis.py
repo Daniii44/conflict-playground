@@ -30,7 +30,9 @@ def decode_diff_output(output: bytes) -> str:
     return output.decode("utf-8", errors="replace")
 
 
-def truncate_diff_output(output: str, max_chars: int = MAX_DIFF_OUTPUT_CHARS) -> str:
+def truncate_diff_output(output: str, max_chars: int | None = None) -> str:
+    if max_chars is None:
+        max_chars = MAX_DIFF_OUTPUT_CHARS
     if len(output) <= max_chars:
         return output
 

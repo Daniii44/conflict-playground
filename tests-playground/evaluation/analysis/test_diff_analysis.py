@@ -300,7 +300,7 @@ def test_diff_analysis_truncates_large_diff_output(monkeypatch):
         )
 
     assert error is None
-    assert diff.startswith("0123456789abc")
+    assert diff.startswith("0123456789ab")
     assert diff.endswith("\n... diff truncated for storage ...\n")
     assert len(diff) == 48
 

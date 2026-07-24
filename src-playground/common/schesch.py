@@ -73,6 +73,9 @@ def test_selectors_from_patch(patch: str) -> list[str]:
     return selectors
 
 
+test_selectors_from_patch.__test__ = False
+
+
 def output_tail(output: str, limit: int = OUTPUT_TAIL_CHARS) -> str:
     if len(output) <= limit:
         return output
@@ -111,19 +114,27 @@ def reset_playground(playground_path: Path, ref: str) -> str | None:
 
 
 def parse_schesch_playground_name(playground_name: str) -> tuple[str, str]:
-    if "-" not in playground_name:
+    git_marker = ".git-"
+    marker_index = playground_name.find(git_marker)
+    if marker_index == -1:
         raise RuntimeError(f"Could not extract merge SHA from playground name: {playground_name}")
 
-    prefix, merge_sha = playground_name.rsplit("-", 1)
-    repo_name = prefix
-    if "-" in prefix:
-        maybe_repo_name, maybe_timestamp = prefix.rsplit("-", 1)
+    repo_name = playground_name[: marker_index + len(".git")]
+    remainder = playground_name[marker_index + len(git_marker):]
+    if not remainder:
+        raise RuntimeError(f"Could not extract merge SHA from playground name: {playground_name}")
+
+    merge_sha = remainder
+    if "-" in remainder:
+        maybe_timestamp, maybe_merge_sha = remainder.split("-", 1)
         try:
             datetime.strptime(maybe_timestamp, RESTORED_PLAYGROUND_TIMESTAMP_FORMAT)
         except ValueError:
             pass
         else:
-            repo_name = maybe_repo_name
+            if not maybe_merge_sha:
+                raise RuntimeError(f"Could not extract merge SHA from playground name: {playground_name}")
+            merge_sha = maybe_merge_sha
 
     return repo_name, merge_sha
 

@@ -1,3 +1,4 @@
 [tool.pytest.ini_options]
 testpaths = ["tests-playground"]
 pythonpath = ["src-playground"]
+addopts = ["--import-mode=importlib"]

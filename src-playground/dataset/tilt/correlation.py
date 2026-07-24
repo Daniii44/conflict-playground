@@ -50,7 +50,7 @@ def subdataset_counts(tilt_info: InfoConflictTilt) -> Counter[str]:
     for conflict_type, count in tilt_info.conflict_type_counts.items():
         subdataset = CONFLICT_TYPE_SUBDATASETS.get(conflict_type)
         if subdataset in SUBDATASETS:
-            counts[subdataset] += min(count, 1)  # Count only presence, not frequency
+            counts[subdataset] += count
     return counts
 
 
@@ -110,7 +110,7 @@ def latex_float(value: float) -> str:
 
 
 def print_latex_table(table: TiltCorrelationTable, *, include_counts: bool) -> None:
-    print(r"\begin{tabular}{lrrrr}")
+    print(r"\begin{tabular}{lrrr}")
     print(r"\toprule")
     header = "Subdataset"
     for subdataset in SUBDATASETS:

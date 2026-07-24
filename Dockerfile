@@ -45,6 +45,7 @@ RUN apt-get -y install curl
 RUN curl -fsSL https://opencode.ai/install | bash
 
 ADD src-playground src
+ADD src-playground src-playground
 ADD src-hooks src-hooks
 ADD tests-playground tests-playground
 ADD pyproject.toml .

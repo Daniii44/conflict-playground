@@ -34,6 +34,15 @@ ASSETS_SQL_DIR = (
 CONTAINER_SQL_DIR = Path("/root/sql")
 
 
+if not hasattr(error.HTTPError, "read"):
+    def _http_error_read(self) -> bytes:
+        if self.fp is None:
+            return b""
+        return self.fp.read()
+
+    error.HTTPError.read = _http_error_read
+
+
 def run_query(query: str) -> str:
     credentials = f"{CLICKHOUSE_USER}:{CLICKHOUSE_PASSWORD}".encode("utf-8")
     encoded_credentials = base64.b64encode(credentials).decode("ascii")

@@ -358,13 +358,14 @@ class OpenCodeWorker(HookWorker):
         session_export = self.export_latest_session(playground_path)
         opencode_error = command_error_excerpt(opencode_result)
         opencode_error_suffix = f": {opencode_error}" if opencode_error else ""
+        merge_state_after_run = self.is_merging(playground_path)
         self.log(
             f"opencode finished rc={opencode_result.returncode} "
-            f"merge_state_after_run={self.is_merging(playground_path)} "
+            f"merge_state_after_run={merge_state_after_run} "
             f"session_export_keys={sorted(session_export.keys())}"
         )
 
-        if self.is_merging(playground_path):
+        if merge_state_after_run:
             if self.has_unmerged_changes(playground_path):
                 self.log("repository is still merging and still has unmerged changes")
                 return self.result(
