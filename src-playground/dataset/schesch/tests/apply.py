@@ -11,7 +11,7 @@ from loguru import logger
 from common.git_util import capture_git, git_env
 from common.redis_util import setup_redis_connection
 from dataset.schesch.merge_lookup import resolve_unique_merge_sha_from_parents
-from dataset.schesch.tests.generate import ScheschGeneratedTests, generated_tests_record_key
+from dataset.schesch.tests.generate import ScheschGeneratedTests, generated_patch_bytes, generated_tests_record_key
 
 
 def resolve_playground_path(playground: str | None) -> Path:
@@ -50,7 +50,7 @@ def load_generated_tests(redis, key: str) -> ScheschGeneratedTests:
     record = ScheschGeneratedTests.model_validate(payload)
     if record.error:
         raise RuntimeError(f"Generated test suite at {key} has an error: {record.error}")
-    if not record.patch or not record.patch.strip():
+    if generated_patch_bytes(record) is None:
         raise RuntimeError(f"Generated test suite at {key} has no patch")
     return record
 
@@ -59,23 +59,26 @@ def abort_git_am(playground_path: Path) -> None:
     capture_git("-C", str(playground_path), "am", "--abort", check=False)
 
 
-def apply_patch_to_current_head(playground_path: Path, patch: str) -> str:
+def apply_patch_to_current_head(playground_path: Path, patch: bytes | str) -> str:
     ensure_git_worktree(playground_path)
     ensure_clean_worktree(playground_path)
     before_head = capture_git("-C", str(playground_path), "rev-parse", "HEAD").stdout.strip()
+    patch_input = patch.encode("utf-8") if isinstance(patch, str) else patch
 
     result = subprocess.run(
         ["git", "am", "--3way"],
         cwd=playground_path,
-        input=patch,
-        text=True,
+        input=patch_input,
+        text=False,
         capture_output=True,
         check=False,
         env=git_env(),
     )
     if result.returncode != 0:
         abort_git_am(playground_path)
-        error = result.stderr.strip() or result.stdout.strip()
+        stderr = result.stderr.decode("utf-8", errors="replace").strip() if isinstance(result.stderr, bytes) else (result.stderr or "").strip()
+        stdout = result.stdout.decode("utf-8", errors="replace").strip() if isinstance(result.stdout, bytes) else (result.stdout or "").strip()
+        error = stderr or stdout
         raise RuntimeError(f"Applying generated tests failed and was aborted: {error}")
 
     status = capture_git("-C", str(playground_path), "status", "--porcelain")
@@ -93,7 +96,7 @@ def apply_patch_to_current_head(playground_path: Path, patch: str) -> str:
 def apply_generated_tests(redis, key: str, playground: str | None = None) -> tuple[Path, str]:
     record = load_generated_tests(redis, key)
     playground_path = resolve_playground_path(playground)
-    applied_commit = apply_patch_to_current_head(playground_path, record.patch or "")
+    applied_commit = apply_patch_to_current_head(playground_path, generated_patch_bytes(record) or b"")
     return playground_path, applied_commit
 
 

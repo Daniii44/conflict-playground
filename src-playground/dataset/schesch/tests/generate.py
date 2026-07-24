@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import base64
 import json
 import os
 import shutil
@@ -14,7 +15,7 @@ from typing import Any
 from loguru import logger
 from pydantic import BaseModel, Field
 
-from common.git_util import capture_git, git_env
+from common.git_util import capture_git, capture_git_bytes, git_env
 from common.merge_tree import ConflictType
 from common.redis_util import setup_redis_connection
 from common.schesch import (
@@ -23,7 +24,7 @@ from common.schesch import (
     filtered_test_command,
     reset_playground,
     schesch_info_key,
-    test_selectors_from_patch,
+    test_selectors_from_patch_bytes,
 )
 from dataset.schesch.merge_lookup import resolve_unique_merge_sha_from_parents
 from info.conflict.analysis.core_analysis import InfoConflictCore
@@ -57,6 +58,7 @@ class ScheschGeneratedTests(BaseModel):
     files: list[GeneratedTestFile] = Field(default_factory=list)
     human: dict[str, Any] | None = None
     patch: str | None = None
+    patch_base64: str | None = None
     test_commit_sha: str | None = None
     coverage: dict[str, Any] | None = None
     error: str | None = None
@@ -186,8 +188,23 @@ def commit_generated_tests(playground_path: Path) -> str | None:
     return capture_git("-C", str(playground_path), "rev-parse", "HEAD").stdout.strip()
 
 
-def format_generated_patch(playground_path: Path, base_ref: str) -> str | None:
-    result = capture_git(
+def encode_patch_base64(patch: bytes) -> str:
+    return base64.b64encode(patch).decode("ascii")
+
+
+def generated_patch_bytes(record: ScheschGeneratedTests) -> bytes | None:
+    if record.patch_base64:
+        try:
+            return base64.b64decode(record.patch_base64)
+        except ValueError:
+            return None
+    if record.patch and record.patch.strip():
+        return record.patch.encode("utf-8")
+    return None
+
+
+def format_generated_patch(playground_path: Path, base_ref: str) -> bytes | None:
+    result = capture_git_bytes(
         "-C",
         str(playground_path),
         "format-patch",
@@ -198,8 +215,8 @@ def format_generated_patch(playground_path: Path, base_ref: str) -> str | None:
     return patch if patch.strip() else None
 
 
-def validate_generated_patch(patch: str) -> tuple[list[str], str | None]:
-    selectors = test_selectors_from_patch(patch)
+def validate_generated_patch(patch: bytes) -> tuple[list[str], str | None]:
+    selectors = test_selectors_from_patch_bytes(patch)
     if not selectors:
         return [], "opencode completed but did not modify any Java test classes"
     return selectors, None
@@ -290,7 +307,7 @@ def store_generation(redis, record: ScheschGeneratedTests) -> None:
         "Storing Schesch generated test record at {} (files={}, patch={}, error={})",
         record.redis_key,
         len(record.files),
-        record.patch is not None,
+        generated_patch_bytes(record) is not None,
         record.error is not None,
     )
     redis.json().set(record.redis_key, "$", json.loads(record.model_dump_json()))
@@ -381,12 +398,13 @@ def generate_tests(
         else:
             logger.info("Committed generated tests as {}", record.test_commit_sha)
             logger.info("Formatting generated test patch against {}", merge_sha)
-        record.patch = format_generated_patch(playground_path, merge_sha) if record.test_commit_sha else None
-        if record.patch is None:
+        patch_bytes = format_generated_patch(playground_path, merge_sha) if record.test_commit_sha else None
+        if patch_bytes is None:
             record.error = "opencode completed but did not create any test changes"
             logger.info("No patch was produced for generated tests")
         else:
-            selectors, patch_error = validate_generated_patch(record.patch)
+            record.patch_base64 = encode_patch_base64(patch_bytes)
+            selectors, patch_error = validate_generated_patch(patch_bytes)
             if patch_error is not None:
                 record.error = patch_error
                 logger.warning("Generated test patch did not touch Java test classes")
@@ -404,7 +422,7 @@ def generate_tests(
                     selectors,
                     timeout_seconds,
                 ).model_dump(mode="json")
-            logger.info("Generated test patch has {} characters", len(record.patch))
+            logger.info("Generated test patch has {} bytes", len(patch_bytes))
     except Exception as error:
         record.error = str(error)
         logger.error("{}", error)

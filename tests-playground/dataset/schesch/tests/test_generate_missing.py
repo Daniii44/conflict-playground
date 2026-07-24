@@ -5,7 +5,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from dataset.schesch.tests.generate import ScheschGeneratedTests
+from dataset.schesch.tests.generate import ScheschGeneratedTests, encode_patch_base64
 
 
 def load_generate_missing_module():
@@ -46,7 +46,13 @@ def generated_record(**overrides):
         human_solution_ref="merge-sha",
         generated_at=datetime.now(timezone.utc),
         duration_seconds=1.0,
-        patch="From abc Mon Sep 17 00:00:00 2001\npatch\n",
+        patch_base64=encode_patch_base64(
+            (
+                "From abc Mon Sep 17 00:00:00 2001\n"
+                "diff --git a/src/test/java/pkg/OneTest.java b/src/test/java/pkg/OneTest.java\n"
+                "+++ b/src/test/java/pkg/OneTest.java\n"
+            ).encode()
+        ),
     )
     return record.model_dump() | overrides
 
@@ -56,7 +62,10 @@ def test_has_usable_generated_tests_requires_successful_patch():
 
     assert not module.has_usable_generated_tests(FakeRedis(), "missing")
     assert not module.has_usable_generated_tests(FakeRedis({"key": generated_record(error="failed")}), "key")
-    assert not module.has_usable_generated_tests(FakeRedis({"key": generated_record(patch="")}), "key")
+    assert not module.has_usable_generated_tests(
+        FakeRedis({"key": generated_record(patch="", patch_base64=None)}),
+        "key",
+    )
     assert module.has_usable_generated_tests(FakeRedis({"key": generated_record()}), "key")
 
 

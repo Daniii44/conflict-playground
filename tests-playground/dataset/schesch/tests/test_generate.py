@@ -4,14 +4,17 @@ import subprocess
 
 from common.merge_tree import MergeLogicalConflict, MergeResult
 from common.evaluation_models import ScheschResolutionResult
+from common.schesch import test_selectors_from_patch_bytes
 from dataset.schesch.tests.generate import (
     GeneratedTestFile,
     ScheschGeneratedTests,
     commit_generated_tests,
     content_conflict_paths,
+    encode_patch_base64,
     expected_human_java_home,
     format_generated_patch,
     generate_tests,
+    generated_patch_bytes,
     generated_test_command,
     generated_tests_record_key,
     human_resolution_error,
@@ -110,18 +113,20 @@ def test_commit_generated_tests_returns_none_for_clean_worktree(monkeypatch, tmp
 
 def test_format_generated_patch_returns_none_for_empty_patch(monkeypatch, tmp_path):
     def fake_capture_git(*args, **kwargs):
-        return subprocess.CompletedProcess(args, 0, stdout="\n", stderr="")
+        return subprocess.CompletedProcess(args, 0, stdout=b"\n", stderr=b"")
 
-    monkeypatch.setattr("dataset.schesch.tests.generate.capture_git", fake_capture_git)
+    monkeypatch.setattr("dataset.schesch.tests.generate.capture_git_bytes", fake_capture_git)
 
     assert format_generated_patch(tmp_path, "base") is None
 
 
 def test_validate_generated_patch_requires_java_test_changes():
     selectors, error = validate_generated_patch(
-        "diff --git a/src/main/java/App.java b/src/main/java/App.java\n"
-        "--- a/src/main/java/App.java\n"
-        "+++ b/src/main/java/App.java\n"
+        (
+            "diff --git a/src/main/java/App.java b/src/main/java/App.java\n"
+            "--- a/src/main/java/App.java\n"
+            "+++ b/src/main/java/App.java\n"
+        ).encode()
     )
 
     assert selectors == []
@@ -130,13 +135,48 @@ def test_validate_generated_patch_requires_java_test_changes():
 
 def test_validate_generated_patch_extracts_changed_test_selectors():
     selectors, error = validate_generated_patch(
-        "diff --git a/src/test/java/pkg/OneTest.java b/src/test/java/pkg/OneTest.java\n"
-        "--- a/src/test/java/pkg/OneTest.java\n"
-        "+++ b/src/test/java/pkg/OneTest.java\n"
+        (
+            "diff --git a/src/test/java/pkg/OneTest.java b/src/test/java/pkg/OneTest.java\n"
+            "--- a/src/test/java/pkg/OneTest.java\n"
+            "+++ b/src/test/java/pkg/OneTest.java\n"
+        ).encode()
     )
 
     assert selectors == ["OneTest"]
     assert error is None
+
+
+def test_format_generated_patch_preserves_non_utf8_bytes(monkeypatch, tmp_path):
+    patch = (
+        b"From abc Mon Sep 17 00:00:00 2001\n"
+        b"diff --git a/src/test/java/pkg/WeirdTest.java b/src/test/java/pkg/WeirdTest.java\n"
+        b"+++ b/src/test/java/pkg/WeirdTest.java\n"
+        b"+\x99\n"
+    )
+
+    monkeypatch.setattr(
+        "dataset.schesch.tests.generate.capture_git_bytes",
+        lambda *args, **kwargs: subprocess.CompletedProcess(args, 0, stdout=patch, stderr=b""),
+    )
+
+    assert format_generated_patch(tmp_path, "base") == patch
+    assert test_selectors_from_patch_bytes(patch) == ["WeirdTest"]
+
+
+def test_generated_patch_bytes_prefers_base64_payload():
+    patch = b"From abc\n+++ b/src/test/java/pkg/OneTest.java\n+\x99\n"
+    record = ScheschGeneratedTests(
+        repo="owner/repo.git",
+        merge_sha="merge-sha",
+        redis_key="dataset:schesch:tests:owner/repo.git:merge-sha",
+        conflict_info_key="info:conflict:core:owner/repo.git:merge-sha",
+        human_solution_ref="merge-sha",
+        generated_at=datetime.now(timezone.utc),
+        duration_seconds=1.0,
+        patch_base64=encode_patch_base64(patch),
+    )
+
+    assert generated_patch_bytes(record) == patch
 
 
 def test_generate_tests_stores_error_record_when_opencode_fails(monkeypatch, tmp_path):
@@ -243,7 +283,7 @@ def test_generate_tests_rejects_patch_without_java_test_changes(monkeypatch, tmp
             "diff --git a/src/main/java/App.java b/src/main/java/App.java\n"
             "--- a/src/main/java/App.java\n"
             "+++ b/src/main/java/App.java\n"
-        ),
+        ).encode(),
     )
 
     record = generate_tests(redis, "owner/repo.git", "merge-sha")
@@ -370,7 +410,7 @@ def test_generate_tests_runs_only_generated_selectors_on_human_sample(monkeypatc
             "diff --git a/src/test/java/pkg/GeneratedTest.java b/src/test/java/pkg/GeneratedTest.java\n"
             "--- a/src/test/java/pkg/GeneratedTest.java\n"
             "+++ b/src/test/java/pkg/GeneratedTest.java\n"
-        ),
+        ).encode(),
     )
 
     captured = {}
@@ -436,7 +476,7 @@ def test_store_model_keeps_future_coverage_slot():
         generated_at=datetime.now(timezone.utc),
         duration_seconds=1.0,
         files=[GeneratedTestFile(path="src/Main.java", prompt="prompt", duration_seconds=1.0)],
-        patch="patch",
+        patch_base64=encode_patch_base64(b"patch"),
     )
 
     assert record.coverage is None

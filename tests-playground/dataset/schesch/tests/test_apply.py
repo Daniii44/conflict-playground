@@ -8,7 +8,7 @@ from dataset.schesch.tests.apply import (
     load_generated_tests,
     resolve_record_key,
 )
-from dataset.schesch.tests.generate import ScheschGeneratedTests
+from dataset.schesch.tests.generate import ScheschGeneratedTests, encode_patch_base64
 
 
 class FakeJson:
@@ -36,7 +36,7 @@ def generated_record(**overrides):
         human_solution_ref="merge-sha",
         generated_at=datetime.now(timezone.utc),
         duration_seconds=1.0,
-        patch="From abc Mon Sep 17 00:00:00 2001\npatch\n",
+        patch_base64=encode_patch_base64(b"From abc Mon Sep 17 00:00:00 2001\npatch\n"),
     )
     return record.model_dump() | overrides
 
@@ -46,7 +46,7 @@ def completed(args, stdout="", stderr="", returncode=0):
 
 
 def test_load_generated_tests_requires_existing_patch():
-    redis = FakeRedis({"key": generated_record(patch=None)})
+    redis = FakeRedis({"key": generated_record(patch=None, patch_base64=None)})
 
     with pytest.raises(RuntimeError, match="has no patch"):
         load_generated_tests(redis, "key")
@@ -101,15 +101,15 @@ def test_apply_patch_runs_git_am_and_returns_new_head(monkeypatch, tmp_path):
     def fake_run(args, **kwargs):
         assert args == ["git", "am", "--3way"]
         assert kwargs["cwd"] == tmp_path
-        assert kwargs["input"] == "patch"
-        assert kwargs["text"] is True
+        assert kwargs["input"] == b"patch"
+        assert kwargs["text"] is False
         assert kwargs["capture_output"] is True
         return completed(args)
 
     monkeypatch.setattr("dataset.schesch.tests.apply.capture_git", fake_capture_git)
     monkeypatch.setattr("dataset.schesch.tests.apply.subprocess.run", fake_run)
 
-    assert apply_patch_to_current_head(tmp_path, "patch") == "new-head"
+    assert apply_patch_to_current_head(tmp_path, b"patch") == "new-head"
 
 
 def test_apply_patch_aborts_failed_git_am(monkeypatch, tmp_path):
@@ -134,6 +134,6 @@ def test_apply_patch_aborts_failed_git_am(monkeypatch, tmp_path):
     )
 
     with pytest.raises(RuntimeError, match="failed and was aborted"):
-        apply_patch_to_current_head(tmp_path, "patch")
+        apply_patch_to_current_head(tmp_path, b"patch")
 
     assert abort_calls == [("-C", str(tmp_path), "am", "--abort")]

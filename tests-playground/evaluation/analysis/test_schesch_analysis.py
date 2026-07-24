@@ -16,6 +16,7 @@ from common.schesch import (
     test_selectors_from_patch,
 )
 from common.resolution_models import ConflictResolution, ProposedResolution
+from dataset.schesch.tests.generate import encode_patch_base64
 from evaluation.analysis import schesch_analysis, schesch_generated_analysis, schesch_original_analysis
 from evaluation.analysis.schesch_generated_analysis import ScheschGeneratedEvaluationAnalysis
 from evaluation.analysis.schesch_original_analysis import ScheschOriginalEvaluationAnalysis
@@ -421,7 +422,11 @@ def test_schesch_generated_analysis_applies_generated_tests_and_runs_filtered_se
         patch.object(analysis, "expected_java_home", return_value=("/java-17", None)) as expected_java_home,
         patch(
             "evaluation.analysis.schesch_generated_analysis.load_generated_tests",
-            return_value=type("Record", (), {"patch": generated_patch})(),
+            return_value=type(
+                "Record",
+                (),
+                {"patch": None, "patch_base64": encode_patch_base64(generated_patch.encode())},
+            )(),
         ) as load_generated_tests,
         patch(
             "evaluation.analysis.schesch_generated_analysis.apply_patch_to_current_head",
@@ -449,7 +454,7 @@ def test_schesch_generated_analysis_applies_generated_tests_and_runs_filtered_se
     expected_java_home.assert_called_once_with(evaluation_input(), redis)
     apply_patch.assert_called_once_with(
         Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"),
-        generated_patch,
+        generated_patch.encode(),
     )
     detect_build_commands.assert_called_once_with(
         Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha")

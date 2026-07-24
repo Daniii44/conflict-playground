@@ -73,7 +73,28 @@ def test_selectors_from_patch(patch: str) -> list[str]:
     return selectors
 
 
+def test_selectors_from_patch_bytes(patch: bytes) -> list[str]:
+    selectors: list[str] = []
+    seen: set[str] = set()
+    for raw_line in patch.splitlines():
+        if not raw_line.startswith(b"+++ "):
+            continue
+        line = raw_line.decode("utf-8", errors="surrogateescape")
+        path = line.removeprefix("+++ ").strip()
+        if path == "/dev/null" or not path.startswith("b/"):
+            continue
+        file_path = path.removeprefix("b/")
+        if not is_java_test_path(file_path):
+            continue
+        selector = normalize_test_selector(file_path)
+        if selector not in seen:
+            selectors.append(selector)
+            seen.add(selector)
+    return selectors
+
+
 test_selectors_from_patch.__test__ = False
+test_selectors_from_patch_bytes.__test__ = False
 
 
 def output_tail(output: str, limit: int = OUTPUT_TAIL_CHARS) -> str:

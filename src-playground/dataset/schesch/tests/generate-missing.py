@@ -16,7 +16,9 @@ from dataset.schesch.tests.generate import (
     DEFAULT_OPENCODE_TIMEOUT_SECONDS,
     ScheschGeneratedTests,
     generate_tests,
+    generated_patch_bytes,
     generated_tests_record_key,
+    validate_generated_patch,
 )
 from playbook.playgrounds import (
     Playground,
@@ -45,7 +47,12 @@ def has_usable_generated_tests(redis, key: str) -> bool:
         logger.warning("Regenerating tests because existing record {} is invalid: {}", key, error)
         return False
 
-    return record.error is None and bool(record.patch and record.patch.strip())
+    patch_bytes = generated_patch_bytes(record)
+    if record.error is not None or patch_bytes is None:
+        return False
+
+    selectors, patch_error = validate_generated_patch(patch_bytes)
+    return patch_error is None and bool(selectors)
 
 
 def selected_playgrounds(

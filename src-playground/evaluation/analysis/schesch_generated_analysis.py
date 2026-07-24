@@ -7,10 +7,10 @@ from common.schesch import (
     filtered_test_command,
     parse_schesch_playground_name,
     reset_playground,
-    test_selectors_from_patch,
+    test_selectors_from_patch_bytes,
 )
 from dataset.schesch.tests.apply import apply_patch_to_current_head, load_generated_tests
-from dataset.schesch.tests.generate import generated_tests_record_key
+from dataset.schesch.tests.generate import generated_patch_bytes, generated_tests_record_key
 from evaluation.analysis.common import actual_resolution_sha_from_playground_name, read_head_commit
 from evaluation.analysis.schesch_analysis import BaseScheschEvaluationAnalysis
 
@@ -26,8 +26,8 @@ class ScheschGeneratedEvaluationAnalysis(BaseScheschEvaluationAnalysis):
             return None, str(error)
         return generated_tests_record_key(repo_name, merge_sha), None
 
-    def generated_test_command(self, playground_path, patch: str) -> tuple[list[str] | None, str | None]:
-        selectors = test_selectors_from_patch(patch)
+    def generated_test_command(self, playground_path, patch: bytes) -> tuple[list[str] | None, str | None]:
+        selectors = test_selectors_from_patch_bytes(patch)
         if not selectors:
             logger.warning(
                 "{} evaluation found no Java test selectors in generated test patch for {}",
@@ -116,12 +116,12 @@ class ScheschGeneratedEvaluationAnalysis(BaseScheschEvaluationAnalysis):
         if head_error is None:
             try:
                 generated_tests = load_generated_tests(redis, generated_key)
-                patch_text = generated_tests.patch or ""
+                patch_bytes = generated_patch_bytes(generated_tests) or b""
                 logger.info(
-                    "{} evaluation loaded generated Schesch patch from {} ({} characters)",
+                    "{} evaluation loaded generated Schesch patch from {} ({} bytes)",
                     self.get_analysis_name(),
                     generated_key,
-                    len(patch_text),
+                    len(patch_bytes),
                 )
             except RuntimeError as error:
                 generated_tests_error = str(error)
@@ -145,8 +145,8 @@ class ScheschGeneratedEvaluationAnalysis(BaseScheschEvaluationAnalysis):
 
         try:
             if head_error is None and generated_tests_error is None and generated_tests is not None:
-                patch_text = generated_tests.patch or ""
-                test_command, test_command_error = self.generated_test_command(playground_path, patch_text)
+                patch_bytes = generated_patch_bytes(generated_tests) or b""
+                test_command, test_command_error = self.generated_test_command(playground_path, patch_bytes)
                 if test_command_error is not None:
                     apply_error = test_command_error
                     logger.warning(
@@ -162,7 +162,7 @@ class ScheschGeneratedEvaluationAnalysis(BaseScheschEvaluationAnalysis):
                         generated_key,
                         playground_path,
                     )
-                    applied_commit_sha = apply_patch_to_current_head(playground_path, patch_text)
+                    applied_commit_sha = apply_patch_to_current_head(playground_path, patch_bytes)
                     logger.info(
                         "{} evaluation applied generated Schesch test patch and produced commit {}",
                         self.get_analysis_name(),
