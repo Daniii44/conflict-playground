@@ -12,6 +12,7 @@ from dataset.schesch.tests.generate import (
     generate_tests,
     generated_tests_record_key,
     prompt_for_file,
+    validate_generated_patch,
 )
 from info.conflict.analysis.core_analysis import InfoConflictCore
 
@@ -110,6 +111,28 @@ def test_format_generated_patch_returns_none_for_empty_patch(monkeypatch, tmp_pa
     assert format_generated_patch(tmp_path, "base") is None
 
 
+def test_validate_generated_patch_requires_java_test_changes():
+    selectors, error = validate_generated_patch(
+        "diff --git a/src/main/java/App.java b/src/main/java/App.java\n"
+        "--- a/src/main/java/App.java\n"
+        "+++ b/src/main/java/App.java\n"
+    )
+
+    assert selectors == []
+    assert error == "opencode completed but did not modify any Java test classes"
+
+
+def test_validate_generated_patch_extracts_changed_test_selectors():
+    selectors, error = validate_generated_patch(
+        "diff --git a/src/test/java/pkg/OneTest.java b/src/test/java/pkg/OneTest.java\n"
+        "--- a/src/test/java/pkg/OneTest.java\n"
+        "+++ b/src/test/java/pkg/OneTest.java\n"
+    )
+
+    assert selectors == ["OneTest"]
+    assert error is None
+
+
 def test_generate_tests_stores_error_record_when_opencode_fails(monkeypatch, tmp_path):
     redis = FakeRedis()
     redis.json_api.values["info:conflict:core:owner/repo.git:merge-sha"] = core_conflict().model_dump()
@@ -136,6 +159,42 @@ def test_generate_tests_stores_error_record_when_opencode_fails(monkeypatch, tmp
     stored = redis.json_api.values["dataset:schesch:tests:owner/repo.git:merge-sha"]
     assert stored["error"] == record.error
     assert stored["coverage"] is None
+
+
+def test_generate_tests_rejects_patch_without_java_test_changes(monkeypatch, tmp_path):
+    redis = FakeRedis()
+    redis.json_api.values["info:conflict:core:owner/repo.git:merge-sha"] = core_conflict().model_dump()
+    playgrounds = tmp_path / "playgrounds"
+    playground = playgrounds / "owner" / "repo.git-merge-sha"
+    playground.mkdir(parents=True)
+    monkeypatch.setenv("PLAYGROUNDS", str(playgrounds))
+
+    monkeypatch.setattr(
+        "dataset.schesch.tests.generate.setup_playground",
+        lambda repo, merge: "owner/repo.git-merge-sha",
+    )
+    monkeypatch.setattr("dataset.schesch.tests.generate.reset_playground", lambda path, merge: None)
+    monkeypatch.setattr(
+        "dataset.schesch.tests.generate.run_opencode_for_file",
+        lambda path, executable, prompt, timeout: (0, None, None, 0.5),
+    )
+    monkeypatch.setattr(
+        "dataset.schesch.tests.generate.commit_generated_tests",
+        lambda path: "generated-commit",
+    )
+    monkeypatch.setattr(
+        "dataset.schesch.tests.generate.format_generated_patch",
+        lambda path, base_ref: (
+            "diff --git a/src/main/java/App.java b/src/main/java/App.java\n"
+            "--- a/src/main/java/App.java\n"
+            "+++ b/src/main/java/App.java\n"
+        ),
+    )
+
+    record = generate_tests(redis, "owner/repo.git", "merge-sha")
+
+    assert record.test_commit_sha == "generated-commit"
+    assert record.error == "opencode completed but did not modify any Java test classes"
 
 
 def test_store_model_keeps_future_coverage_slot():

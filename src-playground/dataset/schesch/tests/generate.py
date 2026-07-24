@@ -17,7 +17,7 @@ from pydantic import BaseModel, Field
 from common.git_util import capture_git, git_env
 from common.merge_tree import ConflictType
 from common.redis_util import setup_redis_connection
-from common.schesch import reset_playground
+from common.schesch import reset_playground, test_selectors_from_patch
 from dataset.schesch.merge_lookup import resolve_unique_merge_sha_from_parents
 from info.conflict.analysis.core_analysis import InfoConflictCore
 from playground.setup import setup_playground
@@ -187,6 +187,13 @@ def format_generated_patch(playground_path: Path, base_ref: str) -> str | None:
     return patch if patch.strip() else None
 
 
+def validate_generated_patch(patch: str) -> tuple[list[str], str | None]:
+    selectors = test_selectors_from_patch(patch)
+    if not selectors:
+        return [], "opencode completed but did not modify any Java test classes"
+    return selectors, None
+
+
 def load_conflict_info(redis, repo_name: str, merge_sha: str) -> InfoConflictCore:
     key = conflict_info_key(repo_name, merge_sha)
     logger.info("Loading info:core conflict record from {}", key)
@@ -305,6 +312,16 @@ def generate_tests(
             record.error = "opencode completed but did not create any test changes"
             logger.info("No patch was produced for generated tests")
         else:
+            selectors, patch_error = validate_generated_patch(record.patch)
+            if patch_error is not None:
+                record.error = patch_error
+                logger.warning("Generated test patch did not touch Java test classes")
+            else:
+                logger.info(
+                    "Generated test patch modifies {} Java test selector(s): {}",
+                    len(selectors),
+                    ", ".join(selectors),
+                )
             logger.info("Generated test patch has {} characters", len(record.patch))
     except Exception as error:
         record.error = str(error)
