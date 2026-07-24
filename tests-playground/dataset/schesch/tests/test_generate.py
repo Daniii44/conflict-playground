@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import importlib.util
 from pathlib import Path
 import subprocess
 
@@ -45,6 +46,19 @@ class FakeRedis:
 
     def json(self):
         return self.json_api
+
+
+def load_generate_module():
+    repo_root = Path(__file__).resolve().parents[4]
+    source_root = repo_root / "src-playground"
+    if not source_root.is_dir():
+        source_root = repo_root / "src"
+    module_path = source_root / "dataset" / "schesch" / "tests" / "generate.py"
+    spec = importlib.util.spec_from_file_location("generate_module", module_path)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    return module
 
 
 def core_conflict() -> InfoConflictCore:
@@ -530,3 +544,56 @@ def test_store_model_keeps_future_coverage_slot():
     )
 
     assert record.coverage is None
+
+
+def test_main_prints_test_execution_success_true(monkeypatch, capsys):
+    module = load_generate_module()
+    monkeypatch.setattr(module, "setup_redis_connection", lambda: "redis")
+    monkeypatch.setattr(
+        module,
+        "generate_tests",
+        lambda redis, repo_name, merge_sha, **kwargs: ScheschGeneratedTests(
+            repo=repo_name,
+            merge_sha=merge_sha,
+            redis_key=f"dataset:schesch:tests:{repo_name}:{merge_sha}",
+            conflict_info_key=f"info:conflict:core:{repo_name}:{merge_sha}",
+            human_solution_ref=merge_sha,
+            generated_at=datetime.now(timezone.utc),
+            duration_seconds=1.0,
+            human={"passed": True},
+        ),
+    )
+    monkeypatch.setattr(module.sys, "argv", ["dataset-schesch-tests-generate", "owner/repo.git", "merge-sha"])
+
+    assert module.main() == 0
+    assert capsys.readouterr().out == (
+        "dataset:schesch:tests:owner/repo.git:merge-sha\n"
+        "test_execution_success=true\n"
+    )
+
+
+def test_main_prints_test_execution_success_false(monkeypatch, capsys):
+    module = load_generate_module()
+    monkeypatch.setattr(module, "setup_redis_connection", lambda: "redis")
+    monkeypatch.setattr(
+        module,
+        "generate_tests",
+        lambda redis, repo_name, merge_sha, **kwargs: ScheschGeneratedTests(
+            repo=repo_name,
+            merge_sha=merge_sha,
+            redis_key=f"dataset:schesch:tests:{repo_name}:{merge_sha}",
+            conflict_info_key=f"info:conflict:core:{repo_name}:{merge_sha}",
+            human_solution_ref=merge_sha,
+            generated_at=datetime.now(timezone.utc),
+            duration_seconds=1.0,
+            error="tests failed",
+            human={"passed": False},
+        ),
+    )
+    monkeypatch.setattr(module.sys, "argv", ["dataset-schesch-tests-generate", "owner/repo.git", "merge-sha"])
+
+    assert module.main() == 1
+    assert capsys.readouterr().out == (
+        "dataset:schesch:tests:owner/repo.git:merge-sha\n"
+        "test_execution_success=false\n"
+    )

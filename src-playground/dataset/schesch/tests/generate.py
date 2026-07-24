@@ -602,7 +602,9 @@ def main() -> int:
         logger.error("{}", error)
         return 1
 
+    test_execution_success = bool(record.human and record.human.get("passed"))
     print(record.redis_key)
+    print(f"test_execution_success={'true' if test_execution_success else 'false'}")
     return 0 if record.error is None else 1
 
 
