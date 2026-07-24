@@ -80,30 +80,37 @@ def generate_missing_tests_for_playbook(
     limit: int | None = None,
     stop_on_error: bool = False,
 ) -> MissingGenerationResult:
-    playgrounds = selected_playgrounds(playbook_path, skip=skip, limit=limit)
-    result = MissingGenerationResult(total=len(playgrounds))
-    logger.info(
-        "Loaded {} conflicts from playbook {} (skip={}, limit={})",
-        len(playgrounds),
-        playbook_path,
-        skip,
-        limit,
-    )
-
-    for index, playground in enumerate(playgrounds, start=1):
-        logger.info(
-            "Processing playbook conflict {}/{}: {} {}",
-            index,
-            len(playgrounds),
-            playground.repo_name,
-            playground.target_label(),
-        )
+    selected = selected_playgrounds(playbook_path, skip=skip, limit=limit)
+    pending_playgrounds: list[tuple[Playground, str, str]] = []
+    skipped = 0
+    for playground in selected:
         merge_sha = resolve_playground_merge_sha(playground)
         key = generated_tests_record_key(playground.repo_name, merge_sha)
         if has_usable_generated_tests(redis, key):
-            result.skipped += 1
-            logger.info("Skipping {}; generated tests already exist at {}", playground.target_label(), key)
+            skipped += 1
+            logger.info("Pruning {}; generated tests already exist at {}", playground.target_label(), key)
             continue
+        pending_playgrounds.append((playground, merge_sha, key))
+
+    result = MissingGenerationResult(total=len(pending_playgrounds), skipped=skipped)
+    logger.info(
+        "Loaded {} conflicts from playbook {} (skip={}, limit={}); {} remain after pruning {} existing records",
+        len(selected),
+        playbook_path,
+        skip,
+        limit,
+        result.total,
+        result.skipped,
+    )
+
+    for index, (playground, merge_sha, key) in enumerate(pending_playgrounds, start=1):
+        logger.info(
+            "Processing playbook conflict {}/{}: {} {}",
+            index,
+            len(pending_playgrounds),
+            playground.repo_name,
+            playground.target_label(),
+        )
 
         record = generate_tests(
             redis,

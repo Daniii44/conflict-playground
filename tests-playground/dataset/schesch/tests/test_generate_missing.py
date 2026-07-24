@@ -113,7 +113,7 @@ def test_generate_missing_tests_skips_existing_and_generates_missing(monkeypatch
 
     result = module.generate_missing_tests_for_playbook(redis, tmp_path / "playbook.yaml", timeout_seconds=3)
 
-    assert result.total == 2
+    assert result.total == 1
     assert result.skipped == 1
     assert result.generated == 1
     assert result.failed == 0
@@ -162,6 +162,42 @@ def test_generate_missing_tests_records_failures_and_continues(monkeypatch, tmp_
     assert result.generated == 1
     assert result.failed == 1
     assert result.failed_keys == ["dataset:schesch:tests:owner/repo.git:failed"]
+
+
+def test_generate_missing_tests_prunes_existing_before_looping(monkeypatch, tmp_path):
+    module = load_generate_missing_module()
+    existing_key = "dataset:schesch:tests:owner/repo.git:existing"
+    redis = FakeRedis({existing_key: generated_record(merge_sha="existing", redis_key=existing_key)})
+    playgrounds = [
+        module.Playground(repo_name="owner/repo.git", merge_sha="existing"),
+        module.Playground(repo_name="owner/repo.git", merge_sha="missing-one"),
+        module.Playground(repo_name="owner/repo.git", merge_sha="missing-two"),
+    ]
+    processed = []
+
+    monkeypatch.setattr(module, "load_playbook_result", lambda path: SimpleNamespace(playgrounds=playgrounds))
+    monkeypatch.setattr(module, "resolve_playground_merge_sha", lambda playground: playground.merge_sha)
+
+    def fake_generate_tests(redis_arg, repo_name, merge_sha, **kwargs):
+        processed.append(merge_sha)
+        return ScheschGeneratedTests(
+            repo=repo_name,
+            merge_sha=merge_sha,
+            redis_key=f"dataset:schesch:tests:{repo_name}:{merge_sha}",
+            conflict_info_key=f"info:conflict:core:{repo_name}:{merge_sha}",
+            human_solution_ref=merge_sha,
+            generated_at=datetime.now(timezone.utc),
+            duration_seconds=1.0,
+            patch="patch",
+        )
+
+    monkeypatch.setattr(module, "generate_tests", fake_generate_tests)
+
+    result = module.generate_missing_tests_for_playbook(redis, tmp_path / "playbook.yaml")
+
+    assert result.total == 2
+    assert result.skipped == 1
+    assert processed == ["missing-one", "missing-two"]
 
 
 def test_main_uses_default_schesch_playbook(monkeypatch, tmp_path, capsys):
