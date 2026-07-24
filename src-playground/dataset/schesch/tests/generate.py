@@ -17,7 +17,14 @@ from pydantic import BaseModel, Field
 from common.git_util import capture_git, git_env
 from common.merge_tree import ConflictType
 from common.redis_util import setup_redis_connection
-from common.schesch import reset_playground, test_selectors_from_patch
+from common.schesch import (
+    ScheschResolutionRunner,
+    determine_expected_java_home,
+    filtered_test_command,
+    reset_playground,
+    schesch_info_key,
+    test_selectors_from_patch,
+)
 from dataset.schesch.merge_lookup import resolve_unique_merge_sha_from_parents
 from info.conflict.analysis.core_analysis import InfoConflictCore
 from playground.setup import setup_playground
@@ -48,6 +55,7 @@ class ScheschGeneratedTests(BaseModel):
     generated_at: datetime
     duration_seconds: float
     files: list[GeneratedTestFile] = Field(default_factory=list)
+    human: dict[str, Any] | None = None
     patch: str | None = None
     test_commit_sha: str | None = None
     coverage: dict[str, Any] | None = None
@@ -211,6 +219,69 @@ def load_conflict_info(redis, repo_name: str, merge_sha: str) -> InfoConflictCor
     return conflict_info
 
 
+def expected_human_java_home(redis, repo_name: str, merge_sha: str) -> str:
+    key = schesch_info_key(repo_name, merge_sha)
+    logger.info("Loading Schesch conflict record from {}", key)
+    payload = redis.json().get(key)
+    if not payload:
+        raise RuntimeError(f"No Schesch conflict record found at {key}")
+
+    java_home, error = determine_expected_java_home(payload)
+    if error is not None or java_home is None:
+        raise RuntimeError(f"Could not determine expected Java home from {key}: {error}")
+    return java_home
+
+
+def human_resolution_error(result) -> str:
+    if result.error:
+        return result.error
+    if result.compilation_failed:
+        return "Human sample resolution does not compile under the expected Java home"
+    if result.test_execution_failed:
+        return "Human sample resolution fails Schesch tests under the expected Java home"
+    if result.timed_out:
+        return "Human sample resolution timed out under the expected Java home"
+    return "Human sample resolution did not pass Schesch tests under the expected Java home"
+
+
+def generated_test_command(playground_path: Path, selectors: list[str], timeout_seconds: int) -> tuple[list[str], str]:
+    runner = ScheschResolutionRunner(timeout_seconds=timeout_seconds)
+    build_commands = runner.detect_build_commands(playground_path)
+    if isinstance(build_commands, str):
+        raise RuntimeError(build_commands)
+    return filtered_test_command(build_commands, selectors), build_commands.build_tool
+
+
+def verify_human_solution(
+    redis,
+    playground_path: Path,
+    repo_name: str,
+    merge_sha: str,
+    selectors: list[str],
+    timeout_seconds: int,
+):
+    java_home = expected_human_java_home(redis, repo_name, merge_sha)
+    test_command, build_tool = generated_test_command(playground_path, selectors, timeout_seconds)
+    logger.info(
+        "Running generated Schesch tests for human sample solution {} {} with {} using {} selectors",
+        repo_name,
+        merge_sha,
+        java_home,
+        len(selectors),
+    )
+    result = ScheschResolutionRunner(timeout_seconds=timeout_seconds).run_tests_in_current_state(
+        playground_path,
+        "human",
+        commit_sha=merge_sha,
+        java_homes=[java_home],
+        test_command=test_command,
+    )
+    result.build_tool = result.build_tool or build_tool
+    if not result.passed:
+        raise RuntimeError(human_resolution_error(result))
+    return result
+
+
 def store_generation(redis, record: ScheschGeneratedTests) -> None:
     logger.info(
         "Storing Schesch generated test record at {} (files={}, patch={}, error={})",
@@ -322,6 +393,14 @@ def generate_tests(
                     len(selectors),
                     ", ".join(selectors),
                 )
+                record.human = verify_human_solution(
+                    redis,
+                    playground_path,
+                    repo_name,
+                    merge_sha,
+                    selectors,
+                    timeout_seconds,
+                ).model_dump(mode="json")
             logger.info("Generated test patch has {} characters", len(record.patch))
     except Exception as error:
         record.error = str(error)
