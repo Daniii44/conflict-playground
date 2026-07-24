@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import random
 import subprocess
 import sys
 from dataclasses import dataclass, field
@@ -93,6 +94,7 @@ def generate_missing_tests_for_playbook(
         pending_playgrounds.append((playground, merge_sha, key))
 
     result = MissingGenerationResult(total=len(pending_playgrounds), skipped=skipped)
+    random.shuffle(pending_playgrounds)
     logger.info(
         "Loaded {} conflicts from playbook {} (skip={}, limit={}); {} remain after pruning {} existing records",
         len(selected),
