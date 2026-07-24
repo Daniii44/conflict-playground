@@ -135,11 +135,40 @@
               },
               "title": "Details"
             }
+          },
+          {
+            "kind": "RowsLayoutRow",
+            "spec": {
+              "collapse": false,
+              "layout": {
+                "kind": "AutoGridLayout",
+                "spec": {
+                  "columnWidthMode": "standard",
+                  "items": [],
+                  "maxColumnCount": 3,
+                  "rowHeightMode": "standard"
+                }
+              },
+              "title": "Generated Test Files"
+            }
           }
         ]
       }
     },
-    "links": [],
+    "links": [
+      {
+        "asDropdown": false,
+        "icon": "external link",
+        "includeVars": false,
+        "keepTime": false,
+        "tags": [],
+        "targetBlank": true,
+        "title": "Source (GitHub)",
+        "tooltip": "View source file in repository",
+        "type": "link",
+        "url": "https://github.com/Daniii44/conflict-playground/blob/grafana/generated-test.json"
+      }
+    ],
     "liveNow": false,
     "preferences": {
       "layout": {
@@ -180,13 +209,45 @@
         "kind": "TextVariable",
         "spec": {
           "current": {
-            "text": "dataset:schesch:tests:accla/d4m_api_java.git:3d17b93fcaca70344f20d3adcd3bcb71b71ab097",
-            "value": "dataset:schesch:tests:accla/d4m_api_java.git:3d17b93fcaca70344f20d3adcd3bcb71b71ab097"
+            "text": "dataset:schesch:tests:apache/commons-math.git:a6804eaa74dd04734bac4081d16fc058030dce13",
+            "value": "dataset:schesch:tests:apache/commons-math.git:a6804eaa74dd04734bac4081d16fc058030dce13"
           },
           "hide": "dontHide",
           "name": "key",
-          "query": "dataset:schesch:tests:accla/d4m_api_java.git:3d17b93fcaca70344f20d3adcd3bcb71b71ab097",
+          "query": "dataset:schesch:tests:apache/commons-math.git:a6804eaa74dd04734bac4081d16fc058030dce13",
           "skipUrlSync": false
+        }
+      },
+      {
+        "kind": "QueryVariable",
+        "spec": {
+          "allowCustomValue": true,
+          "current": {
+            "text": "All",
+            "value": "$__all"
+          },
+          "definition": "SELECT file.path::text\nFROM \"default\".\"redis_json\"\narray join content.files::Array(JSON) as file\nwhere key = '$key'",
+          "hide": "hideVariable",
+          "includeAll": true,
+          "multi": false,
+          "name": "query0",
+          "options": [],
+          "query": {
+            "datasource": {
+              "name": "clickhouse"
+            },
+            "group": "grafana-clickhouse-datasource",
+            "kind": "DataQuery",
+            "spec": {
+              "__legacyStringValue": "SELECT file.path::text\nFROM \"default\".\"redis_json\"\narray join content.files::Array(JSON) as file\nwhere key = '$key'"
+            },
+            "version": "v0"
+          },
+          "refresh": "onDashboardLoad",
+          "regex": "",
+          "regexApplyTo": "value",
+          "skipUrlSync": false,
+          "sort": "disabled"
         }
       }
     ]
