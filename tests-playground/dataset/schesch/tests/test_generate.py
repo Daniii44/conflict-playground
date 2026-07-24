@@ -88,8 +88,9 @@ def test_prompt_for_file_scopes_generation_to_single_conflicting_file():
     assert "human sample solution" in prompt
     assert "Do not edit production source files" in prompt
     assert "playground-schesch-test" in prompt
+    assert "The generated patch is only useful if `playground-schesch-test` passes" in prompt
     assert "-t <GeneratedTestClass.java>" in prompt
-    assert "Do not run a broader test suite" in prompt
+    assert "do not consider the task complete until that command succeeds" in prompt
     assert "CONFLICT (contents)" in prompt
     assert "CONFLICT (modify/delete)" not in prompt
 
