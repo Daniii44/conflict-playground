@@ -12,13 +12,16 @@ from dataset.schesch.tests.generate import (
     content_conflict_paths,
     encode_patch_base64,
     expected_human_java_home,
+    export_latest_session,
     format_generated_patch,
     generate_tests,
     generated_patch_bytes,
     generated_test_command,
     generated_tests_record_key,
     human_resolution_error,
+    latest_session_id,
     prompt_for_file,
+    run_opencode_json,
     validate_generated_patch,
     verify_human_solution,
 )
@@ -179,6 +182,39 @@ def test_generated_patch_bytes_prefers_base64_payload():
     assert generated_patch_bytes(record) == patch
 
 
+def test_latest_session_id_handles_list_and_dict_shapes():
+    assert latest_session_id([{"id": "session-1"}]) == "session-1"
+    assert latest_session_id({"sessions": [{"sessionId": "session-2"}]}) == "session-2"
+    assert latest_session_id({"session_id": "session-3"}) == "session-3"
+    assert latest_session_id({"sessions": []}) is None
+
+
+def test_export_latest_session_returns_exported_json(monkeypatch, tmp_path):
+    responses = [
+        ([{"id": "session-1"}], None),
+        ({"messages": ["full-session"]}, None),
+    ]
+
+    monkeypatch.setattr(
+        "dataset.schesch.tests.generate.run_opencode_json",
+        lambda playground_path, executable, *args: responses.pop(0),
+    )
+
+    assert export_latest_session(tmp_path, "/opencode") == {
+        "id": "session-1",
+        "data": {"messages": ["full-session"]},
+    }
+
+
+def test_export_latest_session_reports_list_errors(monkeypatch, tmp_path):
+    monkeypatch.setattr(
+        "dataset.schesch.tests.generate.run_opencode_json",
+        lambda playground_path, executable, *args: (None, "list failed"),
+    )
+
+    assert export_latest_session(tmp_path, "/opencode") == {"error": "list failed"}
+
+
 def test_generate_tests_stores_error_record_when_opencode_fails(monkeypatch, tmp_path):
     redis = FakeRedis()
     redis.json_api.values["info:conflict:core:owner/repo.git:merge-sha"] = core_conflict().model_dump()
@@ -204,6 +240,10 @@ def test_generate_tests_stores_error_record_when_opencode_fails(monkeypatch, tmp
         lambda path, executable, prompt, timeout: (1, "bad output", "opencode exited with code 1", 0.5),
     )
     monkeypatch.setattr(
+        "dataset.schesch.tests.generate.export_latest_session",
+        lambda path, executable: {"id": "session-1", "data": {"messages": []}},
+    )
+    monkeypatch.setattr(
         "dataset.schesch.tests.generate.ScheschResolutionRunner",
         lambda timeout_seconds: type(
             "Runner",
@@ -226,6 +266,7 @@ def test_generate_tests_stores_error_record_when_opencode_fails(monkeypatch, tmp
     assert record.error == "Test generation failed for src/Main.java: opencode exited with code 1"
     assert record.human is None
     assert record.files[0].path == "src/Main.java"
+    assert record.files[0].opencode_session_export == {"id": "session-1", "data": {"messages": []}}
     assert record.files[0].output_tail == "bad output"
     stored = redis.json_api.values["dataset:schesch:tests:owner/repo.git:merge-sha"]
     assert stored["error"] == record.error
@@ -255,6 +296,10 @@ def test_generate_tests_rejects_patch_without_java_test_changes(monkeypatch, tmp
     monkeypatch.setattr(
         "dataset.schesch.tests.generate.run_opencode_for_file",
         lambda path, executable, prompt, timeout: (0, None, None, 0.5),
+    )
+    monkeypatch.setattr(
+        "dataset.schesch.tests.generate.export_latest_session",
+        lambda path, executable: {"id": "session-2", "data": {"messages": []}},
     )
     monkeypatch.setattr(
         "dataset.schesch.tests.generate.commit_generated_tests",
@@ -401,6 +446,10 @@ def test_generate_tests_runs_only_generated_selectors_on_human_sample(monkeypatc
         lambda path, executable, prompt, timeout: (0, None, None, 0.5),
     )
     monkeypatch.setattr(
+        "dataset.schesch.tests.generate.export_latest_session",
+        lambda path, executable: {"id": "session-3", "data": {"messages": []}},
+    )
+    monkeypatch.setattr(
         "dataset.schesch.tests.generate.commit_generated_tests",
         lambda path: "generated-commit",
     )
@@ -453,6 +502,7 @@ def test_generate_tests_runs_only_generated_selectors_on_human_sample(monkeypatc
 
     assert record.error is None
     assert record.human is not None
+    assert record.files[0].opencode_session_export == {"id": "session-3", "data": {"messages": []}}
     assert captured == {
         "playground_path": playground,
         "selectors": ["GeneratedTest"],

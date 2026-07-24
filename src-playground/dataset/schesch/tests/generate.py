@@ -7,6 +7,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -42,6 +43,7 @@ class GeneratedTestFile(BaseModel):
     prompt: str
     duration_seconds: float
     opencode_exit_code: int | None = None
+    opencode_session_export: dict[str, Any] | None = None
     output_tail: str | None = None
     error: str | None = None
 
@@ -162,6 +164,93 @@ def run_opencode_for_file(
     if result.returncode != 0:
         error = f"opencode exited with code {result.returncode}"
     return result.returncode, output_tail(result.stdout, result.stderr), error, duration
+
+
+def run_opencode_json(
+    playground_path: Path,
+    opencode_executable: str,
+    *args: str,
+) -> tuple[Any | None, str | None]:
+    logger.info(
+        "Running opencode JSON command in {}: {} {}",
+        playground_path,
+        opencode_executable,
+        " ".join(args),
+    )
+    with tempfile.NamedTemporaryFile(mode="w+") as tf:
+        result = subprocess.run(
+            [opencode_executable, *args],
+            cwd=playground_path,
+            text=True,
+            stdout=tf,
+            stderr=subprocess.PIPE,
+            check=False,
+            env=git_env(),
+        )
+        tf.seek(0)
+        json_text = tf.read()
+    logger.info(
+        "Finished opencode JSON command {} rc={} stdout_chars={} stderr_chars={}",
+        " ".join(args),
+        result.returncode,
+        len(json_text),
+        len(result.stderr or ""),
+    )
+    if result.returncode != 0:
+        error = (result.stderr or "").strip() or json_text.strip()
+        return None, error or f"opencode {' '.join(args)} exited with code {result.returncode}"
+
+    try:
+        return json.loads(json_text), None
+    except json.JSONDecodeError as error:
+        return None, f"opencode {' '.join(args)} returned invalid JSON: {error}"
+
+
+def latest_session_id(session_list: Any) -> str | None:
+    if isinstance(session_list, list) and session_list:
+        session = session_list[0]
+    elif isinstance(session_list, dict):
+        sessions = session_list.get("sessions")
+        if isinstance(sessions, list) and sessions:
+            session = sessions[0]
+        else:
+            session = session_list
+    else:
+        return None
+
+    if not isinstance(session, dict):
+        return None
+
+    for key in ("id", "sessionID", "sessionId", "session_id"):
+        value = session.get(key)
+        if isinstance(value, str) and value:
+            return value
+    return None
+
+
+def export_latest_session(playground_path: Path, opencode_executable: str) -> dict[str, Any]:
+    logger.info("Exporting latest opencode session for {}", playground_path)
+    session_list, list_error = run_opencode_json(
+        playground_path,
+        opencode_executable,
+        "session",
+        "list",
+        "--max-count",
+        "1",
+        "--format",
+        "json",
+    )
+    if list_error is not None:
+        return {"error": list_error}
+
+    session_id = latest_session_id(session_list)
+    if session_id is None:
+        return {"error": "No latest opencode session ID found", "session_list": session_list}
+
+    session_export, export_error = run_opencode_json(playground_path, opencode_executable, "export", session_id)
+    if export_error is not None:
+        return {"id": session_id, "error": export_error}
+    return {"id": session_id, "data": session_export}
 
 
 def has_worktree_changes(playground_path: Path) -> bool:
@@ -371,22 +460,25 @@ def generate_tests(
                 prompt,
                 timeout_seconds,
             )
+            session_export = export_latest_session(playground_path, opencode_executable)
             record.files.append(
                 GeneratedTestFile(
                     path=file_path,
                     prompt=prompt,
                     duration_seconds=duration,
                     opencode_exit_code=exit_code,
+                    opencode_session_export=session_export,
                     output_tail=tail,
                     error=error,
                 )
             )
             logger.info(
-                "Finished opencode for {} in {:.2f}s with exit_code={} error={}",
+                "Finished opencode for {} in {:.2f}s with exit_code={} error={} session_export_keys={}",
                 file_path,
                 duration,
                 exit_code,
                 error is not None,
+                sorted(session_export.keys()),
             )
             if error is not None:
                 raise RuntimeError(f"Test generation failed for {file_path}: {error}")
