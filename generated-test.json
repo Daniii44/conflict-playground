@@ -62,7 +62,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT now(), content.patch FROM \"default\".\"redis_json\"\nwhere key = '$key'"
+                        "rawSql": "SELECT now(), coalesce(content.patch, tryBase64Decode(content.patch_base64)) FROM \"default\".\"redis_json\"\nwhere key = '$key'"
                       },
                       "version": "v0"
                     },
@@ -311,12 +311,12 @@
         "kind": "TextVariable",
         "spec": {
           "current": {
-            "text": "dataset:schesch:tests:apache/commons-math.git:a6804eaa74dd04734bac4081d16fc058030dce13",
-            "value": "dataset:schesch:tests:apache/commons-math.git:a6804eaa74dd04734bac4081d16fc058030dce13"
+            "text": "dataset:schesch:tests:versioneye/versioneye_maven_plugin.git:fdaaa77a460d09c61bd2b8448f9debc6200e840e",
+            "value": "dataset:schesch:tests:versioneye/versioneye_maven_plugin.git:fdaaa77a460d09c61bd2b8448f9debc6200e840e"
           },
           "hide": "dontHide",
           "name": "key",
-          "query": "dataset:schesch:tests:apache/commons-math.git:a6804eaa74dd04734bac4081d16fc058030dce13",
+          "query": "dataset:schesch:tests:versioneye/versioneye_maven_plugin.git:fdaaa77a460d09c61bd2b8448f9debc6200e840e",
           "skipUrlSync": false
         }
       },
