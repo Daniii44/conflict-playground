@@ -114,6 +114,10 @@ def drop_view_query(view_name: str) -> str:
     return f"DROP VIEW IF EXISTS {CLICKHOUSE_DB}.{view_name}"
 
 
+def drop_overview_base_query() -> str:
+    return f"DROP TABLE IF EXISTS {CLICKHOUSE_DB}.{CLICKHOUSE_OVERVIEW_BASE_VIEW}"
+
+
 def create_table() -> None:
     run_query(create_table_query())
 
@@ -135,6 +139,6 @@ def drop_views() -> None:
     for view_name in (
         CLICKHOUSE_OVERVIEW_TABLE_VIEW,
         CLICKHOUSE_OVERVIEW_CHART_VIEW,
-        CLICKHOUSE_OVERVIEW_BASE_VIEW,
     ):
         run_query(drop_view_query(view_name))
+    run_query(drop_overview_base_query())

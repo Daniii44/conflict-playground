@@ -1,4 +1,7 @@
-CREATE VIEW IF NOT EXISTS default.redis_json_overview_base AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS default.redis_json_overview_base
+ENGINE = ReplacingMergeTree
+ORDER BY (repo, merge_hash, subdataset, llm, group_label)
+POPULATE AS
 WITH
 tilt_allocation AS (
     SELECT
