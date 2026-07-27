@@ -3,8 +3,9 @@ from __future__ import annotations
 import base64
 import os
 from pathlib import Path
-import sys
 from urllib import error, request
+
+from loguru import logger
 
 
 CLICKHOUSE_URL = os.environ.get("CLICKHOUSE_URL", "http://clickhouse:8123")
@@ -61,7 +62,7 @@ def run_query(query: str) -> str:
     except error.HTTPError as exc:
         body = exc.read().decode("utf-8", errors="replace").strip()
         if body:
-            print(body, file=sys.stderr)
+            logger.error("ClickHouse query failed: {}", body)
         raise
 
 

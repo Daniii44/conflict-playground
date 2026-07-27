@@ -1,4 +1,5 @@
 import base64
+from unittest.mock import Mock
 from urllib import error
 
 from state.clickhouse import schema as clickhouse_schema
@@ -7,15 +8,24 @@ from state.clickhouse import ensure as clickhouse_ensure
 
 def test_main_recreates_clickhouse_table(monkeypatch):
     actions = []
+    logger = Mock()
 
     monkeypatch.setattr(clickhouse_ensure, "drop_views", lambda: actions.append("drop_views"))
     monkeypatch.setattr(clickhouse_ensure, "drop_table", lambda: actions.append("drop"))
     monkeypatch.setattr(clickhouse_ensure, "create_table", lambda: actions.append("create"))
     monkeypatch.setattr(clickhouse_ensure, "create_views", lambda: actions.append("create_views"))
+    monkeypatch.setattr(clickhouse_ensure, "logger", logger)
 
     clickhouse_ensure.main([])
 
     assert actions == ["drop_views", "drop", "create", "create_views"]
+    logger.info.assert_any_call(
+        "Rebuilding ClickHouse export schema for {}.{}",
+        "default",
+        "redis_json",
+    )
+    logger.info.assert_any_call("Creating ClickHouse overview views")
+    logger.info.assert_any_call("Finished rebuilding ClickHouse export schema and overview views")
 
 
 def test_main_skip_views_only_rebuilds_clickhouse_table(monkeypatch):
@@ -151,7 +161,9 @@ def test_run_query_posts_sql_in_body(monkeypatch):
     )
 
 
-def test_run_query_prints_error_body_before_raise(monkeypatch, capsys):
+def test_run_query_logs_error_body_before_raise(monkeypatch):
+    logger = Mock()
+
     def fake_urlopen(_query_request):
         raise error.HTTPError(
             url="http://clickhouse:8123",
@@ -167,6 +179,7 @@ def test_run_query_prints_error_body_before_raise(monkeypatch, capsys):
         "read",
         lambda self: b"Code: 47. DB::Exception: broken query",
     )
+    monkeypatch.setattr(clickhouse_schema, "logger", logger)
 
     try:
         clickhouse_schema.run_query("SELECT 1")
@@ -175,8 +188,10 @@ def test_run_query_prints_error_body_before_raise(monkeypatch, capsys):
     else:
         raise AssertionError("Expected HTTPError")
 
-    captured = capsys.readouterr()
-    assert "Code: 47. DB::Exception: broken query" in captured.err
+    logger.error.assert_called_once_with(
+        "ClickHouse query failed: {}",
+        "Code: 47. DB::Exception: broken query",
+    )
 
 
 def test_clickhouse_settings_can_be_overridden_by_environment(monkeypatch):
