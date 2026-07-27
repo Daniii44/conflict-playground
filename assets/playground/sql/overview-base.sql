@@ -317,6 +317,11 @@ SELECT
         WHEN coalesce(b.contradiction_agent_error, 0) = 1 THEN 'CONTRADICTION_AGENT_ERROR'
         WHEN coalesce(b.contradiction_agent_timeout, 0) = 1 THEN 'CONTRADICTION_AGENT_TIMEOUT'
         WHEN coalesce(m.contradiction_is_incomplete_merge, 0) = 1 THEN 'CONTRADICTION_IS_INCOMPLETE_MERGE'
+        WHEN coalesce(c.contradiction_canonical_resolution_differs, 0) = 1 THEN 'CONTRADICTION_CANONICAL_RESOLUTION_DIFFERS'
+        WHEN coalesce(c.contradiction_semicanonical_contradiction, 0) = 1 THEN 'CONTRADICTION_SEMICANONICAL_CONTRADICTION'
+        WHEN coalesce(c.contradiction_semicanonical_dilution, 0) = 1 THEN 'CONTRADICTION_SEMICANONICAL_DILUTION'
+        WHEN coalesce(c.contradiction_ghost_resolution, 0) = 1 THEN 'CONTRADICTION_GHOST_RESOLUTION'
+        WHEN coalesce(c.contradiction_noncanonical_fallback, 0) = 1 THEN 'CONTRADICTION_NONCANONICAL_FALLBACK'
         WHEN coalesce(s.contradiction_schesch_original_compilation_failed, 0) = 1
             THEN 'CONTRADICTION_SCHESCH_ORIGINAL_COMPILATION_FAILED'
         WHEN coalesce(s.contradiction_schesch_original_test_failed, 0) = 1
@@ -325,11 +330,6 @@ SELECT
             THEN 'CONTRADICTION_SCHESCH_GENERATED_COMPILATION_FAILED'
         WHEN coalesce(s.contradiction_schesch_generated_test_failed, 0) = 1
             THEN 'CONTRADICTION_SCHESCH_GENERATED_TEST_FAILED'
-        WHEN coalesce(c.contradiction_canonical_resolution_differs, 0) = 1 THEN 'CONTRADICTION_CANONICAL_RESOLUTION_DIFFERS'
-        WHEN coalesce(c.contradiction_semicanonical_contradiction, 0) = 1 THEN 'CONTRADICTION_SEMICANONICAL_CONTRADICTION'
-        WHEN coalesce(c.contradiction_semicanonical_dilution, 0) = 1 THEN 'CONTRADICTION_SEMICANONICAL_DILUTION'
-        WHEN coalesce(c.contradiction_ghost_resolution, 0) = 1 THEN 'CONTRADICTION_GHOST_RESOLUTION'
-        WHEN coalesce(c.contradiction_noncanonical_fallback, 0) = 1 THEN 'CONTRADICTION_NONCANONICAL_FALLBACK'
         WHEN coalesce(m.proof_is_exact_match, 0) = 1 THEN 'PROOF_IS_EXACT_MATCH'
         WHEN coalesce(d.proof_is_exact_match_normalized, 0) = 1 THEN 'PROOF_IS_EXACT_MATCH_NORMALIZED'
         ELSE 'UNCLASSIFIED_DIVERGENCE'
