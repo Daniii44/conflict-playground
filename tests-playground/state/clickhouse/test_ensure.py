@@ -41,6 +41,16 @@ def test_overview_base_view_uses_group_dimensions_and_current_schesch_keys():
     assert "evaluation:merge:schesch-original:" in query
     assert "evaluation:merge:schesch-generated:" in query
     assert "evaluation:merge:schesch:" not in query
+    assert "contradiction_schesch_original_compilation_failed" in query
+    assert "contradiction_schesch_original_test_failed" in query
+    assert "contradiction_schesch_generated_compilation_failed" in query
+    assert "contradiction_schesch_generated_test_failed" in query
+    assert "CONTRADICTION_SCHESCH_ORIGINAL_COMPILATION_FAILED" in query
+    assert "CONTRADICTION_SCHESCH_ORIGINAL_TEST_FAILED" in query
+    assert "CONTRADICTION_SCHESCH_GENERATED_COMPILATION_FAILED" in query
+    assert "CONTRADICTION_SCHESCH_GENERATED_TEST_FAILED" in query
+    assert "contradiction_proposed_compilation_failed" not in query
+    assert "contradiction_proposed_test_failed" not in query
 
 
 def test_overview_queries_reference_base_view():

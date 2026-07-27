@@ -137,20 +137,40 @@ schesch_metrics AS (
         rd.group_label AS group_label,
         max(
             CASE
-                WHEN e.content.proposed.timed_out = false
+                WHEN startsWith(e.key, 'evaluation:merge:schesch-original:')
+                 AND e.content.proposed.timed_out = false
                  AND e.content.proposed.compilation_failed::boolean
                 THEN 1
                 ELSE 0
             END
-        ) AS contradiction_proposed_compilation_failed,
+        ) AS contradiction_schesch_original_compilation_failed,
         max(
             CASE
-                WHEN e.content.proposed.timed_out = false
+                WHEN startsWith(e.key, 'evaluation:merge:schesch-original:')
+                 AND e.content.proposed.timed_out = false
                  AND e.content.proposed.test_execution_failed::boolean
                 THEN 1
                 ELSE 0
             END
-        ) AS contradiction_proposed_test_failed
+        ) AS contradiction_schesch_original_test_failed,
+        max(
+            CASE
+                WHEN startsWith(e.key, 'evaluation:merge:schesch-generated:')
+                 AND e.content.proposed.timed_out = false
+                 AND e.content.proposed.compilation_failed::boolean
+                THEN 1
+                ELSE 0
+            END
+        ) AS contradiction_schesch_generated_compilation_failed,
+        max(
+            CASE
+                WHEN startsWith(e.key, 'evaluation:merge:schesch-generated:')
+                 AND e.content.proposed.timed_out = false
+                 AND e.content.proposed.test_execution_failed::boolean
+                THEN 1
+                ELSE 0
+            END
+        ) AS contradiction_schesch_generated_test_failed
     FROM default.redis_json AS e
     INNER JOIN resolution_dimensions AS rd
         ON rd.conflict_identifier = e.conflict_identifier
@@ -281,8 +301,12 @@ SELECT
     coalesce(b.contradiction_agent_error, 0) AS contradiction_agent_error,
     coalesce(b.contradiction_agent_timeout, 0) AS contradiction_agent_timeout,
     coalesce(m.contradiction_is_incomplete_merge, 0) AS contradiction_is_incomplete_merge,
-    coalesce(s.contradiction_proposed_compilation_failed, 0) AS contradiction_proposed_compilation_failed,
-    coalesce(s.contradiction_proposed_test_failed, 0) AS contradiction_proposed_test_failed,
+    coalesce(s.contradiction_schesch_original_compilation_failed, 0)
+        AS contradiction_schesch_original_compilation_failed,
+    coalesce(s.contradiction_schesch_original_test_failed, 0) AS contradiction_schesch_original_test_failed,
+    coalesce(s.contradiction_schesch_generated_compilation_failed, 0)
+        AS contradiction_schesch_generated_compilation_failed,
+    coalesce(s.contradiction_schesch_generated_test_failed, 0) AS contradiction_schesch_generated_test_failed,
     coalesce(c.contradiction_canonical_resolution_differs, 0) AS contradiction_canonical_resolution_differs,
     coalesce(c.contradiction_semicanonical_contradiction, 0) AS contradiction_semicanonical_contradiction,
     coalesce(c.contradiction_semicanonical_dilution, 0) AS contradiction_semicanonical_dilution,
@@ -292,8 +316,14 @@ SELECT
         WHEN coalesce(b.contradiction_agent_error, 0) = 1 THEN 'CONTRADICTION_AGENT_ERROR'
         WHEN coalesce(b.contradiction_agent_timeout, 0) = 1 THEN 'CONTRADICTION_AGENT_TIMEOUT'
         WHEN coalesce(m.contradiction_is_incomplete_merge, 0) = 1 THEN 'CONTRADICTION_IS_INCOMPLETE_MERGE'
-        WHEN coalesce(s.contradiction_proposed_compilation_failed, 0) = 1 THEN 'CONTRADICTION_PROPOSED_COMPILATION_FAILED'
-        WHEN coalesce(s.contradiction_proposed_test_failed, 0) = 1 THEN 'CONTRADICTION_PROPOSED_TEST_FAILED'
+        WHEN coalesce(s.contradiction_schesch_original_compilation_failed, 0) = 1
+            THEN 'CONTRADICTION_SCHESCH_ORIGINAL_COMPILATION_FAILED'
+        WHEN coalesce(s.contradiction_schesch_original_test_failed, 0) = 1
+            THEN 'CONTRADICTION_SCHESCH_ORIGINAL_TEST_FAILED'
+        WHEN coalesce(s.contradiction_schesch_generated_compilation_failed, 0) = 1
+            THEN 'CONTRADICTION_SCHESCH_GENERATED_COMPILATION_FAILED'
+        WHEN coalesce(s.contradiction_schesch_generated_test_failed, 0) = 1
+            THEN 'CONTRADICTION_SCHESCH_GENERATED_TEST_FAILED'
         WHEN coalesce(c.contradiction_canonical_resolution_differs, 0) = 1 THEN 'CONTRADICTION_CANONICAL_RESOLUTION_DIFFERS'
         WHEN coalesce(c.contradiction_semicanonical_contradiction, 0) = 1 THEN 'CONTRADICTION_SEMICANONICAL_CONTRADICTION'
         WHEN coalesce(c.contradiction_semicanonical_dilution, 0) = 1 THEN 'CONTRADICTION_SEMICANONICAL_DILUTION'
