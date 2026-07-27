@@ -48,8 +48,8 @@ class FakeRedis:
         return len(keys)
 
 
-def resolution_payload(git_archive="archive"):
-    return ConflictResolution(
+def resolution_payload(git_archive="archive", error=None, model_id=None):
+    payload = ConflictResolution(
         configuration=Configuration(
             hook_type="manual-cli",
             playground_version="test",
@@ -57,12 +57,33 @@ def resolution_payload(git_archive="archive"):
             resolution_start="2026-06-01T00:00:00",
         ),
         resolution_end="2026-06-01T00:00:10",
+        hook_result=(
+            {
+                "opencode_session_export": {
+                    "data": {
+                        "messages": [
+                            {
+                                "info": {
+                                    "role": "assistant",
+                                    **({"modelID": model_id} if model_id is not None else {}),
+                                },
+                                "parts": [],
+                            }
+                        ]
+                    }
+                }
+            }
+            if model_id is not None
+            else None
+        ),
         proposed_resolution=ProposedResolution(
             commit_sha="proposed",
             actual_resolution_sha="actual",
             git_archive=git_archive,
+            error=error,
         ),
-    ).model_dump(mode="json")
+    )
+    return payload.model_dump(mode="json")
 
 
 def resolution_session_payload():
@@ -177,6 +198,31 @@ def test_prune_resolution_deletes_all_resolution_keys():
         "resolution:conflict:owner/repo.git-a:20260609T120000.000000Z",
         "resolution:conflict:owner/repo.git-b:20260609T120000.000000Z",
     ]
+    assert redis.deleted == deleted
+
+
+def test_prune_resolution_deletes_all_resolution_keys_for_model():
+    from resolution.prune import prune_resolution
+
+    first_key = "resolution:conflict:owner/repo.git-a:20260609T120000.000000Z"
+    second_key = "resolution:conflict:owner/repo.git-b:20260609T120000.000000Z"
+    third_key = "resolution:conflict:owner/repo.git-c:20260609T120000.000000Z"
+    redis = FakeRedis(
+        keys=[
+            third_key,
+            second_key,
+            first_key,
+        ],
+        values={
+            first_key: resolution_payload(model_id="gpt-5"),
+            second_key: resolution_payload(model_id="gpt-4.1"),
+            third_key: resolution_payload(model_id="gpt-5"),
+        },
+    )
+
+    deleted = prune_resolution(redis, model="gpt-5")
+
+    assert deleted == [first_key, third_key]
     assert redis.deleted == deleted
 
 
