@@ -87,7 +87,7 @@
                   "color": {
                     "mode": "continuous-RdYlGr"
                   },
-                  "max": 500,
+                  "max": 646,
                   "min": 0,
                   "thresholds": {
                     "mode": "absolute",
@@ -295,7 +295,7 @@
                   "color": {
                     "mode": "continuous-RdYlGr"
                   },
-                  "max": 500,
+                  "max": 646,
                   "min": 0,
                   "thresholds": {
                     "mode": "absolute",
