@@ -17,7 +17,6 @@ SELECT
         AS contradiction_schesch_generated_test_failed,
     countIf(resolution_status = 'CONTRADICTION_SCHESCH_GENERATED_COMPILATION_FAILED') / count(*)
         AS contradiction_schesch_generated_compilation_failed,
-    countIf(resolution_status = 'CONTRADICTION_IS_INCOMPLETE_MERGE') / count(*) AS contradiction_is_incomplete_merge,
     countIf(resolution_status = 'CONTRADICTION_AGENT_TIMEOUT') / count(*) AS contradiction_agent_timeout,
     countIf(resolution_status = 'CONTRADICTION_AGENT_ERROR') / count(*) AS contradiction_agent_error
 FROM default.redis_json_overview_base

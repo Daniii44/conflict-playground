@@ -90,8 +90,6 @@ core_metrics AS (
         rd.subdataset AS subdataset,
         rd.llm AS llm,
         rd.group_label AS group_label,
-        min(CASE WHEN e.key != '' AND e.content.incomplete_merge = 1 THEN 1 ELSE 0 END)
-            AS contradiction_is_incomplete_merge,
         min(CASE WHEN e.key != '' AND e.content.perfect_match != 0 THEN 1 ELSE 0 END)
             AS proof_is_exact_match
     FROM default.redis_json AS e
@@ -301,7 +299,6 @@ SELECT
     coalesce(d.proof_is_exact_match_normalized, 0) AS proof_is_exact_match_normalized,
     coalesce(b.contradiction_agent_error, 0) AS contradiction_agent_error,
     coalesce(b.contradiction_agent_timeout, 0) AS contradiction_agent_timeout,
-    coalesce(m.contradiction_is_incomplete_merge, 0) AS contradiction_is_incomplete_merge,
     coalesce(s.contradiction_schesch_original_compilation_failed, 0)
         AS contradiction_schesch_original_compilation_failed,
     coalesce(s.contradiction_schesch_original_test_failed, 0) AS contradiction_schesch_original_test_failed,
@@ -316,7 +313,6 @@ SELECT
     CASE
         WHEN coalesce(b.contradiction_agent_error, 0) = 1 THEN 'CONTRADICTION_AGENT_ERROR'
         WHEN coalesce(b.contradiction_agent_timeout, 0) = 1 THEN 'CONTRADICTION_AGENT_TIMEOUT'
-        WHEN coalesce(m.contradiction_is_incomplete_merge, 0) = 1 THEN 'CONTRADICTION_IS_INCOMPLETE_MERGE'
         WHEN coalesce(c.contradiction_canonical_resolution_differs, 0) = 1 THEN 'CONTRADICTION_CANONICAL_RESOLUTION_DIFFERS'
         WHEN coalesce(c.contradiction_semicanonical_contradiction, 0) = 1 THEN 'CONTRADICTION_SEMICANONICAL_CONTRADICTION'
         WHEN coalesce(c.contradiction_semicanonical_dilution, 0) = 1 THEN 'CONTRADICTION_SEMICANONICAL_DILUTION'
