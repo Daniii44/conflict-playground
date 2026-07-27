@@ -7,7 +7,6 @@ SELECT
     llm,
     group_label AS label,
     total_resolutions,
-    total_evaluations,
     'Show Details' AS details,
     proof_is_exact_match,
     proof_is_exact_match_normalized,

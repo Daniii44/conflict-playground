@@ -77,6 +77,7 @@ def test_overview_base_view_uses_group_dimensions_and_current_schesch_keys():
     assert "CONTRADICTION_SCHESCH_GENERATED_TEST_FAILED" in query
     assert "contradiction_proposed_compilation_failed" not in query
     assert "contradiction_proposed_test_failed" not in query
+    assert "total_evaluations" not in query
 
 
 def test_overview_queries_reference_base_view():
@@ -85,6 +86,8 @@ def test_overview_queries_reference_base_view():
 
     assert "FROM default.redis_json_overview_base" in chart_query
     assert "FROM default.redis_json_overview_base" in table_query
+    assert "total_evaluations" not in chart_query
+    assert "total_evaluations" not in table_query
 
 
 def test_overview_queries_are_loaded_from_assets():

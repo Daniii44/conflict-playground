@@ -90,7 +90,6 @@ core_metrics AS (
         rd.subdataset AS subdataset,
         rd.llm AS llm,
         rd.group_label AS group_label,
-        countDistinct(e.key) AS total_evaluations,
         min(CASE WHEN e.key != '' AND e.content.incomplete_merge = 1 THEN 1 ELSE 0 END)
             AS contradiction_is_incomplete_merge,
         min(CASE WHEN e.key != '' AND e.content.perfect_match != 0 THEN 1 ELSE 0 END)
@@ -298,7 +297,6 @@ SELECT
     b.group_label AS group_label,
     b.latest_conflict_timestamp AS latest_conflict_timestamp,
     b.total_resolutions AS total_resolutions,
-    coalesce(m.total_evaluations, 0) AS total_evaluations,
     coalesce(m.proof_is_exact_match, 0) AS proof_is_exact_match,
     coalesce(d.proof_is_exact_match_normalized, 0) AS proof_is_exact_match_normalized,
     coalesce(b.contradiction_agent_error, 0) AS contradiction_agent_error,
