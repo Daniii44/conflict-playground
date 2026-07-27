@@ -226,6 +226,70 @@ def test_prune_resolution_deletes_all_resolution_keys_for_model():
     assert redis.deleted == deleted
 
 
+def test_prune_resolution_deletes_only_non_timeout_errors():
+    from resolution.prune import prune_resolution
+
+    timeout_only_key = "resolution:conflict:owner/repo.git-a:20260609T120000.000000Z"
+    timeout_with_suffix_key = "resolution:conflict:owner/repo.git-b:20260609T120000.000000Z"
+    non_timeout_key = "resolution:conflict:owner/repo.git-c:20260609T120000.000000Z"
+    no_error_key = "resolution:conflict:owner/repo.git-d:20260609T120000.000000Z"
+    redis = FakeRedis(
+        keys=[
+            no_error_key,
+            non_timeout_key,
+            timeout_with_suffix_key,
+            timeout_only_key,
+        ],
+        values={
+            timeout_only_key: resolution_payload(error="Error: opencode timed out after 15 minutes"),
+            timeout_with_suffix_key: resolution_payload(
+                error="Error: opencode timed out after 15 minutes; Could not archive proposed resolution: disk full"
+            ),
+            non_timeout_key: resolution_payload(error="Error: Configuration is invalid at .opencode/opencode.json"),
+            no_error_key: resolution_payload(error=None),
+        },
+    )
+
+    deleted = prune_resolution(redis, non_timeout_error=True)
+
+    assert deleted == [non_timeout_key]
+    assert redis.deleted == deleted
+
+
+def test_prune_resolution_can_combine_model_and_non_timeout_error_filters():
+    from resolution.prune import prune_resolution
+
+    matching_key = "resolution:conflict:owner/repo.git-a:20260609T120000.000000Z"
+    wrong_model_key = "resolution:conflict:owner/repo.git-b:20260609T120000.000000Z"
+    timeout_key = "resolution:conflict:owner/repo.git-c:20260609T120000.000000Z"
+    redis = FakeRedis(
+        keys=[
+            timeout_key,
+            wrong_model_key,
+            matching_key,
+        ],
+        values={
+            matching_key: resolution_payload(
+                model_id="gpt-5",
+                error="Error: Configuration is invalid at .opencode/opencode.json",
+            ),
+            wrong_model_key: resolution_payload(
+                model_id="gpt-4.1",
+                error="Error: Configuration is invalid at .opencode/opencode.json",
+            ),
+            timeout_key: resolution_payload(
+                model_id="gpt-5",
+                error="Error: opencode timed out after 15 minutes",
+            ),
+        },
+    )
+
+    deleted = prune_resolution(redis, model="gpt-5", non_timeout_error=True)
+
+    assert deleted == [matching_key]
+    assert redis.deleted == deleted
+
+
 def test_simplified_session_lines_include_assistant_parts_only():
     assert resolution_session.simplified_session_lines(resolution_session_payload()) == [
         "I inspected the conflict.",
