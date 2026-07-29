@@ -421,6 +421,7 @@ def generate_tests(
     keep_playground: bool = False,
 ) -> ScheschGeneratedTests:
     started_at = time.monotonic()
+    should_store = False
     redis_key = generated_tests_record_key(repo_name, merge_sha)
     logger.info(
         "Starting Schesch test generation for {} {} using opencode {}",
@@ -525,9 +526,11 @@ def generate_tests(
                     timeout_seconds,
                 ).model_dump(mode="json")
             logger.info("Generated test patch has {} bytes", len(patch_bytes))
+        should_store = True
     except Exception as error:
         record.error = str(error)
         logger.error("{}", error)
+        should_store = True
     finally:
         record.duration_seconds = time.monotonic() - started_at
         logger.info(
@@ -536,7 +539,10 @@ def generate_tests(
             merge_sha,
             record.duration_seconds,
         )
-        store_generation(redis, record)
+        if should_store:
+            store_generation(redis, record)
+        else:
+            logger.info("Skipping Redis write for {} {} due to interrupted generation", repo_name, merge_sha)
         if playground_path is not None and not keep_playground:
             logger.info("Removing playground {}", playground_path)
             shutil.rmtree(playground_path, ignore_errors=True)

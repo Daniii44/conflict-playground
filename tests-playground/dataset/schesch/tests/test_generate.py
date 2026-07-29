@@ -313,6 +313,35 @@ def test_generate_tests_stores_error_record_when_opencode_fails(monkeypatch, tmp
     assert stored["regeneration_count"] == 0
 
 
+def test_generate_tests_does_not_store_incomplete_record_on_keyboard_interrupt(monkeypatch, tmp_path):
+    redis = FakeRedis()
+    redis.json_api.values["info:conflict:core:owner/repo.git:merge-sha"] = core_conflict().model_dump()
+    playgrounds = tmp_path / "playgrounds"
+    playground = playgrounds / "owner" / "repo.git-merge-sha"
+    playground.mkdir(parents=True)
+    monkeypatch.setenv("PLAYGROUNDS", str(playgrounds))
+
+    monkeypatch.setattr(
+        "dataset.schesch.tests.generate.setup_playground",
+        lambda repo, merge: "owner/repo.git-merge-sha",
+    )
+    monkeypatch.setattr("dataset.schesch.tests.generate.reset_playground", lambda path, merge: None)
+    monkeypatch.setattr(
+        "dataset.schesch.tests.generate.run_opencode_for_file",
+        lambda path, executable, prompt, timeout: (_ for _ in ()).throw(KeyboardInterrupt()),
+    )
+
+    try:
+        generate_tests(redis, "owner/repo.git", "merge-sha")
+    except KeyboardInterrupt:
+        pass
+    else:
+        raise AssertionError("Expected generation to be interrupted")
+
+    assert "dataset:schesch:tests:owner/repo.git:merge-sha" not in redis.json_api.values
+    assert not playground.exists()
+
+
 def test_generate_tests_rejects_patch_without_java_test_changes(monkeypatch, tmp_path):
     redis = FakeRedis()
     redis.json_api.values["info:conflict:core:owner/repo.git:merge-sha"] = core_conflict().model_dump()
