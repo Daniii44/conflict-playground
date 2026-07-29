@@ -21,6 +21,7 @@ from dataset.schesch.tests.generate import (
     expected_human_java_home,
     generated_patch_bytes,
     generated_test_command,
+    human_resolution_error,
     store_generation,
     validate_generated_patch,
 )
@@ -107,6 +108,14 @@ def backfill_human_result(
             logger.info("Keeping playground {}", playground_path)
 
 
+def backfilled_record_error(result: ScheschResolutionResult) -> str | None:
+    if result.passed:
+        return None
+    if result.error is not None:
+        return result.error
+    return human_resolution_error(result)
+
+
 def backfill_missing_human_records(
     redis,
     *,
@@ -134,14 +143,20 @@ def backfill_missing_human_records(
             result.skipped += 1
             logger.info("Skipping {}; human backfill already exists", key)
             continue
+        if record.error is not None:
+            result.skipped += 1
+            logger.info("Skipping {}; generated test record already has error {}", key, record.error)
+            continue
 
         try:
-            record.human = backfill_human_result(
+            human_result = backfill_human_result(
                 redis,
                 record,
                 timeout_seconds=timeout_seconds,
                 keep_playground=keep_playground,
-            ).model_dump(mode="json")
+            )
+            record.human = human_result.model_dump(mode="json")
+            record.error = backfilled_record_error(human_result)
             store_generation(redis, record)
             result.updated += 1
             logger.info("Backfilled human Schesch result for {}", key)

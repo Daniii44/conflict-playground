@@ -112,6 +112,7 @@ def test_backfill_missing_human_records_updates_only_missing_human(monkeypatch):
     assert result.updated == 1
     assert result.skipped == 1
     assert result.failed == 0
+    assert redis.json_api.values[missing_key]["error"] is None
     assert redis.json_api.values[missing_key]["human"] == {
         "label": "human",
         "commit_sha": "missing",
@@ -144,6 +145,48 @@ def test_backfill_human_result_returns_error_result_for_missing_patch():
     assert result.label == "human"
     assert result.commit_sha == "merge-sha"
     assert result.error == "Generated test suite has no patch"
+
+
+def test_backfill_missing_human_records_sets_top_level_error_from_failed_human_result(monkeypatch):
+    module = load_backfill_human_module()
+    key = "dataset:schesch:tests:owner/repo.git:failed-human"
+    redis = FakeRedis({key: generated_record(merge_sha="failed-human", redis_key=key, human=None)})
+    monkeypatch.setattr(
+        module,
+        "backfill_human_result",
+        lambda redis_arg, record, **kwargs: ScheschResolutionResult(
+            label="human",
+            commit_sha=record.human_solution_ref,
+            test_execution_failed=True,
+        ),
+    )
+
+    result = module.backfill_missing_human_records(redis)
+
+    assert result.updated == 1
+    assert redis.json_api.values[key]["error"] == "Human sample resolution fails Schesch tests under the expected Java home"
+
+
+def test_backfill_missing_human_records_skips_existing_error_without_running_tests(monkeypatch):
+    module = load_backfill_human_module()
+    key = "dataset:schesch:tests:owner/repo.git:error"
+    redis = FakeRedis({key: generated_record(merge_sha="error", redis_key=key, human=None, error="existing error")})
+    called = {"backfill": False}
+
+    def fake_backfill(*args, **kwargs):
+        called["backfill"] = True
+        raise AssertionError("backfill_human_result should not be called")
+
+    monkeypatch.setattr(module, "backfill_human_result", fake_backfill)
+
+    result = module.backfill_missing_human_records(redis)
+
+    assert result.updated == 0
+    assert result.skipped == 1
+    assert result.failed == 0
+    assert not called["backfill"]
+    assert redis.json_api.values[key]["human"] is None
+    assert redis.json_api.values[key]["error"] == "existing error"
 
 
 def test_main_uses_requested_limit(monkeypatch, capsys):
