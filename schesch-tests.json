@@ -634,6 +634,38 @@
                     },
                     "refId": "A"
                   }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "with\n  generated_tests as (\n    SELECT\n      content.duration_seconds::float as generation_duration,\n      length(content.files) as tested_files,\n      content.conflict_info_key::text as conflict_info_key,\n      content.human.passed as test_passed\n    FROM\n      \"default\".\"redis_json\"\n    where\n      startsWith (key, 'dataset:schesch:tests')\n      and (content.error is not null\n      or not test_passed::boolean)\n  ),\n  info as (\n    select\n      key,\n      count(distinct conflicting_file.path) as conflicting_files\n    from\n      \"default\".\"redis_json\" array\n      join content.merge_result.conflicted_files::Array(JSON) as conflicting_file\n    where\n      startsWith (key, 'info:conflict')\n    group by\n      key\n  )\nselect\n  generation_duration / conflicting_files as duration\nfrom\n  generated_tests\n  join info as info on info.key = conflict_info_key"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "B"
+                  }
                 }
               ],
               "queryOptions": {},
@@ -664,7 +696,7 @@
                     "lineWidth": 1,
                     "stacking": {
                       "group": "A",
-                      "mode": "none"
+                      "mode": "normal"
                     }
                   },
                   "thresholds": {
