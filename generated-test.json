@@ -179,6 +179,81 @@
             "version": "13.0.2"
           }
         }
+      },
+      "panel-3": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT\n  now(),\n  content.conflicted_to_actual_resolution_patch\nFROM \"default\".\"redis_json\"\nWHERE key LIKE CONCAT(\n  'evaluation:merge:diff:',\n  -- Extracts the repo_name: alexruiz/fest-util.git\n  REGEXP_EXTRACT('${key}', 'tests:(.+?):[a-f0-9]{40}', 1),\n  '-',\n  -- Extracts the merge commit hash: 3c3d01351f4149a749f8278423ca5d8112b18102\n  REGEXP_EXTRACT('${key}', '([a-f0-9]{40})$', 1),\n  ':%'\n)\nlimit 1"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 3,
+          "links": [],
+          "title": "Conflict",
+          "vizConfig": {
+            "group": "logs",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {
+                "dedupStrategy": "none",
+                "enableInfiniteScrolling": false,
+                "enableLogDetails": true,
+                "prettifyLogMessage": true,
+                "showControls": false,
+                "showFieldSelector": false,
+                "showLevel": false,
+                "showTime": false,
+                "sortOrder": "Descending",
+                "timestampResolution": "ms",
+                "unwrappedColumns": false,
+                "wrapLogMessage": true
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
       }
     },
     "layout": {
@@ -200,6 +275,15 @@
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-1"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "AutoGridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-3"
                         }
                       }
                     }
@@ -311,12 +395,12 @@
         "kind": "TextVariable",
         "spec": {
           "current": {
-            "text": "dataset:schesch:tests:versioneye/versioneye_maven_plugin.git:fdaaa77a460d09c61bd2b8448f9debc6200e840e",
-            "value": "dataset:schesch:tests:versioneye/versioneye_maven_plugin.git:fdaaa77a460d09c61bd2b8448f9debc6200e840e"
+            "text": "dataset:schesch:tests:alexruiz/fest-util.git:3c3d01351f4149a749f8278423ca5d8112b18102",
+            "value": "dataset:schesch:tests:alexruiz/fest-util.git:3c3d01351f4149a749f8278423ca5d8112b18102"
           },
           "hide": "dontHide",
           "name": "key",
-          "query": "dataset:schesch:tests:versioneye/versioneye_maven_plugin.git:fdaaa77a460d09c61bd2b8448f9debc6200e840e",
+          "query": "dataset:schesch:tests:alexruiz/fest-util.git:3c3d01351f4149a749f8278423ca5d8112b18102",
           "skipUrlSync": false
         }
       },
