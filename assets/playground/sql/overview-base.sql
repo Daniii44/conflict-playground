@@ -91,7 +91,7 @@ core_metrics AS (
         rd.llm AS llm,
         rd.group_label AS group_label,
         min(CASE WHEN e.key != '' AND e.content.perfect_match != 0 THEN 1 ELSE 0 END)
-            AS proof_is_exact_match
+            AS proof_exact_match
     FROM default.redis_json AS e
     INNER JOIN resolution_dimensions AS rd
         ON rd.conflict_identifier = e.conflict_identifier
@@ -116,11 +116,36 @@ diff_metrics AS (
                 THEN 1
                 ELSE 0
             END
-        ) AS proof_is_exact_match_normalized
+        ) AS proof_exact_match_normalized
     FROM default.redis_json AS e
     INNER JOIN resolution_dimensions AS rd
         ON rd.conflict_identifier = e.conflict_identifier
     WHERE startsWith(e.key, 'evaluation:merge:diff:')
+    GROUP BY
+        rd.repo,
+        rd.merge_hash,
+        rd.subdataset,
+        rd.llm,
+        rd.group_label
+),
+sem_metrics AS (
+    SELECT
+        rd.repo AS repo,
+        rd.merge_hash AS merge_hash,
+        rd.subdataset AS subdataset,
+        rd.llm AS llm,
+        rd.group_label AS group_label,
+        min(
+            CASE
+                WHEN coalesce(e.content.proposed_to_actual_sem_diff.summary.total::Int64, 1) = 0
+                THEN 1
+                ELSE 0
+            END
+        ) AS proof_exact_match_semantic
+    FROM default.redis_json AS e
+    INNER JOIN resolution_dimensions AS rd
+        ON rd.conflict_identifier = e.conflict_identifier
+    WHERE startsWith(e.key, 'evaluation:merge:sem:')
     GROUP BY
         rd.repo,
         rd.merge_hash,
@@ -295,8 +320,9 @@ SELECT
     b.group_label AS group_label,
     b.latest_conflict_timestamp AS latest_conflict_timestamp,
     b.total_resolutions AS total_resolutions,
-    coalesce(m.proof_is_exact_match, 0) AS proof_is_exact_match,
-    coalesce(d.proof_is_exact_match_normalized, 0) AS proof_is_exact_match_normalized,
+    coalesce(m.proof_exact_match, 0) AS proof_exact_match,
+    coalesce(se.proof_exact_match_semantic, 0) AS proof_exact_match_semantic,
+    coalesce(d.proof_exact_match_normalized, 0) AS proof_exact_match_normalized,
     coalesce(b.contradiction_agent_error, 0) AS contradiction_agent_error,
     coalesce(b.contradiction_agent_timeout, 0) AS contradiction_agent_timeout,
     coalesce(s.contradiction_schesch_original_compilation_failed, 0)
@@ -326,8 +352,9 @@ SELECT
             THEN 'CONTRADICTION_SCHESCH_GENERATED_COMPILATION_FAILED'
         WHEN coalesce(s.contradiction_schesch_generated_test_failed, 0) = 1
             THEN 'CONTRADICTION_SCHESCH_GENERATED_TEST_FAILED'
-        WHEN coalesce(m.proof_is_exact_match, 0) = 1 THEN 'PROOF_IS_EXACT_MATCH'
-        WHEN coalesce(d.proof_is_exact_match_normalized, 0) = 1 THEN 'PROOF_IS_EXACT_MATCH_NORMALIZED'
+        WHEN coalesce(m.proof_exact_match, 0) = 1 THEN 'PROOF_EXACT_MATCH'
+        WHEN coalesce(se.proof_exact_match_semantic, 0) = 1 THEN 'PROOF_EXACT_MATCH_SEMANTIC'
+        WHEN coalesce(d.proof_exact_match_normalized, 0) = 1 THEN 'PROOF_EXACT_MATCH_NORMALIZED'
         ELSE 'UNCLASSIFIED_DIVERGENCE'
     END AS resolution_status
 FROM base_merges AS b
@@ -343,6 +370,12 @@ LEFT JOIN diff_metrics AS d
    AND d.subdataset = b.subdataset
    AND d.llm = b.llm
    AND d.group_label = b.group_label
+LEFT JOIN sem_metrics AS se
+    ON se.repo = b.repo
+   AND se.merge_hash = b.merge_hash
+   AND se.subdataset = b.subdataset
+   AND se.llm = b.llm
+   AND se.group_label = b.group_label
 LEFT JOIN schesch_metrics AS s
     ON s.repo = b.repo
    AND s.merge_hash = b.merge_hash

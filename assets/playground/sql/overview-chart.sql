@@ -1,8 +1,9 @@
 CREATE VIEW IF NOT EXISTS default.redis_json_overview_chart AS
 SELECT
     group_label AS label,
-    countIf(resolution_status = 'PROOF_IS_EXACT_MATCH') / count(*) AS proof_is_exact_match,
-    countIf(resolution_status = 'PROOF_IS_EXACT_MATCH_NORMALIZED') / count(*) AS proof_is_exact_match_normalized,
+    countIf(resolution_status = 'PROOF_EXACT_MATCH') / count(*) AS proof_exact_match,
+    countIf(resolution_status = 'PROOF_EXACT_MATCH_SEMANTIC') / count(*) AS proof_exact_match_semantic,
+    countIf(resolution_status = 'PROOF_EXACT_MATCH_NORMALIZED') / count(*) AS proof_exact_match_normalized,
     countIf(resolution_status = 'UNCLASSIFIED_DIVERGENCE') / count(*) AS unclassified_divergences,
     countIf(resolution_status = 'CONTRADICTION_SCHESCH_GENERATED_TEST_FAILED') / count(*)
         AS contradiction_schesch_generated_test_failed,

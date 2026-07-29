@@ -8,8 +8,9 @@ SELECT
     group_label AS label,
     total_resolutions,
     'Show Details' AS details,
-    proof_is_exact_match,
-    proof_is_exact_match_normalized,
+    proof_exact_match,
+    proof_exact_match_semantic,
+    proof_exact_match_normalized,
     contradiction_agent_error,
     contradiction_agent_timeout,
     contradiction_schesch_original_compilation_failed,
@@ -24,8 +25,9 @@ SELECT
     resolution_status
 FROM default.redis_json_overview_base
 ORDER BY
-    proof_is_exact_match DESC,
-    proof_is_exact_match_normalized DESC,
+    proof_exact_match DESC,
+    proof_exact_match_semantic DESC,
+    proof_exact_match_normalized DESC,
     contradiction_agent_error DESC,
     contradiction_agent_timeout DESC,
     contradiction_schesch_original_compilation_failed DESC,

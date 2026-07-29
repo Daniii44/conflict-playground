@@ -88,6 +88,17 @@ def test_overview_base_view_uses_group_dimensions_and_current_schesch_keys():
     assert "contradiction_proposed_compilation_failed" not in query
     assert "contradiction_proposed_test_failed" not in query
     assert "total_evaluations" not in query
+    assert "evaluation:merge:sem:" in query
+    assert "proof_exact_match" in query
+    assert "proof_exact_match_normalized" in query
+    assert "proof_exact_match_semantic" in query
+    assert "proof_is_exact_match" not in query
+    assert "proof_is_exact_match_normalized" not in query
+    assert "PROOF_EXACT_MATCH" in query
+    assert "PROOF_EXACT_MATCH_NORMALIZED" in query
+    assert "PROOF_EXACT_MATCH_SEMANTIC" in query
+    assert "PROOF_IS_EXACT_MATCH" not in query
+    assert "PROOF_IS_EXACT_MATCH_NORMALIZED" not in query
 
 
 def test_overview_queries_reference_base_view():
@@ -98,6 +109,19 @@ def test_overview_queries_reference_base_view():
     assert "FROM default.redis_json_overview_base" in table_query
     assert "total_evaluations" not in chart_query
     assert "total_evaluations" not in table_query
+    assert "proof_exact_match" in chart_query
+    assert "proof_exact_match_normalized" in chart_query
+    assert "proof_exact_match_semantic" in chart_query
+    assert "PROOF_EXACT_MATCH" in chart_query
+    assert "PROOF_EXACT_MATCH_NORMALIZED" in chart_query
+    assert "PROOF_EXACT_MATCH_SEMANTIC" in chart_query
+    assert "proof_exact_match" in table_query
+    assert "proof_exact_match_normalized" in table_query
+    assert "proof_exact_match_semantic" in table_query
+    assert "proof_is_exact_match" not in chart_query
+    assert "proof_is_exact_match_normalized" not in chart_query
+    assert "proof_is_exact_match" not in table_query
+    assert "proof_is_exact_match_normalized" not in table_query
 
 
 def test_overview_queries_are_loaded_from_assets():
