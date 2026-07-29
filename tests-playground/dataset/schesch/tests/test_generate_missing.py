@@ -57,6 +57,22 @@ def generated_record(**overrides):
     return record.model_dump() | overrides
 
 
+def test_generation_attempt_count_uses_regeneration_count():
+    module = load_generate_missing_module()
+
+    assert module.generation_attempt_count(None) == 0
+    assert module.generation_attempt_count(ScheschGeneratedTests(
+        repo="owner/repo.git",
+        merge_sha="merge-sha",
+        redis_key="dataset:schesch:tests:owner/repo.git:merge-sha",
+        conflict_info_key="info:conflict:core:owner/repo.git:merge-sha",
+        regeneration_count=2,
+        human_solution_ref="merge-sha",
+        generated_at=datetime.now(timezone.utc),
+        duration_seconds=1.0,
+    )) == 3
+
+
 def test_has_usable_generated_tests_requires_successful_patch():
     module = load_generate_missing_module()
 
@@ -164,6 +180,110 @@ def test_generate_missing_tests_records_failures_and_continues(monkeypatch, tmp_
     assert result.failed_keys == ["dataset:schesch:tests:owner/repo.git:failed"]
 
 
+def test_generate_missing_tests_skips_records_at_default_attempt_limit(monkeypatch, tmp_path):
+    module = load_generate_missing_module()
+    limited_key = "dataset:schesch:tests:owner/repo.git:limited"
+    redis = FakeRedis(
+        {
+            limited_key: generated_record(
+                merge_sha="limited",
+                redis_key=limited_key,
+                regeneration_count=2,
+                error="generation failed",
+                patch=None,
+                patch_base64=None,
+            )
+        }
+    )
+    playgrounds = [
+        module.Playground(repo_name="owner/repo.git", merge_sha="limited"),
+        module.Playground(repo_name="owner/repo.git", merge_sha="fresh"),
+    ]
+    processed = []
+
+    monkeypatch.setattr(module, "load_playbook_result", lambda path: SimpleNamespace(playgrounds=playgrounds))
+    monkeypatch.setattr(module, "resolve_playground_merge_sha", lambda playground: playground.merge_sha)
+    monkeypatch.setattr(module.random, "shuffle", lambda items: None)
+
+    def fake_generate_tests(redis_arg, repo_name, merge_sha, **kwargs):
+        processed.append(merge_sha)
+        return ScheschGeneratedTests(
+            repo=repo_name,
+            merge_sha=merge_sha,
+            redis_key=f"dataset:schesch:tests:{repo_name}:{merge_sha}",
+            conflict_info_key=f"info:conflict:core:{repo_name}:{merge_sha}",
+            human_solution_ref=merge_sha,
+            generated_at=datetime.now(timezone.utc),
+            duration_seconds=1.0,
+            patch="patch",
+        )
+
+    monkeypatch.setattr(module, "generate_tests", fake_generate_tests)
+
+    result = module.generate_missing_tests_for_playbook(redis, tmp_path / "playbook.yaml")
+
+    assert result.total == 1
+    assert result.skipped == 1
+    assert processed == ["fresh"]
+
+
+def test_generate_missing_tests_allows_override_of_attempt_limit(monkeypatch, tmp_path):
+    module = load_generate_missing_module()
+    limited_key = "dataset:schesch:tests:owner/repo.git:limited"
+    redis = FakeRedis(
+        {
+            limited_key: generated_record(
+                merge_sha="limited",
+                redis_key=limited_key,
+                regeneration_count=2,
+                error="generation failed",
+                patch=None,
+                patch_base64=None,
+            )
+        }
+    )
+    playgrounds = [module.Playground(repo_name="owner/repo.git", merge_sha="limited")]
+    processed = []
+
+    monkeypatch.setattr(module, "load_playbook_result", lambda path: SimpleNamespace(playgrounds=playgrounds))
+    monkeypatch.setattr(module, "resolve_playground_merge_sha", lambda playground: playground.merge_sha)
+    monkeypatch.setattr(module.random, "shuffle", lambda items: None)
+
+    def fake_generate_tests(redis_arg, repo_name, merge_sha, **kwargs):
+        processed.append((merge_sha, kwargs))
+        return ScheschGeneratedTests(
+            repo=repo_name,
+            merge_sha=merge_sha,
+            redis_key=f"dataset:schesch:tests:{repo_name}:{merge_sha}",
+            conflict_info_key=f"info:conflict:core:{repo_name}:{merge_sha}",
+            human_solution_ref=merge_sha,
+            generated_at=datetime.now(timezone.utc),
+            duration_seconds=1.0,
+            patch="patch",
+        )
+
+    monkeypatch.setattr(module, "generate_tests", fake_generate_tests)
+
+    result = module.generate_missing_tests_for_playbook(
+        redis,
+        tmp_path / "playbook.yaml",
+        max_attempts=4,
+    )
+
+    assert result.total == 1
+    assert result.skipped == 0
+    assert processed == [
+        (
+            "limited",
+            {
+                "opencode_executable": module.DEFAULT_OPENCODE_EXECUTABLE,
+                "timeout_seconds": module.DEFAULT_OPENCODE_TIMEOUT_SECONDS,
+                "keep_playground": False,
+            },
+        )
+    ]
+
+
 def test_generate_missing_tests_prunes_existing_before_looping(monkeypatch, tmp_path):
     module = load_generate_missing_module()
     existing_key = "dataset:schesch:tests:owner/repo.git:existing"
@@ -197,7 +317,7 @@ def test_generate_missing_tests_prunes_existing_before_looping(monkeypatch, tmp_
 
     assert result.total == 2
     assert result.skipped == 1
-    assert processed == ["missing-one", "missing-two"]
+    assert sorted(processed) == ["missing-one", "missing-two"]
 
 
 def test_generate_missing_tests_shuffles_pending_playgrounds(monkeypatch, tmp_path):
@@ -267,6 +387,7 @@ def test_main_uses_default_schesch_playbook(monkeypatch, tmp_path, capsys):
                 "keep_playground": False,
                 "skip": 0,
                 "limit": 1,
+                "max_attempts": 3,
                 "stop_on_error": False,
             },
         )
@@ -290,3 +411,11 @@ def test_parse_args_rejects_positional_playbook(monkeypatch):
 
     with pytest.raises(SystemExit):
         module.parse_args()
+
+
+def test_main_rejects_invalid_max_attempts(monkeypatch):
+    module = load_generate_missing_module()
+
+    monkeypatch.setattr(module.sys, "argv", ["dataset-schesch-tests-generate-missing", "--max-attempts", "0"])
+
+    assert module.main() == 1

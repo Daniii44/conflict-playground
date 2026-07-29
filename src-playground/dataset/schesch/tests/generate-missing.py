@@ -37,15 +37,26 @@ class MissingGenerationResult:
     failed_keys: list[str] = field(default_factory=list)
 
 
-def has_usable_generated_tests(redis, key: str) -> bool:
+def load_generated_tests_record(redis, key: str) -> ScheschGeneratedTests | None:
     payload = redis.json().get(key)
     if not payload:
-        return False
+        return None
 
     try:
-        record = ScheschGeneratedTests.model_validate(payload)
+        return ScheschGeneratedTests.model_validate(payload)
     except Exception as error:
         logger.warning("Regenerating tests because existing record {} is invalid: {}", key, error)
+        return None
+
+
+def generation_attempt_count(record: ScheschGeneratedTests | None) -> int:
+    if record is None:
+        return 0
+    return record.regeneration_count + 1
+
+
+def has_usable_generated_test_record(record: ScheschGeneratedTests | None) -> bool:
+    if record is None:
         return False
 
     patch_bytes = generated_patch_bytes(record)
@@ -54,6 +65,10 @@ def has_usable_generated_tests(redis, key: str) -> bool:
 
     selectors, patch_error = validate_generated_patch(patch_bytes)
     return patch_error is None and bool(selectors)
+
+
+def has_usable_generated_tests(redis, key: str) -> bool:
+    return has_usable_generated_test_record(load_generated_tests_record(redis, key))
 
 
 def selected_playgrounds(
@@ -79,6 +94,7 @@ def generate_missing_tests_for_playbook(
     keep_playground: bool = False,
     skip: int = 0,
     limit: int | None = None,
+    max_attempts: int = 3,
     stop_on_error: bool = False,
 ) -> MissingGenerationResult:
     selected = selected_playgrounds(playbook_path, skip=skip, limit=limit)
@@ -87,9 +103,20 @@ def generate_missing_tests_for_playbook(
     for playground in selected:
         merge_sha = resolve_playground_merge_sha(playground)
         key = generated_tests_record_key(playground.repo_name, merge_sha)
-        if has_usable_generated_tests(redis, key):
+        record = load_generated_tests_record(redis, key)
+        if has_usable_generated_test_record(record):
             skipped += 1
             logger.info("Pruning {}; generated tests already exist at {}", playground.target_label(), key)
+            continue
+        attempts = generation_attempt_count(record)
+        if record is not None and attempts >= max_attempts:
+            skipped += 1
+            logger.info(
+                "Pruning {}; generation attempts reached {} at {}",
+                playground.target_label(),
+                max_attempts,
+                key,
+            )
             continue
         pending_playgrounds.append((playground, merge_sha, key))
 
@@ -162,6 +189,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--skip", type=int, default=0, help="Skip the first N playbook conflicts.")
     parser.add_argument("--limit", type=int, help="Generate at most N playbook conflicts after --skip.")
+    parser.add_argument(
+        "--max-attempts",
+        type=int,
+        default=3,
+        help="Skip conflicts that already have this many generation attempts recorded.",
+    )
     parser.add_argument("--keep-playground", action="store_true", help="Do not delete playgrounds after generation.")
     parser.add_argument("--stop-on-error", action="store_true", help="Stop after the first generation failure.")
     return parser.parse_args()
@@ -178,6 +211,9 @@ def main() -> int:
     if args.limit is not None and args.limit < 1:
         logger.error("--limit must be at least 1")
         return 1
+    if args.max_attempts < 1:
+        logger.error("--max-attempts must be at least 1")
+        return 1
 
     try:
         playbook_path = default_playbook_output_path()
@@ -193,6 +229,7 @@ def main() -> int:
             keep_playground=args.keep_playground,
             skip=args.skip,
             limit=args.limit,
+            max_attempts=args.max_attempts,
             stop_on_error=args.stop_on_error,
         )
     except (RuntimeError, subprocess.CalledProcessError) as error:
