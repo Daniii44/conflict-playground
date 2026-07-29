@@ -297,7 +297,7 @@
                 },
                 "orientation": "horizontal",
                 "showValue": "never",
-                "stacking": "normal",
+                "stacking": "percent",
                 "tooltip": {
                   "hideZeros": false,
                   "mode": "single",
