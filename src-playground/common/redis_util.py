@@ -11,6 +11,7 @@ RESOLUTION_CONFLICT_PREFIX = "resolution:conflict:"
 EVALUATION_MERGE_PREFIX = "evaluation:merge:"
 EVALUATION_MERGE_CORE_PREFIX = "evaluation:merge:core:"
 EVALUATION_MERGE_DIFF_PREFIX = "evaluation:merge:diff:"
+EVALUATION_MERGE_SEM_PREFIX = "evaluation:merge:sem:"
 INFO_SUBMODULE_PREFIX = "info:submodule:"
 
 def setup_redis_connection() -> Redis:

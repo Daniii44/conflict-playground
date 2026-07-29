@@ -33,6 +33,9 @@ def test_resolution_key_maps_to_deterministic_evaluation_keys():
     assert evaluation_record_key("diff", key) == (
         "evaluation:merge:diff:owner/repo.git-abc:20260609T120000.000000Z"
     )
+    assert evaluation_record_key("sem", key) == (
+        "evaluation:merge:sem:owner/repo.git-abc:20260609T120000.000000Z"
+    )
 
 
 class FakeRedis:
@@ -61,6 +64,7 @@ def test_all_analysis_includes_summary():
     assert selected_analysis_names(Args()) == [
         "core",
         "diff",
+        "sem",
         "classification",
         "schesch-original",
         "schesch-generated",

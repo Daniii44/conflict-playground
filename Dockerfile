@@ -43,6 +43,7 @@ RUN apt-get -y install gradle
 RUN apt-get -y install curl
 
 RUN curl -fsSL https://opencode.ai/install | bash
+RUN curl -fsSL https://raw.githubusercontent.com/Ataraxy-Labs/sem/main/install.sh | sh
 
 ADD src-playground src
 ADD src-playground src-playground

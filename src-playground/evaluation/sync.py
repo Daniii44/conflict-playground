@@ -18,6 +18,7 @@ from evaluation.analysis.common import (
 from evaluation.analysis.classification_analysis import ClassificationEvaluationAnalysis
 from evaluation.analysis.core_analysis import CoreEvaluationAnalysis
 from evaluation.analysis.diff_analysis import DiffEvaluationAnalysis
+from evaluation.analysis.sem_analysis import SemEvaluationAnalysis
 from evaluation.analysis.schesch_generated_analysis import ScheschGeneratedEvaluationAnalysis
 from evaluation.analysis.schesch_original_analysis import ScheschOriginalEvaluationAnalysis
 from evaluation.analysis.summary_analysis import SummaryEvaluationAnalysis
@@ -26,6 +27,7 @@ from evaluation.analysis.summary_analysis import SummaryEvaluationAnalysis
 AVAILABLE_ANALYSES: dict[str, type[EvaluationAnalysis]] = {
     "core": CoreEvaluationAnalysis,
     "diff": DiffEvaluationAnalysis,
+    "sem": SemEvaluationAnalysis,
     "classification": ClassificationEvaluationAnalysis,
     "schesch-original": ScheschOriginalEvaluationAnalysis,
     "schesch-generated": ScheschGeneratedEvaluationAnalysis,

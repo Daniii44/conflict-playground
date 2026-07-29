@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 from common.merge_tree import ConflictType
@@ -43,6 +45,12 @@ class MergeDiffEvaluation(MergeEvaluationRecord):
     conflicted_to_actual_resolution_raw: str | None = None
     conflicted_to_proposed_resolution_patch: str | None = None
     conflicted_to_proposed_resolution_raw: str | None = None
+
+
+class MergeSemEvaluation(MergeEvaluationRecord):
+    proposed_commit_sha: str | None = None
+    actual_resolution_sha: str | None = None
+    proposed_to_actual_sem_diff: dict[str, Any] | None = None
 
 
 class MergeSummaryEvaluation(MergeEvaluationRecord):
