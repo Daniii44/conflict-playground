@@ -93,7 +93,7 @@
                 "prettifyLogMessage": true,
                 "showControls": false,
                 "showFieldSelector": false,
-                "showLevel": true,
+                "showLevel": false,
                 "showTime": false,
                 "sortOrder": "Descending",
                 "timestampResolution": "ms",
@@ -395,12 +395,12 @@
         "kind": "TextVariable",
         "spec": {
           "current": {
-            "text": "dataset:schesch:tests:alexruiz/fest-util.git:3c3d01351f4149a749f8278423ca5d8112b18102",
-            "value": "dataset:schesch:tests:alexruiz/fest-util.git:3c3d01351f4149a749f8278423ca5d8112b18102"
+            "text": "dataset:schesch:tests:softinstigate/restheart.git:0a60605990bdc0aaaf053778fef172fb1dd1170d",
+            "value": "dataset:schesch:tests:softinstigate/restheart.git:0a60605990bdc0aaaf053778fef172fb1dd1170d"
           },
           "hide": "dontHide",
           "name": "key",
-          "query": "dataset:schesch:tests:alexruiz/fest-util.git:3c3d01351f4149a749f8278423ca5d8112b18102",
+          "query": "dataset:schesch:tests:softinstigate/restheart.git:0a60605990bdc0aaaf053778fef172fb1dd1170d",
           "skipUrlSync": false
         }
       },
