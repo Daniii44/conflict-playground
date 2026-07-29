@@ -490,8 +490,8 @@
                 "showHeader": true,
                 "sortBy": [
                   {
-                    "desc": false,
-                    "displayName": "generated_at"
+                    "desc": true,
+                    "displayName": "test_passed"
                   }
                 ]
               }
