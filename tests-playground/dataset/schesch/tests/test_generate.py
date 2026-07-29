@@ -21,6 +21,7 @@ from dataset.schesch.tests.generate import (
     generated_tests_record_key,
     human_resolution_error,
     latest_session_id,
+    next_regeneration_count,
     prompt_for_file,
     run_opencode_json,
     validate_generated_patch,
@@ -94,6 +95,30 @@ def test_tests_record_key_uses_requested_prefix():
         generated_tests_record_key("owner/repo.git", "abc123")
         == "dataset:schesch:tests:owner/repo.git:abc123"
     )
+
+
+def test_next_regeneration_count_starts_at_zero_without_existing_record():
+    redis = FakeRedis()
+
+    assert next_regeneration_count(redis, "dataset:schesch:tests:owner/repo.git:merge-sha") == 0
+
+
+def test_next_regeneration_count_increments_existing_record():
+    redis = FakeRedis()
+    redis.json_api.values["dataset:schesch:tests:owner/repo.git:merge-sha"] = (
+        ScheschGeneratedTests(
+            repo="owner/repo.git",
+            merge_sha="merge-sha",
+            redis_key="dataset:schesch:tests:owner/repo.git:merge-sha",
+            conflict_info_key="info:conflict:core:owner/repo.git:merge-sha",
+            regeneration_count=2,
+            human_solution_ref="merge-sha",
+            generated_at=datetime.now(timezone.utc),
+            duration_seconds=1.0,
+        ).model_dump(mode="json")
+    )
+
+    assert next_regeneration_count(redis, "dataset:schesch:tests:owner/repo.git:merge-sha") == 3
 
 
 def test_content_conflict_paths_returns_unique_content_paths_only():
@@ -285,6 +310,7 @@ def test_generate_tests_stores_error_record_when_opencode_fails(monkeypatch, tmp
     stored = redis.json_api.values["dataset:schesch:tests:owner/repo.git:merge-sha"]
     assert stored["error"] == record.error
     assert stored["coverage"] is None
+    assert stored["regeneration_count"] == 0
 
 
 def test_generate_tests_rejects_patch_without_java_test_changes(monkeypatch, tmp_path):
@@ -349,6 +375,80 @@ def test_generate_tests_rejects_patch_without_java_test_changes(monkeypatch, tmp
 
     assert record.test_commit_sha == "generated-commit"
     assert record.error == "opencode completed but did not modify any Java test classes"
+
+
+def test_generate_tests_increments_regeneration_count_when_record_exists(monkeypatch, tmp_path):
+    redis = FakeRedis()
+    redis.json_api.values["info:conflict:core:owner/repo.git:merge-sha"] = core_conflict().model_dump()
+    redis.json_api.values["info:conflict:schesch:owner/repo.git:merge-sha"] = {
+        "human": {"passed": True, "successful_java_home": "/java-17"},
+        "parents": [
+            {"passed": True, "successful_java_home": "/java-17"},
+            {"passed": True, "successful_java_home": "/java-17"},
+        ],
+    }
+    redis.json_api.values["dataset:schesch:tests:owner/repo.git:merge-sha"] = {
+        "repo": "owner/repo.git",
+        "merge_sha": "merge-sha",
+        "redis_key": "dataset:schesch:tests:owner/repo.git:merge-sha",
+        "conflict_info_key": "info:conflict:core:owner/repo.git:merge-sha",
+        "regeneration_count": 1,
+        "human_solution_ref": "merge-sha",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "duration_seconds": 1.0,
+        "files": [],
+    }
+    playgrounds = tmp_path / "playgrounds"
+    playground = playgrounds / "owner" / "repo.git-merge-sha"
+    playground.mkdir(parents=True)
+    monkeypatch.setenv("PLAYGROUNDS", str(playgrounds))
+
+    monkeypatch.setattr(
+        "dataset.schesch.tests.generate.setup_playground",
+        lambda repo, merge: "owner/repo.git-merge-sha",
+    )
+    monkeypatch.setattr("dataset.schesch.tests.generate.reset_playground", lambda path, merge: None)
+    monkeypatch.setattr(
+        "dataset.schesch.tests.generate.run_opencode_for_file",
+        lambda path, executable, prompt, timeout: (0, None, None, 0.5),
+    )
+    monkeypatch.setattr(
+        "dataset.schesch.tests.generate.export_latest_session",
+        lambda path, executable: {"id": "session-4", "data": {"messages": []}},
+    )
+    monkeypatch.setattr(
+        "dataset.schesch.tests.generate.commit_generated_tests",
+        lambda path: "generated-commit",
+    )
+    monkeypatch.setattr(
+        "dataset.schesch.tests.generate.format_generated_patch",
+        lambda path, base_ref: (
+            "diff --git a/src/test/java/pkg/GeneratedTest.java b/src/test/java/pkg/GeneratedTest.java\n"
+            "--- a/src/test/java/pkg/GeneratedTest.java\n"
+            "+++ b/src/test/java/pkg/GeneratedTest.java\n"
+        ).encode(),
+    )
+    monkeypatch.setattr(
+        "dataset.schesch.tests.generate.generated_test_command",
+        lambda playground_path, selectors, timeout_seconds: (["mvn", "clean", "test", "-Dtest=GeneratedTest"], "maven"),
+    )
+    monkeypatch.setattr(
+        "dataset.schesch.tests.generate.ScheschResolutionRunner.run_tests_in_current_state",
+        lambda self, path, label, commit_sha=None, java_homes=None, test_command=None: (
+            ScheschResolutionResult(
+                label=label,
+                commit_sha=commit_sha,
+                passed=True,
+                successful_java_home="/java-17",
+                build_tool="maven",
+            )
+        ),
+    )
+
+    record = generate_tests(redis, "owner/repo.git", "merge-sha")
+
+    assert record.regeneration_count == 2
+    assert redis.json_api.values["dataset:schesch:tests:owner/repo.git:merge-sha"]["regeneration_count"] == 2
 
 
 def test_expected_human_java_home_uses_schesch_record():

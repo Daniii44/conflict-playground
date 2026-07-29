@@ -53,6 +53,7 @@ class ScheschGeneratedTests(BaseModel):
     merge_sha: str
     redis_key: str
     conflict_info_key: str
+    regeneration_count: int = 0
     playground_name: str | None = None
     human_solution_ref: str
     generated_at: datetime
@@ -328,6 +329,14 @@ def load_conflict_info(redis, repo_name: str, merge_sha: str) -> InfoConflictCor
     return conflict_info
 
 
+def next_regeneration_count(redis, redis_key: str) -> int:
+    payload = redis.json().get(redis_key)
+    if not payload:
+        return 0
+    existing = ScheschGeneratedTests.model_validate(payload)
+    return existing.regeneration_count + 1
+
+
 def expected_human_java_home(redis, repo_name: str, merge_sha: str) -> str:
     key = schesch_info_key(repo_name, merge_sha)
     logger.info("Loading Schesch conflict record from {}", key)
@@ -424,6 +433,7 @@ def generate_tests(
         merge_sha=merge_sha,
         redis_key=redis_key,
         conflict_info_key=conflict_info_key(repo_name, merge_sha),
+        regeneration_count=next_regeneration_count(redis, redis_key),
         human_solution_ref=merge_sha,
         generated_at=datetime.now(timezone.utc),
         duration_seconds=0.0,
