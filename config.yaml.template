@@ -10,11 +10,13 @@ volume_type: bind-mount
 #   - manual-cli: Manual resolution using CLI tools
 hook_type: manual-cli
 
-# Ollama model used by the opencode hook.
-# Supported values:
+# Model passed through to the opencode hook.
+# Any value is forwarded as-is. Examples:
 #   - qwen3-coder-next:latest
 #   - qwen3.6:35b-mlx
-# The hook also accepts these values with an explicit ollama/ prefix.
+#   - gemma4:12b-mlx
+#   - gemma4:26b-mlx
+#   - gemma4:31b-mlx
 opencode_model: qwen3-coder-next:latest
 
 # Path to SmartGit binary

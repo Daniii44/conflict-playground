@@ -15,12 +15,6 @@ from hooks_common import HookWorker, HookTask
 OPENCODE_ERROR_EXCERPT_LIMIT = 4000
 OPENCODE_RUN_TIMEOUT_SECONDS = 15 * 60
 DEFAULT_OPENCODE_MODEL = "ollama/qwen3-coder-next:latest"
-SUPPORTED_OPENCODE_MODELS = {
-    "qwen3-coder-next:latest": "ollama/qwen3-coder-next:latest",
-    "ollama/qwen3-coder-next:latest": "ollama/qwen3-coder-next:latest",
-    "qwen3.6:35b-mlx": "ollama/qwen3.6:35b-mlx",
-    "ollama/qwen3.6:35b-mlx": "ollama/qwen3.6:35b-mlx",
-}
 
 
 def command_error_excerpt(result: subprocess.CompletedProcess[str]) -> str:
@@ -195,13 +189,7 @@ class OpenCodeWorker(HookWorker):
         if not configured_model:
             return DEFAULT_OPENCODE_MODEL
 
-        selected_model = SUPPORTED_OPENCODE_MODELS.get(configured_model)
-        if selected_model is None:
-            supported_models = ", ".join(sorted({model for model in SUPPORTED_OPENCODE_MODELS if not model.startswith("ollama/")}))
-            raise ValueError(
-                f"Unsupported OPENCODE_MODEL {configured_model!r}. Supported models: {supported_models}"
-            )
-        return selected_model
+        return configured_model
 
     def run_opencode_json(self, playground_path: Path, *args: str) -> tuple[Any | None, str | None]:
         self.log(
@@ -313,11 +301,7 @@ class OpenCodeWorker(HookWorker):
             self.log("playground is not currently in a git merge state")
             return self.result(f"Error: Playground '{task.playground}' is not in a git merge state")
 
-        try:
-            selected_model = self.selected_model()
-        except ValueError as error:
-            self.log(f"failed to select model: {error}")
-            return self.result(f"Error: {error}")
+        selected_model = self.selected_model()
         self.log(f"selected model {selected_model}")
 
         try:

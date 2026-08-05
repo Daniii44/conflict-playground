@@ -103,32 +103,22 @@ def test_handle_task_returns_timeout_as_normal_error(monkeypatch, tmp_path):
     assert result["opencode_session_export"] == {"error": "No session"}
 
 
-def test_selected_model_accepts_second_supported_model(monkeypatch):
+def test_selected_model_returns_configured_model_without_validation(monkeypatch):
     module = load_opencode_module()
     worker = module.OpenCodeWorker()
-    monkeypatch.setenv("OPENCODE_MODEL", "qwen3.6:35b-mlx")
+    monkeypatch.setenv("OPENCODE_MODEL", "gemma4:26b-mlx")
 
     selected_model = worker.selected_model()
-    assert selected_model == "ollama/qwen3.6:35b-mlx"
+    assert selected_model == "gemma4:26b-mlx"
 
 
-def test_handle_task_returns_error_for_unsupported_model(monkeypatch, tmp_path):
+def test_selected_model_returns_default_when_env_is_empty(monkeypatch):
     module = load_opencode_module()
     worker = module.OpenCodeWorker()
-    playgrounds = tmp_path / "playgrounds"
-    playground = playgrounds / "example-project-abc123"
-    playground.mkdir(parents=True)
-    monkeypatch.setenv("PLAYGROUNDS", str(playgrounds))
-    monkeypatch.setenv("OPENCODE_MODEL", "bad-model")
-    monkeypatch.setattr(worker, "is_merging", lambda path: True)
+    monkeypatch.delenv("OPENCODE_MODEL", raising=False)
 
-    result = worker.handle_task(
-        module.HookTask(id="00000000-0000-0000-0000-000000000001", playground="example-project-abc123")
-    )
-
-    assert result["message"].startswith("Error: Unsupported OPENCODE_MODEL 'bad-model'")
-    assert "qwen3-coder-next:latest" in result["message"]
-    assert "qwen3.6:35b-mlx" in result["message"]
+    selected_model = worker.selected_model()
+    assert selected_model == module.DEFAULT_OPENCODE_MODEL
 
 
 def test_handle_task_passes_selected_model_to_opencode(monkeypatch, tmp_path):
@@ -138,7 +128,7 @@ def test_handle_task_passes_selected_model_to_opencode(monkeypatch, tmp_path):
     playground = playgrounds / "example-project-abc123"
     playground.mkdir(parents=True)
     monkeypatch.setenv("PLAYGROUNDS", str(playgrounds))
-    monkeypatch.setenv("OPENCODE_MODEL", "qwen3.6:35b-mlx")
+    monkeypatch.setenv("OPENCODE_MODEL", "gemma4:31b-mlx")
 
     merge_states = iter([True, False])
     monkeypatch.setattr(worker, "is_merging", lambda path: next(merge_states))
@@ -149,7 +139,7 @@ def test_handle_task_passes_selected_model_to_opencode(monkeypatch, tmp_path):
             worker.opencode_executable,
             "run",
             "--model",
-            "ollama/qwen3.6:35b-mlx",
+            "gemma4:31b-mlx",
         ]
         return subprocess.CompletedProcess(
             command,

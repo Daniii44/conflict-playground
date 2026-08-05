@@ -46,16 +46,6 @@ load_runtime_config() {
         exit 1
     fi
 
-    case "${OPENCODE_MODEL:-}" in
-        ""|"qwen3-coder-next:latest"|"ollama/qwen3-coder-next:latest"|"qwen3.6:35b-mlx"|"ollama/qwen3.6:35b-mlx")
-            ;;
-        *)
-            echo "Error: Invalid opencode model '$OPENCODE_MODEL'"
-            echo "Supported opencode models: qwen3-coder-next:latest, qwen3.6:35b-mlx"
-            exit 1
-            ;;
-    esac
-
     export VOLUME_TYPE
     export HOOK_TYPE
     export OPENCODE_MODEL
