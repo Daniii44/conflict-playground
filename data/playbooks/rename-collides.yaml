@@ -1,0 +1,14 @@
+playbook:
+  sources:
+    - repo_url: microsoft/vscode.git  
+      override_merge_shas:
+        - 20d4bb7cf6cae20a23ae87d49f8e73f7a247c40d
+    - repo_url: mui/material-ui.git
+      override_merge_shas:
+        - 512896973499adbbda057e7f3685d1b23cc02de9
+    - repo_url: tensorflow/tensorflow.git
+      override_merge_shas:
+        - 348bf0c436e4f571022bc08d0699e3b257125467
+    - repo_url: tensorflow/tensorflow.git
+      override_merge_shas:
+        - 5a532a183b952b59c4f4f2b93e5fba05c6359333
