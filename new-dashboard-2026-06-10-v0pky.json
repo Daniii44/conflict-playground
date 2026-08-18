@@ -1592,6 +1592,133 @@
           }
         }
       },
+      "panel-32": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "select \n    nullIf(singleValueOrNull(nullIf(message.info.modelID::text, '')), '') as model,\n    any(content.resolution_end::datetime - content.configuration.resolution_start::datetime) as duration\nfrom default.redis_json\nLEFT ARRAY JOIN content.hook_result.opencode_session_export.data.messages::Array(JSON) AS message\nwhere startsWith(key, 'resolution')\ngroup by key"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": [
+                {
+                  "group": "partitionByValues",
+                  "kind": "Transformation",
+                  "spec": {
+                    "options": {
+                      "fields": [
+                        "model"
+                      ],
+                      "keepFields": false,
+                      "naming": {
+                        "asLabels": true
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "description": "",
+          "id": 32,
+          "links": [],
+          "title": "Resolution Durations",
+          "vizConfig": {
+            "group": "histogram",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "fillOpacity": 21,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineWidth": 2,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    }
+                  },
+                  "fieldMinMax": false,
+                  "max": 300,
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "s"
+                },
+                "overrides": []
+              },
+              "options": {
+                "bucketSize": 5,
+                "combine": false,
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                }
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
       "panel-4": {
         "kind": "Panel",
         "spec": {
@@ -2197,6 +2324,15 @@
                                   "element": {
                                     "kind": "ElementReference",
                                     "name": "panel-16"
+                                  }
+                                }
+                              },
+                              {
+                                "kind": "AutoGridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-32"
                                   }
                                 }
                               }
