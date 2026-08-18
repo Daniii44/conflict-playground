@@ -2756,7 +2756,7 @@
                                           }
                                         }
                                       ],
-                                      "maxColumnCount": 3,
+                                      "maxColumnCount": 1,
                                       "rowHeightMode": "standard"
                                     }
                                   },
