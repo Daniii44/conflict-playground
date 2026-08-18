@@ -2557,23 +2557,22 @@
                                 "kind": "TabsLayoutTab",
                                 "spec": {
                                   "layout": {
-                                    "kind": "GridLayout",
+                                    "kind": "AutoGridLayout",
                                     "spec": {
+                                      "columnWidthMode": "standard",
                                       "items": [
                                         {
-                                          "kind": "GridLayoutItem",
+                                          "kind": "AutoGridLayoutItem",
                                           "spec": {
                                             "element": {
                                               "kind": "ElementReference",
                                               "name": "panel-33"
-                                            },
-                                            "height": 8,
-                                            "width": 12,
-                                            "x": 0,
-                                            "y": 0
+                                            }
                                           }
                                         }
-                                      ]
+                                      ],
+                                      "maxColumnCount": 3,
+                                      "rowHeightMode": "standard"
                                     }
                                   },
                                   "repeat": {
