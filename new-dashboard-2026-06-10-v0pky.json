@@ -1776,7 +1776,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "select \n    llm as model,\n    duration_median,\n    case when startsWith(resolution_status, 'PROOF') then 'proof' when startsWith(resolution_status, 'CONTRADICTION') then 'contradiction' else 'undecided' end as resolution_status\nfrom default.redis_json_overview_base\nwhere llm = 'qwen3.6:35b-mlx'"
+                        "rawSql": "select \n    duration_median,\n    case when startsWith(resolution_status, 'PROOF') then 'proof' when startsWith(resolution_status, 'CONTRADICTION') then 'contradiction' else 'undecided' end as resolution_status\nfrom default.redis_json_overview_base\nwhere llm = '$model'"
                       },
                       "version": "v0"
                     },
@@ -1850,7 +1850,55 @@
                   },
                   "unit": "s"
                 },
-                "overrides": []
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "duration_median proof",
+                      "scope": "series"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "green",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "duration_median contradiction",
+                      "scope": "series"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "red",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "duration_median undecided",
+                      "scope": "series"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
+                  }
+                ]
               },
               "options": {
                 "bucketSize": 5,
@@ -2528,7 +2576,11 @@
                                       ]
                                     }
                                   },
-                                  "title": "New tab"
+                                  "repeat": {
+                                    "mode": "variable",
+                                    "value": "model"
+                                  },
+                                  "title": "$model"
                                 }
                               }
                             ]
