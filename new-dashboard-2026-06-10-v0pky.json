@@ -1624,7 +1624,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "select \n    duration_median,\n    case when startsWith(resolution_status, 'PROOF') then 'proof' when startsWith(resolution_status, 'CONTRADICTION') then 'contradiction' else 'undecided' end as resolution_status\nfrom default.redis_json_overview_base\nwhere llm = '$model'"
+                        "rawSql": "select \n    duration_median,\n    case when startsWith(resolution_status, 'PROOF') then 'proof' when startsWith(resolution_status, 'CONTRADICTION') then 'contradiction' else 'undecided' end as resolution_status\nfrom default.redis_json_overview_base\nwhere llm = '$model'\norder by case when resolution_status = 'proof' then 1 when resolution_status = 'undecided' then 2 else 3 end desc"
                       },
                       "version": "v0"
                     },
@@ -1800,7 +1800,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "select \n    duration_median,\n    case when startsWith(resolution_status, 'PROOF') then 'proof' when startsWith(resolution_status, 'CONTRADICTION') then 'contradiction' else 'undecided' end as resolution_status\nfrom default.redis_json_overview_base\nwhere llm = '$model'"
+                        "rawSql": "select \n    duration_median,\n    case when startsWith(resolution_status, 'PROOF') then 'proof' when startsWith(resolution_status, 'CONTRADICTION') then 'contradiction' else 'undecided' end as resolution_status\nfrom default.redis_json_overview_base\nwhere llm = '$model'\norder by case when resolution_status = 'proof' then 1 when resolution_status = 'undecided' then 2 else 3 end desc"
                       },
                       "version": "v0"
                     },
