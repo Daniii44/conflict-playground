@@ -1154,7 +1154,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT * FROM \"default\".\"redis_json_overview_table\" where concat(repo, '.git') = '${repo_name}' and merge_hash = '${merge}'"
+                        "rawSql": "SELECT resolution_status, llm, * except (resolution_status, llm, repo, merge_hash)  FROM \"default\".\"redis_json_overview_table\" where concat(repo, '.git') = '${repo_name}' and merge_hash = '${merge}'"
                       },
                       "version": "v0"
                     },
@@ -1309,6 +1309,18 @@
                             "type": "value"
                           }
                         ]
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "resolution_status"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 461
                       }
                     ]
                   }
