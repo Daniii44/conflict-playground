@@ -1868,7 +1868,6 @@
                     }
                   },
                   "fieldMinMax": false,
-                  "max": 300,
                   "min": 0,
                   "thresholds": {
                     "mode": "absolute",
