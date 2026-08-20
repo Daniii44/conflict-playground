@@ -410,6 +410,10 @@
                             "url": "http://mac-studio.syntevo:3000/d/dcfostbwyhpxq8e/resolution?folderUid=r98lq8\u0026orgId=1\u0026var-repo_name=${__data.fields['repo_name']}\u0026var-merge=${__data.fields['merge']}\u0026var-timestamp=${__data.fields['timestamp']}"
                           }
                         ]
+                      },
+                      {
+                        "id": "custom.width",
+                        "value": 223
                       }
                     ]
                   }
@@ -1681,7 +1685,6 @@
                     }
                   },
                   "fieldMinMax": false,
-                  "max": 300,
                   "min": 0,
                   "thresholds": {
                     "mode": "absolute",
@@ -1745,6 +1748,14 @@
                         }
                       }
                     ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "duration contradiction",
+                      "scope": "series"
+                    },
+                    "properties": []
                   }
                 ]
               },
