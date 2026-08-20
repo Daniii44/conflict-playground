@@ -2033,7 +2033,12 @@
               },
               "options": {
                 "legend": {
-                  "calcs": [],
+                  "calcs": [
+                    "median",
+                    "p90",
+                    "p80",
+                    "p75"
+                  ],
                   "displayMode": "list",
                   "placement": "bottom",
                   "showLegend": true
