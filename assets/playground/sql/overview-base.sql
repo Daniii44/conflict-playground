@@ -19,6 +19,8 @@ resolution_dimensions AS (
         repo,
         merge_hash,
         conflict_timestamp,
+        any(r.content.resolution_end::datetime - r.content.configuration.resolution_start::datetime)
+            AS duration,
         coalesce(nullIf(any(ta.subdataset), ''), 'UNKNOWN_SUBDATASET') AS subdataset,
         coalesce(
             nullIf(singleValueOrNull(nullIf(message.info.modelID::text, '')), ''),
@@ -66,6 +68,11 @@ base_merges AS (
         rd.llm AS llm,
         rd.group_label AS group_label,
         count() AS total_resolutions,
+        avg(rd.duration) AS duration_average,
+        median(rd.duration) AS duration_median,
+        min(rd.duration) AS duration_min,
+        max(rd.duration) AS duration_max,
+        stddevSampStable(rd.duration) AS duration_stddev,
         max(rd.conflict_timestamp) AS latest_conflict_timestamp,
         max(CASE WHEN r.content.proposed_resolution.error LIKE 'Error: opencode timed out%' THEN 1 ELSE 0 END)
             AS contradiction_agent_timeout,
@@ -356,7 +363,12 @@ SELECT
         WHEN coalesce(se.proof_exact_match_semantic, 0) = 1 THEN 'PROOF_EXACT_MATCH_SEMANTIC'
         WHEN coalesce(d.proof_exact_match_normalized, 0) = 1 THEN 'PROOF_EXACT_MATCH_NORMALIZED'
         ELSE 'UNCLASSIFIED_DIVERGENCE'
-    END AS resolution_status
+    END AS resolution_status,
+    b.duration_average AS duration_average,
+    b.duration_median AS duration_median,
+    b.duration_min AS duration_min,
+    b.duration_max AS duration_max,
+    b.duration_stddev AS duration_stddev
 FROM base_merges AS b
 LEFT JOIN core_metrics AS m
     ON m.repo = b.repo

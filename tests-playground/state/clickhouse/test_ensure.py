@@ -118,6 +118,10 @@ def test_overview_queries_reference_base_view():
     assert "proof_exact_match" in table_query
     assert "proof_exact_match_normalized" in table_query
     assert "proof_exact_match_semantic" in table_query
+    assert "duration_average" in table_query
+    assert "duration_median" in table_query
+    assert "duration_min" in table_query
+    assert "duration_max" in table_query
     assert "proof_is_exact_match" not in chart_query
     assert "proof_is_exact_match_normalized" not in chart_query
     assert "proof_is_exact_match" not in table_query

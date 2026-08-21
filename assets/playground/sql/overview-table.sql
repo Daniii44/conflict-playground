@@ -22,7 +22,11 @@ SELECT
     contradiction_semicanonical_dilution,
     contradiction_ghost_resolution,
     contradiction_noncanonical_fallback,
-    resolution_status
+    resolution_status,
+    duration_average,
+    duration_median,
+    duration_min,
+    duration_max
 FROM default.redis_json_overview_base
 ORDER BY
     proof_exact_match DESC,
