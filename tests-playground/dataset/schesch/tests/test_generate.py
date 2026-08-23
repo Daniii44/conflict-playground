@@ -3,15 +3,17 @@ import importlib.util
 from pathlib import Path
 import subprocess
 
-from common.merge_tree import MergeLogicalConflict, MergeResult
+from common.merge_tree import MergeConflictedFile, MergeLogicalConflict, MergeResult
 from common.evaluation_models import ScheschResolutionResult
 from common.schesch import test_selectors_from_patch_bytes
 from dataset.schesch.tests.generate import (
     GeneratedTestFile,
     ScheschGeneratedTests,
     commit_generated_tests,
+    collect_conflict_info_from_playground,
     content_conflict_paths,
     encode_patch_base64,
+    ensure_conflicted_tree_exists,
     expected_human_java_home,
     export_latest_session,
     format_generated_patch,
@@ -23,6 +25,7 @@ from dataset.schesch.tests.generate import (
     latest_session_id,
     next_regeneration_count,
     prompt_for_file,
+    resolution_diff_for_file,
     run_opencode_json,
     validate_generated_patch,
     verify_human_solution,
@@ -126,7 +129,15 @@ def test_content_conflict_paths_returns_unique_content_paths_only():
 
 
 def test_prompt_for_file_scopes_generation_to_single_conflicting_file():
-    prompt = prompt_for_file(core_conflict(), "src/Main.java")
+    conflict_info = core_conflict()
+    conflict_info.merge_result.conflicted_files.append(
+        MergeConflictedFile(mode="100644", oid="conflict-blob", stage=2, path="src/Main.java")
+    )
+    conflict_info.merge_result.conflicted_files.append(
+        MergeConflictedFile(mode="100644", oid="other-blob", stage=3, path="src/Other.java")
+    )
+
+    prompt = prompt_for_file(conflict_info, "src/Main.java", "diff --git a/src/Main.java b/src/Main.java")
 
     assert "Generate unit tests" in prompt
     assert "src/Main.java" in prompt
@@ -138,6 +149,97 @@ def test_prompt_for_file_scopes_generation_to_single_conflicting_file():
     assert "do not consider the task complete until that command succeeds" in prompt
     assert "CONFLICT (contents)" in prompt
     assert "CONFLICT (modify/delete)" not in prompt
+    assert '"oid": "conflict-blob"' in prompt
+    assert '"oid": "other-blob"' not in prompt
+    assert "diff --git a/src/Main.java b/src/Main.java" in prompt
+
+
+def test_resolution_diff_for_file_diffs_conflicted_tree_against_human_merge(monkeypatch, tmp_path):
+    calls = []
+
+    monkeypatch.setattr(
+        "dataset.schesch.tests.generate.capture_git",
+        lambda *args, **kwargs: subprocess.CompletedProcess(args, 0, stdout="", stderr=""),
+    )
+
+    def fake_capture_git_bytes(*args, **kwargs):
+        calls.append((args, kwargs))
+        return subprocess.CompletedProcess(args, 0, stdout=b"resolution patch\n", stderr=b"")
+
+    monkeypatch.setattr("dataset.schesch.tests.generate.capture_git_bytes", fake_capture_git_bytes)
+
+    assert resolution_diff_for_file(tmp_path, core_conflict(), "src/Main.java") == "resolution patch"
+    assert calls == [
+        (
+            (
+                "-C",
+                str(tmp_path),
+                "diff-tree",
+                "-p",
+                "tree",
+                "merge-sha",
+                "--",
+                "src/Main.java",
+            ),
+            {"check": False},
+        )
+    ]
+
+
+def test_conflicted_tree_must_exist_in_playground(monkeypatch, tmp_path):
+    monkeypatch.setattr(
+        "dataset.schesch.tests.generate.capture_git",
+        lambda *args, **kwargs: subprocess.CompletedProcess(args, 1, stdout="", stderr="missing tree"),
+    )
+
+    try:
+        ensure_conflicted_tree_exists(tmp_path, core_conflict())
+    except RuntimeError as error:
+        assert "Conflicted merge tree tree is not available" in str(error)
+        assert "missing tree" in str(error)
+    else:
+        raise AssertionError("Expected missing conflicted merge tree to fail")
+
+
+def test_collect_conflict_info_recreates_merge_tree_from_merge_parents(monkeypatch, tmp_path):
+    calls = []
+    merge_result = core_conflict().merge_result
+
+    def fake_capture_git(*args, **kwargs):
+        calls.append((args, kwargs))
+        return subprocess.CompletedProcess(args, 0, stdout="main-parent feature-parent\n", stderr="")
+
+    def fake_capture_git_bytes(*args, **kwargs):
+        calls.append((args, kwargs))
+        return subprocess.CompletedProcess(args, 1, stdout=b"fresh merge-tree output", stderr=b"")
+
+    monkeypatch.setattr("dataset.schesch.tests.generate.capture_git", fake_capture_git)
+    monkeypatch.setattr("dataset.schesch.tests.generate.capture_git_bytes", fake_capture_git_bytes)
+    monkeypatch.setattr("dataset.schesch.tests.generate.parse_merge_result", lambda output: merge_result)
+    monkeypatch.setattr("dataset.schesch.tests.generate.prune_auto_merged", lambda result: result)
+
+    assert collect_conflict_info_from_playground(tmp_path, "owner/repo.git", "merge-sha") == core_conflict()
+    assert calls == [
+        (
+            ("-C", str(tmp_path), "show", "--no-patch", "--format=%P", "merge-sha"),
+            {"check": False},
+        ),
+        (
+            ("-C", str(tmp_path), "merge-tree", "-z", "main-parent", "feature-parent"),
+            {"check": False},
+        ),
+    ]
+
+
+def skip_conflicted_tree_check(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "dataset.schesch.tests.generate.ensure_conflicted_tree_exists",
+        lambda playground_path, conflict_info: None,
+    )
+    monkeypatch.setattr(
+        "dataset.schesch.tests.generate.collect_conflict_info_from_playground",
+        lambda playground_path, repo_name, merge_sha: core_conflict(),
+    )
 
 
 def test_commit_generated_tests_returns_none_for_clean_worktree(monkeypatch, tmp_path):
@@ -255,6 +357,7 @@ def test_export_latest_session_reports_list_errors(monkeypatch, tmp_path):
 
 
 def test_generate_tests_stores_error_record_when_opencode_fails(monkeypatch, tmp_path):
+    skip_conflicted_tree_check(monkeypatch)
     redis = FakeRedis()
     redis.json_api.values["info:conflict:core:owner/repo.git:merge-sha"] = core_conflict().model_dump()
     redis.json_api.values["info:conflict:schesch:owner/repo.git:merge-sha"] = {
@@ -314,6 +417,7 @@ def test_generate_tests_stores_error_record_when_opencode_fails(monkeypatch, tmp
 
 
 def test_generate_tests_does_not_store_incomplete_record_on_keyboard_interrupt(monkeypatch, tmp_path):
+    skip_conflicted_tree_check(monkeypatch)
     redis = FakeRedis()
     redis.json_api.values["info:conflict:core:owner/repo.git:merge-sha"] = core_conflict().model_dump()
     playgrounds = tmp_path / "playgrounds"
@@ -343,6 +447,7 @@ def test_generate_tests_does_not_store_incomplete_record_on_keyboard_interrupt(m
 
 
 def test_generate_tests_rejects_patch_without_java_test_changes(monkeypatch, tmp_path):
+    skip_conflicted_tree_check(monkeypatch)
     redis = FakeRedis()
     redis.json_api.values["info:conflict:core:owner/repo.git:merge-sha"] = core_conflict().model_dump()
     redis.json_api.values["info:conflict:schesch:owner/repo.git:merge-sha"] = {
@@ -407,6 +512,7 @@ def test_generate_tests_rejects_patch_without_java_test_changes(monkeypatch, tmp
 
 
 def test_generate_tests_increments_regeneration_count_when_record_exists(monkeypatch, tmp_path):
+    skip_conflicted_tree_check(monkeypatch)
     redis = FakeRedis()
     redis.json_api.values["info:conflict:core:owner/repo.git:merge-sha"] = core_conflict().model_dump()
     redis.json_api.values["info:conflict:schesch:owner/repo.git:merge-sha"] = {
@@ -565,6 +671,7 @@ def test_verify_human_solution_rejects_non_passing_reference(monkeypatch, tmp_pa
 
 
 def test_generate_tests_runs_only_generated_selectors_on_human_sample(monkeypatch, tmp_path):
+    skip_conflicted_tree_check(monkeypatch)
     redis = FakeRedis()
     redis.json_api.values["info:conflict:core:owner/repo.git:merge-sha"] = core_conflict().model_dump()
     redis.json_api.values["info:conflict:schesch:owner/repo.git:merge-sha"] = {

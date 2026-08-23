@@ -17,7 +17,7 @@ from loguru import logger
 from pydantic import BaseModel, Field
 
 from common.git_util import capture_git, capture_git_bytes, git_env
-from common.merge_tree import ConflictType
+from common.merge_tree import ConflictType, parse_merge_result, prune_auto_merged
 from common.redis_util import setup_redis_connection
 from common.schesch import (
     ScheschResolutionRunner,
@@ -97,35 +97,163 @@ def content_conflict_paths(conflict_info: InfoConflictCore) -> list[str]:
     return paths
 
 
-def prompt_for_file(conflict_info: InfoConflictCore, file_path: str) -> str:
+def collect_conflict_info_from_playground(
+    playground_path: Path,
+    repo_name: str,
+    merge_sha: str,
+) -> InfoConflictCore:
+    """Recreate the conflicting merge tree from the merge commit's parents."""
+    parents_result = capture_git(
+        "-C",
+        str(playground_path),
+        "show",
+        "--no-patch",
+        "--format=%P",
+        merge_sha,
+        check=False,
+    )
+    parents = parents_result.stdout.split()
+    if parents_result.returncode != 0 or len(parents) != 2:
+        error = parents_result.stderr.strip() or parents_result.stdout.strip()
+        raise RuntimeError(
+            f"Could not read exactly two parents for merge {merge_sha}: {error or len(parents)}"
+        )
+
+    merge_tree_result = capture_git_bytes(
+        "-C",
+        str(playground_path),
+        "merge-tree",
+        "-z",
+        parents[0],
+        parents[1],
+        check=False,
+    )
+    output_and_error = merge_tree_result.stdout + merge_tree_result.stderr
+    if b"fatal: refusing to merge unrelated histories" in output_and_error:
+        raise RuntimeError(f"Merge {merge_sha} has unrelated histories")
+    if merge_tree_result.returncode == 0:
+        raise RuntimeError(f"Merge {merge_sha} no longer produces a conflict")
+
+    try:
+        merge_result = prune_auto_merged(parse_merge_result(merge_tree_result.stdout))
+    except Exception as error:
+        raise RuntimeError(f"Could not parse fresh merge-tree output for {merge_sha}: {error}") from error
+
+    return InfoConflictCore(
+        repo=repo_name,
+        merge_commit_oid=merge_sha,
+        merge_result=merge_result,
+    )
+
+
+def ensure_conflicted_tree_exists(playground_path: Path, conflict_info: InfoConflictCore) -> None:
+    tree_oid = conflict_info.merge_result.result_tree_oid
+    result = capture_git(
+        "-C",
+        str(playground_path),
+        "cat-file",
+        "-e",
+        f"{tree_oid}^{{tree}}",
+        check=False,
+    )
+    if result.returncode == 0:
+        return
+
+    error = result.stderr.strip() or result.stdout.strip() or "git cat-file failed"
+    raise RuntimeError(
+        f"Conflicted merge tree {tree_oid} is not available in playground {playground_path}: {error}"
+    )
+
+
+def resolution_diff_for_file(
+    playground_path: Path,
+    conflict_info: InfoConflictCore,
+    file_path: str,
+) -> str:
+    """Return the human resolution's patch for one conflicted path."""
+    ensure_conflicted_tree_exists(playground_path, conflict_info)
+    result = capture_git_bytes(
+        "-C",
+        str(playground_path),
+        "diff-tree",
+        "-p",
+        conflict_info.merge_result.result_tree_oid,
+        conflict_info.merge_commit_oid,
+        "--",
+        file_path,
+        check=False,
+    )
+    if result.returncode != 0:
+        error = result.stderr.decode("utf-8", errors="replace").strip()
+        logger.warning(
+            "Could not collect resolution diff for {} at {}: {}",
+            file_path,
+            playground_path,
+            error or "git diff-tree failed",
+        )
+        return ""
+    return result.stdout.decode("utf-8", errors="replace").strip()
+
+
+def prompt_for_file(
+    conflict_info: InfoConflictCore,
+    file_path: str,
+    resolution_diff: str = "",
+) -> str:
     file_conflicts = [
         conflict.model_dump(mode="json")
         for conflict in conflict_info.merge_result.logical_conflicts
         if file_path in conflict.paths
     ]
-    conflict_json = json.dumps(file_conflicts, indent=2, sort_keys=True)
-    return (
-        "Generate unit tests that capture the intent of the human merge conflict resolution "
-        f"for `{file_path}`.\n\n"
-        "Context:\n"
-        f"- Repository: {conflict_info.repo}\n"
-        f"- Merge commit containing the human sample solution: {conflict_info.merge_commit_oid}\n"
-        f"- Conflicting file to focus on: {file_path}\n"
-        "- The playground is reset to the human sample solution. Treat the current contents "
-        "of the target file as the reference behavior.\n"
-        "- Only generate or update tests needed to exercise that resolved behavior. Do not edit "
-        "production source files unless a test framework requires a minimal fixture/configuration change.\n"
-        "- The generated patch is only useful if `playground-schesch-test` passes. If the targeted "
-        "Schesch test command fails, revise the generated tests until it passes or stop and report the failure.\n"
-        "- Validate only with `playground-schesch-test`. After generating tests, run "
-        "`playground-schesch-test -t <GeneratedTestClass.java>` for each generated or updated test class. "
-        "If you create multiple test classes, pass multiple `-t` flags. Do not run a broader test suite, "
-        "and do not consider the task complete until that command succeeds.\n"
-        "- Keep the change scoped to this file's resolved behavior; do not generate tests for other "
-        "conflicting files in this run.\n\n"
-        "Conflict metadata for this file:\n"
-        f"{conflict_json}\n"
+    conflicted_files = [
+        conflicted_file.model_dump(mode="json")
+        for conflicted_file in conflict_info.merge_result.conflicted_files
+        if conflicted_file.path == file_path
+    ]
+    conflict_json = json.dumps(
+        {
+            "logical_conflicts": file_conflicts,
+            "conflicted_files": conflicted_files,
+        },
+        indent=2,
+        sort_keys=True,
     )
+    resolution_diff = resolution_diff or "(No resolution diff was produced.)"
+
+    prompt = (
+        f"Generate unit tests targeted at the human merge conflict resolution in `{file_path}`.\n\n"
+        "**Objective**\n"
+        "Write unit tests that validate the logic reconciled during this merge conflict. "
+        "The current workspace is checked out directly to the human sample solution (the merge commit). **Treat the current resolved "
+        "code as the strictly correct ground truth**—all generated tests are expected to pass against it.\n\n"
+        "**Merge Context**\n"
+        f"- Repository: {conflict_info.repo}\n"
+        f"- Merge Commit: {conflict_info.merge_commit_oid}\n"
+        f"- Target File: {file_path}\n\n"
+        "**Conflict Resolution Details**\n"
+        "Conflict Metadata:\n"
+        f"{conflict_json}\n\n"
+        "Resolution Diff (Reconciliation applied relative to the conflicting merge tree):\n"
+        "```diff\n"
+        f"{resolution_diff}\n"
+        "```\n\n"
+        "**Rules & Constraints**\n"
+        "- **Ground Truth Assumption:** The checked-out code reflects the correct human intent. Generate tests that exercise and assert this exact behavior.\n"
+        "- **Focus on the Resolution:** Concentrate test cases on the specific combined logic, edge cases, and reconciled code paths shown in the resolution diff above.\n"
+        "- **Source Code Lock:** Do not edit production source files. Modify or create only test files.\n"
+        "- **Test Suite Conventions & Class Placement:**\n"
+        "  * You may add a new Java test class or update an existing one.\n"
+        "  * Any new test class must strictly conform to the existing test suite structure (match existing directory layout, package declarations, naming conventions, assertion libraries, annotations, base classes, and test runner configurations).\n"
+        "- **Test Scope:** Keep changes strictly scoped to this file's resolved behavior; do not generate or modify tests for unrelated files.\n\n"
+        "**Verification & Execution**\n"
+        "- Validate the tests by running:\n"
+        "  `playground-schesch-test -t <GeneratedTestClass.java>` (pass multiple `-t` flags if multiple test classes are touched).\n"
+        "- Because the checked-out implementation is correct, any test failure means the test code is wrong. Iterate on the tests until `playground-schesch-test` passes.\n"
+        "- Do not run broader test suites. The generated patch is only useful if `playground-schesch-test` passes; "
+        "do not consider the task complete until that command succeeds."
+    )
+    
+    return prompt
 
 
 def run_opencode_for_file(
@@ -442,14 +570,6 @@ def generate_tests(
 
     playground_path: Path | None = None
     try:
-        conflict_info = load_conflict_info(redis, repo_name, merge_sha)
-        paths = content_conflict_paths(conflict_info)
-        if not paths:
-            raise RuntimeError(f"Conflict record {record.conflict_info_key} has no content conflict paths")
-        logger.info("Selected {} content-conflicting files for test generation", len(paths))
-        for index, path in enumerate(paths, start=1):
-            logger.info("Content conflict file {}/{}: {}", index, len(paths), path)
-
         logger.info("Creating playground for {} {}", repo_name, merge_sha)
         playground_name = setup_playground(repo_name, merge_sha)
         record.playground_name = playground_name
@@ -462,9 +582,18 @@ def generate_tests(
             raise RuntimeError(f"Could not reset playground to {merge_sha}: {reset_error}")
         logger.info("Prepared playground at human sample solution")
 
+        conflict_info = collect_conflict_info_from_playground(playground_path, repo_name, merge_sha)
+        paths = content_conflict_paths(conflict_info)
+        if not paths:
+            raise RuntimeError(f"Fresh merge-tree result for {merge_sha} has no content conflict paths")
+        logger.info("Selected {} content-conflicting files from fresh merge-tree output", len(paths))
+        for index, path in enumerate(paths, start=1):
+            logger.info("Content conflict file {}/{}: {}", index, len(paths), path)
+
         for index, file_path in enumerate(paths, start=1):
             logger.info("Running opencode for file {}/{}: {}", index, len(paths), file_path)
-            prompt = prompt_for_file(conflict_info, file_path)
+            resolution_diff = resolution_diff_for_file(playground_path, conflict_info, file_path)
+            prompt = prompt_for_file(conflict_info, file_path, resolution_diff)
             exit_code, tail, error, duration = run_opencode_for_file(
                 playground_path,
                 opencode_executable,
