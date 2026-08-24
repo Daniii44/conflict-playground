@@ -1626,7 +1626,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "select\n  conflicted_file.path,\n  case\n    when conflicted_file.stage = 1 then 'base'\n    when conflicted_file.stage = 2 then 'ours'\n    else 'theirs'\n  end as stage,\n  conflicted_file.mode\nfrom\n  redis_json array\n  join content.merge_result.conflicted_files::Array(JSON) as conflicted_file\nwhere\n  key = 'info:conflict:core:${repo_name}:${merge}'\n  and conflicted_file.mode != '160000'"
+                        "rawSql": "select\n  conflicted_file.path,\n  case\n    when conflicted_file.stage = 1 then 'base'\n    when conflicted_file.stage = 2 then 'ours'\n    else 'theirs'\n  end as stage,\n  conflicted_file.mode,\n  conflicted_file.oid\nfrom\n  redis_json array\n  join content.merge_result.conflicted_files::Array(JSON) as conflicted_file\nwhere\n  key = 'info:conflict:core:${repo_name}:${merge}'\n  and conflicted_file.mode != '160000'"
                       },
                       "version": "v0"
                     },
@@ -2378,8 +2378,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "marginallyclever/makelangelo.git",
-            "value": "marginallyclever/makelangelo.git"
+            "text": "twbs/bootstrap.git",
+            "value": "twbs/bootstrap.git"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -2397,8 +2397,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "f96ea74ffaf63c820dae4ed5e33941dfd9230a7c",
-            "value": "f96ea74ffaf63c820dae4ed5e33941dfd9230a7c"
+            "text": "1e6d386b8df2d7235b23a96ddd0489c1ab2650dc",
+            "value": "1e6d386b8df2d7235b23a96ddd0489c1ab2650dc"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -2416,8 +2416,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "20260708T234402.905090Z",
-            "value": "20260708T234402.905090Z"
+            "text": "20260820T051606.496421Z",
+            "value": "20260820T051606.496421Z"
           },
           "definition": "  WITH base AS (\n  SELECT\n    key,\n    extractGroups (\n      arrayElement(splitByString('resolution:conflict:', key), 2),\n      '(.+)\\.git-([a-f0-9]{40}):(.*)$'\n    ) AS groups\n  FROM\n    \"default\".\"redis_json\"\n  WHERE\n    startsWith(key, 'resolution')\n    AND content.proposed_resolution.error IS NULL\n)\nSELECT\n  groups[3] AS timestamp\nFROM\n  base\nWHERE\n    concat(groups[1], '.git') = '${repo_name}'  -- \u003c-- Replace with your target repo (e.g., 'framework.git')\n  AND groups[2] = '${merge}'    -- \u003c-- Replace with your target merge commit hash\nORDER BY\n  timestamp DESC;",
           "hide": "dontHide",
