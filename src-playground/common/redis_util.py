@@ -6,12 +6,14 @@ IDX_INFO_CONFLICT_CORE = "idx:info:conflict:core"
 IDX_INFO_CONFLICT_TILT = "idx:info:conflict:tilt"
 IDX_INFO_CONFLICT_OCTOPUS = "idx:info:conflict:octopus"
 IDX_INFO_CONFLICT_SCHESCH = "idx:info:conflict:schesch"
+IDX_INFO_CONFLICT_MODIFYDELETE = "idx:info:conflict:modifydelete"
 RUNTIME_ACTIVE_PLAYGROUND_PREFIX = "runtime:active_playground:"
 RESOLUTION_CONFLICT_PREFIX = "resolution:conflict:"
 EVALUATION_MERGE_PREFIX = "evaluation:merge:"
 EVALUATION_MERGE_CORE_PREFIX = "evaluation:merge:core:"
 EVALUATION_MERGE_DIFF_PREFIX = "evaluation:merge:diff:"
 EVALUATION_MERGE_SEM_PREFIX = "evaluation:merge:sem:"
+EVALUATION_MERGE_MODIFYDELETE_PREFIX = "evaluation:merge:modifydelete:"
 INFO_SUBMODULE_PREFIX = "info:submodule:"
 
 def setup_redis_connection() -> Redis:
@@ -71,6 +73,23 @@ def _ensure_exists_conflicts_info_idx(redis: Redis) -> None:
     schesch_definition = IndexDefinition(prefix=["info:conflict:schesch"], index_type=IndexType.JSON)
 
     _ensure_exists_idx(redis, IDX_INFO_CONFLICT_SCHESCH, schesch_definition, schesch_schema)
+
+    modifydelete_schema = [
+        TagField("$.repo", as_name="repo"),
+        TagField("$.merge_commit_oid", as_name="merge_commit_oid"),
+        TagField("$.conflicts[*].path", as_name="path"),
+    ]
+    modifydelete_definition = IndexDefinition(
+        prefix=["info:conflict:modifydelete"],
+        index_type=IndexType.JSON,
+    )
+
+    _ensure_exists_idx(
+        redis,
+        IDX_INFO_CONFLICT_MODIFYDELETE,
+        modifydelete_definition,
+        modifydelete_schema,
+    )
 
 def _ensure_exists_idx(redis: Redis, idx_name: str, definition: IndexDefinition, schema: list) -> None:
     index = redis.ft(idx_name)

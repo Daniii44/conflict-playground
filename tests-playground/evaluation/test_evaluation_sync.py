@@ -69,6 +69,7 @@ def test_all_analysis_includes_summary():
         "schesch-original",
         "schesch-generated",
         "summary",
+        "modifydelete",
     ]
 
 
