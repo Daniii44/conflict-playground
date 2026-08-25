@@ -300,6 +300,46 @@ def init_submodules_with_alternates(
         )
 
 
+def dirty_worktree_paths(repo_path: Path) -> list[str]:
+    result = capture_git(
+        "-C", str(repo_path), "diff", "--name-only", "-z", check=False
+    )
+    if result.returncode != 0:
+        return []
+    return [path for path in result.stdout.split("\0") if path]
+
+
+def disable_text_normalization(repo_path: Path, paths: list[str]) -> None:
+    attributes_path = repo_git_dir(repo_path) / "info" / "attributes"
+    attributes_path.parent.mkdir(parents=True, exist_ok=True)
+    existing_lines = (
+        attributes_path.read_text().splitlines() if attributes_path.is_file() else []
+    )
+    new_lines = [f"{path} -text" for path in paths]
+    missing_lines = [line for line in new_lines if line not in existing_lines]
+    if missing_lines:
+        with attributes_path.open("a") as attributes:
+            attributes.write("".join(f"{line}\n" for line in missing_lines))
+
+
+def merge_feature_with_normalization_retry(repo_path: Path) -> None:
+    result = capture_git("merge", "feature", cwd=repo_path, check=False)
+    if result.returncode == 0 or (repo_git_dir(repo_path) / "MERGE_HEAD").exists():
+        return
+
+    dirty_paths = dirty_worktree_paths(repo_path)
+    if not dirty_paths:
+        return
+
+    logger.warning(
+        "Retrying merge with text normalization disabled for dirty paths: {}",
+        ", ".join(dirty_paths),
+    )
+    disable_text_normalization(repo_path, dirty_paths)
+    capture_git("reset", "--hard", "HEAD", cwd=repo_path)
+    capture_git("merge", "feature", cwd=repo_path, check=False)
+
+
 def setup_playground(repo_name: str, merge_sha: str) -> str:
     caches = Path(os.environ.get("CACHES", str(Path.home() / "caches")))
     playgrounds = Path(os.environ.get("PLAYGROUNDS", str(Path.home() / "playgrounds")))
@@ -367,7 +407,7 @@ def setup_playground(repo_name: str, merge_sha: str) -> str:
         capture_git("checkout", "-b", "feature", feature_parent, cwd=clone_path)
         capture_git("checkout", "-b", "main", main_parent, cwd=clone_path)
 
-    capture_git("merge", "feature", cwd=clone_path, check=False)
+    merge_feature_with_normalization_retry(clone_path)
 
     return name
 

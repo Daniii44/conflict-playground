@@ -2,7 +2,11 @@ import os
 import subprocess
 from pathlib import Path
 
-from playground.setup import cache_has_commit, init_submodules_with_alternates
+from playground.setup import (
+    cache_has_commit,
+    init_submodules_with_alternates,
+    merge_feature_with_normalization_retry,
+)
 
 
 def git(*args: str, cwd: Path) -> subprocess.CompletedProcess[str]:
@@ -128,3 +132,30 @@ def test_init_submodules_skips_unavailable_gitlink(tmp_path):
         text=True,
         capture_output=True,
     ).returncode != 0
+
+
+def test_merge_retry_disables_normalization_for_dirty_tracked_files(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    git("init", cwd=repo)
+    configure_identity(repo)
+    (repo / "file.txt").write_bytes(b"base\r\n")
+    git("add", "file.txt", cwd=repo)
+    git("commit", "-m", "base", cwd=repo)
+
+    git("checkout", "-b", "feature", cwd=repo)
+    (repo / "file.txt").write_bytes(b"feature\r\n")
+    git("commit", "-am", "feature change", cwd=repo)
+
+    git("checkout", "master", cwd=repo)
+    (repo / ".gitattributes").write_text("file.txt text eol=lf\n")
+    git("add", ".gitattributes", cwd=repo)
+    git("commit", "-m", "normalize file", cwd=repo)
+
+    assert git("diff", "--name-only", cwd=repo).stdout == "file.txt\n"
+
+    merge_feature_with_normalization_retry(repo)
+
+    assert (repo / ".git" / "info" / "attributes").read_text() == "file.txt -text\n"
+    assert git("status", "--porcelain", cwd=repo).stdout == ""
+    assert (repo / "file.txt").read_bytes() == b"feature\r\n"
