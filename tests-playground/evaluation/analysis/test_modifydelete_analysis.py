@@ -8,9 +8,11 @@ from common.merge_tree import ConflictType, MergeConflictedFile, MergeLogicalCon
 from common.resolution_models import ConflictResolution, ProposedResolution
 from evaluation.analysis.modifydelete_analysis import (
     CANONICAL_BASE,
+    CANONICAL_CONTRADICTION,
     CANONICAL_DELETE,
     CANONICAL_KEEP,
     NONCANONICAL,
+    NONCANONICAL_FALLBACK,
     ModifyDeleteEvaluationAnalysis,
 )
 
@@ -34,7 +36,7 @@ def evaluation_input():
 
 
 def merge_result():
-    paths = ["base.txt", "keep.txt", "delete.txt", "changed.txt"]
+    paths = ["base.txt", "keep.txt", "delete.txt", "changed.txt", "fallback.txt"]
     return MergeResult(
         result_tree_oid="conflicted-tree",
         conflicted_files=[
@@ -45,6 +47,7 @@ def merge_result():
             MergeConflictedFile(mode="100644", oid="theirs", stage=3, path="keep.txt"),
             MergeConflictedFile(mode="100644", oid="ours", stage=2, path="delete.txt"),
             MergeConflictedFile(mode="100644", oid="ours", stage=2, path="changed.txt"),
+            MergeConflictedFile(mode="100644", oid="ours", stage=2, path="fallback.txt"),
         ],
         logical_conflicts=[
             MergeLogicalConflict(type=ConflictType.CONFLICT_MODIFY_DELETE, info="modify/delete", paths=[path])
@@ -68,6 +71,8 @@ def test_modifydelete_evaluation_classifies_each_resolution_from_merge_tree(monk
             ("actualsha", "delete.txt"): "ours",
             ("HEAD", "changed.txt"): "new",
             ("actualsha", "changed.txt"): "newer",
+            ("HEAD", "fallback.txt"): "base",
+            ("actualsha", "fallback.txt"): "newer",
         }
         return oids[(ref, path)], None
 
@@ -88,12 +93,21 @@ def test_modifydelete_evaluation_classifies_each_resolution_from_merge_tree(monk
         CANONICAL_KEEP,
         CANONICAL_DELETE,
         NONCANONICAL,
+        CANONICAL_BASE,
     ]
     assert [item.human_classification for item in record.path_evaluations] == [
         CANONICAL_KEEP,
         CANONICAL_KEEP,
         CANONICAL_KEEP,
         NONCANONICAL,
+        NONCANONICAL,
+    ]
+    assert [item.contradiction for item in record.path_evaluations] == [
+        CANONICAL_CONTRADICTION,
+        None,
+        CANONICAL_CONTRADICTION,
+        None,
+        NONCANONICAL_FALLBACK,
     ]
 
 

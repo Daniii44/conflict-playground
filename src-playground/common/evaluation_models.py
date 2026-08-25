@@ -125,6 +125,7 @@ class ModifyDeletePathEvaluation(BaseModel):
     path: str
     agent_classification: str
     human_classification: str
+    contradiction: str | None = None
 
 
 class MergeModifyDeleteEvaluation(MergeEvaluationRecord):

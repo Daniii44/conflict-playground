@@ -20,6 +20,9 @@ CANONICAL_BASE = "canonical base"
 CANONICAL_KEEP = "canonical keep"
 CANONICAL_DELETE = "canonical delete"
 NONCANONICAL = "noncanonical"
+CANONICAL_CONTRADICTION = "canonical contradiction"
+NONCANONICAL_FALLBACK = "non-canonical fallback"
+CANONICAL_CLASSIFICATIONS = {CANONICAL_BASE, CANONICAL_KEEP, CANONICAL_DELETE}
 
 
 class ModifyDeleteConflictPath(BaseModel):
@@ -114,6 +117,20 @@ class ModifyDeleteEvaluationAnalysis(EvaluationAnalysis):
             return CANONICAL_KEEP
         return NONCANONICAL
 
+    @staticmethod
+    def contradiction(agent_classification: str, human_classification: str) -> str | None:
+        agent_is_canonical = agent_classification in CANONICAL_CLASSIFICATIONS
+        human_is_canonical = human_classification in CANONICAL_CLASSIFICATIONS
+        if agent_is_canonical and human_is_canonical:
+            return (
+                CANONICAL_CONTRADICTION
+                if agent_classification != human_classification
+                else None
+            )
+        if agent_is_canonical != human_is_canonical:
+            return NONCANONICAL_FALLBACK
+        return None
+
     def failed(
         self,
         evaluation_input: EvaluationInput,
@@ -165,12 +182,15 @@ class ModifyDeleteEvaluationAnalysis(EvaluationAnalysis):
             if agent_error is not None or human_error is not None:
                 errors = [error for error in (agent_error, human_error) if error is not None]
                 return self.failed(evaluation_input, "; ".join(errors), proposed_commit_sha=proposed_commit_sha, actual_resolution_sha=actual_resolution_sha, conflicted_tree_oid=merge_result.result_tree_oid)
+            agent_classification = self.classify(agent_oid, conflict)
+            human_classification = self.classify(human_oid, conflict)
             path_evaluations.append(
                 ModifyDeletePathEvaluation(
                     logical_conflict_index=conflict.logical_conflict_index,
                     path=conflict.path,
-                    agent_classification=self.classify(agent_oid, conflict),
-                    human_classification=self.classify(human_oid, conflict),
+                    agent_classification=agent_classification,
+                    human_classification=human_classification,
+                    contradiction=self.contradiction(agent_classification, human_classification),
                 )
             )
 
