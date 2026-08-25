@@ -23,6 +23,7 @@ from evaluation.analysis.schesch_generated_analysis import ScheschGeneratedEvalu
 from evaluation.analysis.schesch_original_analysis import ScheschOriginalEvaluationAnalysis
 from evaluation.analysis.summary_analysis import SummaryEvaluationAnalysis
 from evaluation.analysis.modifydelete_analysis import ModifyDeleteEvaluationAnalysis
+from evaluation.analysis.rename_analysis import RenameEvaluationAnalysis
 
 
 AVAILABLE_ANALYSES: dict[str, type[EvaluationAnalysis]] = {
@@ -34,6 +35,7 @@ AVAILABLE_ANALYSES: dict[str, type[EvaluationAnalysis]] = {
     "schesch-generated": ScheschGeneratedEvaluationAnalysis,
     "summary": SummaryEvaluationAnalysis,
     "modifydelete": ModifyDeleteEvaluationAnalysis,
+    "rename": RenameEvaluationAnalysis,
 }
 
 

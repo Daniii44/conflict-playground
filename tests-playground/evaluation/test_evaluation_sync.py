@@ -70,6 +70,7 @@ def test_all_analysis_includes_summary():
         "schesch-generated",
         "summary",
         "modifydelete",
+        "rename",
     ]
 
 

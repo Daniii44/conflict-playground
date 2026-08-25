@@ -133,3 +133,18 @@ class MergeModifyDeleteEvaluation(MergeEvaluationRecord):
     actual_resolution_sha: str | None = None
     conflicted_tree_oid: str | None = None
     path_evaluations: list[ModifyDeletePathEvaluation] = Field(default_factory=list)
+
+
+class RenamePathEvaluation(BaseModel):
+    logical_conflict_index: int
+    path: str
+    agent_present: bool
+    human_present: bool
+    contradiction: bool
+
+
+class MergeRenameEvaluation(MergeEvaluationRecord):
+    proposed_commit_sha: str | None = None
+    actual_resolution_sha: str | None = None
+    conflicted_tree_oid: str | None = None
+    path_evaluations: list[RenamePathEvaluation] = Field(default_factory=list)

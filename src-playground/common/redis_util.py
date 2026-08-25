@@ -13,6 +13,7 @@ EVALUATION_MERGE_CORE_PREFIX = "evaluation:merge:core:"
 EVALUATION_MERGE_DIFF_PREFIX = "evaluation:merge:diff:"
 EVALUATION_MERGE_SEM_PREFIX = "evaluation:merge:sem:"
 EVALUATION_MERGE_MODIFYDELETE_PREFIX = "evaluation:merge:modifydelete:"
+EVALUATION_MERGE_RENAME_PREFIX = "evaluation:merge:rename:"
 INFO_SUBMODULE_PREFIX = "info:submodule:"
 
 def setup_redis_connection() -> Redis:

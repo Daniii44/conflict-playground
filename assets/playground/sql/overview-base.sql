@@ -343,6 +343,26 @@ modifydelete_classification_metrics AS (
         rd.subdataset,
         rd.llm,
         rd.group_label
+),
+rename_classification_metrics AS (
+    SELECT
+        rd.repo AS repo,
+        rd.merge_hash AS merge_hash,
+        rd.subdataset AS subdataset,
+        rd.llm AS llm,
+        rd.group_label AS group_label,
+        max(path_evaluation.contradiction::boolean) AS contradiction_rename_presence_mismatch
+    FROM default.redis_json AS e
+    INNER JOIN resolution_dimensions AS rd
+        ON rd.conflict_identifier = e.conflict_identifier
+    ARRAY JOIN e.content.path_evaluations::Array(JSON) AS path_evaluation
+    WHERE startsWith(e.key, 'evaluation:merge:rename:')
+    GROUP BY
+        rd.repo,
+        rd.merge_hash,
+        rd.subdataset,
+        rd.llm,
+        rd.group_label
 )
 SELECT
     b.repo AS repo,
@@ -363,6 +383,7 @@ SELECT
     coalesce(s.contradiction_schesch_generated_compilation_failed, 0)
         AS contradiction_schesch_generated_compilation_failed,
     coalesce(s.contradiction_schesch_generated_test_failed, 0) AS contradiction_schesch_generated_test_failed,
+    coalesce(rc.contradiction_rename_presence_mismatch, 0) AS contradiction_rename_presence_mismatch,
     coalesce(c.contradiction_canonical_resolution_differs, 0) AS contradiction_canonical_resolution_differs,
     coalesce(c.contradiction_semicanonical_contradiction, 0) AS contradiction_semicanonical_contradiction,
     coalesce(c.contradiction_semicanonical_dilution, 0) AS contradiction_semicanonical_dilution,
@@ -386,6 +407,8 @@ SELECT
             THEN 'CONTRADICTION_SCHESCH_GENERATED_COMPILATION_FAILED'
         WHEN coalesce(s.contradiction_schesch_generated_test_failed, 0) = 1
             THEN 'CONTRADICTION_SCHESCH_GENERATED_TEST_FAILED'
+        WHEN coalesce(rc.contradiction_rename_presence_mismatch, 0) = 1
+            THEN 'CONTRADICTION_RENAME_PRESENCE_MISMATCH'
         WHEN coalesce(m.proof_exact_match, 0) = 1 THEN 'PROOF_EXACT_MATCH'
         WHEN coalesce(se.proof_exact_match_semantic, 0) = 1 THEN 'PROOF_EXACT_MATCH_SEMANTIC'
         WHEN coalesce(d.proof_exact_match_normalized, 0) = 1 THEN 'PROOF_EXACT_MATCH_NORMALIZED'
@@ -433,3 +456,9 @@ LEFT JOIN modifydelete_classification_metrics AS mdc
    AND mdc.subdataset = b.subdataset
    AND mdc.llm = b.llm
    AND mdc.group_label = b.group_label
+LEFT JOIN rename_classification_metrics AS rc
+    ON rc.repo = b.repo
+   AND rc.merge_hash = b.merge_hash
+   AND rc.subdataset = b.subdataset
+   AND rc.llm = b.llm
+   AND rc.group_label = b.group_label

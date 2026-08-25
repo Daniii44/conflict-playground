@@ -5,6 +5,8 @@ SELECT
     countIf(resolution_status = 'PROOF_EXACT_MATCH_SEMANTIC') / count(*) AS proof_exact_match_semantic,
     countIf(resolution_status = 'PROOF_EXACT_MATCH_NORMALIZED') / count(*) AS proof_exact_match_normalized,
     countIf(resolution_status = 'UNCLASSIFIED_DIVERGENCE') / count(*) AS unclassified_divergences,
+    countIf(resolution_status = 'CONTRADICTION_RENAME_PRESENCE_MISMATCH') / count(*)
+        AS contradiction_rename_presence_mismatch,
     countIf(resolution_status = 'CONTRADICTION_SCHESCH_GENERATED_TEST_FAILED') / count(*)
         AS contradiction_schesch_generated_test_failed,
     countIf(resolution_status = 'CONTRADICTION_SCHESCH_GENERATED_COMPILATION_FAILED') / count(*)

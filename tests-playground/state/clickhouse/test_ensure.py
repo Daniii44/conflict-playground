@@ -78,6 +78,8 @@ def test_overview_base_view_uses_group_dimensions_and_current_schesch_keys():
     assert "evaluation:merge:schesch-generated:" in query
     assert "evaluation:merge:modifydelete:" in query
     assert "modifydelete_classification_metrics AS" in query
+    assert "evaluation:merge:rename:" in query
+    assert "rename_classification_metrics AS" in query
     assert "UNION ALL" not in query
     assert "evaluation:merge:schesch:" not in query
     assert "contradiction_schesch_original_compilation_failed" in query
@@ -91,6 +93,8 @@ def test_overview_base_view_uses_group_dimensions_and_current_schesch_keys():
     assert "path_evaluation.contradiction::String" in query
     assert "CONTRADICTION_CANONICAL_RESOLUTION_DIFFERS" in query
     assert "CONTRADICTION_NONCANONICAL_FALLBACK" in query
+    assert "contradiction_rename_presence_mismatch" in query
+    assert "CONTRADICTION_RENAME_PRESENCE_MISMATCH" in query
     assert "contradiction_proposed_compilation_failed" not in query
     assert "contradiction_proposed_test_failed" not in query
     assert "total_evaluations" not in query
@@ -121,6 +125,10 @@ def test_overview_queries_reference_base_view():
     assert "PROOF_EXACT_MATCH" in chart_query
     assert "PROOF_EXACT_MATCH_NORMALIZED" in chart_query
     assert "PROOF_EXACT_MATCH_SEMANTIC" in chart_query
+    assert "CONTRADICTION_RENAME_PRESENCE_MISMATCH" in chart_query
+    assert chart_query.index("CONTRADICTION_RENAME_PRESENCE_MISMATCH") < chart_query.index(
+        "CONTRADICTION_SCHESCH_GENERATED_TEST_FAILED"
+    )
     assert "proof_exact_match" in table_query
     assert "proof_exact_match_normalized" in table_query
     assert "proof_exact_match_semantic" in table_query
