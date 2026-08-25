@@ -1,18 +1,19 @@
 import os
 
+from pydantic import BaseModel
+
 from common.evaluation_models import (
     EvaluationInput,
     MergeModifyDeleteEvaluation,
     ModifyDeletePathEvaluation,
 )
 from common.git_util import capture_git
-from common.redis_util import setup_redis_connection
+from common.merge_tree import ConflictType, MergeConflictedFile, MergeResult, parse_merge_result, prune_auto_merged
 from evaluation.analysis.common import (
     EvaluationAnalysis,
     actual_resolution_sha_from_playground_name,
     read_head_commit,
 )
-from info.conflict.analysis.modifydelete_analysis import InfoConflictModifyDelete, ModifyDeleteConflictPath
 
 
 CANONICAL_BASE = "canonical base"
@@ -21,40 +22,67 @@ CANONICAL_DELETE = "canonical delete"
 NONCANONICAL = "noncanonical"
 
 
-class ModifyDeleteEvaluationAnalysis(EvaluationAnalysis):
-    def __init__(self, analysis_name: str = "modifydelete", redis_client=None):
-        super().__init__(analysis_name)
-        self._redis = redis_client
+class ModifyDeleteConflictPath(BaseModel):
+    logical_conflict_index: int
+    path: str
+    base_oid: str | None = None
+    ours_oid: str | None = None
+    theirs_oid: str | None = None
 
-    def redis_connection(self):
-        if self._redis is None:
-            self._redis = setup_redis_connection()
-        return self._redis
+
+class ModifyDeleteEvaluationAnalysis(EvaluationAnalysis):
+    def __init__(self, analysis_name: str = "modifydelete"):
+        super().__init__(analysis_name)
+
+    def collect_parents(self, playground_path: str, merge_commit_oid: str) -> tuple[list[str], str | None]:
+        result = capture_git(
+            "-C", playground_path, "show", "--no-patch", "--format=%P", merge_commit_oid, check=False
+        )
+        if result.returncode == 0:
+            return result.stdout.strip().split(), None
+        error = result.stderr.strip() or result.stdout.strip()
+        return [], f"Could not read actual resolution parents: {error}"
+
+    def collect_merge_result(
+        self,
+        playground_path: str,
+        left_parent_oid: str,
+        right_parent_oid: str,
+    ) -> tuple[MergeResult | None, str | None]:
+        result = capture_git(
+            "-C", playground_path, "merge-tree", "-z", left_parent_oid, right_parent_oid, check=False
+        )
+        if result.returncode == 0:
+            return None, "Actual resolution parents merge cleanly"
+        output = result.stdout + result.stderr
+        if "fatal: refusing to merge unrelated histories" in output:
+            return None, "Actual resolution parents have unrelated histories"
+        if not result.stdout:
+            return None, "Could not read merge-tree output"
+        return prune_auto_merged(parse_merge_result(result.stdout.encode())), None
 
     @staticmethod
-    def repo_and_merge_from_resolution(evaluation_input: EvaluationInput) -> tuple[str, str | None]:
-        playground_name = evaluation_input.resolution_postfix.rsplit(":", 1)[0]
-        if "-" not in playground_name:
-            return playground_name, None
-        return playground_name.rsplit("-", 1)
+    def extract_conflicts(merge_result: MergeResult) -> list[ModifyDeleteConflictPath]:
+        files_by_path: dict[str, list[MergeConflictedFile]] = {}
+        for file in merge_result.conflicted_files:
+            files_by_path.setdefault(file.path, []).append(file)
 
-    def info_conflict_key(self, evaluation_input: EvaluationInput) -> str | None:
-        repo_name, merge_sha = self.repo_and_merge_from_resolution(evaluation_input)
-        if merge_sha is None:
-            return None
-        return f"info:conflict:modifydelete:{repo_name}:{merge_sha}"
-
-    def read_info_conflict(
-        self,
-        evaluation_input: EvaluationInput,
-    ) -> tuple[InfoConflictModifyDelete | None, str | None, str | None]:
-        key = self.info_conflict_key(evaluation_input)
-        if key is None:
-            return None, None, "Could not determine repository and merge SHA from resolution key"
-        payload = self.redis_connection().json().get(key)
-        if payload is None:
-            return None, key, f"No corresponding modify/delete info analysis data at {key}"
-        return InfoConflictModifyDelete.model_validate(payload), key, None
+        conflicts = []
+        for index, logical_conflict in enumerate(merge_result.logical_conflicts):
+            if logical_conflict.type != ConflictType.CONFLICT_MODIFY_DELETE:
+                continue
+            for path in logical_conflict.paths:
+                stage_oids = {file.stage: file.oid for file in files_by_path.get(path, [])}
+                conflicts.append(
+                    ModifyDeleteConflictPath(
+                        logical_conflict_index=index,
+                        path=path,
+                        base_oid=stage_oids.get(1),
+                        ours_oid=stage_oids.get(2),
+                        theirs_oid=stage_oids.get(3),
+                    )
+                )
+        return conflicts
 
     def tree_oid_for_path(
         self,
@@ -93,13 +121,13 @@ class ModifyDeleteEvaluationAnalysis(EvaluationAnalysis):
         *,
         proposed_commit_sha: str | None = None,
         actual_resolution_sha: str | None = None,
-        info_conflict_key: str | None = None,
+        conflicted_tree_oid: str | None = None,
     ) -> MergeModifyDeleteEvaluation:
         return MergeModifyDeleteEvaluation(
             resolution_key=evaluation_input.resolution_key,
             proposed_commit_sha=proposed_commit_sha,
             actual_resolution_sha=actual_resolution_sha,
-            info_conflict_key=info_conflict_key,
+            conflicted_tree_oid=conflicted_tree_oid,
             error=error,
         )
 
@@ -121,17 +149,22 @@ class ModifyDeleteEvaluationAnalysis(EvaluationAnalysis):
         if head_error is not None:
             return self.failed(evaluation_input, head_error, actual_resolution_sha=actual_resolution_sha)
 
-        info, info_key, info_error = self.read_info_conflict(evaluation_input)
-        if info_error is not None or info is None:
-            return self.failed(evaluation_input, info_error or "Could not load modify/delete info analysis", proposed_commit_sha=proposed_commit_sha, actual_resolution_sha=actual_resolution_sha, info_conflict_key=info_key)
+        parents, parents_error = self.collect_parents(playground_path, actual_resolution_sha)
+        if parents_error is not None:
+            return self.failed(evaluation_input, parents_error, proposed_commit_sha=proposed_commit_sha, actual_resolution_sha=actual_resolution_sha)
+        if len(parents) != 2:
+            return self.failed(evaluation_input, f"Actual resolution has {len(parents)} parents; expected 2", proposed_commit_sha=proposed_commit_sha, actual_resolution_sha=actual_resolution_sha)
+        merge_result, merge_error = self.collect_merge_result(playground_path, parents[0], parents[1])
+        if merge_error is not None or merge_result is None:
+            return self.failed(evaluation_input, merge_error or "Could not collect merge-tree result", proposed_commit_sha=proposed_commit_sha, actual_resolution_sha=actual_resolution_sha)
 
         path_evaluations = []
-        for conflict in info.conflicts:
+        for conflict in self.extract_conflicts(merge_result):
             agent_oid, agent_error = self.tree_oid_for_path(playground_path, "HEAD", conflict.path)
             human_oid, human_error = self.tree_oid_for_path(playground_path, actual_resolution_sha, conflict.path)
             if agent_error is not None or human_error is not None:
                 errors = [error for error in (agent_error, human_error) if error is not None]
-                return self.failed(evaluation_input, "; ".join(errors), proposed_commit_sha=proposed_commit_sha, actual_resolution_sha=actual_resolution_sha, info_conflict_key=info_key)
+                return self.failed(evaluation_input, "; ".join(errors), proposed_commit_sha=proposed_commit_sha, actual_resolution_sha=actual_resolution_sha, conflicted_tree_oid=merge_result.result_tree_oid)
             path_evaluations.append(
                 ModifyDeletePathEvaluation(
                     logical_conflict_index=conflict.logical_conflict_index,
@@ -145,6 +178,6 @@ class ModifyDeleteEvaluationAnalysis(EvaluationAnalysis):
             resolution_key=evaluation_input.resolution_key,
             proposed_commit_sha=proposed_commit_sha,
             actual_resolution_sha=actual_resolution_sha,
-            info_conflict_key=info_key,
+            conflicted_tree_oid=merge_result.result_tree_oid,
             path_evaluations=path_evaluations,
         )

@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from common.active_playground_models import Configuration
 from common.evaluation_models import EvaluationInput
+from common.merge_tree import ConflictType, MergeConflictedFile, MergeLogicalConflict, MergeResult
 from common.resolution_models import ConflictResolution, ProposedResolution
 from evaluation.analysis.modifydelete_analysis import (
     CANONICAL_BASE,
@@ -12,18 +13,6 @@ from evaluation.analysis.modifydelete_analysis import (
     NONCANONICAL,
     ModifyDeleteEvaluationAnalysis,
 )
-
-
-class FakeRedis:
-    def __init__(self, payload):
-        self.payload = payload
-
-    def json(self):
-        return self
-
-    def get(self, key):
-        assert key == "info:conflict:modifydelete:owner/repo.git:actualsha"
-        return self.payload
 
 
 def evaluation_input():
@@ -44,20 +33,29 @@ def evaluation_input():
     )
 
 
-def test_modifydelete_evaluation_classifies_each_resolution_from_stored_stage_oids(monkeypatch):
-    monkeypatch.setenv("PLAYGROUNDS", "/playgrounds")
-    payload = {
-        "repo": "owner/repo.git",
-        "merge_commit_oid": "actualsha",
-        "conflicted_tree_oid": "conflicted-tree",
-        "conflicts": [
-            {"logical_conflict_index": 0, "path": "base.txt", "base_oid": "base", "ours_oid": "ours"},
-            {"logical_conflict_index": 1, "path": "keep.txt", "base_oid": "base", "theirs_oid": "theirs"},
-            {"logical_conflict_index": 2, "path": "delete.txt", "base_oid": "base", "ours_oid": "ours"},
-            {"logical_conflict_index": 3, "path": "changed.txt", "base_oid": "base", "ours_oid": "ours"},
+def merge_result():
+    paths = ["base.txt", "keep.txt", "delete.txt", "changed.txt"]
+    return MergeResult(
+        result_tree_oid="conflicted-tree",
+        conflicted_files=[
+            MergeConflictedFile(mode="100644", oid="base", stage=1, path=path)
+            for path in paths
+        ] + [
+            MergeConflictedFile(mode="100644", oid="ours", stage=2, path="base.txt"),
+            MergeConflictedFile(mode="100644", oid="theirs", stage=3, path="keep.txt"),
+            MergeConflictedFile(mode="100644", oid="ours", stage=2, path="delete.txt"),
+            MergeConflictedFile(mode="100644", oid="ours", stage=2, path="changed.txt"),
         ],
-    }
-    analysis = ModifyDeleteEvaluationAnalysis(redis_client=FakeRedis(payload))
+        logical_conflicts=[
+            MergeLogicalConflict(type=ConflictType.CONFLICT_MODIFY_DELETE, info="modify/delete", paths=[path])
+            for path in paths
+        ],
+    )
+
+
+def test_modifydelete_evaluation_classifies_each_resolution_from_merge_tree(monkeypatch):
+    monkeypatch.setenv("PLAYGROUNDS", "/playgrounds")
+    analysis = ModifyDeleteEvaluationAnalysis()
 
     def tree_oid_for_path(playground_path, ref, path):
         assert playground_path == "/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"
@@ -75,6 +73,8 @@ def test_modifydelete_evaluation_classifies_each_resolution_from_stored_stage_oi
 
     with (
         patch("evaluation.analysis.modifydelete_analysis.read_head_commit", return_value=("proposed-sha", None)),
+        patch.object(analysis, "collect_parents", return_value=(["left", "right"], None)),
+        patch.object(analysis, "collect_merge_result", return_value=(merge_result(), None)),
         patch.object(analysis, "tree_oid_for_path", side_effect=tree_oid_for_path),
     ):
         record = analysis.analyse(evaluation_input())
@@ -82,6 +82,7 @@ def test_modifydelete_evaluation_classifies_each_resolution_from_stored_stage_oi
     assert record.error is None
     assert record.proposed_commit_sha == "proposed-sha"
     assert record.actual_resolution_sha == "actualsha"
+    assert record.conflicted_tree_oid == "conflicted-tree"
     assert [item.agent_classification for item in record.path_evaluations] == [
         CANONICAL_BASE,
         CANONICAL_KEEP,
@@ -97,7 +98,7 @@ def test_modifydelete_evaluation_classifies_each_resolution_from_stored_stage_oi
 
 
 def test_tree_oid_for_path_uses_ls_tree_and_treats_missing_path_as_delete():
-    analysis = ModifyDeleteEvaluationAnalysis(redis_client=object())
+    analysis = ModifyDeleteEvaluationAnalysis()
     with patch("evaluation.analysis.modifydelete_analysis.capture_git") as capture_git:
         capture_git.side_effect = [
             CompletedProcess(args=[], returncode=0, stdout="100644 blob blob-oid\tfile.txt\0", stderr=""),

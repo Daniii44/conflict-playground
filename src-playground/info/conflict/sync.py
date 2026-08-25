@@ -21,7 +21,6 @@ from info.conflict.analysis.core_analysis import CoreAnalysis
 from info.conflict.analysis.octopus_analysis import OctopusAnalysis
 from info.conflict.analysis.schesch_analysis import ScheschInfoAnalysis
 from info.conflict.analysis.tilt_analysis import TiltAnalysis
-from info.conflict.analysis.modifydelete_analysis import ModifyDeleteInfoAnalysis
 from playbook.playgrounds import playground_from_override, resolve_playground_merge_sha
 
 # Script to collect all dirty merge commits in a bare git repository
@@ -41,7 +40,6 @@ AVAILABLE_ANALYSES: dict[str, type[Analysis]] = {
     "tilt": TiltAnalysis,
     "octopus": OctopusAnalysis,
     "schesch": ScheschInfoAnalysis,
-    "modifydelete": ModifyDeleteInfoAnalysis,
 }
 
 def signal_handler(sig, frame):

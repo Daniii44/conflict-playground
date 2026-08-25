@@ -130,5 +130,5 @@ class ModifyDeletePathEvaluation(BaseModel):
 class MergeModifyDeleteEvaluation(MergeEvaluationRecord):
     proposed_commit_sha: str | None = None
     actual_resolution_sha: str | None = None
-    info_conflict_key: str | None = None
+    conflicted_tree_oid: str | None = None
     path_evaluations: list[ModifyDeletePathEvaluation] = Field(default_factory=list)
