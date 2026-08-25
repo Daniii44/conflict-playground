@@ -2194,6 +2194,194 @@
           }
         }
       },
+      "panel-37": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "WITH tilt_allocation AS (\n    SELECT\n        repo,\n        merge_hash,\n        any(nullIf(content.subdataset::text, '')) AS subdataset\n    FROM redis_json\n    WHERE startsWith(key, 'dataset:tilt:')\n    GROUP BY repo, merge_hash\n),\nper_conflict AS (\n    SELECT\n        e.key AS conflict_key,\n        if(\n            uniqExact(path.agent_classification::String) = 1,\n            any(path.agent_classification::String),\n            'mixed'\n        ) AS agent_classification,\n        if(\n            uniqExact(path.human_classification::String) = 1,\n            any(path.human_classification::String),\n            'mixed'\n        ) AS human_classification\n    FROM redis_json AS e\n    INNER JOIN tilt_allocation AS ta\n        ON ta.repo = e.repo\n       AND ta.merge_hash = e.merge_hash\n    ARRAY JOIN e.content.path_evaluations::Array(JSON) AS path\n    WHERE startsWith(e.key, 'evaluation:merge:modifydelete:')\n      AND ta.subdataset = 'modify/delete'\n    GROUP BY e.key\n),\nclassifications AS (\n    SELECT\n        'agent' AS source,\n        agent_classification AS classification\n    FROM per_conflict\n)\nSELECT\n    classification,\n    round(100.0 * count() / sum(count()) OVER (PARTITION BY source), 2) AS percentage\nFROM classifications\nGROUP BY\n    classification,\n    source\nORDER BY\n    classification;"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 37,
+          "links": [],
+          "title": "Agent",
+          "vizConfig": {
+            "group": "piechart",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    }
+                  }
+                },
+                "overrides": []
+              },
+              "options": {
+                "displayLabels": [
+                  "percent"
+                ],
+                "legend": {
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "pieType": "pie",
+                "reduceOptions": {
+                  "calcs": [],
+                  "fields": "",
+                  "values": true
+                },
+                "sort": "desc",
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                }
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-38": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "WITH tilt_allocation AS (\n    SELECT\n        repo,\n        merge_hash,\n        any(nullIf(content.subdataset::text, '')) AS subdataset\n    FROM redis_json\n    WHERE startsWith(key, 'dataset:tilt:')\n    GROUP BY repo, merge_hash\n),\nper_conflict AS (\n    SELECT\n        e.key AS conflict_key,\n        if(\n            uniqExact(path.agent_classification::String) = 1,\n            any(path.agent_classification::String),\n            'mixed'\n        ) AS agent_classification,\n        if(\n            uniqExact(path.human_classification::String) = 1,\n            any(path.human_classification::String),\n            'mixed'\n        ) AS human_classification\n    FROM redis_json AS e\n    INNER JOIN tilt_allocation AS ta\n        ON ta.repo = e.repo\n       AND ta.merge_hash = e.merge_hash\n    ARRAY JOIN e.content.path_evaluations::Array(JSON) AS path\n    WHERE startsWith(e.key, 'evaluation:merge:modifydelete:')\n      AND ta.subdataset = 'modify/delete'\n    GROUP BY e.key\n),\nclassifications AS (\n    SELECT\n        'human' AS source,\n        human_classification AS classification\n    FROM per_conflict\n)\nSELECT\n    classification,\n    round(100.0 * count() / sum(count()) OVER (PARTITION BY source), 2) AS percentage\nFROM classifications\nGROUP BY\n    classification,\n    source\nORDER BY\n    classification;"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 38,
+          "links": [],
+          "title": "Human",
+          "vizConfig": {
+            "group": "piechart",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    }
+                  }
+                },
+                "overrides": []
+              },
+              "options": {
+                "displayLabels": [
+                  "percent"
+                ],
+                "legend": {
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "pieType": "pie",
+                "reduceOptions": {
+                  "calcs": [],
+                  "fields": "",
+                  "values": true
+                },
+                "sort": "desc",
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                }
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
       "panel-4": {
         "kind": "Panel",
         "spec": {
@@ -2499,7 +2687,7 @@
                 "sortBy": [
                   {
                     "desc": true,
-                    "displayName": "redis_json_overview_table.details"
+                    "displayName": "contradiction_agent_error"
                   }
                 ]
               }
@@ -3098,6 +3286,46 @@
                           }
                         },
                         "title": "Exact Match Metrics"
+                      }
+                    },
+                    {
+                      "kind": "RowsLayoutRow",
+                      "spec": {
+                        "collapse": false,
+                        "layout": {
+                          "kind": "GridLayout",
+                          "spec": {
+                            "items": [
+                              {
+                                "kind": "GridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-37"
+                                  },
+                                  "height": 10,
+                                  "width": 12,
+                                  "x": 0,
+                                  "y": 0
+                                }
+                              },
+                              {
+                                "kind": "GridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-38"
+                                  },
+                                  "height": 10,
+                                  "width": 12,
+                                  "x": 12,
+                                  "y": 0
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "title": "Modify/Delete"
                       }
                     }
                   ]
