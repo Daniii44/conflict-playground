@@ -11,6 +11,8 @@ from state.clickhouse.schema import (
     CLICKHOUSE_OVERVIEW_BASE_VIEW,
     CLICKHOUSE_OVERVIEW_CHART_VIEW,
     CLICKHOUSE_OVERVIEW_TABLE_VIEW,
+    CLICKHOUSE_TOOL_GIT_SUBCOMMAND_VIEW,
+    CLICKHOUSE_TOOL_PRIMARY_VIEW,
     CLICKHOUSE_TABLE,
     create_table,
     create_views,
@@ -43,19 +45,23 @@ def main(argv: list[str] | None = None) -> None:
 
     if args.views_only:
         logger.info(
-            "Rebuilding ClickHouse overview views only: {}.{} (materialized), {}.{}, {}.{}",
+            "Rebuilding ClickHouse views only: {}.{} (materialized), {}.{}, {}.{}, {}.{} (materialized), {}.{} (materialized)",
             CLICKHOUSE_DB,
             CLICKHOUSE_OVERVIEW_BASE_VIEW,
             CLICKHOUSE_DB,
             CLICKHOUSE_OVERVIEW_CHART_VIEW,
             CLICKHOUSE_DB,
             CLICKHOUSE_OVERVIEW_TABLE_VIEW,
+            CLICKHOUSE_DB,
+            CLICKHOUSE_TOOL_PRIMARY_VIEW,
+            CLICKHOUSE_DB,
+            CLICKHOUSE_TOOL_GIT_SUBCOMMAND_VIEW,
         )
-        logger.info("Dropping existing ClickHouse overview views")
+        logger.info("Dropping existing ClickHouse views")
         drop_views()
-        logger.info("Creating ClickHouse overview views")
+        logger.info("Creating ClickHouse views")
         create_views()
-        logger.info("Finished rebuilding ClickHouse overview views")
+        logger.info("Finished rebuilding ClickHouse views")
         return
 
     logger.info(
@@ -63,7 +69,7 @@ def main(argv: list[str] | None = None) -> None:
         CLICKHOUSE_DB,
         CLICKHOUSE_TABLE,
     )
-    logger.info("Dropping ClickHouse overview views before table rebuild")
+    logger.info("Dropping ClickHouse views before table rebuild")
     drop_views()
     logger.info("Dropping ClickHouse export table {}.{}", CLICKHOUSE_DB, CLICKHOUSE_TABLE)
     drop_table()
@@ -71,11 +77,11 @@ def main(argv: list[str] | None = None) -> None:
     create_table()
 
     if not args.skip_views:
-        logger.info("Creating ClickHouse overview views")
+        logger.info("Creating ClickHouse views")
         create_views()
-        logger.info("Finished rebuilding ClickHouse export schema and overview views")
+        logger.info("Finished rebuilding ClickHouse export schema and views")
     else:
-        logger.info("Skipped ClickHouse overview view rebuild; run with --views-only after export")
+        logger.info("Skipped ClickHouse view rebuild; run with --views-only after export")
 
 
 if __name__ == "__main__":

@@ -24,8 +24,8 @@ def test_main_recreates_clickhouse_table(monkeypatch):
         "default",
         "redis_json",
     )
-    logger.info.assert_any_call("Creating ClickHouse overview views")
-    logger.info.assert_any_call("Finished rebuilding ClickHouse export schema and overview views")
+    logger.info.assert_any_call("Creating ClickHouse views")
+    logger.info.assert_any_call("Finished rebuilding ClickHouse export schema and views")
 
 
 def test_main_skip_views_only_rebuilds_clickhouse_table(monkeypatch):
@@ -138,6 +138,11 @@ def test_overview_queries_are_loaded_from_assets():
     assert clickhouse_schema.load_sql_asset("overview-base.sql") == clickhouse_schema.overview_base_view_query()
     assert clickhouse_schema.load_sql_asset("overview-chart.sql") == clickhouse_schema.overview_chart_view_query()
     assert clickhouse_schema.load_sql_asset("overview-table.sql") == clickhouse_schema.overview_table_view_query()
+    assert clickhouse_schema.load_sql_asset("tool-primary.sql") == clickhouse_schema.tool_primary_view_query()
+    assert (
+        clickhouse_schema.load_sql_asset("tool-git-subbcommand.sql")
+        == clickhouse_schema.tool_git_subcommand_view_query()
+    )
 
 
 def test_drop_overview_base_query_uses_drop_table_for_materialized_view():
@@ -145,6 +150,37 @@ def test_drop_overview_base_query_uses_drop_table_for_materialized_view():
         clickhouse_schema.drop_overview_base_query()
         == "DROP TABLE IF EXISTS default.redis_json_overview_base"
     )
+
+
+def test_create_and_drop_views_include_tool_materialized_views(monkeypatch):
+    queries = []
+    monkeypatch.setattr(clickhouse_schema, "run_query", queries.append)
+    monkeypatch.setattr(clickhouse_schema, "tool_primary_view_query", lambda: "CREATE TOOL PRIMARY")
+    monkeypatch.setattr(clickhouse_schema, "tool_git_subcommand_view_query", lambda: "CREATE TOOL GIT")
+    monkeypatch.setattr(clickhouse_schema, "overview_base_view_query", lambda: "CREATE OVERVIEW BASE")
+    monkeypatch.setattr(clickhouse_schema, "overview_chart_view_query", lambda: "CREATE OVERVIEW CHART")
+    monkeypatch.setattr(clickhouse_schema, "overview_table_view_query", lambda: "CREATE OVERVIEW TABLE")
+
+    clickhouse_schema.create_views()
+
+    assert queries == [
+        "CREATE TOOL PRIMARY",
+        "CREATE TOOL GIT",
+        "CREATE OVERVIEW BASE",
+        "CREATE OVERVIEW CHART",
+        "CREATE OVERVIEW TABLE",
+    ]
+
+    queries.clear()
+    clickhouse_schema.drop_views()
+
+    assert queries == [
+        "DROP VIEW IF EXISTS default.redis_json_overview_table",
+        "DROP VIEW IF EXISTS default.redis_json_overview_chart",
+        "DROP TABLE IF EXISTS default.redis_json_overview_base",
+        "DROP TABLE IF EXISTS default.redis_json_initial_bash_commands_by_llm",
+        "DROP TABLE IF EXISTS default.redis_json_git_subcommands_by_llm",
+    ]
 
 
 def test_sql_loader_prefers_container_path(tmp_path, monkeypatch):

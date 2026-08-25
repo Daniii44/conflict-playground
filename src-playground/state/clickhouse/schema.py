@@ -25,6 +25,14 @@ CLICKHOUSE_OVERVIEW_TABLE_VIEW = os.environ.get(
     "CLICKHOUSE_OVERVIEW_TABLE_VIEW",
     "redis_json_overview_table",
 )
+CLICKHOUSE_TOOL_PRIMARY_VIEW = os.environ.get(
+    "CLICKHOUSE_TOOL_PRIMARY_VIEW",
+    "redis_json_initial_bash_commands_by_llm",
+)
+CLICKHOUSE_TOOL_GIT_SUBCOMMAND_VIEW = os.environ.get(
+    "CLICKHOUSE_TOOL_GIT_SUBCOMMAND_VIEW",
+    "redis_json_git_subcommands_by_llm",
+)
 
 ASSETS_SQL_DIR = (
     Path(__file__).resolve().parents[3]
@@ -107,6 +115,14 @@ def overview_table_view_query() -> str:
     return load_sql_asset("overview-table.sql")
 
 
+def tool_primary_view_query() -> str:
+    return load_sql_asset("tool-primary.sql")
+
+
+def tool_git_subcommand_view_query() -> str:
+    return load_sql_asset("tool-git-subbcommand.sql")
+
+
 def drop_table_query() -> str:
     return f"DROP TABLE IF EXISTS {CLICKHOUSE_DB}.{CLICKHOUSE_TABLE}"
 
@@ -119,6 +135,10 @@ def drop_overview_base_query() -> str:
     return f"DROP TABLE IF EXISTS {CLICKHOUSE_DB}.{CLICKHOUSE_OVERVIEW_BASE_VIEW}"
 
 
+def drop_materialized_view_query(view_name: str) -> str:
+    return f"DROP TABLE IF EXISTS {CLICKHOUSE_DB}.{view_name}"
+
+
 def create_table() -> None:
     run_query(create_table_query())
 
@@ -129,6 +149,8 @@ def drop_table() -> None:
 
 def create_views() -> None:
     for query in (
+        tool_primary_view_query(),
+        tool_git_subcommand_view_query(),
         overview_base_view_query(),
         overview_chart_view_query(),
         overview_table_view_query(),
@@ -143,3 +165,8 @@ def drop_views() -> None:
     ):
         run_query(drop_view_query(view_name))
     run_query(drop_overview_base_query())
+    for view_name in (
+        CLICKHOUSE_TOOL_PRIMARY_VIEW,
+        CLICKHOUSE_TOOL_GIT_SUBCOMMAND_VIEW,
+    ):
+        run_query(drop_materialized_view_query(view_name))
