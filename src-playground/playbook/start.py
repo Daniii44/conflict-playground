@@ -160,7 +160,16 @@ def validate_playground_setup(playground_name: str) -> None:
 
     capture_git("-C", str(path), "rev-parse", "--is-inside-work-tree")
 
-    result = capture_git("-C", str(path), "submodule", "status", "--recursive")
+    result = capture_git(
+        "-C", str(path), "submodule", "status", "--recursive", check=False
+    )
+    if result.returncode != 0:
+        detail = result.stderr.strip() or "no error output"
+        log(
+            "could not inspect all submodules "
+            f"(exit {result.returncode}): {detail}"
+        )
+
     uninitialized_submodules = [
         line for line in result.stdout.splitlines()
         if line.startswith("-")
@@ -168,7 +177,7 @@ def validate_playground_setup(playground_name: str) -> None:
     if uninitialized_submodules:
         sample = "; ".join(uninitialized_submodules[:3])
         extra = "" if len(uninitialized_submodules) <= 3 else f"; +{len(uninitialized_submodules) - 3} more"
-        raise RuntimeError(f"playground has uninitialized submodules: {sample}{extra}")
+        log(f"playground has uninitialized submodules: {sample}{extra}")
 
 
 def playground_with_resolved_merge_sha(pg: Playground) -> Playground:

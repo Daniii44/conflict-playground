@@ -450,7 +450,7 @@ playbook:
     )
 
 
-def test_validate_playground_setup_rejects_uninitialized_submodules(monkeypatch, tmp_path):
+def test_validate_playground_setup_allows_uninitialized_submodules(monkeypatch, tmp_path, capsys):
     playground = tmp_path / "playgrounds" / "example-project-abc123"
     playground.mkdir(parents=True)
     monkeypatch.setenv("PLAYGROUNDS", str(tmp_path / "playgrounds"))
@@ -463,8 +463,30 @@ def test_validate_playground_setup_rejects_uninitialized_submodules(monkeypatch,
         raise AssertionError(f"Unexpected command: {args}")
 
     with patch("playbook.start.capture_git", side_effect=fake_capture_git):
-        with pytest.raises(RuntimeError, match="uninitialized submodules"):
-            validate_playground_setup("example-project-abc123")
+        validate_playground_setup("example-project-abc123")
+
+    assert "playground has uninitialized submodules: -abc123 deps/sub" in capsys.readouterr().out
+
+
+def test_validate_playground_setup_allows_submodule_status_failure(monkeypatch, tmp_path, capsys):
+    playground = tmp_path / "playgrounds" / "example-project-abc123"
+    playground.mkdir(parents=True)
+    monkeypatch.setenv("PLAYGROUNDS", str(tmp_path / "playgrounds"))
+
+    def fake_capture_git(*args, **kwargs):
+        if args[2] == "rev-parse":
+            return subprocess.CompletedProcess(args, 0, stdout="true\n", stderr="")
+        if args[2:5] == ("submodule", "status", "--recursive"):
+            assert kwargs["check"] is False
+            return subprocess.CompletedProcess(
+                args, 128, stdout="", stderr="fatal: not a git repository\n"
+            )
+        raise AssertionError(f"Unexpected command: {args}")
+
+    with patch("playbook.start.capture_git", side_effect=fake_capture_git):
+        validate_playground_setup("example-project-abc123")
+
+    assert "could not inspect all submodules (exit 128): fatal: not a git repository" in capsys.readouterr().out
 
 
 def test_collect_proposed_resolution_records_error_when_branches_not_merged(monkeypatch, tmp_path):

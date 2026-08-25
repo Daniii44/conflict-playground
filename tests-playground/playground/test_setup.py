@@ -2,7 +2,7 @@ import os
 import subprocess
 from pathlib import Path
 
-from playground.setup import init_submodules_with_alternates
+from playground.setup import cache_has_commit, init_submodules_with_alternates
 
 
 def git(*args: str, cwd: Path) -> subprocess.CompletedProcess[str]:
@@ -38,6 +38,9 @@ def test_init_submodules_uses_alternates_without_object_duplication(tmp_path):
     git("symbolic-ref", "HEAD", "refs/heads/main", cwd=cache_repo)
     git("remote", "add", "origin", str(cache_repo), cwd=sub_source)
     git("push", "origin", "HEAD:main", cwd=sub_source)
+
+    assert cache_has_commit(cache_repo, submodule_sha)
+    assert not cache_has_commit(cache_repo, "a" * 40)
 
     super_repo = tmp_path / "super"
     super_repo.mkdir()
@@ -80,3 +83,48 @@ def test_init_submodules_uses_alternates_without_object_duplication(tmp_path):
         for path in module_objects.rglob("*")
         if path.is_file()
     ) == [Path("info/alternates")]
+
+
+def test_init_submodules_skips_unavailable_gitlink(tmp_path):
+    repo_cache_dir = tmp_path / "caches" / "repos"
+    cache_repo = repo_cache_dir / "owner" / "sub.git"
+    cache_repo.parent.mkdir(parents=True)
+    git("init", "--bare", str(cache_repo), cwd=tmp_path)
+
+    super_repo = tmp_path / "super"
+    super_repo.mkdir()
+    git("init", cwd=super_repo)
+    configure_identity(super_repo)
+    (super_repo / ".gitmodules").write_text(
+        '\n'.join(
+            [
+                '[submodule "deps/sub"]',
+                "\tpath = deps/sub",
+                "\turl = https://github.com/owner/sub.git",
+                "",
+            ]
+        )
+    )
+    git("add", ".gitmodules", cwd=super_repo)
+    git(
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        f"160000,{'a' * 40},deps/sub",
+        cwd=super_repo,
+    )
+    git("commit", "-m", "add unavailable submodule gitlink", cwd=super_repo)
+
+    init_submodules_with_alternates(
+        super_repo,
+        "https://github.com/owner/super.git",
+        repo_cache_dir,
+    )
+
+    assert not (super_repo / "deps" / "sub").exists()
+    assert subprocess.run(
+        ["git", "config", "--get", "submodule.deps/sub.url"],
+        cwd=super_repo,
+        text=True,
+        capture_output=True,
+    ).returncode != 0

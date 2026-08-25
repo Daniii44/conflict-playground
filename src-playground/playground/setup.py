@@ -100,6 +100,19 @@ def cached_repo_for_url(repo_cache_dir: Path, url: str) -> Path | None:
     return None
 
 
+def cache_has_commit(cache_repo: Path, commit_sha: str) -> bool:
+    return (
+        capture_git(
+            f"--git-dir={cache_repo}",
+            "cat-file",
+            "-e",
+            f"{commit_sha}^{{commit}}",
+            check=False,
+        ).returncode
+        == 0
+    )
+
+
 def is_initialized_submodule(repo_path: Path, submodule_name: str) -> bool:
     result = capture_git(
         "-C",
@@ -208,6 +221,14 @@ def init_submodules_with_alternates(
             logger.error(
                 "Unmerged submodule found: '{}'. init should be called before the merge",
                 submodule_path,
+            )
+            continue
+
+        if not cache_has_commit(cache_repo, gitlink_sha):
+            logger.warning(
+                "Skipping submodule with unavailable gitlink {}: {}",
+                submodule_path,
+                gitlink_sha,
             )
             continue
 
