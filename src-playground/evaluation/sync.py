@@ -22,6 +22,7 @@ from evaluation.analysis.sem_analysis import SemEvaluationAnalysis
 from evaluation.analysis.schesch_generated_analysis import ScheschGeneratedEvaluationAnalysis
 from evaluation.analysis.schesch_original_analysis import ScheschOriginalEvaluationAnalysis
 from evaluation.analysis.summary_analysis import SummaryEvaluationAnalysis
+from evaluation.analysis.modifydelete_analysis import ModifyDeleteEvaluationAnalysis
 
 
 AVAILABLE_ANALYSES: dict[str, type[EvaluationAnalysis]] = {
@@ -32,6 +33,7 @@ AVAILABLE_ANALYSES: dict[str, type[EvaluationAnalysis]] = {
     "schesch-original": ScheschOriginalEvaluationAnalysis,
     "schesch-generated": ScheschGeneratedEvaluationAnalysis,
     "summary": SummaryEvaluationAnalysis,
+    "modifydelete": ModifyDeleteEvaluationAnalysis,
 }
 
 

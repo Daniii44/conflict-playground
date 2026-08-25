@@ -318,6 +318,31 @@ classification_metrics AS (
         class_source.subdataset,
         class_source.llm,
         class_source.group_label
+),
+modifydelete_classification_metrics AS (
+    SELECT
+        rd.repo AS repo,
+        rd.merge_hash AS merge_hash,
+        rd.subdataset AS subdataset,
+        rd.llm AS llm,
+        rd.group_label AS group_label,
+        max(
+            coalesce(path_evaluation.contradiction::String, '') = 'canonical contradiction'
+        ) AS contradiction_canonical_resolution_differs,
+        max(
+            coalesce(path_evaluation.contradiction::String, '') = 'non-canonical fallback'
+        ) AS contradiction_noncanonical_fallback
+    FROM default.redis_json AS e
+    INNER JOIN resolution_dimensions AS rd
+        ON rd.conflict_identifier = e.conflict_identifier
+    ARRAY JOIN e.content.path_evaluations::Array(JSON) AS path_evaluation
+    WHERE startsWith(e.key, 'evaluation:merge:modifydelete:')
+    GROUP BY
+        rd.repo,
+        rd.merge_hash,
+        rd.subdataset,
+        rd.llm,
+        rd.group_label
 )
 SELECT
     b.repo AS repo,
@@ -347,10 +372,12 @@ SELECT
         WHEN coalesce(b.contradiction_agent_error, 0) = 1 THEN 'CONTRADICTION_AGENT_ERROR'
         WHEN coalesce(b.contradiction_agent_timeout, 0) = 1 THEN 'CONTRADICTION_AGENT_TIMEOUT'
         WHEN coalesce(c.contradiction_canonical_resolution_differs, 0) = 1 THEN 'CONTRADICTION_CANONICAL_RESOLUTION_DIFFERS'
+        WHEN coalesce(mdc.contradiction_canonical_resolution_differs, 0) = 1 THEN 'CONTRADICTION_CANONICAL_RESOLUTION_DIFFERS'
         WHEN coalesce(c.contradiction_semicanonical_contradiction, 0) = 1 THEN 'CONTRADICTION_SEMICANONICAL_CONTRADICTION'
         WHEN coalesce(c.contradiction_semicanonical_dilution, 0) = 1 THEN 'CONTRADICTION_SEMICANONICAL_DILUTION'
         WHEN coalesce(c.contradiction_ghost_resolution, 0) = 1 THEN 'CONTRADICTION_GHOST_RESOLUTION'
         WHEN coalesce(c.contradiction_noncanonical_fallback, 0) = 1 THEN 'CONTRADICTION_NONCANONICAL_FALLBACK'
+        WHEN coalesce(mdc.contradiction_noncanonical_fallback, 0) = 1 THEN 'CONTRADICTION_NONCANONICAL_FALLBACK'
         WHEN coalesce(s.contradiction_schesch_original_compilation_failed, 0) = 1
             THEN 'CONTRADICTION_SCHESCH_ORIGINAL_COMPILATION_FAILED'
         WHEN coalesce(s.contradiction_schesch_original_test_failed, 0) = 1
@@ -400,3 +427,9 @@ LEFT JOIN classification_metrics AS c
    AND c.subdataset = b.subdataset
    AND c.llm = b.llm
    AND c.group_label = b.group_label
+LEFT JOIN modifydelete_classification_metrics AS mdc
+    ON mdc.repo = b.repo
+   AND mdc.merge_hash = b.merge_hash
+   AND mdc.subdataset = b.subdataset
+   AND mdc.llm = b.llm
+   AND mdc.group_label = b.group_label

@@ -76,6 +76,9 @@ def test_overview_base_view_uses_group_dimensions_and_current_schesch_keys():
     assert "llm" in query
     assert "evaluation:merge:schesch-original:" in query
     assert "evaluation:merge:schesch-generated:" in query
+    assert "evaluation:merge:modifydelete:" in query
+    assert "modifydelete_classification_metrics AS" in query
+    assert "UNION ALL" not in query
     assert "evaluation:merge:schesch:" not in query
     assert "contradiction_schesch_original_compilation_failed" in query
     assert "contradiction_schesch_original_test_failed" in query
@@ -85,6 +88,9 @@ def test_overview_base_view_uses_group_dimensions_and_current_schesch_keys():
     assert "CONTRADICTION_SCHESCH_ORIGINAL_TEST_FAILED" in query
     assert "CONTRADICTION_SCHESCH_GENERATED_COMPILATION_FAILED" in query
     assert "CONTRADICTION_SCHESCH_GENERATED_TEST_FAILED" in query
+    assert "path_evaluation.contradiction::String" in query
+    assert "CONTRADICTION_CANONICAL_RESOLUTION_DIFFERS" in query
+    assert "CONTRADICTION_NONCANONICAL_FALLBACK" in query
     assert "contradiction_proposed_compilation_failed" not in query
     assert "contradiction_proposed_test_failed" not in query
     assert "total_evaluations" not in query

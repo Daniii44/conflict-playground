@@ -118,3 +118,18 @@ class MergeConflictResolutionEvaluation(MergeEvaluationRecord):
     actual_resolution_sha: str | None = None
     conflicted_tree_oid: str | None = None
     logical_conflicts: list[MergeConflictResolutionLogicalConflict] = Field(default_factory=list)
+
+
+class ModifyDeletePathEvaluation(BaseModel):
+    logical_conflict_index: int
+    path: str
+    agent_classification: str
+    human_classification: str
+    contradiction: str | None = None
+
+
+class MergeModifyDeleteEvaluation(MergeEvaluationRecord):
+    proposed_commit_sha: str | None = None
+    actual_resolution_sha: str | None = None
+    conflicted_tree_oid: str | None = None
+    path_evaluations: list[ModifyDeletePathEvaluation] = Field(default_factory=list)
