@@ -997,7 +997,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT\n    now(),\n    CASE \n        WHEN part.type = 'text' THEN \n            part.text\n        WHEN part.type = 'patch' THEN \n            part.files::text\n        WHEN part.type = 'tool' THEN \n            concat(coalesce(part.state.title, ''), ' | Command: ', coalesce(part.state.input.command, ''))\n        ELSE concat('[UNUSUAL TYPE: ', part.type, ']')\n    END AS log_line,\n    upper(part.type) as part_type\nFROM \"default\".\"redis_json\"\narray join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\narray join message.parts::Array(JSON) as part\nwhere key = 'resolution:conflict:${repo_name}-${merge}:${timestamp}'\nand message.info.role = 'assistant' \nand part.type not like 'step-%'"
+                        "rawSql": "SELECT\n    now(),\n    CASE \n        WHEN part.type = 'text' THEN \n            part.text\n        WHEN part.type = 'patch' THEN \n            part.files::text\n        WHEN part.type = 'tool' THEN \n            concat(coalesce(part.state.title, ''), ' | Command: ', coalesce(part.state.input.command, ''))\n        WHEN part.type = 'reasoning' THEN\n            part.text\n        ELSE concat('[UNUSUAL TYPE: ', part.type, ']')\n    END AS log_line,\n    upper(part.type) as part_type\nFROM \"default\".\"redis_json\"\narray join content.hook_result.opencode_session_export.data.messages::Array(JSON) as message\narray join message.parts::Array(JSON) as part\nwhere key = 'resolution:conflict:${repo_name}-${merge}:${timestamp}'\nand message.info.role = 'assistant' \nand part.type not like 'step-%'"
                       },
                       "version": "v0"
                     },
@@ -1680,7 +1680,13 @@
               "options": {
                 "cellHeight": "sm",
                 "enablePagination": false,
-                "showHeader": true
+                "showHeader": true,
+                "sortBy": [
+                  {
+                    "desc": false,
+                    "displayName": "conflicted_file.path"
+                  }
+                ]
               }
             },
             "version": "13.0.2"
@@ -2378,8 +2384,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "twbs/bootstrap.git",
-            "value": "twbs/bootstrap.git"
+            "text": "gohugoio/hugo.git",
+            "value": "gohugoio/hugo.git"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -2397,8 +2403,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "1e6d386b8df2d7235b23a96ddd0489c1ab2650dc",
-            "value": "1e6d386b8df2d7235b23a96ddd0489c1ab2650dc"
+            "text": "a3ea9cd18fc79fbae9f1ce0fc5242268d122e5f7",
+            "value": "a3ea9cd18fc79fbae9f1ce0fc5242268d122e5f7"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -2416,8 +2422,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "20260820T051606.496421Z",
-            "value": "20260820T051606.496421Z"
+            "text": "20260818T011832.465607Z",
+            "value": "20260818T011832.465607Z"
           },
           "definition": "  WITH base AS (\n  SELECT\n    key,\n    extractGroups (\n      arrayElement(splitByString('resolution:conflict:', key), 2),\n      '(.+)\\.git-([a-f0-9]{40}):(.*)$'\n    ) AS groups\n  FROM\n    \"default\".\"redis_json\"\n  WHERE\n    startsWith(key, 'resolution')\n    AND content.proposed_resolution.error IS NULL\n)\nSELECT\n  groups[3] AS timestamp\nFROM\n  base\nWHERE\n    concat(groups[1], '.git') = '${repo_name}'  -- \u003c-- Replace with your target repo (e.g., 'framework.git')\n  AND groups[2] = '${merge}'    -- \u003c-- Replace with your target merge commit hash\nORDER BY\n  timestamp DESC;",
           "hide": "dontHide",
