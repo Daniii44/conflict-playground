@@ -384,6 +384,10 @@ SELECT
         AS contradiction_schesch_generated_compilation_failed,
     coalesce(s.contradiction_schesch_generated_test_failed, 0) AS contradiction_schesch_generated_test_failed,
     coalesce(rc.contradiction_rename_presence_mismatch, 0) AS contradiction_rename_presence_mismatch,
+    coalesce(mdc.contradiction_canonical_resolution_differs, 0)
+        AS contradiction_modify_delete_canonical_resolution_differs,
+    coalesce(mdc.contradiction_noncanonical_fallback, 0)
+        AS contradiction_modify_delete_noncanonical_fallback,
     coalesce(c.contradiction_canonical_resolution_differs, 0) AS contradiction_canonical_resolution_differs,
     coalesce(c.contradiction_semicanonical_contradiction, 0) AS contradiction_semicanonical_contradiction,
     coalesce(c.contradiction_semicanonical_dilution, 0) AS contradiction_semicanonical_dilution,
@@ -393,12 +397,10 @@ SELECT
         WHEN coalesce(b.contradiction_agent_error, 0) = 1 THEN 'CONTRADICTION_AGENT_ERROR'
         WHEN coalesce(b.contradiction_agent_timeout, 0) = 1 THEN 'CONTRADICTION_AGENT_TIMEOUT'
         WHEN coalesce(c.contradiction_canonical_resolution_differs, 0) = 1 THEN 'CONTRADICTION_CANONICAL_RESOLUTION_DIFFERS'
-        WHEN coalesce(mdc.contradiction_canonical_resolution_differs, 0) = 1 THEN 'CONTRADICTION_CANONICAL_RESOLUTION_DIFFERS'
         WHEN coalesce(c.contradiction_semicanonical_contradiction, 0) = 1 THEN 'CONTRADICTION_SEMICANONICAL_CONTRADICTION'
         WHEN coalesce(c.contradiction_semicanonical_dilution, 0) = 1 THEN 'CONTRADICTION_SEMICANONICAL_DILUTION'
         WHEN coalesce(c.contradiction_ghost_resolution, 0) = 1 THEN 'CONTRADICTION_GHOST_RESOLUTION'
         WHEN coalesce(c.contradiction_noncanonical_fallback, 0) = 1 THEN 'CONTRADICTION_NONCANONICAL_FALLBACK'
-        WHEN coalesce(mdc.contradiction_noncanonical_fallback, 0) = 1 THEN 'CONTRADICTION_NONCANONICAL_FALLBACK'
         WHEN coalesce(s.contradiction_schesch_original_compilation_failed, 0) = 1
             THEN 'CONTRADICTION_SCHESCH_ORIGINAL_COMPILATION_FAILED'
         WHEN coalesce(s.contradiction_schesch_original_test_failed, 0) = 1
@@ -409,6 +411,10 @@ SELECT
             THEN 'CONTRADICTION_SCHESCH_GENERATED_TEST_FAILED'
         WHEN coalesce(rc.contradiction_rename_presence_mismatch, 0) = 1
             THEN 'CONTRADICTION_RENAME_PRESENCE_MISMATCH'
+        WHEN coalesce(mdc.contradiction_canonical_resolution_differs, 0) = 1
+            THEN 'CONTRADICTION_MODIFY_DELETE_CANONICAL_RESOLUTION_DIFFERS'
+        WHEN coalesce(mdc.contradiction_noncanonical_fallback, 0) = 1
+            THEN 'CONTRADICTION_MODIFY_DELETE_NONCANONICAL_FALLBACK'
         WHEN coalesce(m.proof_exact_match, 0) = 1 THEN 'PROOF_EXACT_MATCH'
         WHEN coalesce(se.proof_exact_match_semantic, 0) = 1 THEN 'PROOF_EXACT_MATCH_SEMANTIC'
         WHEN coalesce(d.proof_exact_match_normalized, 0) = 1 THEN 'PROOF_EXACT_MATCH_NORMALIZED'
