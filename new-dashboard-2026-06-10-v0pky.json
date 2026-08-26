@@ -1537,7 +1537,7 @@
           "description": "",
           "id": 31,
           "links": [],
-          "title": "New panel",
+          "title": "",
           "vizConfig": {
             "group": "gauge",
             "kind": "VizConfig",
@@ -2684,12 +2684,7 @@
               "options": {
                 "cellHeight": "sm",
                 "showHeader": true,
-                "sortBy": [
-                  {
-                    "desc": true,
-                    "displayName": "contradiction_agent_error"
-                  }
-                ]
+                "sortBy": []
               }
             },
             "version": "13.0.2"
