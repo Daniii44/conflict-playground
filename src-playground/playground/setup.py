@@ -397,15 +397,15 @@ def setup_playground(repo_name: str, merge_sha: str) -> str:
     ).stdout.strip()
 
     if superproject_url:
-        capture_git("checkout", "-b", "feature", feature_parent, cwd=clone_path)
+        capture_git("checkout", "-f", "-b", "feature", feature_parent, cwd=clone_path)
         init_submodules_with_alternates(clone_path, superproject_url, repo_cache_dir)
 
-        capture_git("checkout", "-b", "main", main_parent, cwd=clone_path)
+        capture_git("checkout", "-f", "-b", "main", main_parent, cwd=clone_path)
         init_submodules_with_alternates(clone_path, superproject_url, repo_cache_dir)
     else:
         logger.warning("Skipping submodule setup because cached repo has no origin URL: {}", bare_repo)
-        capture_git("checkout", "-b", "feature", feature_parent, cwd=clone_path)
-        capture_git("checkout", "-b", "main", main_parent, cwd=clone_path)
+        capture_git("checkout", "-f", "-b", "feature", feature_parent, cwd=clone_path)
+        capture_git("checkout", "-f", "-b", "main", main_parent, cwd=clone_path)
 
     merge_feature_with_normalization_retry(clone_path)
 
