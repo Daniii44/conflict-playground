@@ -254,6 +254,81 @@
             "version": "13.0.2"
           }
         }
+      },
+      "panel-4": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT now(), attempt.test_result.output_tail\nFROM \"default\".\"redis_json\"\narray join content.human.attempts::Array(JSON) as attempt\nwhere key = '$key'"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 4,
+          "links": [],
+          "title": "Patch",
+          "vizConfig": {
+            "group": "logs",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {
+                "dedupStrategy": "none",
+                "enableInfiniteScrolling": false,
+                "enableLogDetails": true,
+                "prettifyLogMessage": true,
+                "showControls": false,
+                "showFieldSelector": false,
+                "showLevel": false,
+                "showTime": false,
+                "sortOrder": "Descending",
+                "timestampResolution": "ms",
+                "unwrappedColumns": false,
+                "wrapLogMessage": true
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
       }
     },
     "layout": {
@@ -275,6 +350,15 @@
                         "element": {
                           "kind": "ElementReference",
                           "name": "panel-1"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "AutoGridLayoutItem",
+                      "spec": {
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "panel-4"
                         }
                       }
                     },
@@ -395,12 +479,12 @@
         "kind": "TextVariable",
         "spec": {
           "current": {
-            "text": "dataset:schesch:tests:softinstigate/restheart.git:0a60605990bdc0aaaf053778fef172fb1dd1170d",
-            "value": "dataset:schesch:tests:softinstigate/restheart.git:0a60605990bdc0aaaf053778fef172fb1dd1170d"
+            "text": "dataset:schesch:tests:benoker/dockingframes.git:81c5b2911165499c5ab05fe58342858e441132fb",
+            "value": "dataset:schesch:tests:benoker/dockingframes.git:81c5b2911165499c5ab05fe58342858e441132fb"
           },
           "hide": "dontHide",
           "name": "key",
-          "query": "dataset:schesch:tests:softinstigate/restheart.git:0a60605990bdc0aaaf053778fef172fb1dd1170d",
+          "query": "dataset:schesch:tests:benoker/dockingframes.git:81c5b2911165499c5ab05fe58342858e441132fb",
           "skipUrlSync": false
         }
       },
