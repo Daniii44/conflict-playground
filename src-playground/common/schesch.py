@@ -14,6 +14,7 @@ from common.git_util import capture_git
 
 
 DEFAULT_TIMEOUT_SECONDS = 15 * 60
+DEFAULT_TEST_EXECUTION_RETRIES = 0
 OUTPUT_TAIL_CHARS = 12000
 JAVA_HOME_ENV_VARS = ("JAVA8_HOME", "JAVA11_HOME", "JAVA17_HOME")
 RESTORED_PLAYGROUND_TIMESTAMP_FORMAT = "%Y%m%dT%H%M%S.%fZ"
@@ -279,6 +280,7 @@ class ScheschResolutionRunner:
         commit_sha: str | None = None,
         java_homes: list[str] | None = None,
         test_command: list[str] | None = None,
+        test_execution_retries: int = DEFAULT_TEST_EXECUTION_RETRIES,
     ) -> ScheschResolutionResult:
         record = ScheschResolutionResult(label=label, commit_sha=commit_sha)
         head_sha, head_error = read_head_commit(str(playground_path))
@@ -323,25 +325,81 @@ class ScheschResolutionRunner:
                 continue
 
             saw_successful_compilation = True
-            attempt.test_result = self.run_command(
-                playground_path,
-                selected_test_command,
-                java_home,
-                deadline,
-            )
-            if attempt.test_result.timed_out:
-                record.timed_out = True
+            for _ in range(test_execution_retries + 1):
+                attempt.test_result = self.run_command(
+                    playground_path,
+                    selected_test_command,
+                    java_home,
+                    deadline,
+                )
+                attempt.test_results.append(attempt.test_result)
+                if attempt.test_result.timed_out:
+                    record.timed_out = True
+                    break
+                if attempt.test_result.returncode == 0:
+                    record.passed = True
+                    record.successful_java_home = java_home
+                    return record
+                saw_test_failure = True
+            if record.timed_out:
                 break
-            if attempt.test_result.returncode == 0:
-                record.passed = True
-                record.successful_java_home = java_home
-                return record
-            saw_test_failure = True
 
         record.compilation_failed = not saw_successful_compilation and not record.timed_out
         record.test_execution_failed = saw_successful_compilation and saw_test_failure and not record.timed_out
         if record.timed_out:
             record.error = f"Timed out after {self.timeout_seconds} seconds"
+        return record
+
+    def rerun_failed_tests_in_current_state(
+        self,
+        playground_path: Path,
+        record: ScheschResolutionResult,
+        retries: int,
+    ) -> ScheschResolutionResult:
+        if (
+            record.passed
+            or record.compilation_failed
+            or record.timed_out
+            or not record.test_execution_failed
+        ):
+            return record
+
+        deadline = time.monotonic() + self.timeout_seconds
+        for attempt in record.attempts:
+            compile_result = attempt.compile_result
+            test_result = attempt.test_result
+            if (
+                compile_result is None
+                or compile_result.returncode != 0
+                or test_result is None
+                or test_result.returncode == 0
+            ):
+                continue
+
+            if not attempt.test_results:
+                attempt.test_results.append(test_result)
+
+            for _ in range(retries):
+                test_result = self.run_command(
+                    playground_path,
+                    test_result.command,
+                    attempt.java_home,
+                    deadline,
+                )
+                attempt.test_result = test_result
+                attempt.test_results.append(test_result)
+                if test_result.timed_out:
+                    record.timed_out = True
+                    record.error = f"Timed out after {self.timeout_seconds} seconds"
+                    return record
+                if test_result.returncode == 0:
+                    record.passed = True
+                    record.compilation_failed = False
+                    record.test_execution_failed = False
+                    record.successful_java_home = attempt.java_home
+                    record.error = None
+                    return record
+
         return record
 
     def run_tests_for_ref(
@@ -352,6 +410,7 @@ class ScheschResolutionRunner:
         commit_sha: str | None = None,
         java_homes: list[str] | None = None,
         test_command: list[str] | None = None,
+        test_execution_retries: int = DEFAULT_TEST_EXECUTION_RETRIES,
     ) -> ScheschResolutionResult:
         checkout_error = reset_playground(playground_path, ref)
         if checkout_error is not None:
@@ -364,4 +423,5 @@ class ScheschResolutionRunner:
             commit_sha,
             java_homes=java_homes,
             test_command=test_command,
+            test_execution_retries=test_execution_retries,
         )

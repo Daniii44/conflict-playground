@@ -24,6 +24,9 @@ from evaluation.analysis.common import (
 )
 
 
+SCHESCH_TEST_EXECUTION_RETRIES = 2
+
+
 class BaseScheschEvaluationAnalysis(EvaluationAnalysis, ScheschResolutionRunner):
     def __init__(self, analysis_name: str, timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS):
         EvaluationAnalysis.__init__(self, analysis_name)
@@ -76,7 +79,9 @@ class BaseScheschEvaluationAnalysis(EvaluationAnalysis, ScheschResolutionRunner)
             attempt.java_home,
         )
         self.log_command_result(evaluation_input, attempt_index, "compile", attempt.compile_result)
-        self.log_command_result(evaluation_input, attempt_index, "test", attempt.test_result)
+        test_results = attempt.test_results or ([attempt.test_result] if attempt.test_result is not None else [])
+        for test_result in test_results:
+            self.log_command_result(evaluation_input, attempt_index, "test", test_result)
 
     def log_command_result(
         self,
@@ -128,8 +133,70 @@ class BaseScheschEvaluationAnalysis(EvaluationAnalysis, ScheschResolutionRunner)
                 evaluation_input.restored_playground_name
             ),
             timeout_seconds=self.timeout_seconds,
+            test_execution_retries=SCHESCH_TEST_EXECUTION_RETRIES,
             error=error,
         )
+
+    def update_existing(
+        self,
+        evaluation_input: EvaluationInput,
+        existing: MergeScheschEvaluation,
+        restore_error: str | None = None,
+        redis=None,
+    ) -> MergeScheschEvaluation | None:
+        if existing.test_execution_retries >= SCHESCH_TEST_EXECUTION_RETRIES:
+            return None
+
+        updated = existing.model_copy(deep=True)
+        proposed = updated.proposed
+        should_retry = (
+            proposed is not None
+            and proposed.test_execution_failed
+            and not proposed.compilation_failed
+            and not proposed.timed_out
+        )
+        if should_retry and restore_error is not None:
+            logger.warning(
+                "{} evaluation cannot retry the existing failed test execution for {}: {}",
+                self.get_analysis_name(),
+                evaluation_input.resolution_key,
+                restore_error,
+            )
+            return None
+
+        updated.test_execution_retries = SCHESCH_TEST_EXECUTION_RETRIES
+        if not should_retry:
+            logger.info(
+                "{} evaluation marked existing record for {} as having test retries",
+                self.get_analysis_name(),
+                evaluation_input.resolution_key,
+            )
+            return updated
+
+        logger.info(
+            "{} evaluation is retrying the existing failed test execution for {} twice",
+            self.get_analysis_name(),
+            evaluation_input.resolution_key,
+        )
+        return self.rerun_existing_test_failure(evaluation_input, updated, redis=redis)
+
+    def should_retry_existing(self, existing: MergeScheschEvaluation) -> bool:
+        proposed = existing.proposed
+        return (
+            existing.test_execution_retries < SCHESCH_TEST_EXECUTION_RETRIES
+            and proposed is not None
+            and proposed.test_execution_failed
+            and not proposed.compilation_failed
+            and not proposed.timed_out
+        )
+
+    def rerun_existing_test_failure(
+        self,
+        evaluation_input: EvaluationInput,
+        existing: MergeScheschEvaluation,
+        redis=None,
+    ) -> MergeScheschEvaluation:
+        return existing
 
     def expected_java_home(self, evaluation_input: EvaluationInput, redis=None) -> tuple[str | None, str | None]:
         try:

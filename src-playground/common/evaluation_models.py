@@ -80,6 +80,7 @@ class ScheschJavaAttempt(BaseModel):
     java_home: str
     compile_result: ScheschCommandResult | None = None
     test_result: ScheschCommandResult | None = None
+    test_results: list[ScheschCommandResult] = Field(default_factory=list)
 
 
 class ScheschResolutionResult(BaseModel):
@@ -99,6 +100,7 @@ class MergeScheschEvaluation(MergeEvaluationRecord):
     proposed_commit_sha: str | None = None
     actual_resolution_sha: str | None = None
     timeout_seconds: int
+    test_execution_retries: int = 0
     proposed: ScheschResolutionResult | None = None
 
 

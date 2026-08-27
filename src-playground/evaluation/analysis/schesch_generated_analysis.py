@@ -12,7 +12,10 @@ from common.schesch import (
 from dataset.schesch.tests.apply import apply_patch_to_current_head, load_generated_tests
 from dataset.schesch.tests.generate import generated_patch_bytes, generated_tests_record_key
 from evaluation.analysis.common import actual_resolution_sha_from_playground_name, read_head_commit
-from evaluation.analysis.schesch_analysis import BaseScheschEvaluationAnalysis
+from evaluation.analysis.schesch_analysis import (
+    SCHESCH_TEST_EXECUTION_RETRIES,
+    BaseScheschEvaluationAnalysis,
+)
 
 
 class ScheschGeneratedEvaluationAnalysis(BaseScheschEvaluationAnalysis):
@@ -174,6 +177,7 @@ class ScheschGeneratedEvaluationAnalysis(BaseScheschEvaluationAnalysis):
                         commit_sha=applied_commit_sha,
                         java_homes=[expected_java_home],
                         test_command=test_command,
+                        test_execution_retries=SCHESCH_TEST_EXECUTION_RETRIES,
                     )
                     self.log_resolution_result(evaluation_input, proposed)
         except RuntimeError as error:
@@ -218,6 +222,55 @@ class ScheschGeneratedEvaluationAnalysis(BaseScheschEvaluationAnalysis):
             proposed_commit_sha=proposed_commit_sha,
             actual_resolution_sha=actual_resolution_sha,
             timeout_seconds=self.timeout_seconds,
+            test_execution_retries=SCHESCH_TEST_EXECUTION_RETRIES,
             proposed=proposed,
             error=error,
         )
+
+    def rerun_existing_test_failure(
+        self,
+        evaluation_input: EvaluationInput,
+        existing: MergeScheschEvaluation,
+        redis=None,
+    ) -> MergeScheschEvaluation:
+        playground_path, path_error = self.playground_path(evaluation_input)
+        if path_error is not None or playground_path is None:
+            existing.error = path_error or "Could not resolve playground path"
+            return existing
+
+        proposed = existing.proposed
+        proposed_commit_sha = existing.proposed_commit_sha
+        if proposed is None or proposed_commit_sha is None:
+            existing.error = "Existing generated Schesch evaluation has no proposed resolution commit"
+            return existing
+
+        generated_key, generated_key_error = self.generated_tests_key(evaluation_input)
+        if generated_key_error is not None or generated_key is None:
+            existing.error = generated_key_error or "Could not derive generated test key"
+            return existing
+
+        if redis is None:
+            redis = setup_redis_connection()
+        try:
+            generated_tests = load_generated_tests(redis, generated_key)
+            patch_bytes = generated_patch_bytes(generated_tests) or b""
+            reset_error = reset_playground(playground_path, proposed_commit_sha)
+            if reset_error is not None:
+                existing.error = f"Could not checkout proposed resolution for retry: {reset_error}"
+                return existing
+            apply_patch_to_current_head(playground_path, patch_bytes)
+            existing.proposed = self.rerun_failed_tests_in_current_state(
+                playground_path,
+                proposed,
+                retries=SCHESCH_TEST_EXECUTION_RETRIES,
+            )
+            if existing.proposed.passed:
+                existing.error = None
+        except RuntimeError as error:
+            existing.error = str(error)
+        finally:
+            restore_error = reset_playground(playground_path, proposed_commit_sha)
+            if restore_error is not None:
+                existing.error = f"Could not reset proposed resolution after retry: {restore_error}"
+
+        return existing

@@ -4,7 +4,10 @@ from common.evaluation_models import EvaluationInput, MergeScheschEvaluation
 from common.redis_util import setup_redis_connection
 from common.schesch import DEFAULT_TIMEOUT_SECONDS, reset_playground
 from evaluation.analysis.common import actual_resolution_sha_from_playground_name, read_head_commit
-from evaluation.analysis.schesch_analysis import BaseScheschEvaluationAnalysis
+from evaluation.analysis.schesch_analysis import (
+    SCHESCH_TEST_EXECUTION_RETRIES,
+    BaseScheschEvaluationAnalysis,
+)
 
 
 class ScheschOriginalEvaluationAnalysis(BaseScheschEvaluationAnalysis):
@@ -66,6 +69,7 @@ class ScheschOriginalEvaluationAnalysis(BaseScheschEvaluationAnalysis):
                 "proposed",
                 proposed_commit_sha,
                 java_homes=[expected_java_home],
+                test_execution_retries=SCHESCH_TEST_EXECUTION_RETRIES,
             )
             self.log_resolution_result(evaluation_input, proposed)
         else:
@@ -110,6 +114,44 @@ class ScheschOriginalEvaluationAnalysis(BaseScheschEvaluationAnalysis):
             proposed_commit_sha=proposed_commit_sha,
             actual_resolution_sha=actual_resolution_sha,
             timeout_seconds=self.timeout_seconds,
+            test_execution_retries=SCHESCH_TEST_EXECUTION_RETRIES,
             proposed=proposed,
             error=error,
         )
+
+    def rerun_existing_test_failure(
+        self,
+        evaluation_input: EvaluationInput,
+        existing: MergeScheschEvaluation,
+        redis=None,
+    ) -> MergeScheschEvaluation:
+        playground_path, path_error = self.playground_path(evaluation_input)
+        if path_error is not None or playground_path is None:
+            existing.error = path_error or "Could not resolve playground path"
+            return existing
+
+        proposed = existing.proposed
+        proposed_commit_sha = existing.proposed_commit_sha
+        if proposed is None or proposed_commit_sha is None:
+            existing.error = "Existing Schesch evaluation has no proposed resolution commit"
+            return existing
+
+        checkout_error = reset_playground(playground_path, proposed_commit_sha)
+        if checkout_error is not None:
+            existing.error = f"Could not checkout proposed resolution for retry: {checkout_error}"
+            return existing
+
+        try:
+            existing.proposed = self.rerun_failed_tests_in_current_state(
+                playground_path,
+                proposed,
+                retries=SCHESCH_TEST_EXECUTION_RETRIES,
+            )
+            if existing.proposed.passed:
+                existing.error = None
+        finally:
+            restore_error = reset_playground(playground_path, proposed_commit_sha)
+            if restore_error is not None:
+                existing.error = f"Could not reset proposed resolution after retry: {restore_error}"
+
+        return existing

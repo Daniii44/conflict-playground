@@ -7,7 +7,7 @@ import sys
 
 from loguru import logger
 
-from common.evaluation_models import EvaluationInput
+from common.evaluation_models import EvaluationInput, MergeScheschEvaluation
 from common.redis_util import RESOLUTION_CONFLICT_PREFIX, setup_redis_connection
 from common.resolution_models import ConflictResolution, resolution_key_parts
 from evaluation.analysis.common import (
@@ -24,6 +24,7 @@ from evaluation.analysis.schesch_original_analysis import ScheschOriginalEvaluat
 from evaluation.analysis.summary_analysis import SummaryEvaluationAnalysis
 from evaluation.analysis.modifydelete_analysis import ModifyDeleteEvaluationAnalysis
 from evaluation.analysis.rename_analysis import RenameEvaluationAnalysis
+from evaluation.analysis.schesch_analysis import BaseScheschEvaluationAnalysis
 
 
 AVAILABLE_ANALYSES: dict[str, type[EvaluationAnalysis]] = {
@@ -162,6 +163,39 @@ def evaluate_resolution(
                 )
 
 
+def update_existing_evaluation(
+    redis,
+    resolution_key: str,
+    resolution: ConflictResolution,
+    analysis: BaseScheschEvaluationAnalysis,
+) -> tuple[str, object] | None:
+    evaluation_key = evaluation_record_key(analysis, resolution_key)
+    evaluation_data = redis.json().get(evaluation_key)
+    if not evaluation_data:
+        logger.warning("Could not load existing evaluation {}", evaluation_key)
+        return None
+
+    existing = MergeScheschEvaluation.model_validate(evaluation_data)
+    evaluation_input = evaluation_input_for_resolution(resolution_key, resolution)
+    if not analysis.should_retry_existing(existing):
+        updated = analysis.update_existing(evaluation_input, existing, redis=redis)
+        return (evaluation_key, updated) if updated is not None else None
+
+    restore_error, restored = restore_resolution_for_analysis(evaluation_input)
+    try:
+        updated = analysis.update_existing(evaluation_input, existing, restore_error, redis=redis)
+        return (evaluation_key, updated) if updated is not None else None
+    finally:
+        if restored:
+            cleanup_error = remove_restored_playground(evaluation_input.restored_playground_name)
+            if cleanup_error:
+                logger.warning(
+                    "Could not remove restored playground {}: {}",
+                    evaluation_input.restored_playground_name,
+                    cleanup_error,
+                )
+
+
 def store_evaluation(redis, evaluation_key: str, evaluation) -> str:
     redis.json().set(evaluation_key, "$", json.loads(evaluation.model_dump_json()))
     return evaluation_key
@@ -192,14 +226,6 @@ def sync_evaluations(
     synced = 0
 
     for resolution_key in resolution_keys:
-        pending_analyses = [
-            analysis for analysis in selected_analyses
-            if force or not analysis_result_exists(redis, analysis.get_analysis_name(), resolution_key)
-        ]
-        if not pending_analyses:
-            logger.info("Skipping already evaluated resolution {}", resolution_key)
-            continue
-
         resolution_data = redis.json().get(resolution_key)
         if not resolution_data:
             logger.warning("Skipping missing resolution {}", resolution_key)
@@ -210,16 +236,42 @@ def sync_evaluations(
             logger.info("Skipping unsuccessful resolution {}", resolution_key)
             continue
 
-        for evaluation_key, evaluation in evaluate_resolution(resolution_key, resolution, pending_analyses):
+        pending_analyses = []
+        existing_updates = []
+        for analysis in selected_analyses:
+            if force or not analysis_result_exists(redis, analysis.get_analysis_name(), resolution_key):
+                pending_analyses.append(analysis)
+            elif isinstance(analysis, BaseScheschEvaluationAnalysis):
+                existing_updates.append(analysis)
+
+        if not pending_analyses and not existing_updates:
+            logger.info("Skipping already evaluated resolution {}", resolution_key)
+            continue
+
+        if pending_analyses:
+            for evaluation_key, evaluation in evaluate_resolution(resolution_key, resolution, pending_analyses):
+                store_evaluation(redis, evaluation_key, evaluation)
+                evaluation_error = getattr(evaluation, "error", None)
+                if evaluation_error:
+                    logger.error("Stored failed evaluation at {}: {}", evaluation_key, evaluation_error)
+                else:
+                    logger.info("Stored evaluation at {}", evaluation_key)
+                synced += 1
+
+        for analysis in existing_updates:
+            updated = update_existing_evaluation(redis, resolution_key, resolution, analysis)
+            if updated is None:
+                continue
+            evaluation_key, evaluation = updated
             store_evaluation(redis, evaluation_key, evaluation)
             evaluation_error = getattr(evaluation, "error", None)
             if evaluation_error:
-                logger.error("Stored failed evaluation at {}: {}", evaluation_key, evaluation_error)
+                logger.error("Updated failed evaluation at {}: {}", evaluation_key, evaluation_error)
             else:
-                logger.info("Stored evaluation at {}", evaluation_key)
+                logger.info("Updated evaluation at {}", evaluation_key)
             synced += 1
 
-    logger.info("Evaluation sync complete: {} created", synced)
+    logger.info("Evaluation sync complete: {} created or updated", synced)
     return synced
 
 

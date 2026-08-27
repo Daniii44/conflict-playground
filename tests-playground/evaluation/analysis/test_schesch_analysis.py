@@ -4,7 +4,13 @@ from subprocess import CompletedProcess
 from unittest.mock import patch
 
 from common.active_playground_models import Configuration
-from common.evaluation_models import EvaluationInput, ScheschCommandResult, ScheschJavaAttempt, ScheschResolutionResult
+from common.evaluation_models import (
+    EvaluationInput,
+    MergeScheschEvaluation,
+    ScheschCommandResult,
+    ScheschJavaAttempt,
+    ScheschResolutionResult,
+)
 from common.schesch import (
     BuildCommands,
     determine_expected_java_home,
@@ -69,6 +75,7 @@ def test_schesch_analysis_records_compilation_failure(monkeypatch, tmp_path):
             "HEAD",
             "proposed",
             "head-sha",
+            test_execution_retries=2,
         )
 
     assert not record.passed
@@ -102,9 +109,7 @@ def test_schesch_analysis_records_test_execution_failure(monkeypatch, tmp_path):
         run.side_effect = [
             CompletedProcess(args=[], returncode=0, stdout="compiled", stderr=""),
             CompletedProcess(args=[], returncode=1, stdout="tests failed", stderr=""),
-            CompletedProcess(args=[], returncode=0, stdout="compiled", stderr=""),
             CompletedProcess(args=[], returncode=1, stdout="tests failed", stderr=""),
-            CompletedProcess(args=[], returncode=0, stdout="compiled", stderr=""),
             CompletedProcess(args=[], returncode=1, stdout="tests failed", stderr=""),
         ]
 
@@ -113,14 +118,17 @@ def test_schesch_analysis_records_test_execution_failure(monkeypatch, tmp_path):
             "HEAD",
             "proposed",
             "head-sha",
+            java_homes=[str(tmp_path / "java8_home")],
+            test_execution_retries=2,
         )
 
     assert not record.passed
     assert not record.compilation_failed
     assert record.test_execution_failed
     assert not record.timed_out
-    assert len(record.attempts) == 3
+    assert len(record.attempts) == 1
     assert all(attempt.test_result is not None for attempt in record.attempts)
+    assert [result.returncode for result in record.attempts[0].test_results] == [1, 1, 1]
     assert all(
         attempt.compile_result is not None and attempt.compile_result.duration_seconds >= 0
         for attempt in record.attempts
@@ -132,10 +140,86 @@ def test_schesch_analysis_records_test_execution_failure(monkeypatch, tmp_path):
     assert [call.args[0] for call in run.call_args_list] == [
         ["./gradlew", "clean", "testClasses"],
         ["./gradlew", "clean", "test"],
-        ["./gradlew", "clean", "testClasses"],
         ["./gradlew", "clean", "test"],
-        ["./gradlew", "clean", "testClasses"],
         ["./gradlew", "clean", "test"],
+    ]
+
+
+def test_schesch_runner_reuses_compile_result_when_retrying_existing_test_failure(tmp_path):
+    repo_path = tmp_path / "repo"
+    repo_path.mkdir()
+    failed_test = ScheschCommandResult(command=["mvn", "clean", "test"], returncode=1, duration_seconds=1.0)
+    record = ScheschResolutionResult(
+        label="proposed",
+        commit_sha="head-sha",
+        test_execution_failed=True,
+        attempts=[
+            ScheschJavaAttempt(
+                java_home="/java-17",
+                compile_result=ScheschCommandResult(
+                    command=["mvn", "clean", "test-compile"],
+                    returncode=0,
+                    duration_seconds=1.0,
+                ),
+                test_result=failed_test,
+            )
+        ],
+    )
+
+    with patch.object(ScheschResolutionRunner, "run_command") as run_command:
+        run_command.side_effect = [
+            ScheschCommandResult(command=["mvn", "clean", "test"], returncode=1, duration_seconds=1.0),
+            ScheschCommandResult(command=["mvn", "clean", "test"], returncode=0, duration_seconds=1.0),
+        ]
+        result = ScheschResolutionRunner(timeout_seconds=900).rerun_failed_tests_in_current_state(
+            repo_path,
+            record,
+            retries=2,
+        )
+
+    assert result.passed
+    assert not result.test_execution_failed
+    assert result.successful_java_home == "/java-17"
+    assert len(run_command.call_args_list) == 2
+    assert all(call.args[1] == ["mvn", "clean", "test"] for call in run_command.call_args_list)
+    assert len(result.attempts) == 1
+    assert [test.returncode for test in result.attempts[0].test_results] == [1, 1, 0]
+
+
+def test_schesch_runner_records_pass_when_a_test_retry_succeeds(monkeypatch, tmp_path):
+    repo_path = tmp_path / "repo"
+    repo_path.mkdir()
+    (repo_path / "pom.xml").write_text("<project />")
+    java_home = tmp_path / "java"
+    (java_home / "bin").mkdir(parents=True)
+
+    with (
+        patch("common.schesch.capture_git", side_effect=successful_git),
+        patch("common.schesch.read_head_commit", return_value=("head-sha", None)),
+        patch("common.schesch.subprocess.run") as run,
+    ):
+        run.side_effect = [
+            CompletedProcess(args=[], returncode=0, stdout="compiled", stderr=""),
+            CompletedProcess(args=[], returncode=1, stdout="tests failed", stderr=""),
+            CompletedProcess(args=[], returncode=0, stdout="tests passed", stderr=""),
+        ]
+        record = ScheschResolutionRunner(timeout_seconds=900).run_tests_for_ref(
+            repo_path,
+            "HEAD",
+            "proposed",
+            "head-sha",
+            java_homes=[str(java_home)],
+            test_execution_retries=2,
+        )
+
+    assert record.passed
+    assert not record.test_execution_failed
+    assert record.successful_java_home == str(java_home)
+    assert [result.returncode for result in record.attempts[0].test_results] == [1, 0]
+    assert [call.args[0] for call in run.call_args_list] == [
+        ["mvn", "clean", "test-compile"],
+        ["mvn", "clean", "test"],
+        ["mvn", "clean", "test"],
     ]
 
 
@@ -366,7 +450,10 @@ def test_schesch_original_analysis_runs_proposed_resolution_only(monkeypatch):
     assert [call.args for call in run_tests.call_args_list] == [
         (Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"), "HEAD", "proposed", "proposed-sha"),
     ]
-    assert run_tests.call_args.kwargs == {"java_homes": ["/java-17"]}
+    assert run_tests.call_args.kwargs == {
+        "java_homes": ["/java-17"],
+        "test_execution_retries": 2,
+    }
     expected_java_home.assert_called_once_with(evaluation_input(), redis)
     reset_playground.assert_called_once_with(
         Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"),
@@ -465,6 +552,7 @@ def test_schesch_generated_analysis_applies_generated_tests_and_runs_filtered_se
         commit_sha="patched-sha",
         java_homes=["/java-17"],
         test_command=["mvn", "clean", "test", "-Dtest=OneTest,TwoTest"],
+        test_execution_retries=2,
     )
     reset_playground.assert_called_once_with(
         Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"),
@@ -494,3 +582,69 @@ def test_schesch_generated_analysis_applies_generated_tests_and_runs_filtered_se
         "maven",
         ["mvn", "clean", "test", "-Dtest=OneTest,TwoTest"],
     )
+
+
+def test_schesch_generated_analysis_retries_existing_test_failure_without_recompiling(monkeypatch):
+    monkeypatch.setenv("PLAYGROUNDS", "/playgrounds")
+    analysis = ScheschGeneratedEvaluationAnalysis(timeout_seconds=900)
+    failed_test = ScheschCommandResult(
+        command=["mvn", "clean", "test", "-Dtest=OneTest"],
+        returncode=1,
+        duration_seconds=1.0,
+    )
+    existing = MergeScheschEvaluation(
+        resolution_key=evaluation_input().resolution_key,
+        proposed_commit_sha="proposed-sha",
+        actual_resolution_sha="actualsha",
+        timeout_seconds=900,
+        proposed=ScheschResolutionResult(
+            label="proposed",
+            commit_sha="patched-sha",
+            test_execution_failed=True,
+            attempts=[
+                ScheschJavaAttempt(
+                    java_home="/java-17",
+                    compile_result=ScheschCommandResult(
+                        command=["mvn", "clean", "test-compile"],
+                        returncode=0,
+                        duration_seconds=1.0,
+                    ),
+                    test_result=failed_test,
+                )
+            ],
+        ),
+    )
+    generated_patch = (
+        "diff --git a/src/test/java/pkg/OneTest.java b/src/test/java/pkg/OneTest.java\n"
+        "+++ b/src/test/java/pkg/OneTest.java\n"
+    )
+
+    with (
+        patch("evaluation.analysis.schesch_generated_analysis.setup_redis_connection", return_value=object()),
+        patch(
+            "evaluation.analysis.schesch_generated_analysis.load_generated_tests",
+            return_value=type("Record", (), {"patch": None, "patch_base64": encode_patch_base64(generated_patch.encode())})(),
+        ),
+        patch("evaluation.analysis.schesch_generated_analysis.reset_playground", return_value=None) as reset_playground,
+        patch(
+            "evaluation.analysis.schesch_generated_analysis.apply_patch_to_current_head",
+            return_value="patched-sha",
+        ) as apply_patch,
+        patch.object(ScheschResolutionRunner, "run_command") as run_command,
+    ):
+        run_command.side_effect = [
+            ScheschCommandResult(command=failed_test.command, returncode=1, duration_seconds=1.0),
+            ScheschCommandResult(command=failed_test.command, returncode=0, duration_seconds=1.0),
+        ]
+        updated = analysis.update_existing(evaluation_input(), existing)
+
+    assert updated is not None
+    assert updated.test_execution_retries == 2
+    assert updated.proposed is not None and updated.proposed.passed
+    assert updated.proposed.test_execution_failed is False
+    assert [call.args[1] for call in run_command.call_args_list] == [failed_test.command, failed_test.command]
+    apply_patch.assert_called_once_with(
+        Path("/playgrounds/owner/repo.git-20260602T120000.000000Z-actualsha"),
+        generated_patch.encode(),
+    )
+    assert reset_playground.call_count == 2
