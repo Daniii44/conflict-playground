@@ -1079,7 +1079,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "SELECT now(), attempt.compile_result.output_tail FROM \"default\".\"redis_json\"\narray join content.proposed.attempts::Array(JSON) as attempt\nwhere key like 'evaluation:merge:schesch:${repo_name}-${merge}:${timestamp}%'"
+                        "rawSql": "SELECT now(), attempt.compile_result.output_tail FROM \"default\".\"redis_json\"\narray join content.proposed.attempts::Array(JSON) as attempt\nwhere key like 'evaluation:merge:schesch-generated:${repo_name}-${merge}:${timestamp}%'"
                       },
                       "version": "v0"
                     },
@@ -1329,12 +1329,82 @@
               "options": {
                 "cellHeight": "sm",
                 "showHeader": true,
-                "sortBy": [
-                  {
-                    "desc": false,
-                    "displayName": "repo"
+                "sortBy": []
+              }
+            },
+            "version": "13.0.2"
+          }
+        }
+      },
+      "panel-23": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "clickhouse"
+                      },
+                      "group": "grafana-clickhouse-datasource",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorType": "sql",
+                        "format": 1,
+                        "meta": {
+                          "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                          }
+                        },
+                        "pluginVersion": "4.17.0",
+                        "queryType": "table",
+                        "rawSql": "SELECT now(), attempt.test_result.output_tail FROM \"default\".\"redis_json\"\narray join content.proposed.attempts::Array(JSON) as attempt\nwhere key like 'evaluation:merge:schesch-generated:${repo_name}-${merge}:${timestamp}%'"
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
                   }
-                ]
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 23,
+          "links": [],
+          "title": "New panel",
+          "vizConfig": {
+            "group": "logs",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+              },
+              "options": {
+                "dedupStrategy": "none",
+                "enableInfiniteScrolling": false,
+                "enableLogDetails": true,
+                "prettifyLogMessage": true,
+                "showControls": false,
+                "showFieldSelector": false,
+                "showLevel": false,
+                "showTime": false,
+                "sortOrder": "Descending",
+                "timestampResolution": "ms",
+                "unwrappedColumns": false,
+                "wrapLogMessage": true
               }
             },
             "version": "13.0.2"
@@ -2211,6 +2281,19 @@
                                   "x": 0,
                                   "y": 0
                                 }
+                              },
+                              {
+                                "kind": "GridLayoutItem",
+                                "spec": {
+                                  "element": {
+                                    "kind": "ElementReference",
+                                    "name": "panel-23"
+                                  },
+                                  "height": 12,
+                                  "width": 24,
+                                  "x": 0,
+                                  "y": 12
+                                }
                               }
                             ]
                           }
@@ -2384,8 +2467,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "gohugoio/hugo.git",
-            "value": "gohugoio/hugo.git"
+            "text": "tpietzsch/spimviewer.git",
+            "value": "tpietzsch/spimviewer.git"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -2403,8 +2486,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "a3ea9cd18fc79fbae9f1ce0fc5242268d122e5f7",
-            "value": "a3ea9cd18fc79fbae9f1ce0fc5242268d122e5f7"
+            "text": "6a23498e499ca4705744af0848c6a07407b65c71",
+            "value": "6a23498e499ca4705744af0848c6a07407b65c71"
           },
           "hide": "dontHide",
           "includeAll": false,
@@ -2422,8 +2505,8 @@
         "spec": {
           "allowCustomValue": true,
           "current": {
-            "text": "20260818T011832.465607Z",
-            "value": "20260818T011832.465607Z"
+            "text": "20260822T181001.403616Z",
+            "value": "20260822T181001.403616Z"
           },
           "definition": "  WITH base AS (\n  SELECT\n    key,\n    extractGroups (\n      arrayElement(splitByString('resolution:conflict:', key), 2),\n      '(.+)\\.git-([a-f0-9]{40}):(.*)$'\n    ) AS groups\n  FROM\n    \"default\".\"redis_json\"\n  WHERE\n    startsWith(key, 'resolution')\n    AND content.proposed_resolution.error IS NULL\n)\nSELECT\n  groups[3] AS timestamp\nFROM\n  base\nWHERE\n    concat(groups[1], '.git') = '${repo_name}'  -- \u003c-- Replace with your target repo (e.g., 'framework.git')\n  AND groups[2] = '${merge}'    -- \u003c-- Replace with your target merge commit hash\nORDER BY\n  timestamp DESC;",
           "hide": "dontHide",
