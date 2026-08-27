@@ -1628,7 +1628,7 @@
                         },
                         "pluginVersion": "4.17.0",
                         "queryType": "table",
-                        "rawSql": "select \n    duration_average as duration,\n    case when startsWith(resolution_status, 'PROOF') then 'proof' when startsWith(resolution_status, 'CONTRADICTION') then 'contradiction' else 'undecided' end as resolution_status\nfrom default.redis_json_overview_base\nwhere llm = '$model'\norder by case when resolution_status = 'proof' then 1 when resolution_status = 'undecided' then 2 else 3 end desc"
+                        "rawSql": "select \n    duration_average as duration,\n    case when startsWith(resolution_status, 'PROOF') then 'proof' when startsWith(resolution_status, 'CONTRADICTION') then 'contradiction' else 'undecided' end as resolution_status\nfrom default.redis_json_overview_base b\nwhere llm = '$model' and b.resolution_status != 'CONTRADICTION_AGENT_TIMEOUT'\norder by case when resolution_status = 'proof' then 1 when resolution_status = 'undecided' then 2 else 3 end desc"
                       },
                       "version": "v0"
                     },
@@ -2684,7 +2684,12 @@
               "options": {
                 "cellHeight": "sm",
                 "showHeader": true,
-                "sortBy": []
+                "sortBy": [
+                  {
+                    "desc": true,
+                    "displayName": "contradiction_schesch_generated_test_failed"
+                  }
+                ]
               }
             },
             "version": "13.0.2"
