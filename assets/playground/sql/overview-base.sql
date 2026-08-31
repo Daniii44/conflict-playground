@@ -416,8 +416,8 @@ SELECT
         WHEN coalesce(mdc.contradiction_noncanonical_fallback, 0) = 1
             THEN 'CONTRADICTION_MODIFY_DELETE_NONCANONICAL_FALLBACK'
         WHEN coalesce(m.proof_exact_match, 0) = 1 THEN 'PROOF_EXACT_MATCH'
-        WHEN coalesce(se.proof_exact_match_semantic, 0) = 1 THEN 'PROOF_EXACT_MATCH_SEMANTIC'
         WHEN coalesce(d.proof_exact_match_normalized, 0) = 1 THEN 'PROOF_EXACT_MATCH_NORMALIZED'
+        WHEN coalesce(se.proof_exact_match_semantic, 0) = 1 THEN 'PROOF_EXACT_MATCH_SEMANTIC'
         ELSE 'UNCLASSIFIED_DIVERGENCE'
     END AS resolution_status,
     b.duration_average AS duration_average,
